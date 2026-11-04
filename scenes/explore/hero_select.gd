@@ -76,6 +76,20 @@ func _ready() -> void:
 	quick.size = Vector2(210, 36)
 	quick.pressed.connect(_quick_battle)
 	add_child(quick)
+	var hd := Button.new()
+	hd.text = "✦ Prototype artistique HD"
+	hd.position = Vector2(780, 616)
+	hd.size = Vector2(260, 36)
+	hd.add_theme_color_override("font_color", Color("#9ff0ff"))
+	hd.pressed.connect(_art_proto)
+	add_child(hd)
+	var atelier := Button.new()
+	atelier.text = "✦ Atelier d'animation"
+	atelier.position = Vector2(780, 660)
+	atelier.size = Vector2(260, 36)
+	atelier.add_theme_color_override("font_color", Color("#9ff0ff"))
+	atelier.pressed.connect(_atelier)
+	add_child(atelier)
 	var dbg := Button.new()
 	dbg.text = "Écran de débogage (Lot A)"
 	dbg.position = Vector2(250, 660)
@@ -152,12 +166,26 @@ func _select(g: String) -> void:
 		_name_edit.text = "Aren" if g == "m" else "Ilya"
 
 
+func _atelier() -> void:
+	GameState.new_game(_gender, _name_edit.text)
+	GameState.goto(GameState.SCENE_RIG_VIEWER)
+
+
+func _art_proto() -> void:
+	GameState.new_game(_gender, _name_edit.text)
+	GameState.from_zone = false
+	GameState.art_proto = true
+	GameState.goto(GameState.SCENE_BATTLE)
+
+
 func _start() -> void:
 	GameState.new_game(_gender, _name_edit.text)
+	GameState.art_proto = false
 	GameState.goto(GameState.SCENE_ZONE)
 
 
 func _quick_battle() -> void:
 	GameState.new_game(_gender, _name_edit.text)
+	GameState.art_proto = false
 	GameState.from_zone = false
 	GameState.goto(GameState.SCENE_BATTLE)

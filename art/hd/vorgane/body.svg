@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 540" width="760" height="540">
+<!-- Vorgane HD — calque « body » : tronc, pattes lointaines, patte arrière proche, runes. Canevas commun 760x540, tourné vers la gauche. -->
+<defs>
+<linearGradient id="fur" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a4789"/><stop offset="0.45" stop-color="#33284e"/><stop offset="1" stop-color="#170f28"/></linearGradient>
+<linearGradient id="furd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#211936"/><stop offset="1" stop-color="#0f0a1c"/></linearGradient>
+<linearGradient id="cry" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8ccff"/><stop offset="0.5" stop-color="#8a72ea"/><stop offset="1" stop-color="#3f2c98"/></linearGradient>
+<linearGradient id="cry2" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9f6ff"/><stop offset="0.5" stop-color="#6aa6f0"/><stop offset="1" stop-color="#2c3f9a"/></linearGradient>
+<radialGradient id="glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffffff"/><stop offset="0.35" stop-color="#a6f6ff"/><stop offset="0.8" stop-color="#22b4d8"/><stop offset="1" stop-color="#11607a"/></radialGradient>
+<radialGradient id="halo" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#6ff0ff" stop-opacity="0.6"/><stop offset="1" stop-color="#6ff0ff" stop-opacity="0"/></radialGradient>
+<linearGradient id="flesh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a5354e"/><stop offset="0.6" stop-color="#6e1d36"/><stop offset="1" stop-color="#3e0f22"/></linearGradient>
+</defs>
+<g stroke="#120d1c" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round">
+<path d="M330 318 Q356 400 352 488 L392 488 Q392 410 380 330 Z" fill="url(#furd)"/>
+<path d="M336 482 L398 482 L404 504 L330 504 Z" fill="#170f28"/>
+<path d="M512 300 Q540 400 520 488 L558 490 Q572 400 552 300 Z" fill="url(#furd)"/>
+<path d="M512 484 L568 484 L574 506 L506 506 Z" fill="#170f28"/>
+<path d="M250 300 Q262 210 330 170 Q420 128 520 150 Q600 166 638 222 Q664 270 640 330 L640.0,330.0 626.7,344.6 609.1,335.6 595.8,350.3 578.2,341.3 564.9,355.9 547.3,346.9 534.0,361.5 516.4,352.5 503.1,367.2 485.5,358.2 472.2,372.8 454.5,363.8 441.2,378.4 423.6,369.5 410.3,384.1 392.7,375.1 379.4,389.7 361.8,380.7 348.5,395.4 330.9,386.4 317.6,401.0 300.0,392.0 Q246 384 230 346 Q224 322 250 300 Z" fill="url(#fur)"/>
+<path d="M262 330 Q300 372 380 380 Q480 386 600 350 Q620 340 636 318 Q630 360 600 372 L600.0,372.0 581.8,382.1 562.5,374.2 544.3,384.4 525.0,376.5 506.8,386.6 487.5,378.8 469.3,388.9 450.0,381.0 431.8,391.1 412.5,383.2 394.3,393.4 375.0,385.5 356.8,395.6 337.5,387.8 319.3,397.9 300.0,390.0 Q262 372 262 330 Z" fill="#211936" stroke="none"/>
+<path d="M330 186 Q420 150 520 166 Q590 180 626 226" fill="none" stroke="#5a4789" stroke-width="4" opacity="0.7"/>
+<path d="M560 230 Q640 230 656 300 Q664 360 640 420 Q624 460 612 492 L566 492 Q590 440 586 392 Q578 340 540 310 Z" fill="url(#fur)"/>
+<path d="M590 300 Q630 330 630 380 Q626 420 610 460" fill="none" stroke="#5a4789" stroke-width="3" opacity="0.7"/>
+<path d="M556 486 L630 486 Q646 496 648 512 L548 512 Q548 496 556 486 Z" fill="#170f28"/>
+<path d="M560 512 L554 524 M584 512 L582 526 M610 512 L612 526 M634 512 L640 524" fill="none" stroke="#ece4f4" stroke-width="5"/>
+<path d="M300 250 Q330 262 352 252 M380 300 Q420 316 460 300 M470 230 Q500 244 530 236" fill="none" stroke="#6ff0ff" stroke-width="2.4" opacity="0.85"/>
+<path d="M300 250 Q330 262 352 252 M380 300 Q420 316 460 300 M470 230 Q500 244 530 236" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.9"/>
+</g>
+</svg>

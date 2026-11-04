@@ -1,0 +1,190 @@
+{
+ "_note": "Squelette du Vorgane HD. pivot = articulation (pixels du canevas). anchor = point de ciblage de la partie.",
+ "canvas": [
+  760,
+  540
+ ],
+ "feet": [
+  440,
+  510
+ ],
+ "bones": [
+  {
+   "name": "root",
+   "parent": "",
+   "pivot": [
+    440,
+    320
+   ]
+  },
+  {
+   "name": "tail",
+   "parent": "root",
+   "pivot": [
+    612,
+    236
+   ]
+  },
+  {
+   "name": "head",
+   "parent": "root",
+   "pivot": [
+    318,
+    236
+   ]
+  },
+  {
+   "name": "jaw",
+   "parent": "head",
+   "pivot": [
+    216,
+    306
+   ]
+  },
+  {
+   "name": "arm",
+   "parent": "root",
+   "pivot": [
+    326,
+    262
+   ]
+  },
+  {
+   "name": "paw",
+   "parent": "arm",
+   "pivot": [
+    258,
+    444
+   ]
+  }
+ ],
+ "layers": [
+  {
+   "file": "tail",
+   "bone": "tail"
+  },
+  {
+   "file": "body",
+   "bone": "root"
+  },
+  {
+   "file": "wound",
+   "bone": "root",
+   "hidden": true,
+   "role": "wound"
+  },
+  {
+   "file": "jaw",
+   "bone": "jaw"
+  },
+  {
+   "file": "head",
+   "bone": "head"
+  },
+  {
+   "file": "arm",
+   "bone": "arm"
+  },
+  {
+   "file": "claw",
+   "bone": "paw",
+   "part": "griffe",
+   "broken": "claw_broken"
+  },
+  {
+   "file": "gland",
+   "bone": "root",
+   "part": "glande",
+   "broken": "gland_broken"
+  },
+  {
+   "file": "plate_0",
+   "bone": "root",
+   "part": "carapace",
+   "shard": true,
+   "center": [
+    318.0,
+    187.0
+   ]
+  },
+  {
+   "file": "plate_1",
+   "bone": "root",
+   "part": "carapace",
+   "shard": true,
+   "center": [
+    364.5,
+    153.0
+   ]
+  },
+  {
+   "file": "plate_2",
+   "bone": "root",
+   "part": "carapace",
+   "shard": true,
+   "center": [
+    417.5,
+    143.5
+   ]
+  },
+  {
+   "file": "plate_3",
+   "bone": "root",
+   "part": "carapace",
+   "shard": true,
+   "center": [
+    467.0,
+    133.0
+   ]
+  },
+  {
+   "file": "plate_4",
+   "bone": "root",
+   "part": "carapace",
+   "shard": true,
+   "center": [
+    514.5,
+    153.5
+   ]
+  },
+  {
+   "file": "plate_5",
+   "bone": "root",
+   "part": "carapace",
+   "shard": true,
+   "center": [
+    553.5,
+    178.0
+   ]
+  },
+  {
+   "file": "plate_6",
+   "bone": "root",
+   "part": "carapace",
+   "shard": true,
+   "center": [
+    585.5,
+    204.5
+   ]
+  }
+ ],
+ "anchors": {
+  "griffe": [
+   226,
+   478
+  ],
+  "carapace": [
+   450,
+   150
+  ],
+  "glande": [
+   332,
+   262
+  ]
+ },
+ "mouth": [
+  70,
+  300
+ ],
+ "art_dir": "res://art/hd/vorgane"
+}

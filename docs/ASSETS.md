@@ -19,6 +19,9 @@ Aucun son n'est encore intégré.
 | `art/monster/claw*.svg`, `plate*.svg`, `gland*.svg` | 3 parties ciblables, états intact / brisé, même repère que le corps | SVG écrit à la main | Projet | Placeholder |
 | `art/stage/*.svg` | Décor en 5 plans : ciel, lointain, forêt et tour, sol, premier plan | `tools/art/gen_stage.py` | Projet | Placeholder |
 | `art/zone/*.svg` | Maison, caisses, lanterne, établi, palissade | `tools/art/gen_zone.py` | Projet | Placeholder |
+| `art/hd/hero/*.svg` | Chasseur HD articulé, 13 calques sur canevas commun | `tools/art/gen_hero_hd.py` | Projet | Placeholder (structure finale) |
+| `art/hd/vorgane/*.svg` | Vorgane HD articulé, 15 calques (dont 7 éclats de carapace, plaie, états brisés) | `tools/art/gen_vorgane_hd.py` | Projet | Placeholder (structure finale) |
+| `art/hd/arena/*.svg` | Arène forestière nocturne en 8 plans + rayons de lune | `tools/art/gen_arena_hd.py` | Projet | Placeholder |
 | Lumières, particules, brume | Textures de dégradé générées dans le moteur (`src/presentation/fx.gd`) | Code | Projet | — |
 
 Rappel : la capture d'Octopath Traveler II fournie par le créateur est une **référence d'ambiance** ;

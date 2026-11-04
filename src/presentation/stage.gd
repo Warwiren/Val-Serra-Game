@@ -17,10 +17,29 @@ const LAYERS := [
 ]
 const FRONT := {"path": "res://art/stage/front.svg", "parallax": -0.35, "blur": 2.6}
 
+## Arène du prototype artistique (forêt nocturne en 8 plans).
+const HD_LAYERS := [
+	{"name": "sky",        "path": "res://art/hd/arena/sky.svg",        "parallax": 0.97, "blur": 0.0, "fog": 0.0},
+	{"name": "ridge",      "path": "res://art/hd/arena/ridge.svg",      "parallax": 0.9,  "blur": 2.4, "fog": 0.30},
+	{"name": "forest_far", "path": "res://art/hd/arena/forest_far.svg", "parallax": 0.78, "blur": 1.8, "fog": 0.22},
+	{"name": "forest_mid", "path": "res://art/hd/arena/forest_mid.svg", "parallax": 0.55, "blur": 0.9, "fog": 0.08},
+	{"name": "trees_near", "path": "res://art/hd/arena/trees_near.svg", "parallax": 0.25, "blur": 0.0, "fog": 0.0},
+	{"name": "ground",     "path": "res://art/hd/arena/ground.svg",     "parallax": 0.0,  "blur": 0.0, "fog": 0.0},
+]
+const HD_FRONT := {"path": "res://art/hd/arena/front.svg", "parallax": -0.4, "blur": 2.8}
+const HD_RAYS := "res://art/hd/arena/rays.svg"
+
 var mode: String = "B"
 var center := Vector2(640, 360)
 var extra_props: Array = []          # [{path, pos, scale, glow?}] posés sur le sol (zone d'exploration)
 var light_points: Array = []         # [{pos, color, energy, size}] sources lumineuses en mode B
+var layer_defs: Array = LAYERS
+var front_def: Dictionary = FRONT
+var rays_path: String = ""
+var ambient := Color(0.70, 0.72, 0.86)
+var mist_color := Color(0.75, 0.82, 0.95, 0.10)
+var fog_color := Color(0.72, 0.78, 0.9)
+var _rays: Sprite2D
 
 var _layers: Dictionary = {}
 var _front: Sprite2D
@@ -33,7 +52,7 @@ var _time := 0.0
 
 ## `front_parent` reçoit le calque de premier plan (doit être dessiné au-dessus des personnages).
 func build(front_parent: Node) -> void:
-	for def in LAYERS:
+	for def in layer_defs:
 		var s := Sprite2D.new()
 		s.texture = load(def["path"])
 		s.position = center
@@ -53,13 +72,13 @@ func build(front_parent: Node) -> void:
 	_front_holder.z_index = 60
 	front_parent.add_child(_front_holder)
 	_front = Sprite2D.new()
-	_front.texture = load(FRONT["path"])
+	_front.texture = load(front_def["path"])
 	_front.position = center
 	_front_holder.add_child(_front)
 
 	# Éléments propres au mode B
 	_modulate = CanvasModulate.new()
-	_modulate.color = Color(0.70, 0.72, 0.86)
+	_modulate.color = ambient
 	add_child(_modulate)
 	_b_nodes.append(_modulate)
 	for lp in light_points:
@@ -72,6 +91,17 @@ func build(front_parent: Node) -> void:
 		light.blend_mode = Light2D.BLEND_MODE_ADD
 		add_child(light)
 		_b_nodes.append(light)
+	if rays_path != "":
+		_rays = Sprite2D.new()
+		_rays.texture = load(rays_path)
+		_rays.position = center
+		_rays.z_index = -60
+		var rm := CanvasItemMaterial.new()
+		rm.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+		rm.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
+		_rays.material = rm
+		add_child(_rays)
+		_b_nodes.append(_rays)
 	_add_mist()
 	_add_particles()
 	set_mode(mode)
@@ -79,7 +109,7 @@ func build(front_parent: Node) -> void:
 
 func _add_mist() -> void:
 	for i in range(5):
-		var m := Fx.glow_sprite(Color(0.75, 0.82, 0.95, 0.10), 520.0)
+		var m := Fx.glow_sprite(mist_color, 520.0)
 		m.scale = Vector2(5.0, 0.9) * (0.6 + i * 0.1)
 		m.position = Vector2(150 + i * 260, 470 + (i % 2) * 18)
 		m.z_index = -96
@@ -136,7 +166,7 @@ func set_mode(new_mode: String) -> void:
 			mat.shader = DEPTH_SHADER
 			mat.set_shader_parameter("radius", float(def["blur"]))
 			mat.set_shader_parameter("fog", float(def["fog"]))
-			mat.set_shader_parameter("fog_color", Color(0.72, 0.78, 0.9))
+			mat.set_shader_parameter("fog_color", fog_color)
 			s.material = mat
 		else:
 			s.material = null
@@ -144,7 +174,7 @@ func set_mode(new_mode: String) -> void:
 	if b:
 		var fm := ShaderMaterial.new()
 		fm.shader = DEPTH_SHADER
-		fm.set_shader_parameter("radius", float(FRONT["blur"]))
+		fm.set_shader_parameter("radius", float(front_def["blur"]))
 		fm.set_shader_parameter("fog", 0.0)
 		fm.set_shader_parameter("tint", Color(0.55, 0.6, 0.65, 1.0))
 		_front.material = fm
@@ -162,7 +192,10 @@ func update_parallax(cam_offset: Vector2, delta: float) -> void:
 	for key in _layers:
 		var entry: Dictionary = _layers[key]
 		entry["sprite"].position = center + cam_offset * float(entry["def"]["parallax"])
-	_front.position = center + cam_offset * float(FRONT["parallax"])
+	_front.position = center + cam_offset * float(front_def["parallax"])
+	if _rays != null:
+		_rays.modulate.a = 0.75 + 0.25 * sin(_time * 0.6)
+		_rays.position = center + cam_offset * 0.9
 	for n in _b_nodes:
 		if n is Sprite2D and n.has_meta("drift"):
 			n.position.x += sin(_time * 0.2 + n.position.y) * float(n.get_meta("drift")) * delta

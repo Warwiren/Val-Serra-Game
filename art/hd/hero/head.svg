@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420" width="400" height="420">
+  <!-- Chasseur HD — calque « head » : tête et cheveux, pivot au cou. Canevas commun 400x420. -->
+  <defs>
+    <radialGradient id="aeth" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffffff"/><stop offset="0.45" stop-color="#6ff0ff"/><stop offset="1" stop-color="#1b8fb0"/></radialGradient>
+    <linearGradient id="blade" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="0.5" stop-color="#b3bfca"/><stop offset="1" stop-color="#6c7a88"/></linearGradient>
+  </defs>
+<g transform="translate(204 142) scale(0.86) translate(-204 -142)"><path d="M196 126 L214 126 L214 146 L196 146 Z" fill="#d39a78" stroke="#15111a" stroke-width="2.6"/>
+<path d="M180 90 Q178 56 208 52 Q238 52 242 84 Q246 98 242 108 Q236 128 216 134 Q194 136 186 122 Q178 108 180 90 Z" fill="#f2c9a8" stroke="#15111a" stroke-width="2.6" stroke-linejoin="round"/>
+<path d="M182 92 Q182 116 194 128 Q186 112 190 92 Z" fill="#d39a78"/>
+<path d="M240 96 L250 104 L240 108 Z" fill="#f2c9a8" stroke="#15111a" stroke-width="2" stroke-linejoin="round"/>
+<ellipse cx="192" cy="98" rx="7" ry="10" fill="#d39a78" stroke="#15111a" stroke-width="2"/>
+<path d="M220 88 Q228 84 238 87" fill="none" stroke="#3b2a22" stroke-width="3.5" stroke-linecap="round"/>
+<path d="M224 94 Q231 91 238 95 L237 104 Q230 106 225 103 Z" fill="#ffffff" stroke="#15111a" stroke-width="1.8"/>
+<ellipse cx="232" cy="99" rx="4" ry="5" fill="#2f6fb5"/>
+<ellipse cx="232.5" cy="99.5" rx="2" ry="3" fill="#0c1a2c"/>
+<circle cx="233.8" cy="97.5" r="1.2" fill="#ffffff"/>
+<path d="M226 120 Q233 122 238 118" fill="none" stroke="#15111a" stroke-width="2" stroke-linecap="round"/>
+<path d="M206 118 Q214 124 222 122" fill="none" stroke="#d39a78" stroke-width="2"/>
+<path d="M172 96 Q164 54 196 40 Q226 28 248 48 Q258 60 254 76 Q246 64 236 64 L242 78 Q228 66 218 68 L222 80 Q210 70 200 74 Q194 86 196 98 L188 104 Q180 98 172 96 Z" fill="#3b2a22" stroke="#15111a" stroke-width="2.6" stroke-linejoin="round"/>
+<path d="M176 90 Q170 64 188 50 Q178 72 184 92 Z" fill="#24170f"/>
+<path d="M200 48 Q222 40 240 50" fill="none" stroke="#7a5338" stroke-width="3" stroke-linecap="round"/>
+<path d="M210 56 Q226 52 236 58" fill="none" stroke="#7a5338" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+<path d="M172 96 L162 104 L176 104 Z M178 86 L166 84 L176 94 Z" fill="#3b2a22" stroke="#15111a" stroke-width="2" stroke-linejoin="round"/></g>
+</svg>

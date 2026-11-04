@@ -15,7 +15,7 @@ Référence : documents 07 (Brief MVP) et 08 (Mission Claude) du dossier Drive d
 | Combat présentable : 3 Chasseurs, monstre à 3 parties brisables, chronologie en portraits, cartes VIF/MESURÉ/CHARGÉ, effets | `scenes/battle/battle_scene.tscn` |
 | Deux rendus du même jeu : **A** (2D illustrée) et **B** (2.5D : parallax, profondeur, lumière, particules), touche **F2** | `src/presentation/stage.gd` |
 | Moteur de combat déterministe (Lot A, inchangé dans ses règles) | `src/combat/core/` |
-| 32 tests automatisés | `tests/unit/` |
+| 34 tests automatisés | `tests/unit/` |
 
 Compte rendu, limites et recommandations : **`docs/LOT_B.md`**. Plan général : `docs/PLAN_MVP.md`.
 
@@ -35,7 +35,7 @@ Compte rendu, limites et recommandations : **`docs/LOT_B.md`**. Plan général :
 ## 2. Vérifier les tests (30 secondes)
 
 Panneau **Système de fichiers** → dossier `tests` → double-clic sur **`test_runner.tscn`** → **F6**.
-Attendu : **32 lignes « OK »** et « TOUT EST VERT ».
+Attendu : **34 lignes « OK »** et « TOUT EST VERT ».
 
 ## 3. Jouer la démo (le vrai test)
 
@@ -66,6 +66,16 @@ puis **Commencer**. (« Combat direct » saute l'exploration.)
 
 **d. Retour** — après la victoire (ou la défaite), revenez à l'avant-poste : les récompenses apparaissent
 en haut à gauche, le Vorgane a disparu, et Maëlle a de nouvelles répliques.
+
+### Prototype artistique HD (nouveau)
+
+Sur l'écran d'accueil :
+- **✦ Prototype artistique HD** : le même combat, avec le héros et le Vorgane articulés (Skeleton2D),
+  l'arène forestière nocturne, la carapace qui éclate, la capacité d'Aether améliorée.
+- **✦ Atelier d'animation** : boutons pour déclencher chaque animation du héros et du monstre, briser les
+  parties une à une, lancer la capacité d'Aether, afficher le squelette. « Réinitialiser » remet le monstre intact.
+
+Détails, évaluation et fiche pour l'illustrateur : `docs/PROTO_ARTISTIQUE.md` et `docs/FICHE_DECOUPE.md`.
 
 ### Scénario conseillé (15 minutes)
 
@@ -98,7 +108,7 @@ godot --path . -- --start=battle --render=A
 ```
 
 La première lance les tests ; la seconde ouvre directement le combat en rendu A. Options disponibles après
-`--` : `--start=battle`, `--start=zone`, `--render=A`, `--render=B`, `--hero=f`, `--autoplay` (démo automatique).
+`--` : `--start=battle`, `--start=zone`, `--start=artproto`, `--start=rigviewer`, `--render=A`, `--render=B`, `--hero=f`, `--autoplay` (démo automatique).
 
 ## Arborescence
 

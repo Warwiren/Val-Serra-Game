@@ -12,6 +12,16 @@ const Stage = preload("res://src/presentation/stage.gd")
 const HunterView = preload("res://src/presentation/hunter_view.gd")
 const MonsterView = preload("res://src/presentation/monster_view.gd")
 const BattleHud = preload("res://src/presentation/battle_hud.gd")
+const RigHunterView = preload("res://src/presentation/rig_hunter_view.gd")
+const RigMonsterView = preload("res://src/presentation/rig_monster_view.gd")
+
+## Prototype artistique : positions légèrement différentes (personnages plus grands).
+const HUNTER_POS_HD := {
+	"compagnon_vif": Vector2(240, 500),
+	"heros": Vector2(420, 552),
+	"compagnon_lourd": Vector2(585, 506),
+}
+const MONSTER_POS_HD := Vector2(1010, 534)
 
 const HUNTER_POS := {
 	"compagnon_vif": Vector2(250, 494),
@@ -73,13 +83,16 @@ func _ready() -> void:
 
 func _build_world() -> void:
 	stage = Stage.new()
-	stage.light_points = [
+	if GameState.art_proto:
+		_configure_hd_stage()
+	else:
+		stage.light_points = [
 		{"pos": Vector2(136, 312), "color": Color(1.0, 0.72, 0.4), "energy": 1.3, "size": 2.4},
 		{"pos": Vector2(400, 380), "color": Color(1.0, 0.86, 0.66), "energy": 0.55, "size": 4.5},
 		{"pos": Vector2(800, 380), "color": Color(0.4, 0.9, 1.0), "energy": 0.75, "size": 3.6},
 		{"pos": Vector2(520, 470), "color": Color(0.5, 0.95, 1.0), "energy": 0.6, "size": 1.4},
 		{"pos": Vector2(1180, 480), "color": Color(0.5, 0.95, 1.0), "energy": 0.6, "size": 1.6},
-	]
+		]
 	add_child(stage)
 
 	actors = Node2D.new()
@@ -94,16 +107,24 @@ func _build_world() -> void:
 	fx = Node2D.new()
 	overlay.add_child(fx)
 
-	monster_view = MonsterView.new()
+	var hpos: Dictionary = HUNTER_POS_HD if GameState.art_proto else HUNTER_POS
+	var mpos: Vector2 = MONSTER_POS_HD if GameState.art_proto else MONSTER_POS
+	monster_view = RigMonsterView.new() if GameState.art_proto else MonsterView.new()
 	actors.add_child(monster_view)
-	monster_view.setup(MONSTER_POS, 0.88, fx)
+	monster_view.setup(mpos, 0.76 if GameState.art_proto else 0.88, fx)
 	for c in battle.hunters():
-		var hv := HunterView.new()
-		actors.add_child(hv)
-		hv.setup(c.id, Art.hunter(c.id, GameState.hero_gender), HUNTER_POS[c.id], 0.78)
-		hv.z_index = int(HUNTER_POS[c.id].y / 10.0)
+		var hv
+		if GameState.art_proto and c.id == "heros":
+			hv = RigHunterView.new()
+			actors.add_child(hv)
+			hv.setup(c.id, Art.hunter(c.id, GameState.hero_gender), hpos[c.id], 0.74)
+		else:
+			hv = HunterView.new()
+			actors.add_child(hv)
+			hv.setup(c.id, Art.hunter(c.id, GameState.hero_gender), hpos[c.id], 0.78)
+		hv.z_index = int(hpos[c.id].y / 10.0)
 		hunters[c.id] = hv
-	monster_view.z_index = int(MONSTER_POS.y / 10.0) - 2
+	monster_view.z_index = int(mpos.y / 10.0) - 2
 
 	cam = Camera2D.new()
 	cam.position = Vector2(640, 360)
@@ -116,6 +137,39 @@ func _build_world() -> void:
 		disp_res[c.id] = c.resonance
 		disp_guard[c.id] = false
 	_sync_parts()
+
+
+func _configure_hd_stage() -> void:
+	stage.layer_defs = Stage.HD_LAYERS
+	stage.front_def = Stage.HD_FRONT
+	stage.rays_path = Stage.HD_RAYS
+	stage.ambient = Color(0.62, 0.66, 0.84)
+	stage.mist_color = Color(0.5, 0.64, 0.9, 0.12)
+	stage.fog_color = Color(0.13, 0.19, 0.32)
+	stage.light_points = [
+		{"pos": Vector2(190, 270), "color": Color(1.0, 0.72, 0.38), "energy": 1.2, "size": 2.6},
+		{"pos": Vector2(400, 410), "color": Color(1.0, 0.75, 0.42), "energy": 1.0, "size": 2.0},
+		{"pos": Vector2(1000, 420), "color": Color(1.0, 0.75, 0.42), "energy": 1.0, "size": 2.0},
+		{"pos": Vector2(690, 210), "color": Color(0.7, 0.8, 1.0), "energy": 0.6, "size": 6.0},
+		{"pos": Vector2(170, 560), "color": Color(0.45, 0.95, 1.0), "energy": 0.9, "size": 1.6},
+		{"pos": Vector2(1250, 560), "color": Color(0.45, 0.95, 1.0), "energy": 0.9, "size": 1.6},
+		{"pos": Vector2(860, 400), "color": Color(0.5, 0.85, 1.0), "energy": 0.6, "size": 3.5},
+		{"pos": Vector2(420, 430), "color": Color(0.85, 0.9, 1.0), "energy": 0.35, "size": 4.0},
+	]
+
+
+## Éclair lumineux ponctuel (impact d'Aether, rupture) : réellement éclaire le décor en rendu B.
+func light_flash(pos: Vector2, color: Color, energy := 2.5, size := 4.0, duration := 0.5) -> void:
+	var l := PointLight2D.new()
+	l.texture = Fx.glow_texture(256)
+	l.position = pos
+	l.color = color
+	l.energy = energy
+	l.texture_scale = size
+	add_child(l)
+	var t := create_tween()
+	t.tween_property(l, "energy", 0.0, duration).set_ease(Tween.EASE_IN)
+	t.tween_callback(l.queue_free)
 
 
 func _build_hud() -> void:
@@ -278,9 +332,16 @@ func _play(e: Dictionary) -> void:
 		"serum":
 			var part_pos := monster_view.part_global(d.get("part", "glande"))
 			await hunters[actor_id].cast_serum()
-			await _orb(hunters[actor_id].center(), part_pos)
+			var from: Vector2 = hunters[actor_id].hand_global() if hunters[actor_id].has_method("hand_global") else hunters[actor_id].center()
+			await _orb(from, part_pos)
 			Fx.ring(fx, part_pos, Color(0.5, 0.95, 1.0), 140.0, 0.5, 8.0)
 			Fx.burst(fx, part_pos, Color(0.5, 0.95, 1.0), 30, 320.0, 10.0, 0.6, 0.0)
+			if GameState.art_proto:
+				Fx.ring(fx, part_pos, Color(0.85, 1.0, 1.0), 260.0, 0.7, 4.0)
+				Fx.burst(fx, part_pos, Color(0.7, 0.98, 1.0), 40, 520.0, 7.0, 0.9, -80.0)
+				light_flash(part_pos, Color(0.5, 0.95, 1.0), 3.0, 5.0, 0.6)
+				punch_zoom(part_pos, 0.1, 0.8)
+				shake(8.0)
 		"damage":
 			var target: String = d.get("target", "")
 			var amount: int = int(d.get("amount", 0))
@@ -294,6 +355,10 @@ func _play(e: Dictionary) -> void:
 				monster_view.hurt(part, amount >= 60)
 				var pos := monster_view.part_global(part) if part != "" else monster_view.center()
 				Fx.float_text(fx, pos + Vector2(0, -50), str(amount), Color("#fff2c8"), 36 if amount < 60 else 46)
+				if _last_hit_affinity() > 1.0:
+					Fx.float_text(fx, pos + Vector2(10, -10), "FAIBLESSE !", Color("#ffb347"), 24, 50.0, 1.0)
+				if GameState.art_proto:
+					light_flash(pos, Color(1.0, 0.85, 0.6), 1.6, 3.0, 0.3)
 				shake(3.0 + amount * 0.06)
 			await _wait(0.28)
 		"guard":
@@ -316,6 +381,8 @@ func _play(e: Dictionary) -> void:
 			var part_id: String = d.get("part", "")
 			_sync_parts()
 			monster_view.part_info[part_id]["broken"] = true
+			if GameState.art_proto:
+				light_flash(monster_view.part_global(part_id), Color(1.0, 0.9, 0.7), 3.0, 5.0, 0.7)
 			punch_zoom(monster_view.part_global(part_id), 0.12, 0.7)
 			shake(12.0)
 			await monster_view.break_part(part_id)
@@ -391,6 +458,20 @@ func _last_hit_part() -> String:
 		if (e["type"] == "hit" or e["type"] == "serum") and e["data"].has("part"):
 			return e["data"]["part"]
 	return ""
+
+
+## Multiplicateur de faiblesse du dernier coup porté au monstre (pour la mention « FAIBLESSE ! »).
+func _last_hit_affinity() -> float:
+	for i in range(_journal_pos - 1, -1, -1):
+		var e: Dictionary = battle.journal[i]
+		if (e["type"] == "hit" or e["type"] == "serum") and e["data"].has("part"):
+			var attacker = battle.get_combatant(e["data"].get("actor", ""))
+			if attacker == null or not attacker.is_hunter():
+				return 1.0
+			var dtype: String = "aether" if e["type"] == "serum" else attacker.damage_type
+			var part = battle.get_combatant(monster_id).get_part(e["data"]["part"])
+			return part.affinity(dtype) if part != null else 1.0
+	return 1.0
 
 
 func _log_entry(e: Dictionary) -> void:

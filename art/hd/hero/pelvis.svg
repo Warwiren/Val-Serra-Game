@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420" width="400" height="420">
+  <!-- Chasseur HD — calque « pelvis » : pans de manteau, pivot à la hanche. Canevas commun 400x420. -->
+  <defs>
+    <radialGradient id="aeth" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffffff"/><stop offset="0.45" stop-color="#6ff0ff"/><stop offset="1" stop-color="#1b8fb0"/></radialGradient>
+    <linearGradient id="blade" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="0.5" stop-color="#b3bfca"/><stop offset="1" stop-color="#6c7a88"/></linearGradient>
+  </defs>
+<path d="M170 226 Q160 262 150 304 L186 296 L196 250 Z" fill="#203a63" stroke="#15111a" stroke-width="2.6" stroke-linejoin="round"/>
+<path d="M200 228 L232 228 Q244 262 252 300 Q232 306 214 300 Q210 270 200 250 Z" fill="#33598e" stroke="#15111a" stroke-width="2.6" stroke-linejoin="round"/>
+<path d="M214 236 Q222 268 228 302 L214 300 Q210 270 204 246 Z" fill="#203a63"/>
+<path d="M232 230 Q244 264 252 300" fill="none" stroke="#d9c8a0" stroke-width="3"/>
+<path d="M240 250 Q246 274 250 296" fill="none" stroke="#6694cc" stroke-width="2" opacity="0.8"/>
+</svg>

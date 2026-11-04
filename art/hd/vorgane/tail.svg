@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 540" width="760" height="540">
+<!-- Vorgane HD — calque « tail » : queue, pivot à la base. Canevas commun 760x540, tourné vers la gauche. -->
+<defs>
+<linearGradient id="fur" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a4789"/><stop offset="0.45" stop-color="#33284e"/><stop offset="1" stop-color="#170f28"/></linearGradient>
+<linearGradient id="furd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#211936"/><stop offset="1" stop-color="#0f0a1c"/></linearGradient>
+<linearGradient id="cry" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8ccff"/><stop offset="0.5" stop-color="#8a72ea"/><stop offset="1" stop-color="#3f2c98"/></linearGradient>
+<linearGradient id="cry2" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9f6ff"/><stop offset="0.5" stop-color="#6aa6f0"/><stop offset="1" stop-color="#2c3f9a"/></linearGradient>
+<radialGradient id="glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffffff"/><stop offset="0.35" stop-color="#a6f6ff"/><stop offset="0.8" stop-color="#22b4d8"/><stop offset="1" stop-color="#11607a"/></radialGradient>
+<radialGradient id="halo" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#6ff0ff" stop-opacity="0.6"/><stop offset="1" stop-color="#6ff0ff" stop-opacity="0"/></radialGradient>
+<linearGradient id="flesh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a5354e"/><stop offset="0.6" stop-color="#6e1d36"/><stop offset="1" stop-color="#3e0f22"/></linearGradient>
+</defs>
+<g stroke="#120d1c" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round">
+<path d="M600 220 Q680 190 712 130 Q728 98 716 70 Q744 96 742 140 Q736 200 690 236 Q650 262 612 262 Z" fill="url(#fur)"/>
+<path d="M612 250 Q660 240 700 200 Q724 170 730 130 Q738 170 712 212 Q676 250 620 262 Z" fill="#211936" stroke="none"/>
+<polygon points="704,118 724,64 734,112" fill="url(#cry)"/>
+<polygon points="686,160 716,120 718,166" fill="url(#cry2)"/>
+<polygon points="660,196 690,166 690,206" fill="url(#cry)"/>
+</g>
+</svg>

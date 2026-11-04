@@ -1,0 +1,180 @@
+{
+ "_note": "Squelette du Chasseur HD. pivot = articulation en pixels du canevas. Ordre = ordre d'affichage.",
+ "canvas": [
+  400,
+  420
+ ],
+ "feet": [
+  196,
+  400
+ ],
+ "bones": [
+  {
+   "name": "hip",
+   "parent": "",
+   "pivot": [
+    196,
+    232
+   ]
+  },
+  {
+   "name": "torso",
+   "parent": "hip",
+   "pivot": [
+    196,
+    232
+   ]
+  },
+  {
+   "name": "head",
+   "parent": "torso",
+   "pivot": [
+    204,
+    142
+   ]
+  },
+  {
+   "name": "cape",
+   "parent": "torso",
+   "pivot": [
+    192,
+    150
+   ]
+  },
+  {
+   "name": "arm_b_up",
+   "parent": "torso",
+   "pivot": [
+    184,
+    156
+   ]
+  },
+  {
+   "name": "arm_b_lo",
+   "parent": "arm_b_up",
+   "pivot": [
+    170,
+    202
+   ]
+  },
+  {
+   "name": "arm_f_up",
+   "parent": "torso",
+   "pivot": [
+    224,
+    154
+   ]
+  },
+  {
+   "name": "arm_f_lo",
+   "parent": "arm_f_up",
+   "pivot": [
+    246,
+    200
+   ]
+  },
+  {
+   "name": "weapon",
+   "parent": "arm_f_lo",
+   "pivot": [
+    262,
+    240
+   ]
+  },
+  {
+   "name": "pelvis",
+   "parent": "hip",
+   "pivot": [
+    196,
+    232
+   ]
+  },
+  {
+   "name": "leg_f_up",
+   "parent": "hip",
+   "pivot": [
+    210,
+    240
+   ]
+  },
+  {
+   "name": "leg_f_lo",
+   "parent": "leg_f_up",
+   "pivot": [
+    232,
+    314
+   ]
+  },
+  {
+   "name": "leg_b_up",
+   "parent": "hip",
+   "pivot": [
+    184,
+    240
+   ]
+  },
+  {
+   "name": "leg_b_lo",
+   "parent": "leg_b_up",
+   "pivot": [
+    166,
+    316
+   ]
+  }
+ ],
+ "parts": [
+  {
+   "file": "cape",
+   "bone": "cape"
+  },
+  {
+   "file": "arm_b_up",
+   "bone": "arm_b_up"
+  },
+  {
+   "file": "arm_b_lo",
+   "bone": "arm_b_lo"
+  },
+  {
+   "file": "leg_b_up",
+   "bone": "leg_b_up"
+  },
+  {
+   "file": "leg_b_lo",
+   "bone": "leg_b_lo"
+  },
+  {
+   "file": "leg_f_up",
+   "bone": "leg_f_up"
+  },
+  {
+   "file": "leg_f_lo",
+   "bone": "leg_f_lo"
+  },
+  {
+   "file": "pelvis",
+   "bone": "pelvis"
+  },
+  {
+   "file": "torso",
+   "bone": "torso"
+  },
+  {
+   "file": "head",
+   "bone": "head"
+  },
+  {
+   "file": "sword",
+   "bone": "weapon"
+  },
+  {
+   "file": "arm_f_up",
+   "bone": "arm_f_up"
+  },
+  {
+   "file": "arm_f_lo",
+   "bone": "arm_f_lo"
+  }
+ ],
+ "art_dir": "res://art/hd/hero"
+}

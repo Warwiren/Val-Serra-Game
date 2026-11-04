@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420" width="400" height="420">
+  <!-- Chasseur HD — calque « sword » : épée surdimensionnée, pivot = poing avant. Canevas commun 400x420. -->
+  <defs>
+    <radialGradient id="aeth" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffffff"/><stop offset="0.45" stop-color="#6ff0ff"/><stop offset="1" stop-color="#1b8fb0"/></radialGradient>
+    <linearGradient id="blade" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="0.5" stop-color="#b3bfca"/><stop offset="1" stop-color="#6c7a88"/></linearGradient>
+  </defs>
+<polygon points="265.6,221.9 371.6,136.6 404.9,120.8 423.0,124.4 387.6,157.1 280.4,240.8" fill="url(#blade)" stroke="#15111a" stroke-width="2.6" stroke-linejoin="round"/>
+<polygon points="279.7,223.6 386.2,139.1 396.2,138.9 282.8,227.6" fill="#6c7a88"/>
+<polyline points="283.3,234.8 385.7,154.7 412.3,130.2" fill="none" stroke="#eef4f8" stroke-width="2"/>
+<polyline points="293.5,215.4 380.2,147.7" fill="none" stroke="#6ff0ff" stroke-width="2.4" stroke-linecap="round"/>
+<polygon points="251.4,210.2 288.3,257.5 293.8,248.2 261.8,207.2" fill="#d9a84a" stroke="#15111a" stroke-width="2.2" stroke-linejoin="round"/>
+<polygon points="266.2,229.1 273.6,238.6 248.4,258.3 241.0,248.8" fill="#4a301b" stroke="#15111a" stroke-width="2"/>
+<circle cx="239.9" cy="257.2" r="7" fill="url(#aeth)" stroke="#15111a" stroke-width="2"/>
+<circle cx="273.8" cy="230.8" r="4.5" fill="url(#aeth)" stroke="#15111a" stroke-width="1.5"/>
+</svg>

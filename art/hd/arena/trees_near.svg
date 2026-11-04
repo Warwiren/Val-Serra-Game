@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 760" width="1360" height="760">
+<!-- Arène HD — plan « trees_near » : troncs et feuillages de cadrage, liseré de lune -->
+<defs></defs>
+<path d="M-10 760 Q0 400 -20 0 L100 0 Q80 380 96 760 Z" fill="#0a0f19" stroke="#070a12" stroke-width="3"/>
+<path d="M70 20 Q66 380 86 760" stroke="#2d4266" stroke-width="5" fill="none" opacity="0.8"/>
+<ellipse cx="120" cy="40" rx="120" ry="38" fill="#0b1422" stroke="#070a12" stroke-width="2"/>
+<path d="M70 20 Q140 6 220 30" stroke="#34507c" stroke-width="3" fill="none" opacity="0.7"/>
+<ellipse cx="160" cy="70" rx="110" ry="35" fill="#0b1422" stroke="#070a12" stroke-width="2"/>
+<path d="M110 50 Q180 36 260 60" stroke="#34507c" stroke-width="3" fill="none" opacity="0.7"/>
+<ellipse cx="200" cy="100" rx="100" ry="32" fill="#0b1422" stroke="#070a12" stroke-width="2"/>
+<path d="M150 80 Q220 66 300 90" stroke="#34507c" stroke-width="3" fill="none" opacity="0.7"/>
+<ellipse cx="240" cy="130" rx="90" ry="29" fill="#0b1422" stroke="#070a12" stroke-width="2"/>
+<path d="M190 110 Q260 96 340 120" stroke="#34507c" stroke-width="3" fill="none" opacity="0.7"/>
+<ellipse cx="280" cy="160" rx="80" ry="26" fill="#0b1422" stroke="#070a12" stroke-width="2"/>
+<path d="M230 140 Q300 126 380 150" stroke="#34507c" stroke-width="3" fill="none" opacity="0.7"/>
+<path d="M1370 760 Q1360 400 1380 0 L1260 0 Q1280 380 1264 760 Z" fill="#0a0f19" stroke="#070a12" stroke-width="3"/>
+<path d="M1290 20 Q1294 380 1274 760" stroke="#2d4266" stroke-width="5" fill="none" opacity="0.8"/>
+<ellipse cx="1240" cy="40" rx="120" ry="38" fill="#0b1422" stroke="#070a12" stroke-width="2"/>
+<path d="M1290 20 Q1220 6 1140 30" stroke="#34507c" stroke-width="3" fill="none" opacity="0.7"/>
+<ellipse cx="1200" cy="70" rx="110" ry="35" fill="#0b1422" stroke="#070a12" stroke-width="2"/>
+<path d="M1250 50 Q1180 36 1100 60" stroke="#34507c" stroke-width="3" fill="none" opacity="0.7"/>
+<ellipse cx="1160" cy="100" rx="100" ry="32" fill="#0b1422" stroke="#070a12" stroke-width="2"/>
+<path d="M1210 80 Q1140 66 1060 90" stroke="#34507c" stroke-width="3" fill="none" opacity="0.7"/>
+<ellipse cx="1120" cy="130" rx="90" ry="29" fill="#0b1422" stroke="#070a12" stroke-width="2"/>
+<path d="M1170 110 Q1100 96 1020 120" stroke="#34507c" stroke-width="3" fill="none" opacity="0.7"/>
+<ellipse cx="1080" cy="160" rx="80" ry="26" fill="#0b1422" stroke="#070a12" stroke-width="2"/>
+<path d="M1130 140 Q1060 126 980 150" stroke="#34507c" stroke-width="3" fill="none" opacity="0.7"/>
+
+</svg>
