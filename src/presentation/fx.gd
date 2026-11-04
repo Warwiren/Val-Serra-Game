@@ -111,3 +111,35 @@ static func glow_sprite(color: Color, size := 256.0) -> Sprite2D:
 	mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 	s.material = mat
 	return s
+
+
+## Arc de taille (traînée de lame) : croissant lumineux additif qui s'efface.
+static func slash(parent: Node, pos: Vector2, radius: float, color: Color, duration := 0.32) -> void:
+	var arc := Line2D.new()
+	arc.position = pos
+	arc.z_index = 46
+	arc.width = radius * 0.22
+	var curve := Curve.new()
+	curve.add_point(Vector2(0.0, 0.0))
+	curve.add_point(Vector2(0.55, 1.0))
+	curve.add_point(Vector2(1.0, 0.1))
+	arc.width_curve = curve
+	var grad := Gradient.new()
+	grad.set_color(0, Color(color, 0.0))
+	grad.set_color(1, Color(1, 1, 1, 0.95))
+	arc.gradient = grad
+	arc.begin_cap_mode = Line2D.LINE_CAP_ROUND
+	arc.end_cap_mode = Line2D.LINE_CAP_ROUND
+	for i in range(19):
+		var a := lerpf(-2.4, 0.5, i / 18.0)
+		arc.add_point(Vector2(cos(a), sin(a)) * radius)
+	var mat := CanvasItemMaterial.new()
+	mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	arc.material = mat
+	arc.rotation = -0.5
+	parent.add_child(arc)
+	var t := arc.create_tween()
+	t.tween_property(arc, "rotation", 0.25, duration).set_ease(Tween.EASE_OUT)
+	t.parallel().tween_property(arc, "modulate:a", 0.0, duration).set_ease(Tween.EASE_IN)
+	t.tween_callback(arc.queue_free)
+	burst(parent, pos, color, 20, 360.0, 9.0, 0.45, 300.0)

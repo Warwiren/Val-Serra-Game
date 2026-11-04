@@ -8,6 +8,7 @@ const SCENE_HERO_SELECT := "res://scenes/explore/hero_select.tscn"
 const SCENE_ZONE := "res://scenes/explore/zone.tscn"
 const SCENE_BATTLE := "res://scenes/battle/battle_scene.tscn"
 const SCENE_DEBUG := "res://scenes/debug/combat_debug.tscn"
+const SCENE_RIG_VIEWER := "res://scenes/art/rig_viewer.tscn"
 
 const RENDER_2D := "A"      # Variante A : 2D illustrée simple
 const RENDER_25D := "B"     # Variante B : 2.5D (calques, parallax, lumière, particules)
@@ -29,6 +30,7 @@ var last_battle_result: String = ""
 # Présentation
 var render_mode: String = RENDER_25D
 var autoplay: bool = false             # démonstration automatique (captures vidéo)
+var art_proto: bool = false            # prototype artistique HD (héros et monstre articulés, arène nocturne)
 
 var _fade: ColorRect
 var _fps: Label
@@ -47,6 +49,11 @@ func _ready() -> void:
 			_start_scene.call_deferred(SCENE_BATTLE)
 		elif arg == "--start=zone":
 			_start_scene.call_deferred(SCENE_ZONE)
+		elif arg == "--start=rigviewer":
+			_start_scene.call_deferred(SCENE_RIG_VIEWER)
+		elif arg == "--start=artproto":
+			art_proto = true
+			_start_scene.call_deferred(SCENE_BATTLE)
 	var layer := CanvasLayer.new()
 	layer.layer = 100
 	add_child(layer)

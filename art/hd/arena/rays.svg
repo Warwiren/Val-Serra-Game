@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 760" width="1360" height="760">
+<!-- Arène HD — plan « rays » : rayons de lune (affichés en mode additif) -->
+<defs><linearGradient id="ray" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe0ff" stop-opacity="0.0"/><stop offset="0.25" stop-color="#cfe0ff" stop-opacity="0.22"/><stop offset="1" stop-color="#cfe0ff" stop-opacity="0.0"/></linearGradient></defs>
+<polygon points="700,265 740,265 660,760 540,760" fill="url(#ray)" opacity="0.55"/>
+<polygon points="708,265 748,265 750,760 670,760" fill="url(#ray)" opacity="0.48"/>
+<polygon points="716,265 756,265 560,760 400,760" fill="url(#ray)" opacity="0.41"/>
+<polygon points="724,265 764,265 840,760 740,760" fill="url(#ray)" opacity="0.34"/>
+<polygon points="732,265 772,265 430,760 330,760" fill="url(#ray)" opacity="0.27"/>
+
+</svg>

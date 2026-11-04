@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 540" width="760" height="540">
+<!-- Vorgane HD — calque « head » : tête, cornes de cristal, œil, crocs supérieurs ; pivot au cou. Canevas commun 760x540, tourné vers la gauche. -->
+<defs>
+<linearGradient id="fur" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a4789"/><stop offset="0.45" stop-color="#33284e"/><stop offset="1" stop-color="#170f28"/></linearGradient>
+<linearGradient id="furd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#211936"/><stop offset="1" stop-color="#0f0a1c"/></linearGradient>
+<linearGradient id="cry" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8ccff"/><stop offset="0.5" stop-color="#8a72ea"/><stop offset="1" stop-color="#3f2c98"/></linearGradient>
+<linearGradient id="cry2" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9f6ff"/><stop offset="0.5" stop-color="#6aa6f0"/><stop offset="1" stop-color="#2c3f9a"/></linearGradient>
+<radialGradient id="glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffffff"/><stop offset="0.35" stop-color="#a6f6ff"/><stop offset="0.8" stop-color="#22b4d8"/><stop offset="1" stop-color="#11607a"/></radialGradient>
+<radialGradient id="halo" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#6ff0ff" stop-opacity="0.6"/><stop offset="1" stop-color="#6ff0ff" stop-opacity="0"/></radialGradient>
+<linearGradient id="flesh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a5354e"/><stop offset="0.6" stop-color="#6e1d36"/><stop offset="1" stop-color="#3e0f22"/></linearGradient>
+</defs>
+<g stroke="#120d1c" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round">
+<path d="M330 200 Q300 230 300 290 Q270 306 236 300 Q190 306 150 300 Q110 300 70 290 Q50 286 46 274 Q56 258 92 248 Q140 230 176 212 Q214 190 256 186 Q300 182 330 200 Z" fill="url(#fur)"/>
+<path d="M300 290 Q268 304 236 300 Q190 306 150 300 Q190 290 236 288 Q270 284 300 270 Z" fill="#211936" stroke="none"/>
+<path d="M92 248 Q140 236 176 220" fill="none" stroke="#5a4789" stroke-width="3.5" opacity="0.8"/>
+<path d="M46 274 Q40 268 50 262 Q60 262 62 270 Z" fill="#0d0a14"/>
+<polyline points="330.0,200.0 339.7,216.5 322.5,225.0 332.2,241.5 315.0,250.0 324.7,266.5 307.5,275.0 317.2,291.5 300.0,300.0" fill="#7a64bf" stroke="#120d1c"/>
+<path d="M232 196 Q248 150 286 128 Q268 176 262 204 Z" fill="#211936"/>
+<polygon points="214,196 236,132 252,196" fill="url(#cry)"/>
+<polygon points="244,190 282,126 284,194" fill="url(#cry2)"/>
+<polygon points="190,206 200,166 214,204" fill="url(#cry)"/>
+<path d="M134 250 Q150 238 170 246 Q154 258 134 250 Z" fill="#dffcff" stroke-width="2"/>
+<circle cx="154" cy="248" r="20" fill="url(#halo)" stroke="none"/>
+<path d="M110 250 Q140 236 184 236" fill="none" stroke="#120d1c" stroke-width="4"/>
+<path d="M60 290 L70 302 L78 290 L88 304 L98 292 L108 306 L118 294 L128 306 L138 296" fill="#ece4f4" stroke-width="2"/>
+<path d="M200 266 Q230 276 260 268" fill="none" stroke="#6ff0ff" stroke-width="2.2" opacity="0.85"/>
+</g>
+</svg>

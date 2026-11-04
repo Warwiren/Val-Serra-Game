@@ -114,7 +114,7 @@ func _draw_markers() -> void:
 		var hov: bool = id == hovered_part
 		var r := 30.0 if not sel else 36.0
 		var broken: bool = info.get("broken", false)
-		markers.draw_circle(p, r, Color(0.04, 0.06, 0.1, 0.55))
+		markers.draw_circle(p, r, Color(0.04, 0.06, 0.1, 0.22))
 		if broken:
 			markers.draw_arc(p, r, 0, TAU, 40, Color(0.6, 0.6, 0.65, 0.9), 4.0, true)
 			markers.draw_line(p + Vector2(-12, -12), p + Vector2(12, 12), Color(1, 0.5, 0.45), 4.0, true)

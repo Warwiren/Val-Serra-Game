@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 540" width="760" height="540">
+<!-- Vorgane HD — calque « plate_2 » : éclat de carapace n°3. Canevas commun 760x540, tourné vers la gauche. -->
+<defs>
+<linearGradient id="fur" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a4789"/><stop offset="0.45" stop-color="#33284e"/><stop offset="1" stop-color="#170f28"/></linearGradient>
+<linearGradient id="furd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#211936"/><stop offset="1" stop-color="#0f0a1c"/></linearGradient>
+<linearGradient id="cry" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8ccff"/><stop offset="0.5" stop-color="#8a72ea"/><stop offset="1" stop-color="#3f2c98"/></linearGradient>
+<linearGradient id="cry2" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9f6ff"/><stop offset="0.5" stop-color="#6aa6f0"/><stop offset="1" stop-color="#2c3f9a"/></linearGradient>
+<radialGradient id="glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffffff"/><stop offset="0.35" stop-color="#a6f6ff"/><stop offset="0.8" stop-color="#22b4d8"/><stop offset="1" stop-color="#11607a"/></radialGradient>
+<radialGradient id="halo" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#6ff0ff" stop-opacity="0.6"/><stop offset="1" stop-color="#6ff0ff" stop-opacity="0"/></radialGradient>
+<linearGradient id="flesh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a5354e"/><stop offset="0.6" stop-color="#6e1d36"/><stop offset="1" stop-color="#3e0f22"/></linearGradient>
+</defs>
+<g stroke="#120d1c" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round">
+<polygon points="380.0,170.0 412.0,96.0 446.0,126.0 432.0,182.0" fill="url(#cry)"/>
+<polygon points="380.0,170.0 412.0,96.0 417.5,143.5" fill="#d8ccff" opacity="0.55" stroke="none"/>
+<polyline points="412.0,96.0 446.0,126.0" fill="none" stroke="#a8f1ff" stroke-width="2.4"/>
+<polyline points="417.5,143.5 412.0,96.0" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.8"/>
+</g>
+</svg>

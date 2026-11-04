@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420" width="400" height="420">
+  <!-- Chasseur HD — calque « arm_f_up » : bras avant (haut) et spallière. Canevas commun 400x420. -->
+  <defs>
+    <radialGradient id="aeth" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffffff"/><stop offset="0.45" stop-color="#6ff0ff"/><stop offset="1" stop-color="#1b8fb0"/></radialGradient>
+    <linearGradient id="blade" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="0.5" stop-color="#b3bfca"/><stop offset="1" stop-color="#6c7a88"/></linearGradient>
+  </defs>
+<polygon points="236.1,204.7 238.0,207.6 240.8,209.7 244.0,210.8 247.4,210.9 250.7,209.9 253.6,208.0 255.7,205.2 256.8,202.0 256.9,198.6 255.9,195.3 236.6,148.0 234.1,144.4 230.7,141.7 226.5,140.2 222.2,140.1 218.0,141.4 214.4,143.9 211.7,147.3 210.2,151.5 210.1,155.8 211.4,160.0" fill="#33598e" stroke="#15111a" stroke-width="2.6" stroke-linejoin="round"/>
+<polygon points="236.6,204.6 237.7,206.2 239.3,207.3 241.1,207.9 243.0,207.9 244.8,207.3 246.3,206.2 247.4,204.7 248.0,202.9 248.0,201.0 247.4,199.2 225.8,152.9 224.4,151.0 222.5,149.6 220.2,148.8 217.8,148.8 215.5,149.5 213.5,151.0 212.1,152.9 211.3,155.2 211.3,157.6 212.1,159.9" fill="#203a63"/>
+<polygon points="250.5,197.8 250.8,198.2 251.2,198.5 251.6,198.7 252.1,198.7 252.6,198.6 253.0,198.3 253.3,197.9 253.5,197.5 253.5,197.0 253.4,196.5 233.4,149.6 233.0,149.1 232.6,148.7 232.0,148.5 231.4,148.4 230.8,148.6 230.3,148.9 229.9,149.4 229.7,150.0 229.6,150.6 229.8,151.2" fill="#6694cc" opacity="0.75"/>
+<path d="M208 146 Q228 132 246 146 Q250 164 236 172 Q220 172 210 162 Z" fill="#714b2c" stroke="#15111a" stroke-width="2.6" stroke-linejoin="round"/>
+<path d="M214 150 Q228 142 240 150" fill="none" stroke="#d9a84a" stroke-width="2"/>
+</svg>

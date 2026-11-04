@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420" width="400" height="420">
+  <!-- Chasseur HD — calque « arm_b_up » : bras arrière (haut). Canevas commun 400x420. -->
+  <defs>
+    <radialGradient id="aeth" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffffff"/><stop offset="0.45" stop-color="#6ff0ff"/><stop offset="1" stop-color="#1b8fb0"/></radialGradient>
+    <linearGradient id="blade" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="0.5" stop-color="#b3bfca"/><stop offset="1" stop-color="#6c7a88"/></linearGradient>
+  </defs>
+<polygon points="160.0,198.9 159.5,202.2 160.1,205.4 161.6,208.3 164.0,210.6 166.9,212.0 170.2,212.5 173.4,211.9 176.3,210.4 178.6,208.0 180.0,205.1 196.4,159.8 197.0,155.8 196.3,151.8 194.4,148.2 191.4,145.3 187.8,143.6 183.8,143.0 179.8,143.7 176.2,145.6 173.3,148.6 171.6,152.2" fill="#29466f" stroke="#15111a" stroke-width="2.6" stroke-linejoin="round"/>
+<polygon points="160.4,199.2 160.2,201.0 160.6,202.8 161.4,204.4 162.8,205.6 164.4,206.3 166.2,206.5 168.0,206.2 169.6,205.3 170.8,204.0 171.5,202.3 185.9,156.4 186.2,154.2 185.7,152.0 184.6,150.1 183.0,148.5 181.0,147.6 178.7,147.3 176.5,147.8 174.6,148.9 173.1,150.5 172.1,152.5" fill="#192d4a"/>
+</svg>

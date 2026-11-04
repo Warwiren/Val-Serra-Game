@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420" width="400" height="420">
+  <!-- Chasseur HD — calque « torso » : torse, manteau, ceinture, fiole d'Aether, écharpe. Canevas commun 400x420. -->
+  <defs>
+    <radialGradient id="aeth" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffffff"/><stop offset="0.45" stop-color="#6ff0ff"/><stop offset="1" stop-color="#1b8fb0"/></radialGradient>
+    <linearGradient id="blade" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="0.5" stop-color="#b3bfca"/><stop offset="1" stop-color="#6c7a88"/></linearGradient>
+  </defs>
+<path d="M174 150 Q196 136 230 146 Q240 182 236 228 L172 230 Q166 190 174 150 Z" fill="#33598e" stroke="#15111a" stroke-width="2.6" stroke-linejoin="round"/>
+<path d="M176 156 Q170 194 174 228 L194 228 Q186 190 192 150 Z" fill="#203a63"/>
+<path d="M226 150 Q236 184 232 224" fill="none" stroke="#6694cc" stroke-width="3" opacity="0.8"/>
+<path d="M204 146 L222 148 L214 196 Z" fill="#d9c8a0" stroke="#15111a" stroke-width="2" stroke-linejoin="round"/>
+<path d="M200 148 Q214 176 214 200 L206 200 Q204 178 194 152 Z" fill="#6694cc" stroke="#15111a" stroke-width="2"/>
+<path d="M226 150 Q218 176 220 202 L228 200 Q226 176 232 154 Z" fill="#203a63" stroke="#15111a" stroke-width="2"/>
+<path d="M178 160 L232 214" fill="none" stroke="#15111a" stroke-width="9" stroke-linecap="round"/>
+<path d="M178 160 L232 214" fill="none" stroke="#714b2c" stroke-width="5.5" stroke-linecap="round"/>
+<rect x="198" y="178" width="11" height="9" rx="2" fill="#d9a84a" stroke="#15111a" stroke-width="1.5" transform="rotate(45 203 182)"/>
+<path d="M168 214 L240 210 L241 226 L169 230 Z" fill="#4a301b" stroke="#15111a" stroke-width="2.6" stroke-linejoin="round"/>
+<rect x="196" y="209" width="16" height="19" rx="3" fill="#d9a84a" stroke="#15111a" stroke-width="2"/>
+<rect x="200" y="213" width="8" height="11" rx="1.5" fill="#4a301b"/>
+<rect x="176" y="222" width="13" height="24" rx="6" fill="url(#aeth)" stroke="#15111a" stroke-width="2"/>
+<rect x="178" y="218" width="9" height="6" rx="2" fill="#b3bfca" stroke="#15111a" stroke-width="1.5"/>
+<path d="M214 226 L234 224 L236 244 L216 246 Z" fill="#714b2c" stroke="#15111a" stroke-width="2"/>
+<path d="M184 140 Q204 130 230 140 Q236 152 228 160 Q206 166 184 158 Q176 150 184 140 Z" fill="#b4402e" stroke="#15111a" stroke-width="2.6" stroke-linejoin="round"/>
+<path d="M188 152 Q206 160 226 154 L228 158 Q206 166 186 158 Z" fill="#7c281c"/>
+</svg>
