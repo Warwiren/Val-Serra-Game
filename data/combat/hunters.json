@@ -1,0 +1,45 @@
+{
+  "_note": "Chasseurs PROVISOIRES, NON CANONIQUES (identités de test). Profils : équilibré / rapide / lourd, pour vérifier que la vitesse ne domine pas.",
+
+  "weapons": {
+    "sabre":   { "name": "Long sabre",     "attack": 44, "break_power": 24, "damage_type": "tranchant", "speed_bonus": 2,  "stat_weights": { "DEX": 0.6, "FOR": 0.4 } },
+    "dagues":  { "name": "Dagues jumelles", "attack": 36, "break_power": 18, "damage_type": "perforant", "speed_bonus": 5,  "stat_weights": { "DEX": 0.7, "TEC": 0.3 } },
+    "marteau": { "name": "Marteau",        "attack": 56, "break_power": 38, "damage_type": "impact",    "speed_bonus": -4, "stat_weights": { "FOR": 0.75, "TEC": 0.25 } }
+  },
+
+  "armors": {
+    "legere":        { "name": "Armure légère",        "defense": 10, "speed_bonus": 5 },
+    "intermediaire": { "name": "Armure intermédiaire", "defense": 20, "speed_bonus": 0 },
+    "lourde":        { "name": "Armure lourde",        "defense": 32, "speed_bonus": -5 }
+  },
+
+  "hunters": [
+    {
+      "id": "heros",
+      "name": "Héros",
+      "profile": "équilibré",
+      "stats": { "FOR": 5, "DEX": 6, "CON": 6, "TEC": 5, "VOL": 6 },
+      "weapon": "sabre",
+      "armor": "intermediaire",
+      "actions": ["attaque", "technique", "garde", "potion", "serum_pulsation"]
+    },
+    {
+      "id": "compagnon_vif",
+      "name": "Compagnon A (provisoire)",
+      "profile": "rapide",
+      "stats": { "FOR": 4, "DEX": 7, "CON": 5, "TEC": 6, "VOL": 5 },
+      "weapon": "dagues",
+      "armor": "legere",
+      "actions": ["attaque", "technique", "garde", "potion", "serum_pulsation"]
+    },
+    {
+      "id": "compagnon_lourd",
+      "name": "Compagnon B (provisoire)",
+      "profile": "lourd",
+      "stats": { "FOR": 7, "DEX": 4, "CON": 7, "TEC": 4, "VOL": 5 },
+      "weapon": "marteau",
+      "armor": "lourde",
+      "actions": ["attaque", "technique", "garde", "potion", "serum_pulsation"]
+    }
+  ]
+}

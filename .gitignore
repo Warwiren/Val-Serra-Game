@@ -1,0 +1,5 @@
+# Cache Godot (régénéré automatiquement)
+.godot/
+/android/
+*.tmp
+export/

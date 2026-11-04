@@ -1,0 +1,58 @@
+{
+  "_note": "Actions des Chasseurs — PROTOTYPE. kind : strike (arme), guard, item, serum. target : enemy_part, ally, self.",
+
+  "attaque": {
+    "name": "Attaque",
+    "description": "Coup fiable et rapide. Génère de la Résonance.",
+    "kind": "strike",
+    "target": "enemy_part",
+    "windup": 0.10,
+    "power": 1.0,
+    "break": 1.0,
+    "resonance_gain": 8,
+    "modes": []
+  },
+
+  "technique": {
+    "name": "Technique d'arme",
+    "description": "Frappe puissante à trois tempos. Ne génère pas de Résonance.",
+    "kind": "strike",
+    "target": "enemy_part",
+    "power": 1.4,
+    "break": 1.5,
+    "resonance_gain": 0,
+    "modes": ["VIF", "MESURE", "CHARGE"],
+    "default_mode": "MESURE"
+  },
+
+  "garde": {
+    "name": "Garde",
+    "description": "Réduit de 40 % la prochaine attaque reçue avant votre prochain tour. +10 Résonance si elle sert.",
+    "kind": "guard",
+    "target": "self",
+    "windup": 0.0
+  },
+
+  "potion": {
+    "name": "Potion de soin",
+    "description": "Rend des PV à un allié.",
+    "kind": "item",
+    "target": "ally",
+    "windup": 0.10,
+    "item": "potion",
+    "heal": 60
+  },
+
+  "serum_pulsation": {
+    "name": "Pulsation d'Aether (provisoire)",
+    "description": "Capacité de sérum de test : dégâts d'Aether et recul de l'initiative de la cible (borné).",
+    "kind": "serum",
+    "target": "enemy_part",
+    "windup": 0.30,
+    "base_power": 45,
+    "break": 12,
+    "element": "aether",
+    "resonance_cost": 30,
+    "delay_fraction": 0.15
+  }
+}

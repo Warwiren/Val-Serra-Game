@@ -1,0 +1,61 @@
+{
+  "_note": "Monstre de test ORIGINAL et PROVISOIRE (nom et design à remplacer par la DA). 3 parties brisables, chacune avec un effet réel.",
+
+  "id": "vorgane",
+  "name": "Vorgane des brumes",
+  "is_boss": true,
+  "hp": 950,
+  "defense": 25,
+  "speed": 92,
+  "attack": 46,
+  "stats": { "FOR": 6, "DEX": 4, "CON": 8, "TEC": 3, "VOL": 4 },
+  "stat_weights": { "FOR": 1.0 },
+  "resistances": { "aether": 1.0 },
+
+  "parts": [
+    {
+      "id": "griffe",
+      "name": "Griffe",
+      "integrity": 110,
+      "affinities": { "tranchant": 1.2, "impact": 1.0, "perforant": 0.9, "aether": 1.0 },
+      "break_effect": { "type": "weaken_action", "action": "fauche", "power_mult": 0.6, "interrupt": true,
+                        "text": "La Fauche est affaiblie (-40 %)." },
+      "loot": "griffe_vorgane"
+    },
+    {
+      "id": "carapace",
+      "name": "Carapace cristalline",
+      "integrity": 150,
+      "affinities": { "tranchant": 0.7, "impact": 1.3, "perforant": 1.0, "aether": 0.9 },
+      "break_effect": { "type": "expose", "defense_mult": 0.5,
+                        "text": "Le corps est exposé : défense divisée par deux." },
+      "loot": "eclat_carapace"
+    },
+    {
+      "id": "glande",
+      "name": "Glande d'Aether",
+      "integrity": 90,
+      "affinities": { "tranchant": 1.0, "impact": 0.8, "perforant": 1.3, "aether": 1.2 },
+      "break_effect": { "type": "disable_action", "action": "souffle", "interrupt": true,
+                        "text": "Le Souffle d'Aether est interrompu et ne peut plus être utilisé." },
+      "loot": "glande_aether"
+    }
+  ],
+
+  "actions": {
+    "fauche":  { "name": "Fauche",           "target": "single", "power": 1.0,  "windup": 0.30, "damage_type": "tranchant", "interruptible": true, "telegraph": false },
+    "souffle": { "name": "Souffle d'Aether", "target": "all",    "power": 0.85, "windup": 0.80, "damage_type": "aether",    "interruptible": true, "telegraph": true }
+  },
+
+  "ai": {
+    "_note": "Schéma déterministe répété. Une action désactivée par rupture est remplacée par fallback.",
+    "pattern": ["fauche", "fauche", "souffle"],
+    "fallback": "fauche",
+    "targeting": "lowest_hp"
+  },
+
+  "rewards": {
+    "currency": 60,
+    "items": { "cuir_vorgane": 1 }
+  }
+}
