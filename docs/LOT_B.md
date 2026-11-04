@@ -25,11 +25,22 @@
 cohérence du fichier de dialogue). La simulation console donne toujours le même combat qu'au Lot A :
 les règles n'ont pas changé, seul le journal transmet désormais les valeurs à afficher.
 
-## 2. Comment tester
+## 2. Preuves visuelles
+
+| Fichier | Contenu |
+|---|---|
+| `docs/media/lotB_boucle_complete_rendu_B.mp4` | Boucle complète en 2.5D (1 min 48) : choix du héros → zone → dialogue → approche du Vorgane → combat entier (annonce du Souffle, ruptures, soin, victoire) → retour, récompenses, nouvelles répliques |
+| `docs/media/lotB_combat_rendu_A.mp4` | Le même combat en rendu 2D (1 min 20) |
+| `docs/captures/lotB_combat_A.png` / `_B.png` | Même instant du combat en A et en B |
+| `docs/captures/lotB_zone_A.png` / `_B.png` | Même instant de la zone (héroïne) en A et en B |
+
+Les vidéos sont des démonstrations automatiques (option `--autoplay`), enregistrées à 30 images/s fixes.
+
+## 3. Comment tester
 
 Voir le **README**, section 3 (« Jouer la démo ») et le scénario conseillé de 15 minutes.
 
-## 3. Limites connues
+## 4. Limites connues
 
 - **Illustrations provisoires** : dessinées en vectoriel par Claude pour valider la structure (calques,
   ancrages, états brisés) et l'ambiance ; elles n'ont pas la finesse d'illustrations peintes.
@@ -48,7 +59,7 @@ Voir le **README**, section 3 (« Jouer la démo ») et le scénario conseillé 
   (sprites dans un vrai décor 3D, comme la référence) n'a pas été essayée : voir recommandations.
 - Les fenêtres de résultat et de dialogue se pilotent à la souris et au clavier ; la manette n'est pas gérée.
 
-## 4. Mon avis
+## 5. Mon avis
 
 ### Lisibilité du combat — bonne, à affiner
 La chronologie **à l'échelle du temps** est le point fort : on voit d'un coup d'œil qu'un coup VIF tombe
@@ -84,7 +95,7 @@ la scène respire. Points d'attention :
    sauvegarde) pour boucler la démonstration, puis le polissage du ressenti (sons, poses dédiées,
    équilibrage) d'après vos retours.
 
-## 5. Fichiers principaux
+## 6. Fichiers principaux
 
 | Rôle | Fichier |
 |---|---|
