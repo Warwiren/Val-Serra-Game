@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 460" width="600" height="460">
+  <!-- PARTIE BRISÉE : Griffe — serres arrachées, fissures. -->
+  <defs>
+    <linearGradient id="arm" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0" stop-color="#5f5b70"/><stop offset="1" stop-color="#2c2a3b"/>
+    </linearGradient>
+  </defs>
+  <g stroke="#11141c" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M300 230 Q250 230 220 280 Q190 330 180 380 L136 396 Q130 420 150 430 L230 424 Q236 360 270 320 Q310 280 320 250 Z" fill="url(#arm)"/>
+    <path d="M250 270 L236 300 L250 312 L232 344 M206 360 L190 392" fill="none" stroke="#e06a5a" stroke-width="3"/>
+    <path d="M140 402 L118 410 L126 422 Z" fill="#b7ae96"/>
+    <path d="M152 416 L134 428 L150 432 Z" fill="#b7ae96"/>
+    <path d="M178 420 L164 434 L182 432 Z" fill="#b7ae96"/>
+    <circle cx="128" cy="414" r="5" fill="#b8423a" stroke="none"/>
+    <circle cx="146" cy="428" r="4" fill="#b8423a" stroke="none"/>
+  </g>
+</svg>

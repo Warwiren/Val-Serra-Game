@@ -1,5 +1,5 @@
 extends RefCounted
-## Politique de jeu automatique, simple et déterministe — pour les tests et la démo console.
+## Politique de jeu automatique, simple et déterministe — pour les tests, la démo console et la démo vidéo.
 ## Ce n'est PAS une IA de compagnon du jeu final.
 
 

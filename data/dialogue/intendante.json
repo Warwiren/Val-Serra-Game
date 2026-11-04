@@ -1,0 +1,65 @@
+{
+  "_note": "Dialogue de test (non canonique). {nom} = nom du héros ; {m:…|f:…} = accord selon le héros choisi. speaker : npc ou hero.",
+  "npc_name": "Maëlle, intendante",
+  "npc_portrait": "res://art/portraits/npc.svg",
+  "nodes": {
+    "intro": {
+      "speaker": "npc",
+      "text": "Ah, vous voilà ! Vous devez être {nom}, {m:le nouveau Chasseur|f:la nouvelle Chasseuse} {m:envoyé|f:envoyée} par la Guilde.",
+      "choices": [
+        {"text": "C'est bien moi. Je suis {m:prêt|f:prête} à me rendre utile.", "next": "task"},
+        {"text": "Et vous êtes… ?", "next": "who"}
+      ]
+    },
+    "who": {
+      "speaker": "npc",
+      "text": "Maëlle, intendante de cet avant-poste. Rien de glorieux : je compte les caisses et je soigne les imprudents.",
+      "next": "task"
+    },
+    "task": {
+      "speaker": "npc",
+      "text": "Un Vorgane des brumes rôde à la lisière, à l'est. Il a déjà blessé deux convoyeurs.",
+      "choices": [
+        {"text": "Que savez-vous de cette bête ?", "next": "info"},
+        {"text": "Je m'en occupe.", "next": "gift"}
+      ]
+    },
+    "info": {
+      "speaker": "npc",
+      "text": "Sa gorge s'illumine avant qu'il ne crache son souffle. Brisez cette glande à temps… ou protégez-vous.",
+      "next": "gift"
+    },
+    "gift": {
+      "speaker": "npc",
+      "text": "Prenez cette potion. Et revenez {m:entier|f:entière}, {nom}.",
+      "action": "give_potion",
+      "next": "thanks"
+    },
+    "thanks": {
+      "speaker": "hero",
+      "text": "Merci, Maëlle. Mes compagnons et moi serons prudents.",
+      "action": "set_flag:talked"
+    },
+    "reminder": {
+      "speaker": "npc",
+      "text": "Le Vorgane est toujours à la lisière, à l'est. Approchez-vous quand votre équipe sera prête."
+    },
+    "after_defeat": {
+      "speaker": "npc",
+      "text": "Vous êtes {m:blessé|f:blessée}… Reprenez votre souffle. Et visez la glande avant qu'elle ne s'illumine trop."
+    },
+    "after_victory": {
+      "speaker": "npc",
+      "text": "Vous êtes {m:revenu|f:revenue} ! Et avec des trophées. L'avant-poste vous doit une fière chandelle, {nom}.",
+      "choices": [
+        {"text": "Ce n'était pas une mince affaire.", "next": "forge_hint"},
+        {"text": "Mes compagnons y sont pour beaucoup.", "next": "forge_hint"}
+      ]
+    },
+    "forge_hint": {
+      "speaker": "npc",
+      "text": "Gardez ces matériaux. L'établi derrière la maison servira bientôt à renforcer vos armes.",
+      "action": "set_flag:victory_talked"
+    }
+  }
+}

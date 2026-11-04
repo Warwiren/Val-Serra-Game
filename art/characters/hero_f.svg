@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 320" width="240" height="320">
+  <!-- Héroïne (base féminine) — placeholder original Val'Serra. Tournée vers la droite. Pieds en (120,306). -->
+  <defs>
+    <linearGradient id="coat" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#46646d"/><stop offset="1" stop-color="#22353d"/>
+    </linearGradient>
+    <linearGradient id="torso" x1="0" y1="0" x2="1" y2="0.6">
+      <stop offset="0" stop-color="#557780"/><stop offset="1" stop-color="#34505a"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e9b893"/><stop offset="1" stop-color="#bf8562"/>
+    </linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9a4a26"/><stop offset="1" stop-color="#5e2715"/>
+    </linearGradient>
+    <radialGradient id="vial" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#d9fbff"/><stop offset="0.5" stop-color="#5fe3ff"/><stop offset="1" stop-color="#1f8aa6"/>
+    </radialGradient>
+  </defs>
+  <g stroke="#11171b" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <!-- tresse arrière -->
+    <path d="M108 70 Q88 100 92 140 Q94 168 84 190 L96 192 Q108 164 104 136 Q102 104 116 80 Z" fill="url(#hair)"/>
+    <!-- bras arrière -->
+    <path d="M102 130 Q90 160 96 190 L106 188 Q104 162 112 138 Z" fill="#2c434b"/>
+    <!-- jambe arrière -->
+    <path d="M108 206 L102 288 L114 290 L122 210 Z" fill="#232c33"/>
+    <path d="M98 284 L118 284 L120 306 L88 306 Q88 292 98 284 Z" fill="#4a3426"/>
+    <!-- pan de manteau arrière -->
+    <path d="M98 152 Q86 222 76 264 L120 252 Z" fill="#1d2e35"/>
+    <!-- jambe avant -->
+    <path d="M128 208 L138 286 L150 284 L144 206 Z" fill="#2b363e"/>
+    <path d="M134 282 L154 280 Q166 290 168 306 L132 306 Z" fill="#5a3f2d"/>
+    <!-- manteau, plus cintré -->
+    <path d="M98 126 Q122 116 148 126 L152 196 Q166 232 172 258 L128 246 L106 254 Q100 220 96 200 Z" fill="url(#coat)"/>
+    <path d="M146 130 L150 196 Q160 228 168 252 L158 250 Q148 226 142 200 L138 134 Z" fill="#4fd6e8" stroke-width="2"/>
+    <!-- buste -->
+    <path d="M100 124 Q124 114 146 124 Q150 150 144 172 L148 194 Q124 202 100 194 Q104 170 100 150 Z" fill="url(#torso)"/>
+    <!-- sangle et ceinture -->
+    <path d="M102 128 L144 188" fill="none" stroke="#2a1d14" stroke-width="7"/>
+    <path d="M102 128 L144 188" fill="none" stroke="#7b5636" stroke-width="3"/>
+    <rect x="98" y="186" width="54" height="11" rx="3" fill="#3a2a1e"/>
+    <rect x="118" y="184" width="11" height="15" rx="2" fill="#c49a5a" stroke-width="2"/>
+    <rect x="102" y="194" width="11" height="21" rx="5" fill="url(#vial)" stroke-width="2"/>
+    <!-- cou et écharpe -->
+    <path d="M116 100 L134 100 L134 118 L116 118 Z" fill="url(#skin)"/>
+    <path d="M106 112 Q124 124 146 112 L148 124 Q124 134 104 124 Z" fill="#a4482f"/>
+    <!-- tête -->
+    <path d="M108 68 Q110 42 132 42 Q154 44 154 70 Q154 92 140 102 Q124 106 114 96 Q106 86 108 68 Z" fill="url(#skin)"/>
+    <path d="M145 76 L156 82 L147 85 Z" fill="#bf8562" stroke-width="2"/>
+    <!-- chevelure -->
+    <path d="M102 76 Q96 34 132 34 Q164 36 160 66 Q150 52 134 54 Q132 64 118 66 Q116 80 108 92 Q102 86 102 76 Z" fill="url(#hair)"/>
+    <path d="M112 44 Q130 36 150 46" fill="none" stroke="#c46a3a" stroke-width="2"/>
+    <!-- œil -->
+    <path d="M139 70 L149 68" fill="none" stroke-width="2.5"/>
+    <ellipse cx="145" cy="76" rx="2.5" ry="3.2" fill="#11171b" stroke="none"/>
+    <path d="M137 92 Q142 94 147 92" fill="none" stroke-width="2"/>
+    <!-- bras avant (main en 168,176) -->
+    <path d="M138 130 Q158 142 164 170 L150 176 Q146 152 130 142 Z" fill="#3e5d67"/>
+    <path d="M148 162 L168 158 L170 174 L152 178 Z" fill="#2f2219"/>
+    <ellipse cx="168" cy="176" rx="9" ry="8.5" fill="url(#skin)"/>
+  </g>
+</svg>

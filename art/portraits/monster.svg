@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Icône du Vorgane des brumes (provisoire), tournée vers la gauche. -->
+  <defs>
+    <linearGradient id="hide" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#77738c"/><stop offset="1" stop-color="#2b2a3a"/></linearGradient>
+    <radialGradient id="eye" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffffff"/><stop offset="0.4" stop-color="#8ff1ff"/><stop offset="1" stop-color="#1fa0c0" stop-opacity="0"/></radialGradient>
+  </defs>
+  <g stroke="#11141c" stroke-width="5" stroke-linejoin="round">
+    <path d="M240 90 Q170 60 110 100 Q40 120 18 170 Q14 196 40 204 Q110 222 180 200 Q232 180 248 150 Z" fill="url(#hide)"/>
+    <path d="M40 204 Q90 236 170 216 L176 198 Q110 214 44 194 Z" fill="#3a3850"/>
+    <path d="M54 204 L62 220 L72 206 L82 224 L92 208 L102 226" fill="#e8e2d0" stroke-width="3"/>
+    <path d="M120 100 Q130 40 190 20 Q160 70 168 104 Z" fill="#8d7fc4"/>
+    <circle cx="86" cy="150" r="26" fill="url(#eye)" stroke="none"/>
+    <path d="M70 150 Q86 138 104 150 Q86 160 70 150 Z" fill="#c8faff" stroke-width="3"/>
+  </g>
+</svg>

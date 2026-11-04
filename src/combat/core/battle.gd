@@ -299,7 +299,7 @@ func _commit(actor, cmd: Dictionary) -> void:
 
 	if actor.is_hunter() and def.get("kind", "") == "guard":
 		actor.guard_active = true
-		_log("guard", "%s se met en garde." % actor.name, {"actor": actor.id})
+		_log("guard", "%s se met en garde." % actor.name, {"actor": actor.id, "value": actor.resonance})
 		return
 
 	var cast := Cast.new()
@@ -327,7 +327,8 @@ func _commit(actor, cmd: Dictionary) -> void:
 	_log("cast", "%s %s %s%s%s — effet à t=%d, prochain tour à t=%d." % [actor.name, verb,
 		cast.action_name, mode_txt, target_txt, cast.resolve_at, actor.next_ready],
 		{"actor": actor.id, "action": aid, "mode": cast.mode, "resolve_at": cast.resolve_at,
-		 "telegraph": cast.telegraph})
+		 "telegraph": cast.telegraph, "target": cast.target_id, "part": cast.part_id,
+		 "value": actor.resonance})
 
 	if cast.resolve_at <= now:
 		_resolve_cast(cast)
@@ -436,7 +437,7 @@ func _resolve_item(actor, cast, def: Dictionary) -> void:
 	var before: int = ally.hp
 	ally.hp = mini(ally.max_hp, ally.hp + int(def.get("heal", 0)))
 	_log("heal", "%s utilise %s : %s récupère %d PV." % [actor.name, def["name"], ally.name, ally.hp - before],
-		{"actor": actor.id, "target": ally.id, "amount": ally.hp - before})
+		{"actor": actor.id, "target": ally.id, "amount": ally.hp - before, "hp": ally.hp})
 
 
 func _resolve_monster_action(monster, cast) -> void:
@@ -474,7 +475,7 @@ func _apply_damage(source, target, amount: int) -> void:
 		_gain_resonance(target, int(rules["resonance"]["gain_useful_guard"]), "garde utile")
 	target.hp = maxi(0, target.hp - amount)
 	_log("damage", "%s subit %d dégâts (%d/%d PV)." % [target.name, amount, target.hp, target.max_hp],
-		{"actor": source.id, "target": target.id, "amount": amount})
+		{"actor": source.id, "target": target.id, "amount": amount, "hp": target.hp})
 	if target.hp == 0:
 		_on_defeated(target)
 
@@ -484,7 +485,7 @@ func _apply_break(source, monster, part, amount: int) -> void:
 		return
 	part.integrity = maxi(0, part.integrity - amount)
 	_log("break_progress", "%s : intégrité %d/%d." % [part.name, part.integrity, part.max_integrity],
-		{"target": monster.id, "part": part.id, "amount": amount})
+		{"target": monster.id, "part": part.id, "amount": amount, "integrity": part.integrity})
 	if part.integrity > 0:
 		return
 	# Rupture : effet, butin et Résonance UNE SEULE FOIS.
@@ -511,7 +512,7 @@ func _gain_resonance(actor, amount: int, reason: String) -> void:
 	var got: int = actor.gain_resonance(amount, int(rules["resonance"]["max"]))
 	if got > 0:
 		_log("resonance", "%s gagne %d Résonance (%s) → %d." % [actor.name, got, reason, actor.resonance],
-			{"actor": actor.id, "amount": got})
+			{"actor": actor.id, "amount": got, "value": actor.resonance})
 
 
 ## Annule une préparation interruptible. Le prochain tour de l'acteur reste inchangé (t + C).

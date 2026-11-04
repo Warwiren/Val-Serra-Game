@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 244" width="80" height="244">
+  <!-- Lanterne sur poteau ; la flamme est en (60,70) -->
+  <defs><radialGradient id="glass" cx="0.5" cy="0.5" r="0.6"><stop offset="0" stop-color="#fff6d0"/><stop offset="1" stop-color="#f0a040"/></radialGradient></defs>
+  <g stroke="#11171b" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="26" y="40" width="8" height="200" fill="#3a2a1c"/>
+    <path d="M30 40 L60 40 L60 52" fill="none" stroke="#3a2a1c" stroke-width="5"/>
+    <path d="M48 52 L72 52 L68 88 L52 88 Z" fill="url(#glass)"/>
+    <path d="M46 52 L74 52 L60 42 Z" fill="#2a1d14"/>
+    <path d="M14 240 L46 240 L40 228 L20 228 Z" fill="#3a2a1c"/>
+  </g>
+</svg>

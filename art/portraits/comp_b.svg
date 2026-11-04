@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Portrait Compagnon B — placeholder original Val'Serra, tourné vers la droite. -->
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9a782"/><stop offset="1" stop-color="#a87256"/></linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b3a26"/><stop offset="1" stop-color="#3a2416"/></linearGradient>
+    <linearGradient id="cloth" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9aa6ae"/><stop offset="1" stop-color="#434c54"/></linearGradient>
+  </defs>
+  <g stroke="#11171b" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M20 256 Q26 206 94 196 L164 196 Q232 206 238 256 Z" fill="url(#cloth)"/>
+    <path d="M150 196 Q200 186 232 220 L226 256 L180 256 Z" fill="#b6803f"/>
+    <path d="M100 196 L156 196 L160 226 L96 226 Z" fill="url(#skin)"/>
+    <path d="M78 100 Q80 44 132 40 Q186 42 186 102 Q186 150 160 176 Q136 194 112 180 Q82 160 78 100 Z" fill="url(#skin)"/>
+    <path d="M176 112 L194 124 L178 130 Z" fill="#a87256" stroke-width="3"/>
+    <path d="M148 98 L172 94" fill="none" stroke-width="4"/>
+    <ellipse cx="164" cy="110" rx="5" ry="6.5" fill="#11171b" stroke="none"/>
+    <ellipse cx="166" cy="107" rx="1.6" ry="2" fill="#ffffff" stroke="none"/>
+    <path d="M150 154 Q162 158 172 152" fill="none" stroke-width="3"/>
+    <path d="M76 92 Q80 40 132 36 Q184 38 188 80 Q160 64 132 66 Q102 70 76 92 Z" fill="url(#hair)"/>
+    <path d="M96 146 Q104 196 142 200 Q186 192 186 144 Q170 166 140 166 Q112 166 96 146 Z" fill="url(#hair)"/>
+    <path d="M110 96 L126 132" fill="none" stroke="#a65a3e" stroke-width="3"/>
+  </g>
+</svg>

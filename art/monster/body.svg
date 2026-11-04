@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 460" width="600" height="460">
+  <!-- Vorgane des brumes (provisoire, original) — CORPS. Tourné vers la gauche. Même repère que les parties. -->
+  <defs>
+    <linearGradient id="hide" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0" stop-color="#6d6a82"/><stop offset="0.6" stop-color="#47455c"/><stop offset="1" stop-color="#2b2a3a"/>
+    </linearGradient>
+    <linearGradient id="hide2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4c4a62"/><stop offset="1" stop-color="#25243a"/>
+    </linearGradient>
+    <linearGradient id="belly" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b8296"/><stop offset="1" stop-color="#5a5269"/>
+    </linearGradient>
+    <radialGradient id="eye" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="0.4" stop-color="#8ff1ff"/><stop offset="1" stop-color="#1fa0c0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <g stroke="#11141c" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+    <!-- queue -->
+    <path d="M490 200 Q560 170 572 110 Q590 140 572 196 Q548 246 500 250 Z" fill="url(#hide2)"/>
+    <path d="M560 128 L584 104 L578 138 Z" fill="#7d6fb0"/>
+    <!-- patte avant lointaine -->
+    <path d="M250 270 Q230 340 236 410 L270 412 Q272 350 290 290 Z" fill="url(#hide2)"/>
+    <path d="M226 404 L280 404 L284 428 L218 428 Z" fill="#2b2a3a"/>
+    <!-- patte arrière lointaine -->
+    <path d="M430 250 Q470 320 452 410 L486 412 Q500 330 470 250 Z" fill="url(#hide2)"/>
+    <path d="M444 404 L494 404 L498 428 L438 428 Z" fill="#2b2a3a"/>
+    <!-- tronc -->
+    <path d="M170 220 Q180 130 300 120 Q440 110 500 170 Q540 220 512 290 Q480 340 380 340 Q300 344 240 330 Q180 310 170 220 Z" fill="url(#hide)"/>
+    <path d="M230 320 Q320 346 420 334 Q470 326 500 300 Q470 344 380 352 Q300 356 236 336 Z" fill="url(#belly)"/>
+    <!-- patte arrière proche -->
+    <path d="M420 230 Q520 240 520 330 Q516 380 490 420 L452 420 Q480 370 470 330 Q450 290 410 280 Z" fill="url(#hide)"/>
+    <path d="M444 412 L508 410 Q526 422 528 440 L436 440 Z" fill="#363449"/>
+    <path d="M440 440 L432 452 M462 440 L458 454 M486 440 L486 454" fill="none" stroke-width="5"/>
+    <!-- cou et tête basse -->
+    <path d="M190 200 Q150 210 120 236 Q70 250 40 282 Q30 300 48 312 Q90 330 140 318 Q190 300 230 280 Z" fill="url(#hide)"/>
+    <!-- mâchoire -->
+    <path d="M48 312 Q80 340 140 330 L146 316 Q96 326 52 306 Z" fill="#3a3850"/>
+    <path d="M60 312 L66 324 L72 314 L80 328 L88 316 L96 330 L104 318" fill="#e8e2d0" stroke-width="2"/>
+    <!-- cornes cristallines -->
+    <path d="M118 236 Q120 190 160 168 Q140 206 146 232 Z" fill="#8d7fc4"/>
+    <path d="M150 226 Q170 186 214 176 Q186 210 180 232 Z" fill="#7464b0"/>
+    <!-- œil -->
+    <circle cx="96" cy="266" r="16" fill="url(#eye)" stroke="none"/>
+    <path d="M86 266 Q96 258 108 266 Q96 272 86 266 Z" fill="#c8faff" stroke-width="2"/>
+    <!-- marques de brume -->
+    <path d="M300 160 Q340 176 380 160 M330 200 Q370 214 410 198 M280 250 Q320 262 350 248" fill="none" stroke="#8a86a6" stroke-width="3"/>
+  </g>
+</svg>

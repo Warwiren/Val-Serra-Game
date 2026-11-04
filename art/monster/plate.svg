@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 460" width="600" height="460">
+  <!-- PARTIE : Carapace cristalline (dos). Ancre de ciblage ~ (350,125). -->
+  <defs>
+    <linearGradient id="cr1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c8bff4"/><stop offset="0.5" stop-color="#7d6fc0"/><stop offset="1" stop-color="#3f3478"/>
+    </linearGradient>
+    <linearGradient id="cr2" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b4f3ff"/><stop offset="0.5" stop-color="#5aa8d6"/><stop offset="1" stop-color="#2e4f86"/>
+    </linearGradient>
+  </defs>
+  <g stroke="#11141c" stroke-width="4" stroke-linejoin="round">
+    <path d="M200 190 Q210 130 280 112 L330 150 L290 200 Z" fill="url(#cr1)"/>
+    <path d="M280 112 L330 60 L380 110 L330 150 Z" fill="url(#cr2)"/>
+    <path d="M330 150 L380 110 L440 120 L420 180 L360 196 Z" fill="url(#cr1)"/>
+    <path d="M380 110 L420 40 L460 96 L440 120 Z" fill="url(#cr2)"/>
+    <path d="M440 120 L500 150 L486 200 L420 180 Z" fill="url(#cr1)"/>
+    <path d="M290 200 L330 150 L360 196 L320 220 Z" fill="url(#cr2)"/>
+    <path d="M300 96 L330 60 M420 40 L430 80" fill="none" stroke="#e8fdff" stroke-width="2"/>
+    <path d="M232 170 L300 130 M350 140 L400 116 M440 140 L476 160" fill="none" stroke="#a6f0ff" stroke-width="2.5"/>
+  </g>
+</svg>

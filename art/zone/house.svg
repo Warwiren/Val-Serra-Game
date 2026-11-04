@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 304" width="300" height="304">
+  <!-- Maison de l'intendance (pied en bas) -->
+  <defs><linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cdb48a"/><stop offset="1" stop-color="#9c8461"/></linearGradient><linearGradient id="roof" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a14a34"/><stop offset="1" stop-color="#6e2c20"/></linearGradient><radialGradient id="win" cx="0.5" cy="0.5" r="0.7"><stop offset="0" stop-color="#fff2c0"/><stop offset="1" stop-color="#f0a040"/></radialGradient></defs>
+  <g stroke="#11171b" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M30 300 L30 150 L270 150 L270 300 Z" fill="url(#wall)"/>
+    <path d="M30 150 L270 150 M30 200 L270 200 M30 250 L270 250 M90 150 L90 300 M210 150 L210 300" fill="none" stroke="#3a2a1c" stroke-width="6"/>
+    <path d="M10 156 L150 40 L290 156 Z" fill="url(#roof)"/>
+    <path d="M40 130 L150 52 L260 130" fill="none" stroke="#5a2a20" stroke-width="3"/>
+    <rect x="128" y="214" width="46" height="86" rx="4" fill="#3a2618"/>
+    <circle cx="164" cy="258" r="3" fill="#c49a5a"/>
+    <rect x="52" y="208" width="30" height="30" fill="url(#win)"/>
+    <rect x="222" y="208" width="30" height="30" fill="url(#win)"/>
+    <path d="M67 208 L67 238 M52 223 L82 223 M237 208 L237 238 M222 223 L252 223" fill="none" stroke-width="2"/>
+    <rect x="200" y="60" width="26" height="60" fill="#5b5048"/>
+    <path d="M118 170 L190 170 L190 196 L118 196 Z" fill="#6b4c32"/>
+    <path d="M128 183 L180 183" fill="none" stroke="#e8d6a8" stroke-width="3"/>
+  </g>
+</svg>

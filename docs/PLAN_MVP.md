@@ -77,7 +77,7 @@ qu'un simple parallax 2D. Les sprites restent exactement les mêmes que pour la 
 | Lot | Contenu | Livrable testable | Dépend de |
 |---|---|---|---|
 | **A — Simulation** *(fait, testé ; ressenti à valider)* | Horloge, modes, garde, Résonance, sérum, parties, interruption, IA, journal, tests | Écran debug + 28 tests | — |
-| **B — Combat lisible** | Écran placeholder présentable : 3 Chasseurs et monstre en formes simples, chronologie en portraits, ciblage visuel des parties, signal d'attaque annoncée, jauges, VFX/sons simples, retour | Scène Battle jouable à la souris/clavier | A validé par vous |
+| **B — Combat lisible** *(fait, avec rendus A/B et micro-exploration : voir LOT_B.md)* | Écran placeholder présentable : 3 Chasseurs et monstre en formes simples, chronologie en portraits, ciblage visuel des parties, signal d'attaque annoncée, jauges, VFX/sons simples, retour | Scène Battle jouable à la souris/clavier | A validé par vous |
 | **C — Exploration** | Choix héros H/F + nom, zone semi-libre avec collisions, compagnon suiveur, PNJ à portraits avec un choix, ennemi visible → combat → retour | Boucle zone ⇄ combat | B |
 | **D — Comparaison A/B** | Même zone et même combat en 2D illustrée et en 2.5D (HD-2D), interrupteur de rendu, captures et vidéo, fiche comparative | 2 rendus + fiche | C + premiers assets |
 | **E — Économie** | Potion achetable, récompenses, établi de forge (+1 arme), boucle complète, sauvegarde basique | Boucle bout-à-bout par un testeur | C |

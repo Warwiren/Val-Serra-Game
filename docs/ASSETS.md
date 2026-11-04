@@ -1,11 +1,32 @@
 # Registre des assets du prototype
 
 Miroir technique du document 06 (Registre des ressources et licences). Chaque fichier graphique ou
-sonore ajouté au dépôt doit avoir une ligne ici.
+sonore ajouté au dépôt a une ligne ici.
 
-| Fichier | Description | Source / outil | Licence / conditions | Statut |
+**Statut commun (Lot B)** : tous les visuels sont des **placeholders originaux** dessinés en vectoriel (SVG)
+par Claude, à la main ou par script, spécifiquement pour Val'Serra. Aucun outil d'IA d'image, aucune
+banque d'images, aucun asset tiers. Propriété du projet ; à remplacer par la DA finale.
+Aucun son n'est encore intégré.
+
+| Fichier(s) | Description | Source / outil | Licence | Statut |
 |---|---|---|---|---|
-| — | Aucun asset graphique ou sonore au Lot A (affichage texte uniquement) | — | — | — |
+| `art/characters/hero_m.svg`, `hero_f.svg` | Héros, bases masculine et féminine (corps sans arme) | SVG écrit à la main | Projet | Placeholder |
+| `art/characters/comp_a.svg`, `comp_b.svg` | Compagnons A (rapide) et B (lourd), identités provisoires | SVG écrit à la main | Projet | Placeholder |
+| `art/characters/npc.svg` | Intendante de l'avant-poste (PNJ provisoire) | SVG écrit à la main | Projet | Placeholder |
+| `art/characters/weapon_*.svg` | Long sabre, dague, marteau (calques séparés, point de prise documenté) | SVG écrit à la main | Projet | Placeholder |
+| `art/portraits/*.svg` | Portraits bustes (héros H/F, compagnons, PNJ) + icône du monstre | Généré par script (gabarit commun) | Projet | Placeholder |
+| `art/monster/body.svg` | Vorgane des brumes, corps (monstre original provisoire) | SVG écrit à la main | Projet | Placeholder |
+| `art/monster/claw*.svg`, `plate*.svg`, `gland*.svg` | 3 parties ciblables, états intact / brisé, même repère que le corps | SVG écrit à la main | Projet | Placeholder |
+| `art/stage/*.svg` | Décor en 5 plans : ciel, lointain, forêt et tour, sol, premier plan | `tools/art/gen_stage.py` | Projet | Placeholder |
+| `art/zone/*.svg` | Maison, caisses, lanterne, établi, palissade | `tools/art/gen_zone.py` | Projet | Placeholder |
+| Lumières, particules, brume | Textures de dégradé générées dans le moteur (`src/presentation/fx.gd`) | Code | Projet | — |
 
 Rappel : la capture d'Octopath Traveler II fournie par le créateur est une **référence d'ambiance** ;
-elle n'est pas incluse dans ce dépôt et aucun de ses éléments ne doit l'être.
+elle n'est pas incluse dans ce dépôt et aucun de ses éléments (sprites, interface, icônes) n'a été reproduit.
+
+## Comment remplacer un asset
+
+Les chemins et points d'ancrage sont centralisés dans `src/presentation/art.gd`. Pour remplacer, par exemple,
+le corps du héros par une illustration finale : exporter un PNG/SVG au même cadrage (pieds en bas au centre,
+tourné vers la droite), l'enregistrer sous le même nom, ou changer le chemin dans `art.gd`, et ajuster
+`hand` (position de la main qui tient l'arme) si nécessaire.

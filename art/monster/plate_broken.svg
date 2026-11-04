@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 460" width="600" height="460">
+  <!-- PARTIE BRISÉE : Carapace — plaques éclatées, chair exposée. -->
+  <defs>
+    <linearGradient id="flesh" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c0566a"/><stop offset="1" stop-color="#6e2a3e"/>
+    </linearGradient>
+    <linearGradient id="cr1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8f86b8"/><stop offset="1" stop-color="#3a3164"/>
+    </linearGradient>
+  </defs>
+  <g stroke="#11141c" stroke-width="4" stroke-linejoin="round">
+    <path d="M220 170 Q270 120 340 130 Q420 120 480 160 Q440 196 360 200 Q280 206 220 170 Z" fill="url(#flesh)"/>
+    <path d="M270 150 Q300 160 320 150 M360 160 Q390 170 420 156" fill="none" stroke="#f08a9a" stroke-width="3"/>
+    <path d="M200 190 Q206 160 240 146 L262 176 L232 196 Z" fill="url(#cr1)"/>
+    <path d="M440 132 L470 112 L496 152 L470 168 Z" fill="url(#cr1)"/>
+    <path d="M326 118 L342 92 L356 120 Z" fill="url(#cr1)"/>
+  </g>
+</svg>
