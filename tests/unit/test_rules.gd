@@ -2,7 +2,7 @@ extends "res://tests/test_case.gd"
 ## Dégâts, garde, rupture, interruption, Résonance, objets, sérum, fin de combat, déterminisme.
 
 const Formulas = preload("res://src/combat/core/formulas.gd")
-const AutoPolicy = preload("res://tests/helpers/auto_policy.gd")
+const AutoPolicy = preload("res://src/combat/auto_policy.gd")
 
 
 func _journal_has(b: Battle, type: String, key := "", value = null) -> bool:

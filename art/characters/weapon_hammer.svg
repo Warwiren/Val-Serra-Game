@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 300" width="160" height="300">
+  <!-- Marteau colossal. Point de prise (pivot) : (80,262). Tête vers le haut. -->
+  <defs>
+    <linearGradient id="head" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a3adb4"/><stop offset="1" stop-color="#4b545b"/>
+    </linearGradient>
+    <radialGradient id="crys" cx="0.5" cy="0.4" r="0.6">
+      <stop offset="0" stop-color="#e6fdff"/><stop offset="0.6" stop-color="#5fe3ff"/><stop offset="1" stop-color="#1c7690"/>
+    </radialGradient>
+  </defs>
+  <g stroke="#11171b" stroke-width="3" stroke-linejoin="round">
+    <rect x="72" y="92" width="16" height="190" rx="4" fill="#4a3020"/>
+    <path d="M72 230 L88 236 M72 246 L88 252 M72 262 L88 268" fill="none" stroke="#2a1b10" stroke-width="3"/>
+    <path d="M8 30 L152 30 L148 104 L12 104 Z" fill="url(#head)"/>
+    <path d="M4 22 L30 22 L30 112 L4 112 Z" fill="#7a8890"/>
+    <path d="M130 22 L156 22 L156 112 L130 112 Z" fill="#7a8890"/>
+    <path d="M30 46 L130 46 M30 88 L130 88" fill="none" stroke="#c49a5a" stroke-width="5"/>
+    <path d="M80 50 L94 67 L80 84 L66 67 Z" fill="url(#crys)"/>
+    <circle cx="80" cy="288" r="8" fill="#c49a5a"/>
+  </g>
+</svg>

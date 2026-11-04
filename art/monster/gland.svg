@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 460" width="600" height="460">
+  <!-- PARTIE : Glande d'Aether (gorge). Ancre de ciblage ~ (205,292). -->
+  <defs>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#8ff1ff" stop-opacity="0.75"/><stop offset="1" stop-color="#5fe3ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sac" cx="0.42" cy="0.38" r="0.6">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="0.35" stop-color="#9ef4ff"/><stop offset="0.8" stop-color="#2fb6d6"/><stop offset="1" stop-color="#1a6f8a"/>
+    </radialGradient>
+  </defs>
+  <circle cx="205" cy="292" r="70" fill="url(#glow)"/>
+  <g stroke="#11141c" stroke-width="4">
+    <path d="M168 270 Q200 248 236 268 Q252 300 232 322 Q204 340 176 322 Q156 300 168 270 Z" fill="url(#sac)"/>
+    <path d="M182 284 Q204 274 222 286 M178 304 Q204 296 226 306" fill="none" stroke="#e9fdff" stroke-width="2.5"/>
+  </g>
+</svg>

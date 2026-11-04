@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 460" width="600" height="460">
+  <!-- PARTIE BRISÉE : Glande — éteinte, fendue. -->
+  <defs>
+    <radialGradient id="sac" cx="0.42" cy="0.38" r="0.6">
+      <stop offset="0" stop-color="#5a6c78"/><stop offset="1" stop-color="#26303a"/>
+    </radialGradient>
+  </defs>
+  <g stroke="#11141c" stroke-width="4" stroke-linejoin="round">
+    <path d="M172 280 Q200 262 232 278 Q244 302 228 318 Q204 332 180 318 Q164 300 172 280 Z" fill="url(#sac)"/>
+    <path d="M190 276 L204 296 L196 308 L214 326 M222 282 L212 298" fill="none" stroke="#5fe3ff" stroke-width="2.5"/>
+  </g>
+</svg>

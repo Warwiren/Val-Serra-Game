@@ -4,6 +4,7 @@ extends RefCounted
 const TEST_FILES := [
 	"res://tests/unit/test_timeline.gd",
 	"res://tests/unit/test_rules.gd",
+	"res://tests/unit/test_game.gd",
 ]
 
 

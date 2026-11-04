@@ -6,8 +6,8 @@ config_version=5
 [application]
 
 config/name="Val'Serra — MVP"
-config/description="Prototype jouable : combat à initiative dynamique (Lot A)."
-run/main_scene="res://scenes/debug/combat_debug.tscn"
+config/description="Prototype jouable : combat présentable (Lot B) et micro-boucle d'exploration."
+run/main_scene="res://scenes/explore/hero_select.tscn"
 config/features=PackedStringArray("4.5")
 
 [display]
@@ -16,3 +16,12 @@ window/size/viewport_width=1280
 window/size/viewport_height=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+
+[autoload]
+
+GameState="*res://src/game/game_state.gd"
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=1
+anti_aliasing/quality/msaa_2d=1

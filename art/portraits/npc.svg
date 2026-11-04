@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Portrait Intendante (PNJ) — placeholder original Val'Serra, tourné vers la droite. -->
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e2b79a"/><stop offset="1" stop-color="#b0805f"/></linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9c4bc"/><stop offset="1" stop-color="#8d877e"/></linearGradient>
+    <linearGradient id="cloth" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a5a3a"/><stop offset="1" stop-color="#3e2c1c"/></linearGradient>
+  </defs>
+  <g stroke="#11171b" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+    <circle cx="90" cy="70" r="30" fill="url(#hair)"/>
+    <path d="M34 256 Q40 214 96 202 L160 202 Q218 212 226 256 Z" fill="url(#cloth)"/>
+    <path d="M110 206 L150 206 L156 256 L104 256 Z" fill="#d8cbb0"/>
+    <circle cx="186" cy="226" r="9" fill="#c49a5a"/>
+    <path d="M100 196 L156 196 L160 226 L96 226 Z" fill="url(#skin)"/>
+    <path d="M78 100 Q80 44 132 40 Q186 42 186 102 Q186 150 160 176 Q136 194 112 180 Q82 160 78 100 Z" fill="url(#skin)"/>
+    <path d="M176 112 L194 124 L178 130 Z" fill="#b0805f" stroke-width="3"/>
+    <path d="M148 98 L172 94" fill="none" stroke-width="4"/>
+    <ellipse cx="164" cy="110" rx="5" ry="6.5" fill="#11171b" stroke="none"/>
+    <ellipse cx="166" cy="107" rx="1.6" ry="2" fill="#ffffff" stroke="none"/>
+    <path d="M150 154 Q162 158 172 152" fill="none" stroke-width="3"/>
+    <path d="M76 106 Q66 40 134 36 Q194 40 188 92 Q170 64 136 64 Q104 66 88 104 Z" fill="url(#hair)"/>
+    <path d="M140 126 Q150 122 158 128 M120 162 Q140 172 160 166" fill="none" stroke="#8a5e45" stroke-width="2"/>
+  </g>
+</svg>

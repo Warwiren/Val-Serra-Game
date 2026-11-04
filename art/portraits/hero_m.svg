@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Portrait Héros — placeholder original Val'Serra, tourné vers la droite. -->
+  <defs>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0c39b"/><stop offset="1" stop-color="#c98f69"/></linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a3020"/><stop offset="1" stop-color="#2a1a10"/></linearGradient>
+    <linearGradient id="cloth" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#557780"/><stop offset="1" stop-color="#22353d"/></linearGradient>
+  </defs>
+  <g stroke="#11171b" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M30 256 Q36 212 96 200 L160 200 Q222 210 230 256 Z" fill="url(#cloth)"/>
+    <path d="M96 200 Q128 230 162 200 L170 222 Q128 250 88 222 Z" fill="#a4482f"/>
+    <path d="M196 214 L214 256 L196 256 L184 220 Z" fill="#4fd6e8" stroke-width="3"/>
+    <path d="M100 196 L156 196 L160 226 L96 226 Z" fill="url(#skin)"/>
+    <path d="M78 100 Q80 44 132 40 Q186 42 186 102 Q186 150 160 176 Q136 194 112 180 Q82 160 78 100 Z" fill="url(#skin)"/>
+    <path d="M176 112 L194 124 L178 130 Z" fill="#c98f69" stroke-width="3"/>
+    <path d="M148 98 L172 94" fill="none" stroke-width="4"/>
+    <ellipse cx="164" cy="110" rx="5" ry="6.5" fill="#11171b" stroke="none"/>
+    <ellipse cx="166" cy="107" rx="1.6" ry="2" fill="#ffffff" stroke="none"/>
+    <path d="M150 154 Q162 158 172 152" fill="none" stroke-width="3"/>
+    <path d="M72 106 Q64 34 134 30 Q196 34 192 92 Q178 70 152 72 Q156 86 138 88 Q128 70 108 82 Q104 104 90 122 Z" fill="url(#hair)"/>
+    <path d="M140 172 Q150 180 164 174" fill="none" stroke="#7a5236" stroke-width="2"/>
+  </g>
+</svg>

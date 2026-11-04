@@ -3,7 +3,7 @@ extends SceneTree
 ##   godot --headless --path . --script res://tools/simulate_battle.gd
 
 const BattleFactory = preload("res://src/combat/battle_factory.gd")
-const AutoPolicy = preload("res://tests/helpers/auto_policy.gd")
+const AutoPolicy = preload("res://src/combat/auto_policy.gd")
 
 
 func _initialize() -> void:

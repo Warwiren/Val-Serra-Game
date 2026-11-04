@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <!-- Arrière-plan lointain : crêtes et flèches d'Aether -->
+  <defs><radialGradient id="cglow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#7fefff" stop-opacity="0.55"/><stop offset="1" stop-color="#7fefff" stop-opacity="0"/></radialGradient><linearGradient id="mt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5d6b8a"/><stop offset="1" stop-color="#8e8aa0"/></linearGradient></defs>
+<path d="M0 720 L0 400 L139 315 L244 257 L363 313 L429 290 L503 345 L623 313 L731 276 L864 313 L925 305 L1037 321 L1120 349 L1200 268 L1277 363 L1353 283 L1280 720 Z" fill="url(#mt)"/>
+<path d="M0 720 L0 460 L50 360 L113 387 L173 381 L241 400 L303 429 L409 440 L472 383 L582 385 L689 409 L758 362 L831 413 L891 378 L957 368 L1028 398 L1130 437 L1217 360 L1305 403 L1280 720 Z" fill="#6f7895" opacity="0.9"/>
+<circle cx="250" cy="374.0" r="96.0" fill="url(#cglow)"/>
+<path d="M229.0 410 L244.0 332.0 L262.0 410 Z" fill="#9fd9ff" stroke="#0f141a" stroke-width="2"/>
+<path d="M250 410 L271.0 356.0 L283.0 410 Z" fill="#6fa6e0" stroke="#0f141a" stroke-width="2"/>
+<path d="M214.0 410 L220.0 374.0 L238.0 410 Z" fill="#6fa6e0" stroke="#0f141a" stroke-width="2"/><circle cx="640" cy="374.0" r="96.0" fill="url(#cglow)"/>
+<path d="M619.0 410 L634.0 332.0 L652.0 410 Z" fill="#9fd9ff" stroke="#0f141a" stroke-width="2"/>
+<path d="M640 410 L661.0 356.0 L673.0 410 Z" fill="#6fa6e0" stroke="#0f141a" stroke-width="2"/>
+<path d="M604.0 410 L610.0 374.0 L628.0 410 Z" fill="#6fa6e0" stroke="#0f141a" stroke-width="2"/><circle cx="1040" cy="374.0" r="96.0" fill="url(#cglow)"/>
+<path d="M1019.0 410 L1034.0 332.0 L1052.0 410 Z" fill="#9fd9ff" stroke="#0f141a" stroke-width="2"/>
+<path d="M1040 410 L1061.0 356.0 L1073.0 410 Z" fill="#6fa6e0" stroke="#0f141a" stroke-width="2"/>
+<path d="M1004.0 410 L1010.0 374.0 L1028.0 410 Z" fill="#6fa6e0" stroke="#0f141a" stroke-width="2"/></svg>

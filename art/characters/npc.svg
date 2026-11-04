@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 320" width="240" height="320">
+  <!-- PNJ : intendante de l'avant-poste (provisoire, original). Tournée vers la droite. Pieds en (120,306). -->
+  <defs>
+    <linearGradient id="dress" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0" stop-color="#7a5a3a"/><stop offset="1" stop-color="#3e2c1c"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e2b79a"/><stop offset="1" stop-color="#b0805f"/>
+    </linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d6d1c8"/><stop offset="1" stop-color="#8d877e"/>
+    </linearGradient>
+  </defs>
+  <g stroke="#11171b" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M100 290 L96 306 L118 306 L118 290 Z" fill="#3b2a1d"/>
+    <path d="M126 290 L126 306 L150 306 L144 290 Z" fill="#3b2a1d"/>
+    <path d="M98 124 Q122 112 148 124 L156 200 Q170 250 168 294 L84 294 Q80 250 92 200 Z" fill="url(#dress)"/>
+    <path d="M108 150 L144 150 L152 290 L104 290 Z" fill="#d8cbb0"/>
+    <path d="M110 170 L146 170" fill="none" stroke="#a8987a" stroke-width="2"/>
+    <rect x="96" y="188" width="56" height="10" rx="3" fill="#5a3f2d"/>
+    <circle cx="146" cy="206" r="7" fill="#c49a5a"/>
+    <path d="M116 100 L134 100 L134 118 L116 118 Z" fill="url(#skin)"/>
+    <path d="M108 68 Q110 42 132 42 Q154 44 154 70 Q154 92 140 102 Q124 106 114 96 Q106 86 108 68 Z" fill="url(#skin)"/>
+    <path d="M145 76 L156 82 L147 85 Z" fill="#b0805f" stroke-width="2"/>
+    <circle cx="108" cy="44" r="16" fill="url(#hair)"/>
+    <path d="M104 74 Q98 38 132 36 Q160 38 158 64 Q146 52 130 54 Q116 58 110 80 Z" fill="url(#hair)"/>
+    <path d="M139 72 L149 71" fill="none" stroke-width="2.5"/>
+    <ellipse cx="145" cy="77" rx="2.3" ry="2.8" fill="#11171b" stroke="none"/>
+    <path d="M136 92 Q142 95 148 92" fill="none" stroke-width="2"/>
+    <!-- registre tenu contre la poitrine -->
+    <path d="M126 140 Q150 146 160 166 L148 176 Q140 160 124 154 Z" fill="#6b4c32"/>
+    <rect x="142" y="146" width="30" height="38" rx="3" fill="#8a3a26" transform="rotate(12 157 165)"/>
+    <ellipse cx="154" cy="176" rx="8" ry="7.5" fill="url(#skin)"/>
+  </g>
+</svg>
