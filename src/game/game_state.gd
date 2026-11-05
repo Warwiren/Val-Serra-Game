@@ -12,6 +12,9 @@ const SCENE_RIG_VIEWER := "res://scenes/art/rig_viewer.tscn"
 ## Prototype recentré (scène principale) : zone de l'avant-poste -> combat dans la même clairière
 const SCENE_PROTO_ZONE := "res://scenes/proto/proto_zone.tscn"
 const SCENE_PROTO_BATTLE := "res://scenes/battle/battle_scene.tscn"
+## Exploration HD-2D expérimentale (branche exploration-hd2d) : scène séparée, combat inchangé
+const SCENE_EXPLORE_HD2D := "res://scenes/explore_hd2d/zone_hd2d.tscn"
+var explore_return: String = ""          # scène où revenir après un combat lancé depuis l'exploration
 
 const RENDER_2D := "A"      # Variante A : 2D illustrée simple
 const RENDER_25D := "B"     # Variante B : 2.5D (calques, parallax, lumière, particules)
@@ -59,6 +62,8 @@ func _ready() -> void:
 		elif arg == "--start=hd2d":
 			hd2d = true
 			_start_scene.call_deferred(SCENE_BATTLE)
+		elif arg == "--start=hd2d-zone":
+			_start_scene.call_deferred(SCENE_EXPLORE_HD2D)
 		elif arg == "--start=proto-battle":
 			proto = true
 			_start_scene.call_deferred(SCENE_PROTO_BATTLE)
