@@ -34,6 +34,8 @@ func _ready() -> void:
 	mv = SpriteMonsterView.new()
 	mv.sprite_dir = "res://art/proto/vorgane_nuit/"
 	mv.facing_right = true
+	if not neutral:
+		mv.scene_lights = [Vector2(60, 212), Vector2(683, 282), Vector2(951, 266), Vector2(1068, 262)]
 	add_child(mv)
 	add_child(fx)
 	mv.setup(Vector2(330, 506), 1.0, fx)

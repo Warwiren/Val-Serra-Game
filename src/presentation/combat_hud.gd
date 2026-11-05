@@ -239,6 +239,17 @@ func add_party_row(id: String, portrait: Texture2D, display_name: String, weapon
 	_c_party[id] = card
 
 
+## Gain de Résonance : « +N » éphémère sur la carte du Chasseur (aucun clignotement).
+func notify_resonance(actor_id: String, amount: int) -> void:
+	if _c_party.has(actor_id):
+		_c_party[actor_id].pop_gain(amount)
+
+
+func set_resonance_cost(cost: int) -> void:
+	for c in _c_party.values():
+		c.res_cost = cost
+
+
 func update_party(hp: Dictionary, maxhp: Dictionary, res: Dictionary, guard: Dictionary, current_id: String, ally_pick: bool) -> void:
 	for id in _c_party:
 		var c: PartyCard = _c_party[id]
@@ -478,10 +489,20 @@ class PartyCard extends Control:
 	var guard := false
 	var active := false
 	var pickable := false
+	var res_cost := 30
 	var _shown_hp := -1.0
 	var _t := 0.0
+	var _gain := 0
+	var _gain_t := 0.0
+	var _ready_t := -1.0          # instant où la compétence est devenue disponible (repère doux, 0,6 s)
+
+	func pop_gain(amount: int) -> void:
+		_gain = amount
+		_gain_t = 1.2
 
 	func set_values(h: int, m: int, r: int, g: bool, a: bool, pick: bool) -> void:
+		if res < res_cost and r >= res_cost:
+			_ready_t = 0.6
 		hp = h; max_hp = m; res = r; guard = g; active = a; pickable = pick
 		if _shown_hp < 0:
 			_shown_hp = float(h)
@@ -493,6 +514,8 @@ class PartyCard extends Control:
 
 	func _process(delta: float) -> void:
 		_t += delta
+		_gain_t = maxf(0.0, _gain_t - delta)
+		_ready_t = maxf(-1.0, _ready_t - delta)
 		_shown_hp = move_toward(_shown_hp, float(hp), delta * 160.0)
 		queue_redraw()
 
@@ -528,8 +551,18 @@ class PartyCard extends Control:
 		draw_string(UI.font(), Vector2(x, 56), "Rés.", HORIZONTAL_ALIGNMENT_LEFT, -1, UI.FS_TINY, UI.C_TEXT_2)
 		draw_string(UI.font(), Vector2(x, 56), "%d / 100" % res, HORIZONTAL_ALIGNMENT_RIGHT, w, UI.FS_TINY, UI.C_TEXT)
 		var rr := Rect2(x + 26, 48, w - 96, 7)
-		UI.draw_gauge(self, rr, res / 100.0, res / 100.0, UI.C_RESOURCE)
-		draw_line(Vector2(rr.position.x + rr.size.x * 0.3, rr.position.y - 2), Vector2(rr.position.x + rr.size.x * 0.3, rr.end.y + 2), UI.C_TEXT, 1.0)
+		var ready := res >= res_cost and not dead
+		UI.draw_gauge(self, rr, res / 100.0, res / 100.0, UI.C_AETHER if ready else UI.C_RESOURCE)
+		var mx := rr.position.x + rr.size.x * float(res_cost) / 100.0
+		draw_line(Vector2(mx, rr.position.y - 2), Vector2(mx, rr.end.y + 2), UI.C_TEXT, 1.0)
+		if ready:
+			# compétence disponible : liseré Aether fixe + losange ; une seule montée douce au franchissement du seuil
+			draw_rect(rr.grow(1.0), UI.C_AETHER, false, 1.0)
+			var k := clampf(_ready_t / 0.6, 0.0, 1.0)
+			UI.draw_icon(self, "aether", Vector2(rr.end.x + 8, rr.position.y + 3), 4.0 + 2.0 * k, UI.C_AETHER)
+		if _gain_t > 0.0:
+			var a := clampf(_gain_t / 0.4, 0.0, 1.0)
+			draw_string(UI.bold(), Vector2(rr.position.x + rr.size.x * res / 100.0 + 4, rr.position.y - 2 - (1.2 - _gain_t) * 6.0), "+%d" % _gain, HORIZONTAL_ALIGNMENT_LEFT, -1, UI.FS_TINY, Color(UI.C_RESOURCE, a))
 
 
 class BossBar extends Control:
@@ -549,18 +582,20 @@ class BossBar extends Control:
 		draw_style_box(UI.box(UI.C_BG, UI.C_SEP, 1, UI.RADIUS, 0.85), Rect2(Vector2.ZERO, size))
 		var c := Vector2(18, size.y * 0.5)
 		UI.draw_icon(self, "aether", c, 9.0, UI.C_BREAK)
-		var sw := statuses.size() * 128.0
-		var w := size.x - 44 - sw
+		var w := size.x - 44
 		draw_string(UI.bold(), Vector2(36, 14), display_name, HORIZONTAL_ALIGNMENT_LEFT, w * 0.6, UI.FS_SMALL, UI.C_TEXT)
 		draw_string(UI.font(), Vector2(36, 14), "%d / %d" % [hp, max_hp], HORIZONTAL_ALIGNMENT_RIGHT, w - 8, UI.FS_SMALL, UI.C_TEXT_2)
 		UI.draw_gauge(self, Rect2(36, 19, w - 8, 9), float(hp) / float(max_hp), _shown / float(max_hp), UI.C_HP_BOSS)
-		var x := size.x - sw - 4
-		for s in statuses:
-			var r := Rect2(x, 4, 124, size.y - 8)
-			draw_style_box(UI.box(UI.C_PANEL, s["color"], 1, 4, 0.95), r)
-			UI.draw_icon(self, s["icon"], Vector2(x + 13, size.y * 0.5), 7.0, s["color"])
-			draw_string(UI.font(), Vector2(x + 25, size.y * 0.5 + 5), s["text"], HORIZONTAL_ALIGNMENT_LEFT, 96, UI.FS_TINY, UI.C_TEXT)
-			x += 128.0
+		# Statuts actifs : rangée de pastilles AU-DESSUS de la barre, alignée à droite (la barre garde sa largeur)
+		var x := size.x
+		for k in range(statuses.size() - 1, -1, -1):
+			var st: Dictionary = statuses[k]
+			var tw := UI.font().get_string_size(st["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, UI.FS_TINY).x
+			var r := Rect2(x - tw - 30, -24, tw + 30, 20)
+			draw_style_box(UI.box(UI.C_PANEL, st["color"], 1, 4, 0.95), r)
+			UI.draw_icon(self, st["icon"], Vector2(r.position.x + 11, r.position.y + 10), 6.0, st["color"])
+			draw_string(UI.font(), Vector2(r.position.x + 22, r.position.y + 14), st["text"], HORIZONTAL_ALIGNMENT_LEFT, -1, UI.FS_TINY, UI.C_TEXT)
+			x = r.position.x - 6
 
 
 class ActionRow extends Control:

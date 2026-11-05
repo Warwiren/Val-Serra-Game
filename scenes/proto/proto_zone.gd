@@ -96,6 +96,7 @@ func _build_world() -> void:
 	monster = Monster.new()
 	monster.sprite_dir = "res://art/proto/vorgane_nuit/"
 	monster.facing_right = true
+	monster.scene_lights = [Vector2(60, 212), Vector2(683, 282), Vector2(951, 266), Vector2(1068, 262)]   # lanternes du décor
 	actors.add_child(monster)
 	monster.setup(MONSTER_POS, 1.0, null)
 	monster.visible = not GameState.enemy_defeated

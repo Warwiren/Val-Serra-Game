@@ -20,6 +20,8 @@ LAME = 16                                 # longueur de lame (px natifs), identi
 STEEL_HI, STEEL, STEEL_LO = (226, 232, 240), (168, 178, 194), (96, 104, 122)
 EDGE = (22, 20, 30)
 GUARD, GRIP = (214, 168, 86), (92, 58, 40)
+# Lame chargée d'Aether (poses de la technique de Résonance) : palette Aether de la charte (#55D9E6)
+AETHER_HI, AETHER, AETHER_LO = (226, 255, 255), (85, 217, 230), (36, 118, 150)
 # Couleurs du bras prélevées sur le sprite du pack
 SLEEVE = tuple(int(v) for v in base[20, 17, :3])     # manche claire
 SLEEVE_SH = tuple(int(v) for v in base[22, 18, :3])  # manche ombrée
@@ -52,7 +54,7 @@ def line_px(p, q):
     return [(x0 + (x1 - x0) * t / max(1, n - 1), y0 + (y1 - y0) * t / max(1, n - 1)) for t in range(n)]
 
 
-def sword(dst, hand, angle_deg):
+def sword(dst, hand, angle_deg, aether=False):
     """Épée tenue en `hand` (coordonnées du canevas), angle en degrés (0 = vers l'avant, 90 = vers le bas)."""
     a = math.radians(angle_deg)
     d = (math.cos(a), math.sin(a)); nrm = (-d[1], d[0])
@@ -62,10 +64,11 @@ def sword(dst, hand, angle_deg):
         for k in (-1, 1):
             put(dst, x + nrm[0] * k, y + nrm[1] * k, EDGE, only_empty=True)
     put(dst, tip[0] + d[0], tip[1] + d[1], EDGE, only_empty=True)
+    hi, mid, lo = (AETHER_HI, AETHER, AETHER_LO) if aether else (STEEL_HI, STEEL, STEEL_LO)
     for i, (x, y) in enumerate(blade):
-        put(dst, x, y, STEEL_HI if i < len(blade) - 2 else STEEL)
+        put(dst, x, y, hi if i < len(blade) - 2 else mid)
         if i % 3 != 2 and i < len(blade) - 1:
-            put(dst, x + nrm[0], y + nrm[1], STEEL_LO)
+            put(dst, x + nrm[0], y + nrm[1], lo)
     for k in (-2, -1, 0, 1, 2):
         put(dst, hand[0] + d[0] * 1.5 + nrm[0] * k, hand[1] + d[1] * 1.5 + nrm[1] * k, GUARD)
     for (x, y) in line_px(hand, (hand[0] - d[0] * 2, hand[1] - d[1] * 2)):
@@ -88,7 +91,7 @@ def arm(dst, shoulder, hand):
     put(dst, hx, hy, SKIN); put(dst, hx + 1, hy, SKIN_HI); put(dst, hx, hy + 1, SKIN); put(dst, hx + 1, hy + 1, SKIN)
 
 
-def pose(upper=(0, 0), hand=(2, 5), angle=62, legs=0, original_arm=False):
+def pose(upper=(0, 0), hand=(2, 5), angle=62, legs=0, original_arm=False, aether=False):
     """upper : décalage du haut du corps ; hand : main relative à l'épaule ; legs : flexion (rangées retirées)."""
     body = base.copy()
     if not original_arm:
@@ -106,7 +109,7 @@ def pose(upper=(0, 0), hand=(2, 5), angle=62, legs=0, original_arm=False):
     paste(out, top, OX + upper[0], OY + upper[1] + legs)
     sh = (OX + SHOULDER[0] + upper[0], OY + SHOULDER[1] + upper[1] + legs)
     hd = (sh[0] + hand[0], sh[1] + hand[1])
-    sword(out, hd, angle)
+    sword(out, hd, angle, aether)
     arm(out, sh, hd)
     return out
 
@@ -119,6 +122,9 @@ POSES = {
     "follow": pose(upper=(3, 1), hand=(5, 6), angle=42, legs=2),      # impact / suivi : lame vers le sol
     "guard":  pose(upper=(-1, 0), hand=(3, 1), angle=-100, legs=1),   # garde : lame verticale devant soi
     "hurt":   pose(upper=(-3, 0), hand=(0, 6), angle=112),            # touché : recul du buste
+    # Technique de Résonance : garde basse, lame chargée tenue en arrière, puis estocade en pleine extension
+    "aether_prep":   pose(upper=(-3, 1), hand=(-4, 4), angle=158, legs=3, aether=True),
+    "aether_strike": pose(upper=(4, 0), hand=(9, -1), angle=-12, legs=2, aether=True),
 }
 os.makedirs(OUT, exist_ok=True)
 for k, img in POSES.items():

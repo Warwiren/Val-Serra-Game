@@ -41,7 +41,7 @@ func setup(id: String, hunter_def: Dictionary, feet: Vector2, _scale_factor := 0
 		fr0 = load(POSE_DIR + key + "_idle.png")
 		frames.add_frame("idle", fr0)
 		frames.add_frame("idle", load(POSE_DIR + key + "_idle_1.png"))
-		for pz in ["prep", "strike", "follow", "guard", "hurt"]:
+		for pz in ["prep", "strike", "follow", "guard", "hurt", "aether_prep", "aether_strike"]:
 			frames.add_animation(pz)
 			frames.set_animation_loop(pz, false)
 			frames.add_frame(pz, load(POSE_DIR + key + "_" + pz + ".png"))
@@ -145,7 +145,9 @@ func prepare(mode: String, is_serum := false) -> void:
 	var strength := 0.6 if (mode == "CHARGE" or is_serum) else 0.0
 	_aura.modulate = Color(Color(1.0, 0.8, 0.45) if mode == "CHARGE" else Color(0.5, 0.9, 1.0), 0.0)
 	create_tween().tween_property(_aura, "modulate:a", strength, 0.25)
-	_pose("prep")                                         # anticipation lisible : lame levée, buste en arrière
+	_pose("aether_prep" if is_serum else "prep")          # anticipation lisible (technique : lame chargée en arrière)
+	if is_serum:
+		_blade_charge(true)
 	create_tween().tween_property(rig, "position", Vector2(-PX * 2, 0), 0.15)
 
 
@@ -172,6 +174,62 @@ func attack(target_global: Vector2, heavy: bool) -> void:
 	back.tween_interval(0.2)
 	back.tween_callback(_rest)
 	back.tween_property(rig, "position", Vector2.ZERO, 0.25).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+
+## Lueur d'Aether LIMITÉE à la lame (petite, sans halo sur le corps) pendant la préparation de la technique.
+var _blade_glow: Sprite2D
+
+func _blade_charge(on: bool) -> void:
+	if _blade_glow == null:
+		_blade_glow = Fx.glow_sprite(Color(0.33, 0.85, 0.9, 0.0), 46.0)
+		_blade_glow.z_index = 3
+		rig.add_child(_blade_glow)
+	_blade_glow.position = Vector2(-PX * 9, -PX * 10)      # le long de la lame tenue en arrière (pose aether_prep)
+	create_tween().tween_property(_blade_glow, "modulate:a", 0.55 if on else 0.0, 0.35 if on else 0.12)
+
+
+## Technique de Résonance (Pulsation d'Aether) : garde basse chargée -> estocade -> trait d'Aether net jusqu'à la
+## partie visée -> impact. Une seule trajectoire, pas de pluie de particules ; renvoie au moment de l'impact.
+func resonance_strike(target_global: Vector2) -> void:
+	_guarding = false
+	_pose("aether_prep")
+	_blade_charge(true)
+	var t := create_tween()
+	t.tween_property(rig, "position", Vector2(-PX * 4, PX), 0.22).set_trans(Tween.TRANS_SINE)
+	await t.finished
+	var t2 := create_tween()
+	t2.tween_property(rig, "position", Vector2(STEP, 0), 0.1).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
+	await t2.finished
+	_pose("aether_strike")
+	_blade_charge(false)
+	release_aura()
+	# Trait d'Aether : de la pointe de la lame (pose aether_strike) jusqu'à la cible
+	var tip := global_position + Vector2(scale.x * (PX * 26 + STEP), -_height * 0.5)
+	var beam := Line2D.new()
+	beam.points = PackedVector2Array([tip, target_global])
+	beam.width = 6.0
+	beam.default_color = Color(0.85, 1.0, 1.0, 0.95)
+	beam.z_index = 46
+	var add := CanvasItemMaterial.new()
+	add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	beam.material = add
+	get_parent().add_child(beam)
+	var core := Line2D.new()
+	core.points = beam.points
+	core.width = 2.0
+	core.default_color = Color(0.33, 0.85, 0.9, 1.0)
+	core.z_index = 47
+	get_parent().add_child(core)
+	var fade := create_tween()
+	fade.tween_property(beam, "width", 0.0, 0.2).set_ease(Tween.EASE_IN)
+	fade.parallel().tween_property(core, "modulate:a", 0.0, 0.2)
+	fade.tween_callback(beam.queue_free)
+	fade.tween_callback(core.queue_free)
+	Fx.ring(get_parent(), target_global, Color(0.6, 0.95, 1.0, 0.9), 80.0, 0.3, 4.0)
+	var back := create_tween()
+	back.tween_interval(0.35)
+	back.tween_callback(_rest)
+	back.tween_property(rig, "position", Vector2.ZERO, 0.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 
 func cast_serum() -> void:

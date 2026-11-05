@@ -33,6 +33,11 @@ var _frame_w := 256.0
 var _charge := 0.0
 
 
+## Sources lumineuses de la scène (lanternes) : à donner AVANT setup() pour un éclairage cohérent avec le décor.
+var scene_lights: Array = []
+var light_strength := 1.8
+
+
 func setup(feet: Vector2, _scale_factor := 0.9, overlay: Node = null) -> void:
 	position = feet.round()
 	scale = Vector2.ONE
@@ -58,6 +63,11 @@ func setup(feet: Vector2, _scale_factor := 0.9, overlay: Node = null) -> void:
 		mat.shader = preload("res://src/presentation/part_state.gdshader")
 		s.material = mat
 		_damage_mat[lname] = mat
+		if not scene_lights.is_empty():
+			mat.set_shader_parameter("lights", PackedVector2Array(scene_lights.slice(0, 4)))
+			mat.set_shader_parameter("light_count", mini(4, scene_lights.size()))
+			mat.set_shader_parameter("light_strength", light_strength)
+			mat.set_shader_parameter("flip_x", -1.0 if facing_right else 1.0)
 		rig.add_child(s)
 		layers[lname] = s
 	body = null

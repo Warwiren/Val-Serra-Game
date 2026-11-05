@@ -25,6 +25,8 @@ const UI = preload("res://src/presentation/ui_style.gd")
 const HUNTER_POS_PROTO := {"heros": Vector2(900, 500), "compagnon_vif": Vector2(1028, 468), "compagnon_lourd": Vector2(1150, 492)}
 const MONSTER_POS_PROTO := Vector2(330, 506)
 const PROTO_SPRITES := {"heros": "aren", "compagnon_vif": "ilya", "compagnon_lourd": "throne"}
+## Lanternes peintes du décor (coordonnées écran) : sources de lumière du combat ET de l'éclairage du Vorgane.
+const PROTO_LIGHTS := [Vector2(60, 212), Vector2(683, 282), Vector2(951, 266), Vector2(1068, 262)]
 const PROTO_NAMES := {"heros": "Aren", "compagnon_vif": "Ilya", "compagnon_lourd": "Throné"}
 
 ## Prototype artistique : positions légèrement différentes (personnages plus grands).
@@ -84,6 +86,12 @@ func _ready() -> void:
 		for id in PROTO_NAMES:
 			battle.get_combatant(id).name = PROTO_NAMES[id]
 	monster_id = battle.monsters()[0].id
+	if OS.get_cmdline_user_args().has("--dev-resonance"):
+		# OUTIL DE TEST UNIQUEMENT : précharge la jauge pour vérifier l'animation de la technique.
+		# Le parcours normal remplit la jauge par les attaques, gardes utiles et ruptures.
+		for h in battle.hunters():
+			h.resonance = int(battle.actions.get("serum_pulsation", {}).get("resonance_cost", 30))
+		print("DEV : Résonance préchargée (--dev-resonance)")
 	_build_world()
 	_build_hud()
 	GameState.render_mode_changed.connect(_on_render_mode)
@@ -179,7 +187,7 @@ func _build_world_proto() -> void:
 	var cm := CanvasModulate.new()
 	cm.color = Color(0.8, 0.8, 0.92)
 	add_child(cm)
-	for lp in [Vector2(60, 212), Vector2(683, 282), Vector2(951, 266), Vector2(1068, 262)]:
+	for lp in PROTO_LIGHTS:
 		var l := PointLight2D.new()
 		l.texture = Fx.glow_texture(256)
 		l.position = lp
@@ -198,6 +206,7 @@ func _build_world_proto() -> void:
 	var mv := SpriteMonsterView.new()
 	mv.sprite_dir = "res://art/proto/vorgane_nuit/"
 	mv.facing_right = true
+	mv.scene_lights = PROTO_LIGHTS
 	monster_view = mv
 	actors.add_child(monster_view)
 	monster_view.compact = true
@@ -288,6 +297,8 @@ func _build_hud() -> void:
 	for c in battle.hunters():
 		hud.add_party_row(c.id, _portrait(c.id), short_name(c.name), c.weapon_name, i)
 		i += 1
+	if hud.has_method("set_resonance_cost"):
+		hud.set_resonance_cost(int(battle.actions.get("serum_pulsation", {}).get("resonance_cost", 30)))
 	var m = battle.get_combatant(monster_id)
 	hud.set_monster(m.name, m.max_hp)
 	hud.timeline.portraits = {}
@@ -441,6 +452,12 @@ func _play(e: Dictionary) -> void:
 					await monster_view.lunge(hunters[tgt].center() if hunters.has(tgt) else Vector2(400, 420))
 		"serum":
 			var part_pos := monster_view.part_global(d.get("part", "glande"))
+			if GameState.proto and hunters[actor_id].has_method("resonance_strike"):
+				# Technique de Résonance : vraie pose + trait net + impact sur la partie visée (dégâts via « damage »)
+				await hunters[actor_id].resonance_strike(part_pos)
+				punch_zoom(part_pos, 0.05, 0.35)
+				await _wait(0.06)                    # bref temps d'arrêt à l'impact
+				return
 			await hunters[actor_id].cast_serum()
 			var from: Vector2 = hunters[actor_id].hand_global() if hunters[actor_id].has_method("hand_global") else hunters[actor_id].center()
 			await _orb(from, part_pos)
@@ -518,7 +535,12 @@ func _play(e: Dictionary) -> void:
 			await _wait(0.4)
 		"resonance":
 			disp_res[actor_id] = int(d.get("value", 0))
-			if hunters.has(actor_id) and d.get("amount", 0) >= 10:
+			if GameState.proto and hunters.has(actor_id):
+				# Gain visible à chaque fois (petit, sur le Chasseur) + repère sur sa carte du HUD
+				Fx.float_text(fx, hunters[actor_id].center() + Vector2(0, -95), "+%d Résonance" % int(d["amount"]), UI.C_RESOURCE, 18, 30.0, 0.8)
+				if hud.has_method("notify_resonance"):
+					hud.notify_resonance(actor_id, int(d["amount"]))
+			elif hunters.has(actor_id) and d.get("amount", 0) >= 10:
 				Fx.float_text(fx, hunters[actor_id].center() + Vector2(-40, -110), "+%d Rés." % int(d["amount"]), Color("#5fe3ff"), 20, 40.0, 0.7)
 		"defeated":
 			if hunters.has(actor_id):
@@ -585,6 +607,8 @@ func _last_hit_affinity() -> float:
 
 
 func _log_entry(e: Dictionary) -> void:
+	if GameState.autoplay and e["type"] == "resonance":
+		print("JOURNAL v=%.1f t=%d %s | %s" % [Engine.get_frames_drawn() / 30.0, int(e["t"]), e["type"], e["text"]])
 	if e["type"] in ["turn", "break_progress", "resonance"]:
 		return
 	var col := "#d8dee4"
@@ -597,7 +621,7 @@ func _log_entry(e: Dictionary) -> void:
 			col = "#ffd27a" if e["data"].get("telegraph", false) else "#b8c4ce"
 	hud.log_append(int(e["t"]), e["text"], col)
 	if GameState.autoplay:
-		print("JOURNAL t=%d %s | %s" % [int(e["t"]), e["type"], e["text"]])   # trace des scénarios couverts (démo)
+		print("JOURNAL v=%.1f t=%d %s | %s" % [Engine.get_frames_drawn() / 30.0, int(e["t"]), e["type"], e["text"]])   # trace (v = temps vidéo à 30 i/s)
 
 
 # ---------------------------------------------------------------------------
@@ -726,6 +750,8 @@ func _refresh_selection() -> void:
 			label += "  ×%d" % int(battle.inventory.get(def["item"], 0))
 		if def.has("resonance_cost") and not GameState.proto:
 			label += "  (%d Rés.)" % int(def["resonance_cost"])
+		elif def.has("resonance_cost") and a.resonance < int(def["resonance_cost"]):
+			label += "  %d/%d" % [a.resonance, int(def["resonance_cost"])]
 		var ok := _action_enabled(a, aid)
 		var why: String = def.get("description", "") if ok else battle.validate(a, _cmd_for(aid))
 		list.append({"id": aid, "label": label, "enabled": ok, "reason": why})
@@ -738,8 +764,14 @@ func _refresh_selection() -> void:
 	if GameState.proto:
 		var dtxt: String = def_sel.get("description", "")
 		if def_sel.has("resonance_cost"):
-			dtxt += " Coût : %d Résonance." % int(def_sel["resonance_cost"])
-		if not valid:
+			var cost := int(def_sel["resonance_cost"])
+			if a.resonance >= cost:
+				dtxt = "Technique de Résonance : estocade d'Aether sur la partie visée, recule le monstre. Coût : %d Résonance." % cost
+			else:
+				# Le joueur voit où il en est et comment remplir la jauge (valeurs lues dans les données du moteur)
+				dtxt = "Résonance de %s : %d / %d.\nGagnez-la : Attaque +%d · Garde utile +%d · Rupture +%d." % [short_name(a.name), a.resonance, cost,
+					int(battle.actions["attaque"].get("resonance_gain", 0)), int(battle.rules["resonance"]["gain_useful_guard"]), int(battle.rules["resonance"]["gain_break"])]
+		elif not valid:
 			dtxt += "\n[color=#%s]Indisponible : %s[/color]" % [UI.C_DANGER.to_html(false), battle.validate(a, cmd)]
 		hud.set_action_description(short_name(def_sel["name"]), dtxt)
 	monster_view.targeting = tk == "enemy_part"
