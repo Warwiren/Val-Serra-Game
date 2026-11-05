@@ -6,7 +6,17 @@ Référence : documents 07 (Brief MVP) et 08 (Mission Claude) du dossier Drive d
 > Tous les personnages, monstres, illustrations et nombres de ce dépôt sont **provisoires et non canoniques**.
 > Ce dépôt est indépendant du système Foundry du JDR (`Warwiren/Val-serra`), qui n'est pas modifié.
 
-## État actuel : prototype recentré (pack visuel)
+## Dernière passe : correctifs et HUD de combat (brief unifié v1.1) — branche `correctifs-hud`
+
+Clignotement du Vorgane diagnostiqué et corrigé (mesures image par image), Vorgane étalonné sur la référence du pack,
+vraies poses de combat pour Aren, HUD de combat refait selon l'annexe A avec les données réelles du moteur, charte
+centralisée (`src/presentation/ui_style.gd`). 40 tests réussis sur 40.
+Compte rendu, diagnostic, scénarios et limites : **`docs/CORRECTIFS_HUD.md`** ·
+vidéo : `docs/media/correctifs/correctifs_hud_demo.mp4`.
+
+![HUD de combat](docs/media/correctifs/hud_apres_1280.jpg)
+
+## Prototype recentré (pack visuel)
 
 **F5 lance directement la boucle jouable** : avant-poste → dialogue avec le garde → contact avec le Vorgane →
 combat dans la même clairière → retour. Aren jouable, Ilya et Throné suivent ; tous les personnages

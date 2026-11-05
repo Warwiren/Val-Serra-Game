@@ -155,14 +155,14 @@ func build() -> void:
 	for i in range(3):
 		var c := TempoCard.new()
 		c.position = Vector2(i * 178, 0)
-		c.size = Vector2(170, 84)
+		c.size = Vector2(170, 90)
 		c.index = i
 		c.pressed.connect(_c_on_card)
 		right.add_child(c)
 		_c_cards.append(c)
 	_c_info = TempoCard.new()
 	_c_info.position = Vector2(0, 0)
-	_c_info.size = Vector2(3 * 170 + 16, 84)
+	_c_info.size = Vector2(3 * 170 + 16, 90)
 	_c_info.static_card = true
 	_c_info.visible = false
 	right.add_child(_c_info)
@@ -175,7 +175,7 @@ func build() -> void:
 	_c_confirm = Button.new()
 	_c_confirm.text = "Confirmer\nEntrée"
 	_c_confirm.position = Vector2(3 * 178 + 2, 0)
-	_c_confirm.size = Vector2(150, 84)
+	_c_confirm.size = Vector2(150, 90)
 	_c_confirm.focus_mode = Control.FOCUS_NONE
 	_c_confirm.add_theme_stylebox_override("normal", UI.box(UI.C_PANEL_2, UI.C_GOLD, 2))
 	_c_confirm.add_theme_stylebox_override("hover", UI.box(UI.C_PANEL_2, UI.C_SELECT, 2))
@@ -187,7 +187,7 @@ func build() -> void:
 	_c_preview = RichTextLabel.new()
 	_c_preview.bbcode_enabled = true
 	_c_preview.scroll_active = false
-	_c_preview.position = Vector2(0, 88)
+	_c_preview.position = Vector2(0, 94)
 	_c_preview.size = Vector2(3 * 178 + 152, 22)
 	_c_preview.add_theme_font_size_override("normal_font_size", UI.FS_SMALL)
 	_c_preview.add_theme_color_override("default_color", UI.C_TEXT_2)
@@ -331,7 +331,7 @@ func set_ally_choices(allies: Array, selected: String) -> void:
 	for a in allies:
 		var b := Button.new()
 		b.text = "%s\n%d / %d PV" % [a["name"], a["hp"], a["max"]]
-		b.custom_minimum_size = Vector2(170, 84)
+		b.custom_minimum_size = Vector2(170, 90)
 		b.focus_mode = Control.FOCUS_NONE
 		b.toggle_mode = true
 		b.button_pressed = a["id"] == selected
@@ -640,7 +640,7 @@ class TempoCard extends Control:
 			draw_string(UI.bold(), Vector2(x, 25), UI.MODE_TITLES[mode], HORIZONTAL_ALIGNMENT_LEFT, size.x - x - 8, UI.FS_MAIN, UI.C_SELECT if sel else UI.C_TEXT)
 		else:
 			draw_string(UI.bold(), Vector2(x, 25), data.get("title", ""), HORIZONTAL_ALIGNMENT_LEFT, size.x - 20, UI.FS_MAIN, UI.C_TEXT)
-		var y := 44.0
+		var y := 45.0
 		for line in data.get("lines", []):
 			var txt: String = line
 			var lc := UI.C_TEXT_2
@@ -651,6 +651,6 @@ class TempoCard extends Control:
 				lc = UI.C_DANGER
 				txt = txt.substr(2)
 			draw_string(UI.font(), Vector2(12, y), txt, HORIZONTAL_ALIGNMENT_LEFT, size.x - 20, UI.FS_SMALL, lc)
-			y += 17.0
+			y += 16.0
 		if not enabled and not static_card:
 			draw_rect(Rect2(Vector2.ZERO, size), Color(UI.C_BG, 0.5))

@@ -45,3 +45,26 @@ func test_proto_characters_share_one_scale() -> void:
 	check_eq(_size("res://art/proto/zone_bg.png"), Vector2i(427, 240), "décor natif 427×240 (×3 = 1280×720)")
 	var anchors: Dictionary = JSON.parse_string(FileAccess.open("res://art/proto/vorgane/anchors.json", FileAccess.READ).get_as_text())["images"]
 	check(anchors.has("idle_001"), "ancrages du Vorgane (échelle prototype) présents")
+
+
+## Correctifs v1.1 : poses de combat d'Aren sur un canevas commun (ancrage stable), Vorgane étalonné complet.
+func test_aren_combat_poses_share_canvas() -> void:
+	for k in ["idle", "idle_1", "prep", "strike", "follow", "guard", "hurt"]:
+		var p := "res://art/proto/aren_combat/aren_%s.png" % k
+		check(FileAccess.file_exists(p), "pose %s présente" % k)
+		check_eq(_size(p), Vector2i(64, 42), "pose %s : canevas commun 64×42" % k)
+
+
+func test_graded_vorgane_matches_original_layout() -> void:
+	for layer in ["base", "carapace", "carapace_broken", "griffe", "griffe_broken", "glande"]:
+		for anim in MON.ANIMS:
+			for fr in MON.ANIMS[anim]["frames"]:
+				var key := "%s_%03d" % [anim, fr]
+				check_eq(_size("res://art/proto/vorgane_nuit/%s/%s.png" % [layer, key]), _size("res://art/proto/vorgane/%s/%s.png" % [layer, key]), "%s/%s : même cadrage que l'original" % [layer, key])
+
+
+## La charte d'interface est centralisée : aucun code couleur hexadécimal dans les scripts du HUD de combat.
+func test_combat_ui_colors_are_centralized() -> void:
+	for p in ["res://src/presentation/combat_hud.gd", "res://src/presentation/initiative_bar.gd"]:
+		var src := FileAccess.open(p, FileAccess.READ).get_as_text()
+		check(src.find("Color(\"#") < 0, "%s : pas de couleur codée en dur (utiliser UiStyle)" % p.get_file())

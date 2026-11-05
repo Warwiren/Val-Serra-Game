@@ -30,6 +30,10 @@ Aucun son n'est encore intégré.
 | `art/proto/{aren,ilya,throne,pnj}*.png`, `portrait_*.png` | **Prototype recentré** : sprites (même grille, même palette) et portraits | Dérivés du pack par `tools/art/pack_extract.py` | Mêmes conditions que le pack | Production (test) |
 | `art/proto/zone_bg.png` | Décor de l'avant-poste (zone et combat), personnages peints retirés | Dérivé du pack par `tools/art/pack_zone.py` | Mêmes conditions que le pack | Production (test) |
 | `art/proto/vorgane/**` | Vorgane à l'échelle du prototype (×3) | Rendus Blender convertis par `tools/art/pixelize_layers.py` (facteur 3) | Dérivé du modèle Meshy | Production (test) |
+| `art/proto/vorgane_nuit/**` | Vorgane étalonné (corps sombre, cristaux violets, glande cyan), mêmes cadrages que `art/proto/vorgane/` (conservé) | `tools/art/vorgane_grade.py` | Dérivé du modèle Meshy | Production (test) |
+| `art/proto/aren_combat/*.png` | Poses de combat d'Aren (repos armé, préparation, frappe, impact, garde, touché) | `tools/art/aren_poses.py` à partir du sprite du pack | Mêmes conditions que le pack | Production (test) |
+| `art/fonts/Inter-*.otf` | Police d'interface Inter | The Inter Project Authors | **SIL OFL 1.1** (licence jointe) | Libre |
+| `art/fonts/Caladea-*.ttf` | Police de titres Caladea | Carolina Giovagnoli, Andrés Torresi (Huerta Tipográfica) | **SIL OFL 1.1** (licence jointe) | Libre |
 | Lumières, particules, brume | Textures de dégradé générées dans le moteur (`src/presentation/fx.gd`) | Code | Projet | — |
 
 Rappel : la capture d'Octopath Traveler II fournie par le créateur est une **référence d'ambiance** ;

@@ -284,9 +284,9 @@ func _draw_markers_compact() -> void:
 			markers.draw_arc(p, r + 4, 0, TAU, 32, Color(UI.C_SELECT, 0.6 + 0.3 * sin(_t * 4.0)), 2.0, true)
 		if not (sel or hov):
 			continue
-		# Étiquette au-dessus du dos, décalée vers l'extérieur ; trait fin jusqu'au repère
-		var lp := p + Vector2(-60, -86)
-		var rect := Rect2(lp - Vector2(0, 0), Vector2(170, 46))
+		# Étiquette au-dessus du dos ; trait fin jusqu'au repère
+		var lp := Vector2(p.x - 60, -220)        # au-dessus de la silhouette (pieds = 0, cristaux ≈ -165) : ne masque pas les cristaux
+		var rect := Rect2(lp + Vector2(0, -12), Vector2(170, 58))
 		markers.draw_line(p + Vector2(0, -r), Vector2(rect.position.x + 30, rect.end.y), Color(UI.C_SELECT if sel else UI.C_TEXT_2, 0.8), 1.0, true)
 		markers.draw_style_box(UI.box(UI.C_BG, UI.C_SELECT if sel else UI.C_SEP, 1, 4, 0.9), rect)
 		markers.draw_string(UI.bold(), rect.position + Vector2(8, 17), info["name"], HORIZONTAL_ALIGNMENT_LEFT, 154, UI.FS_SMALL, UI.C_TEXT)
@@ -297,5 +297,5 @@ func _draw_markers_compact() -> void:
 			markers.draw_string(UI.font(), rect.position + Vector2(104, 34), "%d/%d" % [info["integrity"], info["max"]], HORIZONTAL_ALIGNMENT_LEFT, 60, UI.FS_TINY, UI.C_TEXT_2)
 			var hint: String = info.get("hint", "")
 			if hint.begins_with("▲"):
-				markers.draw_string(UI.bold(), rect.position + Vector2(8, -6), "FAIBLESSE " + hint.substr(2), HORIZONTAL_ALIGNMENT_LEFT, 160, UI.FS_TINY, UI.C_WEAK)
+				markers.draw_string(UI.bold(), rect.position + Vector2(8, 51), "▲ Faiblesse " + hint.substr(2), HORIZONTAL_ALIGNMENT_LEFT, 160, UI.FS_TINY, UI.C_WEAK)
 

@@ -47,6 +47,7 @@ const MODE_TITLES := {"VIF": "VIF  »»»", "MESURE": "MESURÉ  »»", "CHARGE":
 var battle: Battle
 var stage: Stage
 var hud: BattleHud
+var _demo_guard_done := false
 var cam: Camera2D
 var actors: Node2D
 var fx: Node2D
@@ -201,11 +202,13 @@ func _build_world_proto() -> void:
 	actors.add_child(monster_view)
 	monster_view.compact = true
 	monster_view.setup(MONSTER_POS_PROTO, 1.0, fx)
+	if OS.get_cmdline_user_args().has("--no-hud"):
+		overlay.visible = false
 	monster_view.z_index = int(MONSTER_POS_PROTO.y / 10.0) - 2
 	for c in battle.hunters():
 		var hv := ProtoHero.new()
 		actors.add_child(hv)
-		hv.setup(c.id, {"sprite": PROTO_SPRITES[c.id]}, HUNTER_POS_PROTO[c.id])
+		hv.setup(c.id, {"sprite": PROTO_SPRITES[c.id], "combat": true}, HUNTER_POS_PROTO[c.id])
 		hv.scale.x = -1
 		hv.z_index = int(HUNTER_POS_PROTO[c.id].y / 10.0)
 		hunters[c.id] = hv
@@ -276,6 +279,7 @@ func _build_hud() -> void:
 	var layer := CanvasLayer.new()
 	layer.layer = 10
 	add_child(layer)
+	layer.visible = not OS.get_cmdline_user_args().has("--no-hud")   # outil : capture de cohérence sans interface
 	hud = CombatHud.new() if GameState.proto else BattleHud.new()
 	hud.simple = GameState.proto
 	layer.add_child(hud)
@@ -592,6 +596,8 @@ func _log_entry(e: Dictionary) -> void:
 		"cast":
 			col = "#ffd27a" if e["data"].get("telegraph", false) else "#b8c4ce"
 	hud.log_append(int(e["t"]), e["text"], col)
+	if GameState.autoplay:
+		print("JOURNAL t=%d %s | %s" % [int(e["t"]), e["type"], e["text"]])   # trace des scénarios couverts (démo)
 
 
 # ---------------------------------------------------------------------------
@@ -718,7 +724,7 @@ func _refresh_selection() -> void:
 		var label: String = short_name(def["name"])
 		if def.has("item"):
 			label += "  ×%d" % int(battle.inventory.get(def["item"], 0))
-		if def.has("resonance_cost"):
+		if def.has("resonance_cost") and not GameState.proto:
 			label += "  (%d Rés.)" % int(def["resonance_cost"])
 		var ok := _action_enabled(a, aid)
 		var why: String = def.get("description", "") if ok else battle.validate(a, _cmd_for(aid))
@@ -731,6 +737,8 @@ func _refresh_selection() -> void:
 	var tk := _target_kind()
 	if GameState.proto:
 		var dtxt: String = def_sel.get("description", "")
+		if def_sel.has("resonance_cost"):
+			dtxt += " Coût : %d Résonance." % int(def_sel["resonance_cost"])
 		if not valid:
 			dtxt += "\n[color=#%s]Indisponible : %s[/color]" % [UI.C_DANGER.to_html(false), battle.validate(a, cmd)]
 		hud.set_action_description(short_name(def_sel["name"]), dtxt)
@@ -955,6 +963,10 @@ func _cycle_target(dir: int) -> void:
 ## Démonstration automatique (vidéos) : choisit comme la politique de test, en variant les modes.
 func _auto_turn() -> void:
 	var cmd := AutoPolicy.choose(battle)
+	# Démo du prototype : montrer une garde la première fois qu'une attaque est annoncée (scénario « protection »)
+	if GameState.proto and tele_resolve >= 0 and not _demo_guard_done:
+		_demo_guard_done = true
+		cmd = {"action": "garde"}
 	await _wait(0.5)
 	sel_action = cmd["action"]
 	if cmd.has("part"):

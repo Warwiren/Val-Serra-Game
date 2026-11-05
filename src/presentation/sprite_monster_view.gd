@@ -17,8 +17,9 @@ const ANIMS := {
 const CLAW_IMPACT_INDEX := 5
 const LAYER_PARTS := {"carapace": "carapace", "griffe": "griffe", "glande": "glande"}
 const GLOW_SIZE := 60.0
-const HIT_FLASH := 0.35               # flash d'impact : bref, partiel, uniquement AU MOMENT du coup
-const BREAK_FLASH := 0.55
+const HIT_FLASH := 0.45               # flash d'impact : bref, sur la PARTIE touchée seulement, AU MOMENT du coup
+const BREAK_FLASH := 0.6
+const BODY_FLASH_RATIO := 0.2         # le corps ne reçoit qu'un reflet : la silhouette reste lisible
 
 var layers: Dictionary = {}          # nom -> AnimatedSprite2D
 var frames_cache: Dictionary = {}    # nom de calque -> SpriteFrames
@@ -150,8 +151,8 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	# Ombre de contact pleine (sans flou), sous les pattes, qui suit le bond
-	draw_set_transform(Vector2(rig.position.x + (60.0 if facing_right else -60.0), -3), 0.0, Vector2(1.0, 0.16))
-	draw_circle(Vector2.ZERO, 185.0, Color(0.02, 0.02, 0.05, 0.5))
+	draw_set_transform(Vector2(rig.position.x + (20.0 if facing_right else -20.0), -2), 0.0, Vector2(1.0, 0.14))
+	draw_circle(Vector2.ZERO, 150.0, Color(0.02, 0.02, 0.05, 0.55))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
@@ -248,10 +249,7 @@ func breath(targets: Array) -> void:
 func hurt(_part_id: String, heavy: bool) -> void:
 	if not _busy:
 		_play("hit")
-	var f := HIT_FLASH * (1.3 if heavy else 1.0)
-	_set_flash_all(f)
-	var t := create_tween()
-	t.tween_method(_set_flash_all, f, 0.0, 0.12)
+	_flash_part(_part_id, HIT_FLASH * (1.2 if heavy else 1.0), 0.12)
 	var s := create_tween()
 	s.tween_property(rig, "position", Vector2(14 if heavy else 7, 0), 0.05)
 	s.tween_property(rig, "position", Vector2.ZERO, 0.2)
@@ -261,7 +259,7 @@ func hurt(_part_id: String, heavy: bool) -> void:
 func break_part(part_id: String) -> void:
 	var pos := part_global(part_id)
 	Fx.ring(get_parent(), pos, Color(1.0, 0.9, 0.6, 1.0), 220.0, 0.55, 9.0)
-	Fx.burst(get_parent(), pos, Color(0.78, 0.7, 1.0), 44, 520.0, 12.0, 0.9, 700.0)
+	Fx.burst(get_parent(), pos, Color(0.78, 0.7, 1.0), 22, 380.0, 8.0, 0.6, 700.0)
 	if part_id in ["carapace", "griffe"]:
 		var l: AnimatedSprite2D = layers[part_id]
 		var anim := l.animation
@@ -269,10 +267,18 @@ func break_part(part_id: String) -> void:
 		l.sprite_frames = _frames(part_id + "_broken")
 		l.animation = anim
 		l.frame = fr
-	_set_flash_all(BREAK_FLASH)
-	var t := create_tween()
-	t.tween_method(_set_flash_all, BREAK_FLASH, 0.0, 0.2)
+	_flash_part(part_id, BREAK_FLASH, 0.18)
 	await get_tree().create_timer(0.1).timeout
+
+
+## Flash localisé : la partie touchée s'éclaire, le corps ne reçoit qu'un faible reflet.
+func _flash_part(part_id: String, amount: float, duration: float) -> void:
+	var lname: String = part_id if _damage_mat.has(part_id) else "base"
+	var f := func(v: float) -> void:
+		for k in _damage_mat:
+			(_damage_mat[k] as ShaderMaterial).set_shader_parameter("flash", v if k == lname else v * BODY_FLASH_RATIO)
+	f.call(amount)
+	create_tween().tween_method(f, amount, 0.0, duration)
 
 
 func _set_flash_all(v: float) -> void:
