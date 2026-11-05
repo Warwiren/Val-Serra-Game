@@ -29,6 +29,8 @@ func _ready() -> void:
 	add_child(aren)
 	aren.setup("heros", {"sprite": "aren", "combat": true}, Vector2(900, 500))
 	aren.scale.x = -1
+	if OS.get_cmdline_user_args().has("--no-vfx"):
+		aren.vfx = false
 	_run()
 
 
@@ -56,6 +58,11 @@ func _run() -> void:
 	await get_tree().create_timer(0.8).timeout
 	_mark("hurt")
 	aren.hurt(true)
+	await get_tree().create_timer(1.0).timeout
+	_mark("resonance")
+	aren.prepare("MESURE", true)
+	await get_tree().create_timer(0.6).timeout
+	await aren.resonance_strike(Vector2(420, 430))
 	await get_tree().create_timer(1.0).timeout
 	_mark("fin")
 	get_tree().quit()

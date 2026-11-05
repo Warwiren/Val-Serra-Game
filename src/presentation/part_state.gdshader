@@ -46,7 +46,7 @@ void fragment() {
 		float fall = clamp(1.0 - length(d) / light_radius, 0.0, 1.0);
 		vec2 dir = normalize(d);
 		float edge = c.a * (1.0 - texture(TEXTURE, UV + vec2(dir.x * flip_x, dir.y) * TEXTURE_PIXEL_SIZE).a);
-		lit += fall * fall * (0.2 + 0.8 * edge);
+		lit += fall * fall * (0.04 + 0.96 * edge);   // surtout le liseré tourné vers la source, presque pas de voile
 	}
 	c.rgb += light_color.rgb * clamp(lit * light_strength, 0.0, 0.6) * 0.8;
 	c.rgb = mix(c.rgb, vec3(0.75, 1.0, 1.0), charge * 0.55);

@@ -12,6 +12,7 @@ const WALK_MIN := Vector2(60, 462)
 const WALK_MAX := Vector2(1225, 560)
 const SPEED := 210.0
 const SPAWN := Vector2(700, 520)
+const FOLLOW_GAP := 80.0                 # écart de file : les silhouettes (66 à 111 px de large) ne se chevauchent pas
 const NPC_POS := Vector2(1110, 478)
 const MONSTER_POS := Vector2(255, 548)
 const TALK_RANGE := 120.0
@@ -88,13 +89,13 @@ func _build_world() -> void:
 	hero.setup("heros", {"sprite": "aren"}, SPAWN)
 	for i in range(2):
 		var c := Hero.new(); actors.add_child(c)
-		c.setup(["compagnon_vif", "compagnon_lourd"][i], {"sprite": ["ilya", "throne"][i]}, SPAWN - Vector2(60 * (i + 1), -6 * i))
+		c.setup(["compagnon_vif", "compagnon_lourd"][i], {"sprite": ["ilya", "throne"][i]}, SPAWN - Vector2(FOLLOW_GAP * (i + 1), -6 * i))
 		companions.append(c)
 	npc = Hero.new(); actors.add_child(npc)
 	npc.setup("pnj", {"sprite": "pnj"}, NPC_POS)
 	npc.scale.x = -1
 	monster = Monster.new()
-	monster.sprite_dir = "res://art/proto/vorgane_nuit/"
+	monster.sprite_dir = "res://art/proto/vorgane_nuit_p1/"
 	monster.facing_right = true
 	monster.scene_lights = [Vector2(60, 212), Vector2(683, 282), Vector2(951, 266), Vector2(1068, 262)]   # lanternes du décor
 	actors.add_child(monster)
@@ -239,7 +240,7 @@ func _on_arrival() -> void:
 		var pos := GameState.zone_return_pos if GameState.last_battle_result == "victory" else SPAWN
 		hero.position = pos
 		for i in range(companions.size()):
-			companions[i].position = pos + Vector2(60 * (i + 1), 0)
+			companions[i].position = pos - Vector2(FOLLOW_GAP * (i + 1), -6 * i)
 		GameState.from_zone = false
 		GameState.last_battle_result = ""
 
@@ -295,13 +296,13 @@ func _process(delta: float) -> void:
 func _follow(delta: float) -> void:
 	for i in range(companions.size()):
 		var c: Hero = companions[i]
-		var lag := 16 * (i + 1)
+		var lag := int(FOLLOW_GAP / 3.0) * (i + 1)          # la trace est échantillonnée tous les 3 px
 		var target: Vector2 = c.position
 		if _trail.size() > lag:
 			target = _trail[_trail.size() - lag]
 		var to := target - c.position
 		var leader: Node2D = hero if i == 0 else companions[i - 1]
-		var moving := to.length() > 3.0 and c.position.distance_to(leader.position) > 46.0
+		var moving := to.length() > 3.0 and c.position.distance_to(leader.position) > FOLLOW_GAP * 0.9
 		if moving:
 			c.position += to.normalized() * minf(SPEED * 1.1 * delta, to.length())
 		c.walk(moving, to.x if moving else 0.0, delta)

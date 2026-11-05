@@ -32,7 +32,7 @@ func _ready() -> void:
 		add_child(cm)
 	fx = Node2D.new()
 	mv = SpriteMonsterView.new()
-	mv.sprite_dir = "res://art/proto/vorgane_nuit/"
+	mv.sprite_dir = "res://art/proto/vorgane_nuit_p1/"
 	mv.facing_right = true
 	if not neutral:
 		mv.scene_lights = [Vector2(60, 212), Vector2(683, 282), Vector2(951, 266), Vector2(1068, 262)]
@@ -59,11 +59,23 @@ func _run() -> void:
 	for i in range(3):
 		_mark("souffle_prepare_%d" % i)
 		mv.set_telegraph(true)
+		create_tween().tween_property(mv, "charge_progress", 1.0, 2.0)   # avancement de la préparation
 		await get_tree().create_timer(2.0).timeout
 		_mark("souffle_hit_%d" % i)
 		await mv.breath(targets)
 		mv.set_telegraph(false)
 		await get_tree().create_timer(1.0).timeout
+	# Préparation INTERROMPUE (rupture de la glande) : la charge doit s'arrêter, sans projectile
+	_mark("souffle_prepare_interrompu")
+	mv.set_telegraph(true)
+	create_tween().tween_property(mv, "charge_progress", 0.6, 1.2)
+	await get_tree().create_timer(1.2).timeout
+	_mark("interruption")
+	mv.part_info["glande"] = {"name": "Glande d'Aether", "integrity": 0, "max": 90, "broken": true}
+	mv.break_part("glande")
+	mv.set_telegraph(false)
+	await get_tree().create_timer(1.5).timeout
+	mv.part_info["glande"]["broken"] = false
 	for i in range(3):
 		_mark("griffe_prepare_%d" % i)
 		mv.prepare()

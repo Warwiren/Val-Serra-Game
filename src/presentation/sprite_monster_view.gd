@@ -14,6 +14,15 @@ const ANIMS := {
 	"hit": {"frames": [1, 3, 5, 7, 10, 14, 18], "fps": 16.0, "loop": false},
 	"walk": {"frames": [1, 5, 9, 13, 17, 21, 25, 29], "fps": 10.0, "loop": true},
 }
+## Attaque annoncée (lot P1, rendues depuis Blender : tools/blender/add_actions_vorgane.py) — si présentes :
+##   charge_in  : le corps s'abaisse et se contracte (annonce) ; charge_hold : posture tenue (préparation)
+##   release    : poussée vers l'avant, gueule ouverte (résolution)
+const CHARGE_ANIMS := {
+	"charge_in": {"file": "charge", "frames": [1, 4, 8, 11, 14], "fps": 10.0, "loop": false},
+	"charge_hold": {"file": "charge", "frames": [14, 17, 20, 23, 26, 23, 20, 17], "fps": 6.0, "loop": true},
+	"release": {"file": "release", "frames": [1, 3, 5, 7, 9, 12, 15, 18], "fps": 14.0, "loop": false},
+}
+const RELEASE_EMIT_INDEX := 2          # image « release_005 » : gueule ouverte, buste projeté
 const CLAW_IMPACT_INDEX := 5
 const LAYER_PARTS := {"carapace": "carapace", "griffe": "griffe", "glande": "glande"}
 const GLOW_SIZE := 60.0
@@ -31,11 +40,14 @@ var sprite_dir: String = DIR          # jeu d'images (ex. res://art/proto/vorgan
 var facing_right: bool = false        # monstre à gauche de l'écran, tourné vers le groupe
 var _frame_w := 256.0
 var _charge := 0.0
+var has_charge := false               # animations de charge disponibles dans ce jeu d'images
+var charge_progress := 0.0            # 0 -> 1 : avancement de la préparation (fourni par la scène, temps du moteur)
+var _anims: Dictionary = {}
 
 
 ## Sources lumineuses de la scène (lanternes) : à donner AVANT setup() pour un éclairage cohérent avec le décor.
 var scene_lights: Array = []
-var light_strength := 1.8
+var light_strength := 1.5
 
 
 func setup(feet: Vector2, _scale_factor := 0.9, overlay: Node = null) -> void:
@@ -44,6 +56,10 @@ func setup(feet: Vector2, _scale_factor := 0.9, overlay: Node = null) -> void:
 	rig = Node2D.new()
 	add_child(rig)
 	anchors = JSON.parse_string(FileAccess.open(sprite_dir + "anchors.json", FileAccess.READ).get_as_text())["images"]
+	has_charge = ResourceLoader.exists(sprite_dir + "base/charge_001.png")
+	_anims = ANIMS.duplicate()
+	if has_charge:
+		_anims.merge(CHARGE_ANIMS)
 	var ref: Image = load(sprite_dir + "base/idle_001.png").get_image()
 	_frame_w = float(ref.get_width())
 	var used := ref.get_used_rect()
@@ -94,12 +110,12 @@ func _frames(lname: String) -> SpriteFrames:
 		return frames_cache[lname]
 	var sf := SpriteFrames.new()
 	sf.remove_animation("default")
-	for a in ANIMS:
+	for a in _anims:
 		sf.add_animation(a)
-		sf.set_animation_speed(a, ANIMS[a]["fps"])
-		sf.set_animation_loop(a, ANIMS[a]["loop"])
-		for f in ANIMS[a]["frames"]:
-			sf.add_frame(a, load("%s%s/%s_%03d.png" % [sprite_dir, lname, a, f]))
+		sf.set_animation_speed(a, _anims[a]["fps"])
+		sf.set_animation_loop(a, _anims[a]["loop"])
+		for f in _anims[a]["frames"]:
+			sf.add_frame(a, load("%s%s/%s_%03d.png" % [sprite_dir, lname, _anims[a].get("file", a), f]))
 	frames_cache[lname] = sf
 	return sf
 
@@ -111,13 +127,18 @@ func _play(anim: String, from_frame := 0) -> void:
 
 
 func _on_finished() -> void:
-	if not _dead:
+	if _dead:
+		return
+	if String(layers["base"].animation) == "charge_in" and _telegraph:
+		_play("charge_hold")               # préparation : posture tenue jusqu'à la résolution
+	else:
 		_play("idle")
 
 
 func _frame_key() -> String:
 	var b: AnimatedSprite2D = layers["base"]
-	return "%s_%03d" % [b.animation, ANIMS[String(b.animation)]["frames"][b.frame]]
+	var an: Dictionary = _anims[String(b.animation)]
+	return "%s_%03d" % [an.get("file", String(b.animation)), an["frames"][b.frame]]
 
 
 func _process(delta: float) -> void:
@@ -150,7 +171,8 @@ func _process(delta: float) -> void:
 	# Anticipation du Souffle : la glande se CHARGE (montée continue, pulsation lente et douce), le corps reste opaque
 	var target_charge := 0.0
 	if _telegraph and not gland_broken:
-		target_charge = 0.75 + 0.25 * sin(_t * 3.0)
+		# charge PROGRESSIVE : suit l'avancement réel de la préparation (temps du moteur), pulsation lente et faible
+		target_charge = lerpf(0.25, 1.0, clampf(charge_progress, 0.0, 1.0)) + 0.06 * sin(_t * 3.0)
 	_charge = move_toward(_charge, target_charge, delta * 1.5)
 	(_damage_mat["glande"] as ShaderMaterial).set_shader_parameter("charge", _charge)
 	_gland_glow.modulate.a = 0.0 if gland_broken else 0.18 + 0.5 * _charge
@@ -187,7 +209,16 @@ func center() -> Vector2:
 
 func set_telegraph(on: bool) -> void:
 	_telegraph = on
-	if on:
+	if on and has_charge:
+		charge_progress = 0.0
+		_play("charge_in")
+		Fx.ring(get_parent(), part_global("glande"), Color(1.0, 0.45, 0.4, 0.8), 90.0, 0.5, 4.0)
+	elif not on and has_charge:
+		# résolution ou INTERRUPTION : la charge s'arrête proprement (aucun projectile n'est lancé ici)
+		charge_progress = 0.0
+		if not _busy:
+			_play("idle")
+	elif on:
 		_play("claw", 0)
 		layers["base"].pause()
 		for l in layers.values():
@@ -224,9 +255,13 @@ func lunge(target_global: Vector2) -> void:
 func breath(targets: Array) -> void:
 	_telegraph = false
 	_busy = true
-	_play("claw", 1)
-	layers["base"].pause()
-	await get_tree().create_timer(0.2).timeout
+	if has_charge:
+		_play("release")                   # relâchement : poussée, gueule ouverte
+		await get_tree().create_timer(float(RELEASE_EMIT_INDEX) / CHARGE_ANIMS["release"]["fps"]).timeout
+	else:
+		_play("claw", 1)
+		layers["base"].pause()
+		await get_tree().create_timer(0.2).timeout
 	var from := mouth_global()
 	for tg in targets:
 		var p := CPUParticles2D.new()
@@ -253,7 +288,8 @@ func breath(targets: Array) -> void:
 		get_tree().create_timer(1.2).timeout.connect(p.queue_free)
 	await get_tree().create_timer(0.35).timeout
 	_busy = false
-	_play("idle")
+	if not has_charge or String(layers["base"].animation) != "release":
+		_play("idle")       # sinon : le relâchement se termine puis repasse au repos (_on_finished)
 
 
 func hurt(_part_id: String, heavy: bool) -> void:

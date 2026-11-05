@@ -64,6 +64,7 @@ var disp_res: Dictionary = {}
 var disp_guard: Dictionary = {}
 var view_now := 0
 var tele_resolve := -1
+var tele_start := -1                    # temps moteur de l'annonce (avancement de la charge du Vorgane)
 var tele_name := ""
 
 # Sélection du joueur
@@ -204,7 +205,7 @@ func _build_world_proto() -> void:
 	fx = Node2D.new()
 	overlay.add_child(fx)
 	var mv := SpriteMonsterView.new()
-	mv.sprite_dir = "res://art/proto/vorgane_nuit/"
+	mv.sprite_dir = "res://art/proto/vorgane_nuit_p1/"
 	mv.facing_right = true
 	mv.scene_lights = PROTO_LIGHTS
 	monster_view = mv
@@ -246,7 +247,7 @@ func _monster_icon() -> Texture2D:
 	var mv: SpriteMonsterView = monster_view
 	var a: Array = mv.anchors["idle_001"]["gueule"]
 	var at := AtlasTexture.new()
-	at.atlas = load("res://art/proto/vorgane_nuit/base/idle_001.png")
+	at.atlas = load("res://art/proto/vorgane_nuit_p1/base/idle_001.png")
 	at.region = Rect2(a[0] - 12, a[1] - 26, 40, 40)
 	return at
 
@@ -424,6 +425,7 @@ func _play(e: Dictionary) -> void:
 			else:
 				if d.get("telegraph", false):
 					tele_resolve = int(d.get("resolve_at", -1))
+					tele_start = int(e["t"])
 					tele_name = battle.get_combatant(actor_id).monster_actions[d["action"]]["name"]
 					monster_view.set_telegraph(true)
 					hud.banner("⚠ %s annoncé !" % tele_name, Color("#ff7a6a"), 0.9)
@@ -671,6 +673,8 @@ func _refresh_hud() -> void:
 	if tele_resolve >= 0:
 		tele = "⚠ %s dans %d" % [tele_name, maxi(0, tele_resolve - view_now)]
 	hud.update_monster(int(disp_hp[monster_id]), tele)
+	if tele_resolve >= 0 and tele_start >= 0 and "charge_progress" in monster_view:
+		monster_view.charge_progress = clampf(float(view_now - tele_start) / maxf(1.0, float(tele_resolve - tele_start)), 0.0, 1.0)
 	if hud.has_method("set_boss_status"):
 		# Statuts RÉELLEMENT actifs : attaque annoncée, parties brisées
 		var st: Array = []

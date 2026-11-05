@@ -15,6 +15,7 @@ var _height := 111.0
 var poses := false                   # Aren en combat : vraies poses (art/proto/aren_combat, tools/art/aren_poses.py)
 const POSE_DIR := "res://art/proto/aren_combat/"
 const STEP := PX * 14                # pas vers l'avant pendant la frappe (aucune traversée du groupe)
+var vfx := true                      # false : poses seules, sans effets (contrôle des animations)
 
 
 func setup(id: String, hunter_def: Dictionary, feet: Vector2, _scale_factor := 0.8) -> void:
@@ -48,6 +49,11 @@ func setup(id: String, hunter_def: Dictionary, feet: Vector2, _scale_factor := 0
 	else:
 		frames.add_frame("idle", t0)
 		frames.add_frame("idle", load(DIR + key + "_1.png"))
+		if ResourceLoader.exists(DIR + key + "_walk_0.png"):
+			frames.add_animation("walk")
+			frames.set_animation_speed("walk", 0.0)          # image pilotée par la distance parcourue
+			for i in range(4):
+				frames.add_frame("walk", load(DIR + key + "_walk_%d.png" % i))
 	spr = AnimatedSprite2D.new()
 	spr.sprite_frames = frames
 	spr.centered = false
@@ -116,15 +122,39 @@ func _flash(color: Color, amount: float, duration: float) -> void:
 
 # --- Exploration ---------------------------------------------------------------------------------
 
-func walk(moving: bool, dir_x: float, delta: float) -> void:
+const STRIDE := 18.0                 # px parcourus par image de marche (cadence liée à la vitesse réelle)
+var _walk_dist := 0.0
+var _last_pos := Vector2.INF
+
+
+## Marche d'exploration : vraies images de marche (tools/art/walk_cycles.py), pilotées par la distance
+## RÉELLEMENT parcourue depuis l'image précédente ; arrêt -> repos (respiration).
+func walk(moving: bool, dir_x: float, _delta: float) -> void:
 	if absf(dir_x) > 0.05:
 		scale.x = signf(dir_x)
-	if moving:
-		_walk_phase += delta * 10.0
-		spr.position.y = -PX * float(int(absf(sin(_walk_phase)) * 2.0))   # sautillé de 0 à 2 pixels natifs
-	else:
-		_walk_phase = 0.0
-		spr.position.y = 0.0
+	var d := 0.0 if _last_pos == Vector2.INF else global_position.distance_to(_last_pos)
+	_last_pos = global_position
+	if not spr.sprite_frames.has_animation("walk"):
+		return
+	if moving and d > 0.01:
+		_walk_dist += d
+		_set_anim("walk")
+		spr.frame = int(_walk_dist / STRIDE) % 4
+	elif String(spr.animation) == "walk":
+		_walk_dist = 0.0
+		_set_anim("idle")
+		spr.play("idle")
+
+
+## Change d'animation en gardant les pieds au même point (les canevas n'ont pas tous la même taille).
+func _set_anim(name: String) -> void:
+	if String(spr.animation) == name:
+		return
+	var tex: Texture2D = spr.sprite_frames.get_frame_texture(name, 0)
+	spr.animation = name
+	spr.offset = Vector2(-tex.get_width() / 2, -tex.get_height())
+	if name == "walk":
+		spr.pause()
 
 
 # --- Combat (interface HunterView) ------------------------------------------------------------------
@@ -161,12 +191,14 @@ func attack(target_global: Vector2, heavy: bool) -> void:
 	t.tween_property(rig, "position", Vector2(STEP, 0), 0.12 if not heavy else 0.16).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
 	await t.finished
 	_pose("strike")
-	Fx.slash(get_parent(), target_global, 90.0 if heavy else 70.0, Color(1.0, 0.92, 0.75))
+	if vfx:
+		Fx.slash(get_parent(), target_global, 90.0 if heavy else 70.0, Color(1.0, 0.92, 0.75))
 	if not poses:
 		fx_spr.position = Vector2(40, -_height * 0.55)
 		fx_spr.visible = true
 		fx_spr.play("slash")
-	_flash(Color(1, 1, 1), 0.25, 0.1)
+	if vfx:
+		_flash(Color(1, 1, 1), 0.25, 0.1)
 	release_aura()
 	await get_tree().create_timer(0.07).timeout
 	_pose("follow")
@@ -185,7 +217,7 @@ func _blade_charge(on: bool) -> void:
 		_blade_glow.z_index = 3
 		rig.add_child(_blade_glow)
 	_blade_glow.position = Vector2(-PX * 9, -PX * 10)      # le long de la lame tenue en arrière (pose aether_prep)
-	create_tween().tween_property(_blade_glow, "modulate:a", 0.55 if on else 0.0, 0.35 if on else 0.12)
+	create_tween().tween_property(_blade_glow, "modulate:a", 0.55 if (on and vfx) else 0.0, 0.35 if on else 0.12)
 
 
 ## Technique de Résonance (Pulsation d'Aether) : garde basse chargée -> estocade -> trait d'Aether net jusqu'à la
@@ -205,6 +237,12 @@ func resonance_strike(target_global: Vector2) -> void:
 	release_aura()
 	# Trait d'Aether : de la pointe de la lame (pose aether_strike) jusqu'à la cible
 	var tip := global_position + Vector2(scale.x * (PX * 26 + STEP), -_height * 0.5)
+	if not vfx:
+		var b0 := create_tween()
+		b0.tween_interval(0.35)
+		b0.tween_callback(_rest)
+		b0.tween_property(rig, "position", Vector2.ZERO, 0.3)
+		return
 	var beam := Line2D.new()
 	beam.points = PackedVector2Array([tip, target_global])
 	beam.width = 6.0
@@ -253,7 +291,8 @@ func use_item() -> void:
 
 
 func hurt(heavy: bool) -> void:
-	_flash(Color(1, 1, 1), 0.6, 0.15)
+	if vfx:
+		_flash(Color(1, 1, 1), 0.6, 0.15)
 	_pose("hurt")
 	var t := create_tween()
 	t.tween_property(rig, "position", Vector2(-PX * (6 if heavy else 3), 0), 0.06)
