@@ -77,6 +77,14 @@ Le tout **jouable**, branché sur le même CombatCore, accessible depuis l'écra
 | **Combat « prototype artistique HD »** | Écran d'accueil → **✦ Prototype artistique HD** | Le vrai combat (même CombatCore, même interface) avec le héros articulé, le Vorgane articulé, l'arène nocturne, les effets d'Aether |
 | **Atelier d'animation** | Écran d'accueil → **✦ Atelier d'animation** | Boutons pour déclencher chaque animation du Chasseur (repos, frappe, garde, impact, marche, K.O., capacité d'Aether) et du Vorgane (coup de griffe, annonce, souffle, rupture de chaque partie), affichage du squelette |
 
+## Preuves visuelles
+
+| Fichier | Contenu |
+|---|---|
+| `docs/media/proto_hd_atelier_animation.mp4` | Atelier (29 s) : squelette, frappe, garde, coup de griffe, impact, capacité d'Aether, annonce et souffle, rupture des 3 parties, marche, K.O. |
+| `docs/media/proto_hd_combat.mp4` | Combat réel en prototype HD (52 s, démonstration automatique) : ruptures, « FAIBLESSE ! », souffle annoncé |
+| `docs/captures/proto_hd_*.png` | Combat, squelette affiché, capacité d'Aether, rupture de la carapace |
+
 ## Ce qui a été construit
 
 | Élément | Réalisation | Fichiers |

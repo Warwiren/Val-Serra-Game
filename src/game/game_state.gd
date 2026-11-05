@@ -9,6 +9,9 @@ const SCENE_ZONE := "res://scenes/explore/zone.tscn"
 const SCENE_BATTLE := "res://scenes/battle/battle_scene.tscn"
 const SCENE_DEBUG := "res://scenes/debug/combat_debug.tscn"
 const SCENE_RIG_VIEWER := "res://scenes/art/rig_viewer.tscn"
+## Prototype recentré (scène principale) : zone de l'avant-poste -> combat dans la même clairière
+const SCENE_PROTO_ZONE := "res://scenes/proto/proto_zone.tscn"
+const SCENE_PROTO_BATTLE := "res://scenes/battle/battle_scene.tscn"
 
 const RENDER_2D := "A"      # Variante A : 2D illustrée simple
 const RENDER_25D := "B"     # Variante B : 2.5D (calques, parallax, lumière, particules)
@@ -30,6 +33,8 @@ var last_battle_result: String = ""
 # Présentation
 var render_mode: String = RENDER_25D
 var autoplay: bool = false             # démonstration automatique (captures vidéo)
+var hd2d: bool = false                 # combat HD-2D : Aren et Vorgane en sprites pixel art
+var proto: bool = false                # prototype recentré (pack visuel) : présentation unifiée, interface épurée
 var art_proto: bool = false            # prototype artistique HD (héros et monstre articulés, arène nocturne)
 
 var _fade: ColorRect
@@ -51,6 +56,12 @@ func _ready() -> void:
 			_start_scene.call_deferred(SCENE_ZONE)
 		elif arg == "--start=rigviewer":
 			_start_scene.call_deferred(SCENE_RIG_VIEWER)
+		elif arg == "--start=hd2d":
+			hd2d = true
+			_start_scene.call_deferred(SCENE_BATTLE)
+		elif arg == "--start=proto-battle":
+			proto = true
+			_start_scene.call_deferred(SCENE_PROTO_BATTLE)
 		elif arg == "--start=artproto":
 			art_proto = true
 			_start_scene.call_deferred(SCENE_BATTLE)
@@ -83,7 +94,8 @@ func _start_scene(path: String) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F2:
-		toggle_render_mode()
+		if not proto:
+			toggle_render_mode()
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F3:
 		_fps.visible = not _fps.visible
 

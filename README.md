@@ -6,7 +6,32 @@ Référence : documents 07 (Brief MVP) et 08 (Mission Claude) du dossier Drive d
 > Tous les personnages, monstres, illustrations et nombres de ce dépôt sont **provisoires et non canoniques**.
 > Ce dépôt est indépendant du système Foundry du JDR (`Warwiren/Val-serra`), qui n'est pas modifié.
 
-## État actuel : Lot B — combat présentable + micro-boucle d'exploration
+## Dernière passe : correctifs et HUD de combat (brief unifié v1.1) — branche `correctifs-hud`
+
+Clignotement du Vorgane diagnostiqué et corrigé (mesures image par image), Vorgane étalonné sur la référence du pack,
+vraies poses de combat pour Aren, HUD de combat refait selon l'annexe A avec les données réelles du moteur, charte
+centralisée (`src/presentation/ui_style.gd`). 40 tests réussis sur 40.
+Compte rendu, diagnostic, scénarios et limites : **`docs/CORRECTIFS_HUD.md`** ·
+vidéo : `docs/media/correctifs/correctifs_hud_demo.mp4`.
+
+![HUD de combat](docs/media/correctifs/hud_apres_1280.jpg)
+
+## Prototype recentré (pack visuel)
+
+**F5 lance directement la boucle jouable** : avant-poste → dialogue avec le garde → contact avec le Vorgane →
+combat dans la même clairière → retour. Aren jouable, Ilya et Throné suivent ; tous les personnages
+partagent la même grille de pixels et la même palette (issus du pack visuel).
+Commandes : flèches/ZQSD, **E** pour parler, toucher le monstre pour combattre.
+Compte rendu (retiré / modifié / conservé / limites) : **`docs/RECENTRAGE.md`** ·
+vidéo : `docs/media/recentrage/prototype_recentre.mp4`.
+
+![Prototype recentré](docs/media/recentrage/05_combat.jpg)
+
+Les sections ci-dessous décrivent les lots précédents, toujours lançables en ligne de commande
+(`--start=battle`, `--start=zone`, `--start=hd2d`, `--start=artproto`) ; `--start=proto-battle` lance
+directement le combat du prototype.
+
+## Lot B — combat présentable + micro-boucle d'exploration
 
 | Ce qui existe | Où |
 |---|---|
@@ -15,7 +40,7 @@ Référence : documents 07 (Brief MVP) et 08 (Mission Claude) du dossier Drive d
 | Combat présentable : 3 Chasseurs, monstre à 3 parties brisables, chronologie en portraits, cartes VIF/MESURÉ/CHARGÉ, effets | `scenes/battle/battle_scene.tscn` |
 | Deux rendus du même jeu : **A** (2D illustrée) et **B** (2.5D : parallax, profondeur, lumière, particules), touche **F2** | `src/presentation/stage.gd` |
 | Moteur de combat déterministe (Lot A, inchangé dans ses règles) | `src/combat/core/` |
-| 34 tests automatisés | `tests/unit/` |
+| 36 tests automatisés | `tests/unit/` |
 
 Compte rendu, limites et recommandations : **`docs/LOT_B.md`**. Plan général : `docs/PLAN_MVP.md`.
 
@@ -35,11 +60,14 @@ Compte rendu, limites et recommandations : **`docs/LOT_B.md`**. Plan général :
 ## 2. Vérifier les tests (30 secondes)
 
 Panneau **Système de fichiers** → dossier `tests` → double-clic sur **`test_runner.tscn`** → **F6**.
-Attendu : **34 lignes « OK »** et « TOUT EST VERT ».
+Attendu : **36 lignes « OK »** et « TOUT EST VERT ».
 
 ## 3. Jouer la démo (le vrai test)
 
 Appuyez sur **F5** (ou le bouton ▶ en haut à droite ; sur portable **Fn + F5**, sur Mac **Cmd + B**).
+
+> Depuis le recentrage, F5 ouvre le **prototype recentré** (voir plus haut). Pour retrouver la démo du Lot B
+> ci-dessous, ouvrez `scenes/explore/hero_select.tscn` dans Godot et appuyez sur **F6** (lancer la scène courante).
 
 **a. Choix du héros** — cliquez sur la base masculine ou féminine, modifiez le nom si vous voulez,
 puis **Commencer**. (« Combat direct » saute l'exploration.)
@@ -67,7 +95,14 @@ puis **Commencer**. (« Combat direct » saute l'exploration.)
 **d. Retour** — après la victoire (ou la défaite), revenez à l'avant-poste : les récompenses apparaissent
 en haut à gauche, le Vorgane a disparu, et Maëlle a de nouvelles répliques.
 
-### Prototype artistique HD (nouveau)
+### Combat HD-2D : Aren contre le Vorgane (nouveau)
+
+Écran d'accueil → **⚔ Combat HD-2D : Aren vs Vorgane**. Aren est en sprites pixel art (dérivés des planches
+de référence), le Vorgane est le modèle Meshy riggé et animé dans Blender puis rendu en sprites ; ses trois
+parties changent d'état (intact, endommagé, brisé) selon le CombatCore. Règles, chronologie, modes et
+ciblage inchangés. Détails : `docs/AREN_SPRITES.md`, `docs/VORGANE_3D.md`.
+
+### Prototype artistique HD
 
 Sur l'écran d'accueil :
 - **✦ Prototype artistique HD** : le même combat, avec le héros et le Vorgane articulés (Skeleton2D),
@@ -108,7 +143,7 @@ godot --path . -- --start=battle --render=A
 ```
 
 La première lance les tests ; la seconde ouvre directement le combat en rendu A. Options disponibles après
-`--` : `--start=battle`, `--start=zone`, `--start=artproto`, `--start=rigviewer`, `--render=A`, `--render=B`, `--hero=f`, `--autoplay` (démo automatique).
+`--` : `--start=battle`, `--start=zone`, `--start=hd2d`, `--start=artproto`, `--start=rigviewer`, `--render=A`, `--render=B`, `--hero=f`, `--autoplay` (démo automatique).
 
 ## Arborescence
 

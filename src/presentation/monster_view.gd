@@ -13,6 +13,7 @@ var parts: Dictionary = {}           # id -> {sprite, intact, broken, anchor(loc
 var markers: Node2D
 var _gland_glow: Sprite2D
 var _telegraph := false
+var compact := false                 # prototype recentré : repères plus petits, étiquette seulement sur la partie visée
 var _t := 0.0
 var _dead := false
 
@@ -104,6 +105,9 @@ func part_at(global_pos: Vector2) -> String:
 
 
 func _draw_markers() -> void:
+	if compact:
+		_draw_markers_compact()
+		return
 	var font := ThemeDB.fallback_font
 	for id in parts:
 		var info: Dictionary = part_info.get(id, {})
@@ -113,6 +117,8 @@ func _draw_markers() -> void:
 		var sel: bool = targeting and id == selected_part
 		var hov: bool = id == hovered_part
 		var r := 30.0 if not sel else 36.0
+		if compact:
+			r = 16.0 if not sel else 20.0
 		var broken: bool = info.get("broken", false)
 		markers.draw_circle(p, r, Color(0.04, 0.06, 0.1, 0.22))
 		if broken:
@@ -134,6 +140,8 @@ func _draw_markers() -> void:
 		elif hov:
 			markers.draw_arc(p, r + 10, 0, TAU, 40, Color(1, 1, 1, 0.7), 3.0, true)
 		# Étiquette
+		if compact and not (sel or hov):
+			continue
 		var label: String = info["name"]
 		var sub: String = "BRISÉE" if broken else "%d / %d" % [info["integrity"], info["max"]]
 		var lp := p + Vector2(0, r + 28)
@@ -249,3 +257,45 @@ func die() -> void:
 	t.parallel().tween_property(rig, "modulate", Color(0.3, 0.3, 0.4, 0.0), 1.2)
 	if _gland_glow != null:
 		t.parallel().tween_property(_gland_glow, "modulate:a", 0.0, 0.4)
+
+
+## Prototype (brief v1.1, § 4.5) : repères discrets qui ne masquent ni cristaux, ni pattes, ni tête ; la partie
+## visée (ou survolée) reçoit une étiquette NOM + INTÉGRITÉ reliée par un trait fin ; faiblesse seulement si utile.
+func _draw_markers_compact() -> void:
+	var UI = load("res://src/presentation/ui_style.gd")
+	for id in parts:
+		var info: Dictionary = part_info.get(id, {})
+		if info.is_empty():
+			continue
+		var p: Vector2 = parts[id]["anchor"]
+		var sel: bool = targeting and id == selected_part
+		var hov: bool = id == hovered_part
+		var broken: bool = info.get("broken", false)
+		var ratio := float(info.get("integrity", 0)) / maxf(1.0, float(info.get("max", 1)))
+		var r := 11.0 if (sel or hov) else 7.0
+		if broken:
+			markers.draw_arc(p, r, 0, TAU, 24, Color(UI.C_TEXT_DIM, 0.8), 1.5, true)
+			markers.draw_line(p + Vector2(-4, -4), p + Vector2(4, 4), UI.C_TEXT_DIM, 1.5, true)
+			markers.draw_line(p + Vector2(4, -4), p + Vector2(-4, 4), UI.C_TEXT_DIM, 1.5, true)
+		else:
+			markers.draw_arc(p, r, 0, TAU, 24, Color(UI.C_TEXT, 0.35), 1.5, true)
+			markers.draw_arc(p, r, -PI / 2, -PI / 2 + TAU * ratio, 24, UI.C_BREAK, 2.0, true)
+		if sel:
+			markers.draw_arc(p, r + 4, 0, TAU, 32, Color(UI.C_SELECT, 0.6 + 0.3 * sin(_t * 4.0)), 2.0, true)
+		if not (sel or hov):
+			continue
+		# Étiquette au-dessus du dos ; trait fin jusqu'au repère
+		var lp := Vector2(p.x - 60, -220)        # au-dessus de la silhouette (pieds = 0, cristaux ≈ -165) : ne masque pas les cristaux
+		var rect := Rect2(lp + Vector2(0, -12), Vector2(170, 58))
+		markers.draw_line(p + Vector2(0, -r), Vector2(rect.position.x + 30, rect.end.y), Color(UI.C_SELECT if sel else UI.C_TEXT_2, 0.8), 1.0, true)
+		markers.draw_style_box(UI.box(UI.C_BG, UI.C_SELECT if sel else UI.C_SEP, 1, 4, 0.9), rect)
+		markers.draw_string(UI.bold(), rect.position + Vector2(8, 17), info["name"], HORIZONTAL_ALIGNMENT_LEFT, 154, UI.FS_SMALL, UI.C_TEXT)
+		if broken:
+			markers.draw_string(UI.font(), rect.position + Vector2(8, 36), "Brisée", HORIZONTAL_ALIGNMENT_LEFT, 150, UI.FS_TINY, UI.C_TEXT_DIM)
+		else:
+			UI.draw_gauge(markers, Rect2(rect.position + Vector2(8, 26), Vector2(90, 6)), ratio, ratio, UI.C_BREAK)
+			markers.draw_string(UI.font(), rect.position + Vector2(104, 34), "%d/%d" % [info["integrity"], info["max"]], HORIZONTAL_ALIGNMENT_LEFT, 60, UI.FS_TINY, UI.C_TEXT_2)
+			var hint: String = info.get("hint", "")
+			if hint.begins_with("▲"):
+				markers.draw_string(UI.bold(), rect.position + Vector2(8, 51), "▲ Faiblesse " + hint.substr(2), HORIZONTAL_ALIGNMENT_LEFT, 160, UI.FS_TINY, UI.C_WEAK)
+

@@ -1,0 +1,59 @@
+{
+ "facteur": 3.25,
+ "hauteur_native": 64,
+ "cadre": [
+  140,
+  84
+ ],
+ "ancrage": [
+  44,
+  80
+ ],
+ "poses": {
+  "repos": {
+   "largeur": 56,
+   "hauteur": 64,
+   "pixels": 1139,
+   "decalage": [
+    22,
+    11
+   ]
+  },
+  "avance": {
+   "largeur": 50,
+   "hauteur": 55,
+   "pixels": 973,
+   "decalage": [
+    26,
+    12
+   ]
+  },
+  "attaque": {
+   "largeur": 91,
+   "hauteur": 52,
+   "pixels": 1211,
+   "decalage": [
+    34,
+    6
+   ]
+  },
+  "garde": {
+   "largeur": 56,
+   "hauteur": 56,
+   "pixels": 1101,
+   "decalage": [
+    28,
+    15
+   ]
+  },
+  "touche": {
+   "largeur": 59,
+   "hauteur": 55,
+   "pixels": 1092,
+   "decalage": [
+    23,
+    18
+   ]
+  }
+ }
+}

@@ -39,6 +39,7 @@ var rays_path: String = ""
 var ambient := Color(0.70, 0.72, 0.86)
 var mist_color := Color(0.75, 0.82, 0.95, 0.10)
 var fog_color := Color(0.72, 0.78, 0.9)
+var pixelate: int = 1                 # > 1 : décor ramené à la densité de pixels des sprites (×N, sans flou)
 var _rays: Sprite2D
 
 var _layers: Dictionary = {}
@@ -54,7 +55,8 @@ var _time := 0.0
 func build(front_parent: Node) -> void:
 	for def in layer_defs:
 		var s := Sprite2D.new()
-		s.texture = load(def["path"])
+		s.texture = _tex(def["path"])
+		_pix(s)
 		s.position = center
 		s.z_index = -100 + _layers.size()
 		add_child(s)
@@ -72,7 +74,8 @@ func build(front_parent: Node) -> void:
 	_front_holder.z_index = 60
 	front_parent.add_child(_front_holder)
 	_front = Sprite2D.new()
-	_front.texture = load(front_def["path"])
+	_front.texture = _tex(front_def["path"])
+	_pix(_front)
 	_front.position = center
 	_front_holder.add_child(_front)
 
@@ -105,6 +108,21 @@ func build(front_parent: Node) -> void:
 	_add_mist()
 	_add_particles()
 	set_mode(mode)
+
+
+func _tex(path: String) -> Texture2D:
+	var t: Texture2D = load(path)
+	if pixelate <= 1:
+		return t
+	var img := t.get_image()
+	img.resize(img.get_width() / pixelate, img.get_height() / pixelate, Image.INTERPOLATE_LANCZOS)
+	return ImageTexture.create_from_image(img)
+
+
+func _pix(s: Sprite2D) -> void:
+	if pixelate > 1:
+		s.scale = Vector2.ONE * pixelate
+		s.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 
 func _add_mist() -> void:
@@ -164,7 +182,7 @@ func set_mode(new_mode: String) -> void:
 		if b and (float(def["blur"]) > 0.0 or float(def["fog"]) > 0.0):
 			var mat := ShaderMaterial.new()
 			mat.shader = DEPTH_SHADER
-			mat.set_shader_parameter("radius", float(def["blur"]))
+			mat.set_shader_parameter("radius", float(def["blur"]) / float(pixelate))
 			mat.set_shader_parameter("fog", float(def["fog"]))
 			mat.set_shader_parameter("fog_color", fog_color)
 			s.material = mat
@@ -174,14 +192,14 @@ func set_mode(new_mode: String) -> void:
 	if b:
 		var fm := ShaderMaterial.new()
 		fm.shader = DEPTH_SHADER
-		fm.set_shader_parameter("radius", float(front_def["blur"]))
+		fm.set_shader_parameter("radius", float(front_def["blur"]) / float(pixelate))
 		fm.set_shader_parameter("fog", 0.0)
 		fm.set_shader_parameter("tint", Color(0.55, 0.6, 0.65, 1.0))
 		_front.material = fm
-		_front.scale = Vector2(1.08, 1.08)
+		_front.scale = Vector2(1.08, 1.08) * pixelate
 	else:
 		_front.material = null
-		_front.scale = Vector2.ONE
+		_front.scale = Vector2.ONE * pixelate
 
 
 ## À appeler chaque image avec le décalage de caméra par rapport au centre (mode B seulement).

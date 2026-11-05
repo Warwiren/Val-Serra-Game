@@ -241,3 +241,27 @@ func test_simulation_is_deterministic() -> void:
 			break
 	check(same, "journaux identiques")
 	check_eq(a.state, b.state, "même issue")
+
+
+## Brief v1.2 § 12.1 : dans un combat NORMAL (sans préchargement), la Résonance monte par les actions,
+## la technique devient utilisable, et chaque utilisation retire le coût EXACTEMENT une fois.
+func test_resonance_cycle_in_normal_battle() -> void:
+	var b := new_battle()
+	AutoPolicy.play(b)
+	var cost := int(b.actions["serum_pulsation"]["resonance_cost"])
+	var last := {}
+	var gains := 0
+	var uses := 0
+	for e in b.journal:
+		var d: Dictionary = e["data"]
+		var id: String = d.get("actor", "")
+		if e["type"] == "resonance":
+			gains += 1
+			last[id] = int(d["value"])
+		elif e["type"] == "cast" and d.get("action", "") == "serum_pulsation":
+			uses += 1
+			check(int(last.get(id, 0)) >= cost, "%s avait assez de Résonance avant la technique" % id)
+			check_eq(int(d.get("value", -1)), int(last.get(id, 0)) - cost, "%s : coût retiré une seule fois" % id)
+			last[id] = int(d.get("value", 0))
+	check(gains > 0, "la jauge augmente en combat normal (%d gains)" % gains)
+	check(uses > 0, "la technique est utilisée en combat normal (%d fois)" % uses)
