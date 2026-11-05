@@ -63,8 +63,10 @@ names = {1: "groupe", 2: "pnj", 3: "carte"}
 P = 4                                  # demi-taille du motif (9×9)
 
 
-def inpaint(nat, hole, lab, names, allowed, row_win=8, col_win=220):
-    """Comble `hole` en recopiant des motifs 9×9 réels de l'image (sources limitées par `allowed`)."""
+def inpaint(nat, hole, lab, names, allowed, row_win=8, col_win=220, patch=4):
+    """Comble `hole` en recopiant des motifs réels de l'image ((2·patch+1)², sources limitées par `allowed`)."""
+    global P
+    P_save, P = P, patch
     nh, nw = hole.shape
     known = ~hole
     img = nat.copy()
@@ -108,11 +110,15 @@ def inpaint(nat, hole, lab, names, allowed, row_win=8, col_win=220):
         fully_known[yy0:yy1, xx0:xx1] = sliding_window_view(known_p[yy0:yy1 + 2 * P, xx0:xx1 + 2 * P],
                                                             (2 * P + 1, 2 * P + 1)).all(axis=(-1, -2))
         step += 1
-    return img_p[P:-P, P:-P], step
+    out = img_p[P:-P, P:-P]
+    P = P_save
+    return out, step
 
 
 img, step = inpaint(nat, hole, lab, names, ALLOWED)
 print("motifs recopiés :", step)
+
+
 
 # --- Cadrage 427×240 --------------------------------------------------------------------------------
 TW, TH = 427, 240
@@ -142,5 +148,17 @@ for x in range(PX0, PX1):
     for y in range(PY0, PY1):
         full[y, x] = prof[(x - 382) % 16] * (1.0 - 0.12 * (y - PY0) / (PY1 - PY0))
 full[PY0:PY1, PX0] *= 0.6
+
+# --- Sentier à gauche (P1 suite) ----------------------------------------------------------------------
+# La zone reconstruite à l'emplacement du groupe peint formait un rectangle de pavés plus clair, bordé de
+# coutures. Ce rectangle est resynthétisé avec de PETITS motifs (7×7) pris dans les parties saines du sentier,
+# à la même hauteur (même lumière, même perspective) : adapté à une texture irrégulière de pavés.
+path = np.zeros((TH, TW), bool)
+path[150:187, 100:178] = True                  # rangées du sentier, au-dessus de la clôture du premier plan
+src_ok = np.zeros((TH, TW), bool)
+src_ok[146:190, 214:262] = True                # sentier d'origine intact (jamais reconstruit), même hauteur
+full, st3 = inpaint(full.astype(np.float32), path, path.astype(int), {1: "sentier"}, {"sentier": src_ok},
+                    row_win=4, col_win=200, patch=3)
+print("sentier resynthétisé :", st3, "motifs")
 Image.fromarray(np.clip(full, 0, 255).astype(np.uint8), "RGB").save(OUT)
 print("décor natif :", full.shape[1], "x", full.shape[0], "| décalage vertical de la scène :", top, "| recadrage x :", cx)

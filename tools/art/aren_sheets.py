@@ -4,7 +4,8 @@ attaque, impact, retour, garde, touché, Résonance charge/libération), portrai
 Pipeline identique au pack : détourage du fond, MÊME facteur d'échelle pour toutes les images (hauteur du héros
 au repos = 37 px natifs, comme les autres personnages), couleur médiane par cellule, palette commune,
 pieds ancrés au même point d'un canevas commun.
-Usage : python3 aren_sheets.py <dossier_planches> <dossier_sortie> [--debug]"""
+Usage : python3 aren_sheets.py <dossier_planches> <dossier_sortie> [--debug]
+Puis : python3 aren_retouch.py <dossier_sortie>  (retouche pixel du visage et des contours)."""
 import json, os, sys
 import numpy as np
 from PIL import Image, ImageDraw
