@@ -1084,7 +1084,7 @@ func _on_result_choice(choice: String) -> void:
 		"zone":
 			GameState.goto(GameState.SCENE_ZONE)
 		"proto_zone":
-			GameState.goto(GameState.SCENE_PROTO_ZONE)
+			GameState.goto(GameState.explore_return if GameState.explore_return != "" else GameState.SCENE_PROTO_ZONE)
 		"retry":
 			GameState.goto(GameState.SCENE_BATTLE)
 		"menu":

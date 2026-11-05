@@ -4,7 +4,8 @@ attaque, impact, retour, garde, touché, Résonance charge/libération), portrai
 Pipeline identique au pack : détourage du fond, MÊME facteur d'échelle pour toutes les images (hauteur du héros
 au repos = 37 px natifs, comme les autres personnages), couleur médiane par cellule, palette commune,
 pieds ancrés au même point d'un canevas commun.
-Usage : python3 aren_sheets.py <dossier_planches> <dossier_sortie> [--debug]"""
+Usage : python3 aren_sheets.py <dossier_planches> <dossier_sortie> [--debug]
+Puis : python3 aren_retouch.py <dossier_sortie>  (retouche pixel du visage et des contours)."""
 import json, os, sys
 import numpy as np
 from PIL import Image, ImageDraw
@@ -73,7 +74,7 @@ def sprites_in(img, box, min_h=45):
 # petites (repos combat 107 px, posture fléchie ≈ 0,92 de la hauteur debout).
 # Aren (design élancé des nouvelles planches) est calibré sur 40 px natifs debout : à 37 px, sa silhouette fine
 # paraissait nettement plus petite que celles, plus trapues, d'Ilya et Throné (comparaison en jeu, combat).
-AREN_H = 40
+AREN_H = int(os.environ.get("AREN_H", 40))   # 40 par défaut ; AREN_H=32 pour le test d'échelle d'exploration
 # Combat : hauteur RÉELLE du personnage au repos de combat mesurée après détourage = 90 px de planche.
 SCALE = {"idle_views": 186 / AREN_H, "walk": 138 / (AREN_H * 0.97), "combat": 90 / (AREN_H * 0.92)}
 EQUAL_CELLS = {"res_charge": 6, "res_liberation": 6}       # effets fusionnés : découpage en cellules régulières
