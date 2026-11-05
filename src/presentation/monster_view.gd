@@ -291,7 +291,7 @@ func _draw_markers_compact() -> void:
 		markers.draw_style_box(UI.box(UI.C_BG, UI.C_SELECT if sel else UI.C_SEP, 1, 4, 0.9), rect)
 		markers.draw_string(UI.bold(), rect.position + Vector2(8, 17), info["name"], HORIZONTAL_ALIGNMENT_LEFT, 154, UI.FS_SMALL, UI.C_TEXT)
 		if broken:
-			markers.draw_string(UI.font(), rect.position + Vector2(8, 36), "Brisée", HORIZONTAL_ALIGNMENT_LEFT, 150, UI.FS_TINY, UI.C_TEXT_DIM)
+			markers.draw_string(UI.font(), rect.position + Vector2(8, 36), "Brisée : dégâts PV seulement", HORIZONTAL_ALIGNMENT_LEFT, 158, UI.FS_TINY, UI.C_TEXT_2)
 		else:
 			UI.draw_gauge(markers, Rect2(rect.position + Vector2(8, 26), Vector2(90, 6)), ratio, ratio, UI.C_BREAK)
 			markers.draw_string(UI.font(), rect.position + Vector2(104, 34), "%d/%d" % [info["integrity"], info["max"]], HORIZONTAL_ALIGNMENT_LEFT, 60, UI.FS_TINY, UI.C_TEXT_2)
