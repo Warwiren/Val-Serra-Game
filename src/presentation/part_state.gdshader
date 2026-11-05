@@ -6,6 +6,7 @@ uniform float flash = 0.0;
 uniform float damaged = 0.0;   // 1 = endommagé : assombri, fissures rougeoyantes qui pulsent
 uniform float dead = 0.0;      // 1 = glande éteinte : désaturée et sombre
 uniform float time = 0.0;
+uniform float charge = 0.0;    // glande : charge du Souffle (émission cyan sur les SEULS pixels de la glande)
 
 varying vec4 vcol;
 
@@ -29,6 +30,7 @@ void fragment() {
 		float g = dot(c.rgb, vec3(0.3, 0.59, 0.11));
 		c.rgb = vec3(g) * vec3(0.35, 0.4, 0.5);
 	}
+	c.rgb = mix(c.rgb, vec3(0.75, 1.0, 1.0), charge * 0.55);
 	c.rgb = mix(c.rgb, vec3(1.0), flash);
 	COLOR = c * vcol;
 }

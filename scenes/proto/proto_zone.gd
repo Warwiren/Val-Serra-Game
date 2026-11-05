@@ -94,7 +94,7 @@ func _build_world() -> void:
 	npc.setup("pnj", {"sprite": "pnj"}, NPC_POS)
 	npc.scale.x = -1
 	monster = Monster.new()
-	monster.sprite_dir = "res://art/proto/vorgane/"
+	monster.sprite_dir = "res://art/proto/vorgane_nuit/"
 	monster.facing_right = true
 	actors.add_child(monster)
 	monster.setup(MONSTER_POS, 1.0, null)

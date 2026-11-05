@@ -118,5 +118,17 @@ bot = TH - nh - top
 up = img[:top][::-1] * np.linspace(0.45, 0.85, top)[:, None, None]
 down = img[-bot:][::-1] * np.linspace(0.85, 0.4, bot)[:, None, None]
 full = np.concatenate([up, img, down], axis=0)[:TH]
+
+# --- Retouche finale (brief unifié v1.1, § 3.3) -----------------------------------------------------------
+# L'effacement du garde peint avait laissé, à droite de la fenêtre, un fragment de fenêtre lumineuse aux bords
+# déchiquetés (répétition visible). On prolonge la porte voisine : profil médian de ses planches verticales,
+# une couleur par colonne (aucune période verticale), léger assombrissement vers le bas, poteau d'1 px.
+full = np.clip(full, 0, 255).astype(np.uint8).astype(float)
+prof = np.median(full[72:96, 382:398], axis=0)
+PX0, PX1, PY0, PY1 = 368, 400, 82, 104
+for x in range(PX0, PX1):
+    for y in range(PY0, PY1):
+        full[y, x] = prof[(x - 382) % 16] * (1.0 - 0.12 * (y - PY0) / (PY1 - PY0))
+full[PY0:PY1, PX0] *= 0.6
 Image.fromarray(np.clip(full, 0, 255).astype(np.uint8), "RGB").save(OUT)
 print("décor natif :", full.shape[1], "x", full.shape[0], "| décalage vertical de la scène :", top, "| recadrage x :", cx)

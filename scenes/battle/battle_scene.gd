@@ -19,6 +19,8 @@ const SpriteMonsterView = preload("res://src/presentation/sprite_monster_view.gd
 const HUNTER_POS_PX := {"compagnon_vif": Vector2(225, 510), "heros": Vector2(405, 552), "compagnon_lourd": Vector2(585, 512)}
 const MONSTER_POS_PX := Vector2(935, 548)
 const ProtoHero = preload("res://src/proto/pack_hunter_view.gd")
+const CombatHud = preload("res://src/presentation/combat_hud.gd")
+const UI = preload("res://src/presentation/ui_style.gd")
 ## Prototype recentré : groupe à droite tourné vers la gauche, monstre à gauche (maquette du pack, Octopath).
 const HUNTER_POS_PROTO := {"heros": Vector2(900, 500), "compagnon_vif": Vector2(1028, 468), "compagnon_lourd": Vector2(1150, 492)}
 const MONSTER_POS_PROTO := Vector2(330, 506)
@@ -193,7 +195,7 @@ func _build_world_proto() -> void:
 	fx = Node2D.new()
 	overlay.add_child(fx)
 	var mv := SpriteMonsterView.new()
-	mv.sprite_dir = "res://art/proto/vorgane/"
+	mv.sprite_dir = "res://art/proto/vorgane_nuit/"
 	mv.facing_right = true
 	monster_view = mv
 	actors.add_child(monster_view)
@@ -232,7 +234,7 @@ func _monster_icon() -> Texture2D:
 	var mv: SpriteMonsterView = monster_view
 	var a: Array = mv.anchors["idle_001"]["gueule"]
 	var at := AtlasTexture.new()
-	at.atlas = load("res://art/proto/vorgane/base/idle_001.png")
+	at.atlas = load("res://art/proto/vorgane_nuit/base/idle_001.png")
 	at.region = Rect2(a[0] - 12, a[1] - 26, 40, 40)
 	return at
 
@@ -274,7 +276,7 @@ func _build_hud() -> void:
 	var layer := CanvasLayer.new()
 	layer.layer = 10
 	add_child(layer)
-	hud = BattleHud.new()
+	hud = CombatHud.new() if GameState.proto else BattleHud.new()
 	hud.simple = GameState.proto
 	layer.add_child(hud)
 	hud.build()
@@ -290,6 +292,8 @@ func _build_hud() -> void:
 		hud.timeline.colors[c.id] = Art.C_HUNTER
 		hud.timeline.short_names[c.id] = short_name(c.name)
 	hud.timeline.portraits[monster_id] = _monster_icon()
+	if GameState.proto:
+		hud.timeline.enemy_ids = [monster_id]
 	hud.timeline.colors[monster_id] = Art.C_MONSTER
 	hud.timeline.short_names[monster_id] = "Vorgane"
 	hud.action_selected.connect(_on_action_selected)
@@ -637,6 +641,15 @@ func _refresh_hud() -> void:
 	if tele_resolve >= 0:
 		tele = "⚠ %s dans %d" % [tele_name, maxi(0, tele_resolve - view_now)]
 	hud.update_monster(int(disp_hp[monster_id]), tele)
+	if hud.has_method("set_boss_status"):
+		# Statuts RÉELLEMENT actifs : attaque annoncée, parties brisées
+		var st: Array = []
+		if tele_resolve >= 0:
+			st.append({"icon": "warn", "text": "%s +%d" % [tele_name.split(" ")[0], maxi(0, tele_resolve - view_now)], "color": UI.C_DANGER})
+		for p in battle.get_combatant(monster_id).parts:
+			if monster_view.part_info.get(p.id, {}).get("broken", false):
+				st.append({"icon": "broken", "text": "%s brisée" % p.name.split(" ")[0], "color": UI.C_BREAK})
+		hud.set_boss_status(st)
 	for p in battle.get_combatant(monster_id).parts:
 		if monster_view.part_info.has(p.id):
 			monster_view.part_info[p.id]["integrity"] = _shown_integrity(p.id)
@@ -701,8 +714,6 @@ func _refresh_selection() -> void:
 	# Actions
 	var list: Array = []
 	for aid in a.action_ids:
-		if GameState.proto and aid == "serum_pulsation":
-			continue                      # prototype recentré : capacité de sérum masquée (conservée dans le CombatCore)
 		var def: Dictionary = battle.actions[aid]
 		var label: String = short_name(def["name"])
 		if def.has("item"):
@@ -710,13 +721,19 @@ func _refresh_selection() -> void:
 		if def.has("resonance_cost"):
 			label += "  (%d Rés.)" % int(def["resonance_cost"])
 		var ok := _action_enabled(a, aid)
-		list.append({"id": aid, "label": label, "enabled": ok, "reason": def.get("description", "")})
+		var why: String = def.get("description", "") if ok else battle.validate(a, _cmd_for(aid))
+		list.append({"id": aid, "label": label, "enabled": ok, "reason": why})
 	hud.set_actions(list, sel_action)
 
 	var def_sel: Dictionary = battle.actions[sel_action]
 	var cmd := _cmd_for(sel_action)
 	var valid := battle.validate(a, cmd) == ""
 	var tk := _target_kind()
+	if GameState.proto:
+		var dtxt: String = def_sel.get("description", "")
+		if not valid:
+			dtxt += "\n[color=#%s]Indisponible : %s[/color]" % [UI.C_DANGER.to_html(false), battle.validate(a, cmd)]
+		hud.set_action_description(short_name(def_sel["name"]), dtxt)
 	monster_view.targeting = tk == "enemy_part"
 	monster_view.selected_part = sel_part
 
@@ -744,7 +761,10 @@ func _refresh_selection() -> void:
 			var lines := ["Effet dans +%d" % (int(est["resolve_at"]) - battle.now),
 				"Dégâts ≈ %d · Rupture %d" % [est["damage"], est["break"]]]
 			if tele_resolve >= 0:
-				lines.append("✔ avant le Souffle" if int(est["resolve_at"]) < tele_resolve else "✘ après le Souffle")
+				if GameState.proto:
+					lines.append("+ avant le Souffle" if int(est["resolve_at"]) < tele_resolve else "- après le Souffle")
+				else:
+					lines.append("✔ avant le Souffle" if int(est["resolve_at"]) < tele_resolve else "✘ après le Souffle")
 			cards.append({"mode": mode, "title": MODE_TITLES[mode], "lines": lines, "selected": mode == sel_mode,
 				"color": MODE_COLORS[mode], "windup": float(battle.rules["modes"][mode]["windup"])})
 		hud.set_mode_cards(cards)
@@ -755,7 +775,7 @@ func _refresh_selection() -> void:
 				"portrait": load(Art.hunter(h.id, GameState.hero_gender)["portrait"])})
 		hud.set_ally_choices(allies, sel_ally)
 	else:
-		var lines2: Array = [def_sel.get("description", "")]
+		var lines2: Array = [] if GameState.proto else [def_sel.get("description", "")]
 		if valid:
 			var est2: Dictionary = battle.estimate(a, cmd)
 			if est2["damage"] > 0:
@@ -768,6 +788,9 @@ func _refresh_selection() -> void:
 		hud.set_mode_cards([{"title": short_name(def_sel["name"]), "lines": lines2, "color": Color("#9fe8ff") if def_sel.get("kind") == "serum" else Color("#c6d4e0")}])
 
 	# Ligne de cible
+	if GameState.proto:
+		_proto_target_and_preview(a, m, def_sel, cmd, valid, tk, dtype)
+		return
 	match tk:
 		"enemy_part":
 			var p = m.get_part(sel_part)
@@ -800,6 +823,43 @@ func _refresh_selection() -> void:
 		hud.timeline.events = battle.preview_timeline(14, cmd)
 	else:
 		hud.set_preview("[color=#ff8a7a]%s[/color]" % battle.validate(a, cmd))
+		hud.timeline.events = battle.preview_timeline(14)
+	hud.timeline.now = battle.now
+	hud.timeline.current_id = a.id
+	hud.confirm_enabled(valid)
+	_refresh_hud()
+
+
+## Prototype : cible (nom + intégrité + faiblesse pertinente) et aperçu RÉEL du moteur, couleurs de UiStyle.
+func _proto_target_and_preview(a, m, def_sel: Dictionary, cmd: Dictionary, valid: bool, tk: String, dtype: String) -> void:
+	var gold := UI.C_SELECT.to_html(false)
+	match tk:
+		"enemy_part":
+			var p = m.get_part(sel_part)
+			var aff: float = p.affinity(dtype)
+			var state_txt := "brisée" if p.broken else "%d / %d" % [_shown_integrity(p.id), p.max_integrity]
+			var t := "Cible : [b][color=#%s]%s[/color][/b]  %s" % [gold, p.name, state_txt]
+			if aff > 1.0:
+				t += "\n[color=#%s]▲ Faible : %s ×%.1f[/color]" % [UI.C_WEAK.to_html(false), dtype, aff]
+			elif aff < 1.0:
+				t += "\n[color=#%s]▼ Résiste : %s ×%.1f[/color]" % [UI.C_TEXT_DIM.to_html(false), dtype, aff]
+			hud.set_target_text(t)
+		"ally":
+			hud.set_target_text("Cible : [b][color=#%s]%s[/color][/b]" % [UI.C_HEAL.to_html(false), short_name(battle.get_combatant(sel_ally).name)])
+		_:
+			hud.set_target_text("Cible : %s" % short_name(a.name))
+	if valid:
+		var est: Dictionary = battle.estimate(a, cmd)
+		var txt := "Prochain tour de %s dans +%d" % [short_name(a.name), int(est["next_decision"]) - battle.now]
+		if tele_resolve >= 0 and def_sel.get("kind", "") != "guard":
+			if int(est["resolve_at"]) < tele_resolve:
+				txt += "   ·   [color=#%s]Frappe AVANT le %s (+%d)[/color]" % [UI.C_HEAL.to_html(false), tele_name, tele_resolve - battle.now]
+			else:
+				txt += "   ·   [color=#%s]Frappe APRÈS le %s (+%d)[/color]" % [UI.C_DANGER.to_html(false), tele_name, tele_resolve - battle.now]
+		hud.set_preview(txt)
+		hud.timeline.events = battle.preview_timeline(14, cmd)
+	else:
+		hud.set_preview("[color=#%s]%s[/color]" % [UI.C_DANGER.to_html(false), battle.validate(a, cmd)])
 		hud.timeline.events = battle.preview_timeline(14)
 	hud.timeline.now = battle.now
 	hud.timeline.current_id = a.id
@@ -895,8 +955,6 @@ func _cycle_target(dir: int) -> void:
 ## Démonstration automatique (vidéos) : choisit comme la politique de test, en variant les modes.
 func _auto_turn() -> void:
 	var cmd := AutoPolicy.choose(battle)
-	if GameState.proto and cmd["action"] == "serum_pulsation":
-		cmd = {"action": "technique", "mode": "MESURE", "target": monster_id, "part": AutoPolicy.best_part(battle.get_combatant(monster_id), battle.current_actor.damage_type)}
 	await _wait(0.5)
 	sel_action = cmd["action"]
 	if cmd.has("part"):

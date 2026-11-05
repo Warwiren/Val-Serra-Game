@@ -16,6 +16,9 @@ const ANIMS := {
 }
 const CLAW_IMPACT_INDEX := 5
 const LAYER_PARTS := {"carapace": "carapace", "griffe": "griffe", "glande": "glande"}
+const GLOW_SIZE := 60.0
+const HIT_FLASH := 0.35               # flash d'impact : bref, partiel, uniquement AU MOMENT du coup
+const BREAK_FLASH := 0.55
 
 var layers: Dictionary = {}          # nom -> AnimatedSprite2D
 var frames_cache: Dictionary = {}    # nom de calque -> SpriteFrames
@@ -26,6 +29,7 @@ var _damage_mat: Dictionary = {}
 var sprite_dir: String = DIR          # jeu d'images (ex. res://art/proto/vorgane/)
 var facing_right: bool = false        # monstre à gauche de l'écran, tourné vers le groupe
 var _frame_w := 256.0
+var _charge := 0.0
 
 
 func setup(feet: Vector2, _scale_factor := 0.9, overlay: Node = null) -> void:
@@ -58,7 +62,9 @@ func setup(feet: Vector2, _scale_factor := 0.9, overlay: Node = null) -> void:
 	body = null
 	for pid in ["griffe", "carapace", "glande"]:
 		parts[pid] = {"sprite": layers[pid], "intact": "", "broken": "", "anchor": Vector2.ZERO}
-	_gland_glow = Fx.glow_sprite(Color(0.4, 0.95, 1.0, 0.0), 160.0)
+	# Lueur LIMITÉE à la glande (≈ 60 px) : l'ancien halo additif de 160 px × 2,6 couvrait la moitié du corps et le
+	# faisait clignoter en blanc pendant la préparation du Souffle (diagnostic docs/CORRECTIFS_HUD.md).
+	_gland_glow = Fx.glow_sprite(Color(0.4, 0.95, 1.0, 0.0), GLOW_SIZE)
 	_gland_glow.z_index = 20
 	rig.add_child(_gland_glow)
 	markers = Node2D.new()
@@ -130,9 +136,23 @@ func _process(delta: float) -> void:
 		markers.global_transform = rig.global_transform
 		markers.visible = not _dead
 	var gland_broken: bool = part_info.get("glande", {}).get("broken", false)
-	_gland_glow.modulate.a = (0.0 if gland_broken else 0.45) + ((0.5 + 0.45 * sin(_t * 9.0)) if _telegraph and not gland_broken else 0.0)
-	_gland_glow.scale = Vector2.ONE * ((2.6 if _telegraph else 1.7) + 0.2 * sin(_t * 4.0))
+	# Anticipation du Souffle : la glande se CHARGE (montée continue, pulsation lente et douce), le corps reste opaque
+	var target_charge := 0.0
+	if _telegraph and not gland_broken:
+		target_charge = 0.75 + 0.25 * sin(_t * 3.0)
+	_charge = move_toward(_charge, target_charge, delta * 1.5)
+	(_damage_mat["glande"] as ShaderMaterial).set_shader_parameter("charge", _charge)
+	_gland_glow.modulate.a = 0.0 if gland_broken else 0.18 + 0.5 * _charge
+	_gland_glow.scale = Vector2.ONE * (1.0 + 0.5 * _charge)
 	markers.queue_redraw()
+	queue_redraw()
+
+
+func _draw() -> void:
+	# Ombre de contact pleine (sans flou), sous les pattes, qui suit le bond
+	draw_set_transform(Vector2(rig.position.x + (60.0 if facing_right else -60.0), -3), 0.0, Vector2(1.0, 0.16))
+	draw_circle(Vector2.ZERO, 185.0, Color(0.02, 0.02, 0.05, 0.5))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 func mouth_global() -> Vector2:
@@ -161,7 +181,7 @@ func set_telegraph(on: bool) -> void:
 		layers["base"].pause()
 		for l in layers.values():
 			l.frame = 2
-		Fx.ring(get_parent(), part_global("glande"), Color(1.0, 0.45, 0.4, 0.9), 180.0, 0.6, 6.0)
+		Fx.ring(get_parent(), part_global("glande"), Color(1.0, 0.45, 0.4, 0.8), 90.0, 0.5, 4.0)
 	elif not _busy:
 		_play("idle")
 
@@ -228,10 +248,10 @@ func breath(targets: Array) -> void:
 func hurt(_part_id: String, heavy: bool) -> void:
 	if not _busy:
 		_play("hit")
-	for m in _damage_mat.values():
-		m.set_shader_parameter("flash", 0.8 if heavy else 0.5)
+	var f := HIT_FLASH * (1.3 if heavy else 1.0)
+	_set_flash_all(f)
 	var t := create_tween()
-	t.tween_method(_set_flash_all, 0.8 if heavy else 0.5, 0.0, 0.22)
+	t.tween_method(_set_flash_all, f, 0.0, 0.12)
 	var s := create_tween()
 	s.tween_property(rig, "position", Vector2(14 if heavy else 7, 0), 0.05)
 	s.tween_property(rig, "position", Vector2.ZERO, 0.2)
@@ -249,10 +269,9 @@ func break_part(part_id: String) -> void:
 		l.sprite_frames = _frames(part_id + "_broken")
 		l.animation = anim
 		l.frame = fr
-	for m in _damage_mat.values():
-		m.set_shader_parameter("flash", 1.0)
+	_set_flash_all(BREAK_FLASH)
 	var t := create_tween()
-	t.tween_method(_set_flash_all, 1.0, 0.0, 0.4)
+	t.tween_method(_set_flash_all, BREAK_FLASH, 0.0, 0.2)
 	await get_tree().create_timer(0.1).timeout
 
 
