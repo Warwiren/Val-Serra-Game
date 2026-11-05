@@ -74,7 +74,7 @@ def sprites_in(img, box, min_h=45):
 # petites (repos combat 107 px, posture fléchie ≈ 0,92 de la hauteur debout).
 # Aren (design élancé des nouvelles planches) est calibré sur 40 px natifs debout : à 37 px, sa silhouette fine
 # paraissait nettement plus petite que celles, plus trapues, d'Ilya et Throné (comparaison en jeu, combat).
-AREN_H = 40
+AREN_H = int(os.environ.get("AREN_H", 40))   # 40 par défaut ; AREN_H=32 pour le test d'échelle d'exploration
 # Combat : hauteur RÉELLE du personnage au repos de combat mesurée après détourage = 90 px de planche.
 SCALE = {"idle_views": 186 / AREN_H, "walk": 138 / (AREN_H * 0.97), "combat": 90 / (AREN_H * 0.92)}
 EQUAL_CELLS = {"res_charge": 6, "res_liberation": 6}       # effets fusionnés : découpage en cellules régulières

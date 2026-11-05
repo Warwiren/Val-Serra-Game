@@ -5,7 +5,7 @@ pour que le visage reste cohérent d'une image et d'une orientation à l'autre :
   2. contour : bord extérieur assombri là où il était clair (silhouette nette sur le décor) ;
   3. séparation cheveux / visage : la rangée de cheveux posée sur la peau passe au brun le plus sombre ;
   4. yeux : 2 pixels sombres (1 × 2) côté regard, sous la frange — gris-bleu foncé de la planche portrait.
-Orientation : images « _left » regard à gauche, toutes les autres (profil droit, combat) regard à droite.
+Orientation : « _left » regard à gauche ; « _face » deux yeux ; « _back » sans visage ; autres : regard à droite.
 Usage : python3 aren_retouch.py <dossier aren2>"""
 import glob, os, sys
 import numpy as np
@@ -27,7 +27,7 @@ def is_hair(c):
     return r > 70 and r > g > b and r - b > 35 and not is_skin(c)
 
 
-def retouch(a, facing_left):
+def retouch(a, facing_left, view="profile"):
     a = a.copy()
     al = a[..., 3] > 0
     H, W = al.shape
@@ -50,6 +50,8 @@ def retouch(a, facing_left):
         for x in range(max(0, cx - 8), min(W, cx + 9)):
             if al[y, x] and is_skin(a[y, x]):
                 skin[y, x] = True
+    if view == "back":
+        return a, True                 # vue de dos : pas de visage, seulement nettoyage et contour
     if skin.sum() < 4:
         return a, False
     # 3. séparation cheveux / visage
@@ -60,20 +62,25 @@ def retouch(a, facing_left):
     # 4. yeux : sous la frange, côté regard
     top = sy.min()
     cols = np.where(skin[top] | (skin[top + 1] if top + 1 < H else skin[top]))[0]
-    ex = (cols.min() + 1) if facing_left else (cols.max() - 1)
-    for y in (top, top + 1):
-        if 0 <= y < H and al[y, ex]:
-            a[y, ex, :3] = EYE
+    if view == "face":
+        eyes = [cols.min() + 1, cols.max() - 1]          # vue de face : deux yeux symétriques
+    else:
+        eyes = [(cols.min() + 1) if facing_left else (cols.max() - 1)]
+    for ex in eyes:
+        for y in (top, top + 1):
+            if 0 <= y < H and al[y, ex]:
+                a[y, ex, :3] = EYE
     return a, True
 
 
 done = 0
 for f in sorted(glob.glob(os.path.join(D, "*.png"))):
     n = os.path.basename(f)
-    if n.startswith("portrait_") or n.startswith("idle_face") or n.startswith("idle_back") or n.startswith("walk_face") or n.startswith("walk_back"):
-        continue                      # portraits illustrés conservés ; vues face/dos non utilisées en jeu
+    if n.startswith("portrait_"):
+        continue                      # portraits illustrés conservés tels quels
+    view = "face" if "_face" in n else ("back" if "_back" in n else "profile")
     a = np.asarray(Image.open(f).convert("RGBA"))
-    out, ok = retouch(a, "_left" in n)
+    out, ok = retouch(a, "_left" in n, view)
     Image.fromarray(out, "RGBA").save(f)
     done += ok
 print("images retouchées (visage trouvé) :", done)
