@@ -22,6 +22,10 @@ Aucun son n'est encore intégré.
 | `art/hd/hero/*.svg` | Chasseur HD articulé, 13 calques sur canevas commun | `tools/art/gen_hero_hd.py` | Projet | Placeholder (structure finale) |
 | `art/hd/vorgane/*.svg` | Vorgane HD articulé, 15 calques (dont 7 éclats de carapace, plaie, états brisés) | `tools/art/gen_vorgane_hd.py` | Projet | Placeholder (structure finale) |
 | `art/hd/arena/*.svg` | Arène forestière nocturne en 8 plans + rayons de lune | `tools/art/gen_arena_hd.py` | Projet | Placeholder |
+| `art/sprites/aren/*.png` | **Aren HD-2D** : 5 poses + respiration (repos, garde), effets d'arc et de glyphe | Dérivés par `tools/art/aren_sprites.py` / `aren_anims.py` de la planche « Aren – Référence de sprites » (Drive, fournie par le créateur) ; effets dessinés par script | **À consigner** : outil et conditions de la planche source | Production (test) |
+| `art/3d/source/Meshy_AI_Crystalback_Drake_…glb` | **Modèle original du Vorgane**, conservé intact (SHA-256 a3a42d9b…) | Meshy 6 Lite (fourni par le créateur) | **À vérifier** selon l'offre Meshy utilisée (attribution possible en offre gratuite) | Source |
+| `art/3d/blender/*.blend`, `art/3d/vorgane_rig.glb` | Vorgane riggé et animé ; parties destructibles séparées | Blender 5.2.3 (scripts `tools/blender/`) à partir du GLB Meshy | Dérivé du modèle Meshy (même conditions) | Production (test) |
+| `art/sprites/vorgane/**` | **Vorgane HD-2D** : 4 animations × 6 calques (corps, carapace et griffe intactes/brisées, glande) + ancrages | Rendus Blender convertis par `tools/art/pixelize_layers.py` | Dérivé du modèle Meshy | Production (test) |
 | Lumières, particules, brume | Textures de dégradé générées dans le moteur (`src/presentation/fx.gd`) | Code | Projet | — |
 
 Rappel : la capture d'Octopath Traveler II fournie par le créateur est une **référence d'ambiance** ;

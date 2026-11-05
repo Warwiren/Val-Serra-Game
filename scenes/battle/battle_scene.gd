@@ -14,6 +14,10 @@ const MonsterView = preload("res://src/presentation/monster_view.gd")
 const BattleHud = preload("res://src/presentation/battle_hud.gd")
 const RigHunterView = preload("res://src/presentation/rig_hunter_view.gd")
 const RigMonsterView = preload("res://src/presentation/rig_monster_view.gd")
+const SpriteHunterView = preload("res://src/presentation/sprite_hunter_view.gd")
+const SpriteMonsterView = preload("res://src/presentation/sprite_monster_view.gd")
+const HUNTER_POS_PX := {"compagnon_vif": Vector2(225, 510), "heros": Vector2(405, 552), "compagnon_lourd": Vector2(585, 512)}
+const MONSTER_POS_PX := Vector2(935, 548)
 
 ## Prototype artistique : positions légèrement différentes (personnages plus grands).
 const HUNTER_POS_HD := {
@@ -83,8 +87,10 @@ func _ready() -> void:
 
 func _build_world() -> void:
 	stage = Stage.new()
-	if GameState.art_proto:
+	if GameState.art_proto or GameState.hd2d:
 		_configure_hd_stage()
+		if GameState.hd2d:
+			stage.pixelate = 3
 	else:
 		stage.light_points = [
 		{"pos": Vector2(136, 312), "color": Color(1.0, 0.72, 0.4), "energy": 1.3, "size": 2.4},
@@ -107,14 +113,21 @@ func _build_world() -> void:
 	fx = Node2D.new()
 	overlay.add_child(fx)
 
-	var hpos: Dictionary = HUNTER_POS_HD if GameState.art_proto else HUNTER_POS
-	var mpos: Vector2 = MONSTER_POS_HD if GameState.art_proto else MONSTER_POS
-	monster_view = RigMonsterView.new() if GameState.art_proto else MonsterView.new()
+	var hpos: Dictionary = HUNTER_POS_PX if GameState.hd2d else (HUNTER_POS_HD if GameState.art_proto else HUNTER_POS)
+	var mpos: Vector2 = MONSTER_POS_PX if GameState.hd2d else (MONSTER_POS_HD if GameState.art_proto else MONSTER_POS)
+	if GameState.hd2d:
+		monster_view = SpriteMonsterView.new()
+	else:
+		monster_view = RigMonsterView.new() if GameState.art_proto else MonsterView.new()
 	actors.add_child(monster_view)
 	monster_view.setup(mpos, 0.76 if GameState.art_proto else 0.88, fx)
 	for c in battle.hunters():
 		var hv
-		if GameState.art_proto and c.id == "heros":
+		if GameState.hd2d and c.id == "heros":
+			hv = SpriteHunterView.new()
+			actors.add_child(hv)
+			hv.setup(c.id, Art.hunter(c.id, GameState.hero_gender), hpos[c.id], 0.8)
+		elif GameState.art_proto and c.id == "heros":
 			hv = RigHunterView.new()
 			actors.add_child(hv)
 			hv.setup(c.id, Art.hunter(c.id, GameState.hero_gender), hpos[c.id], 0.74)
@@ -336,7 +349,7 @@ func _play(e: Dictionary) -> void:
 			await _orb(from, part_pos)
 			Fx.ring(fx, part_pos, Color(0.5, 0.95, 1.0), 140.0, 0.5, 8.0)
 			Fx.burst(fx, part_pos, Color(0.5, 0.95, 1.0), 30, 320.0, 10.0, 0.6, 0.0)
-			if GameState.art_proto:
+			if GameState.art_proto or GameState.hd2d:
 				Fx.ring(fx, part_pos, Color(0.85, 1.0, 1.0), 260.0, 0.7, 4.0)
 				Fx.burst(fx, part_pos, Color(0.7, 0.98, 1.0), 40, 520.0, 7.0, 0.9, -80.0)
 				light_flash(part_pos, Color(0.5, 0.95, 1.0), 3.0, 5.0, 0.6)
@@ -357,7 +370,7 @@ func _play(e: Dictionary) -> void:
 				Fx.float_text(fx, pos + Vector2(0, -50), str(amount), Color("#fff2c8"), 36 if amount < 60 else 46)
 				if _last_hit_affinity() > 1.0:
 					Fx.float_text(fx, pos + Vector2(10, -10), "FAIBLESSE !", Color("#ffb347"), 24, 50.0, 1.0)
-				if GameState.art_proto:
+				if GameState.art_proto or GameState.hd2d:
 					light_flash(pos, Color(1.0, 0.85, 0.6), 1.6, 3.0, 0.3)
 				shake(3.0 + amount * 0.06)
 			await _wait(0.28)
@@ -381,7 +394,7 @@ func _play(e: Dictionary) -> void:
 			var part_id: String = d.get("part", "")
 			_sync_parts()
 			monster_view.part_info[part_id]["broken"] = true
-			if GameState.art_proto:
+			if GameState.art_proto or GameState.hd2d:
 				light_flash(monster_view.part_global(part_id), Color(1.0, 0.9, 0.7), 3.0, 5.0, 0.7)
 			punch_zoom(monster_view.part_global(part_id), 0.12, 0.7)
 			shake(12.0)

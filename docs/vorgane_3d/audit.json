@@ -1,0 +1,225 @@
+{
+ "fichier": "original.glb",
+ "objets": [
+  {
+   "nom": "Mesh_0",
+   "sommets": 20030,
+   "faces": 21512,
+   "triangles": 21512,
+   "quads": 0,
+   "ngons": 0,
+   "aretes_non_manifold": 16286,
+   "aretes_de_bord": 16286,
+   "sommets_isoles": 0,
+   "faces_degenerees": 0,
+   "paires_de_normales_incoherentes": 0,
+   "uv": [
+    "UVMap"
+   ],
+   "couleurs_de_sommets": [],
+   "nb_ilots": 1224,
+   "ilots_principaux": [
+    {
+     "sommets": 1989,
+     "min": [
+      -0.232,
+      -0.944,
+      -0.174
+     ],
+     "max": [
+      0.169,
+      0.424,
+      0.417
+     ]
+    },
+    {
+     "sommets": 1578,
+     "min": [
+      -0.003,
+      -0.947,
+      -0.346
+     ],
+     "max": [
+      0.351,
+      0.364,
+      0.3
+     ]
+    },
+    {
+     "sommets": 1190,
+     "min": [
+      -0.438,
+      -0.48,
+      -0.42
+     ],
+     "max": [
+      0.002,
+      0.941,
+      0.299
+     ]
+    },
+    {
+     "sommets": 480,
+     "min": [
+      -0.259,
+      -0.874,
+      -0.303
+     ],
+     "max": [
+      0.231,
+      0.883,
+      -0.007
+     ]
+    },
+    {
+     "sommets": 329,
+     "min": [
+      -0.006,
+      0.286,
+      -0.226
+     ],
+     "max": [
+      0.13,
+      0.903,
+      0.24
+     ]
+    },
+    {
+     "sommets": 311,
+     "min": [
+      -0.177,
+      -0.933,
+      -0.264
+     ],
+     "max": [
+      -0.02,
+      -0.302,
+      0.229
+     ]
+    },
+    {
+     "sommets": 284,
+     "min": [
+      0.246,
+      -0.639,
+      -0.428
+     ],
+     "max": [
+      0.539,
+      -0.111,
+      -0.176
+     ]
+    },
+    {
+     "sommets": 279,
+     "min": [
+      -0.536,
+      -0.65,
+      -0.429
+     ],
+     "max": [
+      -0.254,
+      -0.112,
+      -0.196
+     ]
+    },
+    {
+     "sommets": 263,
+     "min": [
+      -0.541,
+      -0.554,
+      -0.419
+     ],
+     "max": [
+      -0.331,
+      -0.114,
+      -0.106
+     ]
+    },
+    {
+     "sommets": 220,
+     "min": [
+      -0.538,
+      -0.644,
+      -0.404
+     ],
+     "max": [
+      -0.281,
+      -0.133,
+      -0.107
+     ]
+    },
+    {
+     "sommets": 195,
+     "min": [
+      0.265,
+      -0.638,
+      -0.402
+     ],
+     "max": [
+      0.538,
+      -0.126,
+      -0.102
+     ]
+    },
+    {
+     "sommets": 152,
+     "min": [
+      -0.383,
+      -0.256,
+      -0.255
+     ],
+     "max": [
+      -0.18,
+      -0.13,
+      0.057
+     ]
+    }
+   ],
+   "modificateurs": [],
+   "materiaux": [
+    "Material_0"
+   ]
+  }
+ ],
+ "materiaux": [
+  {
+   "nom": "Material_0",
+   "noeuds": [
+    "BSDF_PRINCIPLED",
+    "OUTPUT_MATERIAL",
+    "TEX_IMAGE"
+   ]
+  }
+ ],
+ "images": [
+  {
+   "nom": "Image_0",
+   "taille": [
+    2048,
+    2048
+   ],
+   "canaux": 4
+  }
+ ],
+ "types_objets": [
+  "MESH"
+ ],
+ "armature_presente": false,
+ "animations": [],
+ "dimensions_m": [
+  1.084,
+  1.888,
+  0.846
+ ],
+ "boite_min": [
+  -0.541,
+  -0.947,
+  -0.429
+ ],
+ "boite_max": [
+  0.543,
+  0.941,
+  0.417
+ ]
+}

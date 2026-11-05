@@ -15,7 +15,7 @@ Référence : documents 07 (Brief MVP) et 08 (Mission Claude) du dossier Drive d
 | Combat présentable : 3 Chasseurs, monstre à 3 parties brisables, chronologie en portraits, cartes VIF/MESURÉ/CHARGÉ, effets | `scenes/battle/battle_scene.tscn` |
 | Deux rendus du même jeu : **A** (2D illustrée) et **B** (2.5D : parallax, profondeur, lumière, particules), touche **F2** | `src/presentation/stage.gd` |
 | Moteur de combat déterministe (Lot A, inchangé dans ses règles) | `src/combat/core/` |
-| 34 tests automatisés | `tests/unit/` |
+| 36 tests automatisés | `tests/unit/` |
 
 Compte rendu, limites et recommandations : **`docs/LOT_B.md`**. Plan général : `docs/PLAN_MVP.md`.
 
@@ -35,7 +35,7 @@ Compte rendu, limites et recommandations : **`docs/LOT_B.md`**. Plan général :
 ## 2. Vérifier les tests (30 secondes)
 
 Panneau **Système de fichiers** → dossier `tests` → double-clic sur **`test_runner.tscn`** → **F6**.
-Attendu : **34 lignes « OK »** et « TOUT EST VERT ».
+Attendu : **36 lignes « OK »** et « TOUT EST VERT ».
 
 ## 3. Jouer la démo (le vrai test)
 
@@ -67,7 +67,14 @@ puis **Commencer**. (« Combat direct » saute l'exploration.)
 **d. Retour** — après la victoire (ou la défaite), revenez à l'avant-poste : les récompenses apparaissent
 en haut à gauche, le Vorgane a disparu, et Maëlle a de nouvelles répliques.
 
-### Prototype artistique HD (nouveau)
+### Combat HD-2D : Aren contre le Vorgane (nouveau)
+
+Écran d'accueil → **⚔ Combat HD-2D : Aren vs Vorgane**. Aren est en sprites pixel art (dérivés des planches
+de référence), le Vorgane est le modèle Meshy riggé et animé dans Blender puis rendu en sprites ; ses trois
+parties changent d'état (intact, endommagé, brisé) selon le CombatCore. Règles, chronologie, modes et
+ciblage inchangés. Détails : `docs/AREN_SPRITES.md`, `docs/VORGANE_3D.md`.
+
+### Prototype artistique HD
 
 Sur l'écran d'accueil :
 - **✦ Prototype artistique HD** : le même combat, avec le héros et le Vorgane articulés (Skeleton2D),
@@ -108,7 +115,7 @@ godot --path . -- --start=battle --render=A
 ```
 
 La première lance les tests ; la seconde ouvre directement le combat en rendu A. Options disponibles après
-`--` : `--start=battle`, `--start=zone`, `--start=artproto`, `--start=rigviewer`, `--render=A`, `--render=B`, `--hero=f`, `--autoplay` (démo automatique).
+`--` : `--start=battle`, `--start=zone`, `--start=hd2d`, `--start=artproto`, `--start=rigviewer`, `--render=A`, `--render=B`, `--hero=f`, `--autoplay` (démo automatique).
 
 ## Arborescence
 

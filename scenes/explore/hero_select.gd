@@ -76,6 +76,13 @@ func _ready() -> void:
 	quick.size = Vector2(210, 36)
 	quick.pressed.connect(_quick_battle)
 	add_child(quick)
+	var px := Button.new()
+	px.text = "⚔ Combat HD-2D : Aren vs Vorgane"
+	px.position = Vector2(780, 572)
+	px.size = Vector2(260, 36)
+	px.add_theme_color_override("font_color", Color("#ffd27a"))
+	px.pressed.connect(_hd2d)
+	add_child(px)
 	var hd := Button.new()
 	hd.text = "✦ Prototype artistique HD"
 	hd.position = Vector2(780, 616)
@@ -166,6 +173,14 @@ func _select(g: String) -> void:
 		_name_edit.text = "Aren" if g == "m" else "Ilya"
 
 
+func _hd2d() -> void:
+	GameState.new_game("m", "Aren")
+	GameState.from_zone = false
+	GameState.art_proto = false
+	GameState.hd2d = true
+	GameState.goto(GameState.SCENE_BATTLE)
+
+
 func _atelier() -> void:
 	GameState.new_game(_gender, _name_edit.text)
 	GameState.goto(GameState.SCENE_RIG_VIEWER)
@@ -173,6 +188,7 @@ func _atelier() -> void:
 
 func _art_proto() -> void:
 	GameState.new_game(_gender, _name_edit.text)
+	GameState.hd2d = false
 	GameState.from_zone = false
 	GameState.art_proto = true
 	GameState.goto(GameState.SCENE_BATTLE)
@@ -181,11 +197,13 @@ func _art_proto() -> void:
 func _start() -> void:
 	GameState.new_game(_gender, _name_edit.text)
 	GameState.art_proto = false
+	GameState.hd2d = false
 	GameState.goto(GameState.SCENE_ZONE)
 
 
 func _quick_battle() -> void:
 	GameState.new_game(_gender, _name_edit.text)
 	GameState.art_proto = false
+	GameState.hd2d = false
 	GameState.from_zone = false
 	GameState.goto(GameState.SCENE_BATTLE)

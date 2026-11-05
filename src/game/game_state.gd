@@ -30,6 +30,7 @@ var last_battle_result: String = ""
 # Présentation
 var render_mode: String = RENDER_25D
 var autoplay: bool = false             # démonstration automatique (captures vidéo)
+var hd2d: bool = false                 # combat HD-2D : Aren et Vorgane en sprites pixel art
 var art_proto: bool = false            # prototype artistique HD (héros et monstre articulés, arène nocturne)
 
 var _fade: ColorRect
@@ -51,6 +52,9 @@ func _ready() -> void:
 			_start_scene.call_deferred(SCENE_ZONE)
 		elif arg == "--start=rigviewer":
 			_start_scene.call_deferred(SCENE_RIG_VIEWER)
+		elif arg == "--start=hd2d":
+			hd2d = true
+			_start_scene.call_deferred(SCENE_BATTLE)
 		elif arg == "--start=artproto":
 			art_proto = true
 			_start_scene.call_deferred(SCENE_BATTLE)
