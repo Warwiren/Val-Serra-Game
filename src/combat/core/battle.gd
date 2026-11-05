@@ -39,6 +39,7 @@ var state: int = State.RUNNING
 var current_actor = null            # Chasseur qui doit choisir une action
 var journal: Array = []             # [{t, type, text, data}] — journal horodaté, aussi source d'événements pour l'affichage
 var abort_reason: String = ""
+var ai_seed: int = 0                # graine de la part aléatoire de l'IA ennemie (tests reproductibles)
 
 var _cast_seq: int = 0
 
@@ -449,7 +450,7 @@ func _resolve_monster_action(monster, cast) -> void:
 	else:
 		var t = get_combatant(cast.target_id)
 		if t == null or not t.is_alive():
-			t = EnemyAI.pick_target(self)
+			t = EnemyAI.pick_target(self, monster)
 			if t == null:
 				return
 			_log("retarget", "%s se tourne vers %s." % [monster.name, t.name], {"actor": monster.id, "target": t.id})

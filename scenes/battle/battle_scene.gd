@@ -21,6 +21,7 @@ const MONSTER_POS_PX := Vector2(935, 548)
 const ProtoHero = preload("res://src/proto/pack_hunter_view.gd")
 const CombatHud = preload("res://src/presentation/combat_hud.gd")
 const UI = preload("res://src/presentation/ui_style.gd")
+const Portraits = preload("res://src/proto/portraits.gd")
 ## Prototype recentré : groupe à droite tourné vers la gauche, monstre à gauche (maquette du pack, Octopath).
 const HUNTER_POS_PROTO := {"heros": Vector2(900, 500), "compagnon_vif": Vector2(1028, 468), "compagnon_lourd": Vector2(1150, 492)}
 const MONSTER_POS_PROTO := Vector2(330, 506)
@@ -236,7 +237,7 @@ func _build_world_proto() -> void:
 
 func _portrait(id: String) -> Texture2D:
 	if GameState.proto:
-		return load("res://art/proto/portrait_%s.png" % PROTO_SPRITES[id])
+		return Portraits.get_texture(id)
 	return load(Art.hunter(id, GameState.hero_gender)["portrait"])
 
 
@@ -675,9 +676,25 @@ func _refresh_hud() -> void:
 	hud.update_monster(int(disp_hp[monster_id]), tele)
 	if tele_resolve >= 0 and tele_start >= 0 and "charge_progress" in monster_view:
 		monster_view.charge_progress = clampf(float(view_now - tele_start) / maxf(1.0, float(tele_resolve - tele_start)), 0.0, 1.0)
+	# Cible annoncée : celle VERROUILLÉE dans l'action en préparation du monstre (jamais une cible visuelle à part)
+	var aimed: Array = []
+	var mon = battle.get_combatant(monster_id)
+	if mon.pending_cast != null:
+		if mon.pending_cast.target_id != "":
+			aimed = [mon.pending_cast.target_id]
+		elif mon.monster_actions.get(mon.pending_cast.action_id, {}).get("target", "single") == "all":
+			aimed = battle.hunters(true).map(func(h): return h.id)
+	for id in hunters:
+		hunters[id].targeted = aimed.has(id) and battle.get_combatant(id).is_alive()
+	if hud.has_method("set_enemy_targets"):
+		hud.set_enemy_targets(aimed)
 	if hud.has_method("set_boss_status"):
-		# Statuts RÉELLEMENT actifs : attaque annoncée, parties brisées
+		# Statuts RÉELLEMENT actifs : cible visée, attaque annoncée, parties brisées
 		var st: Array = []
+		if aimed.size() == 1:
+			st.append({"icon": "warn", "text": "Vise %s" % short_name(battle.get_combatant(aimed[0]).name), "color": UI.C_DANGER})
+		elif aimed.size() > 1:
+			st.append({"icon": "warn", "text": "Vise tout le groupe", "color": UI.C_DANGER})
 		if tele_resolve >= 0:
 			st.append({"icon": "warn", "text": "%s +%d" % [tele_name.split(" ")[0], maxi(0, tele_resolve - view_now)], "color": UI.C_DANGER})
 		for p in battle.get_combatant(monster_id).parts:
@@ -803,7 +820,7 @@ func _refresh_selection() -> void:
 			var c := _cmd_for(sel_action, mode)
 			var est: Dictionary = battle.estimate(a, c)
 			var lines := ["Effet dans +%d" % (int(est["resolve_at"]) - battle.now),
-				"Dégâts ≈ %d · Rupture %d" % [est["damage"], est["break"]]]
+				("Dégâts ≈ %d · partie brisée" % est["damage"]) if m.get_part(sel_part) != null and m.get_part(sel_part).broken else "Dégâts ≈ %d · Rupture %d" % [est["damage"], est["break"]]]
 			if tele_resolve >= 0:
 				if GameState.proto:
 					lines.append("+ avant le Souffle" if int(est["resolve_at"]) < tele_resolve else "- après le Souffle")
@@ -816,7 +833,7 @@ func _refresh_selection() -> void:
 		var allies: Array = []
 		for h in battle.hunters(true):
 			allies.append({"id": h.id, "name": short_name(h.name), "hp": h.hp, "max": h.max_hp,
-				"portrait": load(Art.hunter(h.id, GameState.hero_gender)["portrait"])})
+				"portrait": _portrait(h.id)})
 		hud.set_ally_choices(allies, sel_ally)
 	else:
 		var lines2: Array = [] if GameState.proto else [def_sel.get("description", "")]
@@ -883,6 +900,9 @@ func _proto_target_and_preview(a, m, def_sel: Dictionary, cmd: Dictionary, valid
 			var aff: float = p.affinity(dtype)
 			var state_txt := "brisée" if p.broken else "%d / %d" % [_shown_integrity(p.id), p.max_integrity]
 			var t := "Cible : [b][color=#%s]%s[/color][/b]  %s" % [gold, p.name, state_txt]
+			if p.broken:
+				# Règle validée : une partie brisée reste ciblable, mais ne donne plus ni rupture, ni Résonance, ni butin
+				t += "\n[color=#%s]Brisée : dégâts PV seulement[/color]" % UI.C_TEXT_2.to_html(false)
 			if aff > 1.0:
 				t += "\n[color=#%s]▲ Faible : %s ×%.1f[/color]" % [UI.C_WEAK.to_html(false), dtype, aff]
 			elif aff < 1.0:

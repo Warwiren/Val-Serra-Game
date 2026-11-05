@@ -17,6 +17,7 @@ const R_ACTIVE := 23.0
 const ROW_Y := 44.0
 
 var enemy_ids: Array = []
+var enemy_aim: Array = []
 
 
 func _draw() -> void:
@@ -97,6 +98,11 @@ func _items() -> Array:
 				it["major"] = true
 				it["color"] = UI.C_DANGER
 				it["label"] = cast.action_name.split(" ")[0]
+			elif enemy_ids.has(e["actor_id"]) and cast.target_id != "":
+				# intention ennemie monocible : « → Ilya » (cible verrouillée dans l'action)
+				it["major"] = true
+				it["color"] = UI.C_DANGER
+				it["label"] = "→ " + String(short_names.get(cast.target_id, cast.target_id))
 			out.append(it)
 	return out
 

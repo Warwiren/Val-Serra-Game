@@ -61,52 +61,57 @@ names = {1: "groupe", 2: "pnj", 3: "carte"}
 
 # --- Inpainting par exemples ------------------------------------------------------------------
 P = 4                                  # demi-taille du motif (9×9)
-known = ~hole
-img = nat.copy()
-pad = lambda a, v: np.pad(a, ((P, P), (P, P)) + ((0, 0),) * (a.ndim - 2), constant_values=v)
-img_p = pad(img, 0.0)
-known_p = pad(known, False)
-fully_known = sliding_window_view(known_p, (2 * P + 1, 2 * P + 1)).all(axis=(-1, -2))   # (nh, nw)
-patches = sliding_window_view(img_p, (2 * P + 1, 2 * P + 1), axis=(0, 1))               # (nh, nw, 3, 7, 7)
-step = 0
-while not known.all():
-    # front : pixels inconnus touchant un pixel connu ; priorité = nombre de voisins connus (confiance)
-    kp = pad(known, False)
-    nb = sum(np.roll(np.roll(kp, dy, 0), dx, 1) for dy in range(-P, P + 1) for dx in range(-P, P + 1))[P:-P, P:-P]
-    front = (~known) & (nb > 0)
-    ys, xs = np.where(front)
-    k = np.argmax(nb[ys, xs])
-    py, px = ys[k], xs[k]
-    tgt = img_p[py:py + 2 * P + 1, px:px + 2 * P + 1]
-    tk = known_p[py:py + 2 * P + 1, px:px + 2 * P + 1]
-    # zone de recherche : rangées voisines (±10) et ±150 colonnes, motifs entièrement connus
-    ry0, ry1 = max(0, py - 8), min(nh, py + 9)
-    rx0, rx1 = max(0, px - 220), min(nw, px + 221)
-    cand_ok = fully_known[ry0:ry1, rx0:rx1].copy()
-    rule = names.get(int(lab[py, px]))
-    if rule:
-        cand_ok &= ALLOWED[rule][ry0:ry1, rx0:rx1]
-        if not cand_ok.any():                       # repli : élargir la recherche verticale dans la zone autorisée
-            ry0, ry1, rx0, rx1 = 0, nh, 0, nw
-            cand_ok = fully_known & ALLOWED[rule]
-    cand = patches[ry0:ry1, rx0:rx1].transpose(0, 1, 3, 4, 2)                            # (h, w, 7, 7, 3)
-    diff = ((cand - tgt[None, None]) ** 2).sum(-1) * tk[None, None]
-    ssd = diff.sum(axis=(-1, -2))
-    ssd = ssd + np.abs(np.arange(ry0, ry1) - py)[:, None] * 40.0                          # même hauteur = même lumière
-    ssd[~cand_ok] = np.inf
-    by, bx = np.unravel_index(np.argmin(ssd), ssd.shape)
-    src = cand[by, bx]
-    fill = ~tk
-    tgt[fill] = src[fill]
-    known_p[py:py + 2 * P + 1, px:px + 2 * P + 1] |= True
-    known = known_p[P:-P, P:-P].copy()
-    # met à jour la table des motifs entièrement connus autour de la zone modifiée
-    yy0, yy1 = max(0, py - 2 * P), min(nh, py + 2 * P + 1)
-    xx0, xx1 = max(0, px - 2 * P), min(nw, px + 2 * P + 1)
-    fully_known[yy0:yy1, xx0:xx1] = sliding_window_view(known_p[yy0:yy1 + 2 * P, xx0:xx1 + 2 * P],
-                                                        (2 * P + 1, 2 * P + 1)).all(axis=(-1, -2))
-    step += 1
-img = img_p[P:-P, P:-P]
+
+
+def inpaint(nat, hole, lab, names, allowed, row_win=8, col_win=220):
+    """Comble `hole` en recopiant des motifs 9×9 réels de l'image (sources limitées par `allowed`)."""
+    nh, nw = hole.shape
+    known = ~hole
+    img = nat.copy()
+    pad = lambda a, v: np.pad(a, ((P, P), (P, P)) + ((0, 0),) * (a.ndim - 2), constant_values=v)
+    img_p = pad(img, 0.0)
+    known_p = pad(known, False)
+    fully_known = sliding_window_view(known_p, (2 * P + 1, 2 * P + 1)).all(axis=(-1, -2))
+    patches = sliding_window_view(img_p, (2 * P + 1, 2 * P + 1), axis=(0, 1))
+    step = 0
+    while not known.all():
+        kp = pad(known, False)
+        nb = sum(np.roll(np.roll(kp, dy, 0), dx, 1) for dy in range(-P, P + 1) for dx in range(-P, P + 1))[P:-P, P:-P]
+        front = (~known) & (nb > 0)
+        ys, xs = np.where(front)
+        k = np.argmax(nb[ys, xs])
+        py, px = ys[k], xs[k]
+        tgt = img_p[py:py + 2 * P + 1, px:px + 2 * P + 1]
+        tk = known_p[py:py + 2 * P + 1, px:px + 2 * P + 1]
+        ry0, ry1 = max(0, py - row_win), min(nh, py + row_win + 1)
+        rx0, rx1 = max(0, px - col_win), min(nw, px + col_win + 1)
+        cand_ok = fully_known[ry0:ry1, rx0:rx1].copy()
+        rule = names.get(int(lab[py, px]))
+        if rule:
+            cand_ok &= allowed[rule][ry0:ry1, rx0:rx1]
+            if not cand_ok.any():
+                ry0, ry1, rx0, rx1 = 0, nh, 0, nw
+                cand_ok = fully_known & allowed[rule]
+        cand = patches[ry0:ry1, rx0:rx1].transpose(0, 1, 3, 4, 2)
+        diff = ((cand - tgt[None, None]) ** 2).sum(-1) * tk[None, None]
+        ssd = diff.sum(axis=(-1, -2))
+        ssd = ssd + np.abs(np.arange(ry0, ry1) - py)[:, None] * 40.0
+        ssd[~cand_ok] = np.inf
+        by, bx = np.unravel_index(np.argmin(ssd), ssd.shape)
+        src = cand[by, bx]
+        fill = ~tk
+        tgt[fill] = src[fill]
+        known_p[py:py + 2 * P + 1, px:px + 2 * P + 1] |= True
+        known = known_p[P:-P, P:-P].copy()
+        yy0, yy1 = max(0, py - 2 * P), min(nh, py + 2 * P + 1)
+        xx0, xx1 = max(0, px - 2 * P), min(nw, px + 2 * P + 1)
+        fully_known[yy0:yy1, xx0:xx1] = sliding_window_view(known_p[yy0:yy1 + 2 * P, xx0:xx1 + 2 * P],
+                                                            (2 * P + 1, 2 * P + 1)).all(axis=(-1, -2))
+        step += 1
+    return img_p[P:-P, P:-P], step
+
+
+img, step = inpaint(nat, hole, lab, names, ALLOWED)
 print("motifs recopiés :", step)
 
 # --- Cadrage 427×240 --------------------------------------------------------------------------------
@@ -115,9 +120,16 @@ cx = (nw - TW) // 2
 img = img[:, cx:cx + TW]
 top = (TH - nh) // 2
 bot = TH - nh - top
-up = img[:top][::-1] * np.linspace(0.45, 0.85, top)[:, None, None]
-down = img[-bot:][::-1] * np.linspace(0.85, 0.4, bot)[:, None, None]
-full = np.concatenate([up, img, down], axis=0)[:TH]
+# Extension haut/bas (brief P1, § 5) : plus de MIROIR (il créait une ligne de symétrie visible au bas de la scène).
+# Les bandes manquantes sont reconstruites par recopie de motifs réels pris dans les rangées voisines.
+full = np.zeros((TH, TW, 3), np.float32)
+full[top:top + nh] = img[:TH - top - bot]
+ext = np.zeros((TH, TW), bool); ext[:top] = True; ext[top + nh:] = True
+elab = np.zeros((TH, TW), int); elab[:top] = 1; elab[top + nh:] = 2
+src_top = np.zeros((TH, TW), bool); src_top[top:top + 40] = True
+src_bot = np.zeros((TH, TW), bool); src_bot[top + nh - 40:top + nh] = True
+full, st2 = inpaint(full, ext, elab, {1: "haut", 2: "bas"}, {"haut": src_top, "bas": src_bot}, row_win=40, col_win=427)
+print("bandes haut/bas reconstruites :", st2, "motifs")
 
 # --- Retouche finale (brief unifié v1.1, § 3.3) -----------------------------------------------------------
 # L'effacement du garde peint avait laissé, à droite de la fenêtre, un fragment de fenêtre lumineuse aux bords

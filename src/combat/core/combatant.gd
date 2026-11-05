@@ -47,6 +47,7 @@ var parts: Array = []               # MonsterPart
 var monster_actions: Dictionary = {}
 var ai: Dictionary = {}
 var ai_step: int = 0
+var last_target: String = ""        # dernière cible monocible (politique de ciblage ennemie)
 var action_power_mult: Dictionary = {}   # action_id -> multiplicateur (partie brisée)
 var disabled_actions: Dictionary = {}    # action_id -> true
 var resistances: Dictionary = {}

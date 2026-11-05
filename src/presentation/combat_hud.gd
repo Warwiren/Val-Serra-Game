@@ -245,6 +245,13 @@ func notify_resonance(actor_id: String, amount: int) -> void:
 		_c_party[actor_id].pop_gain(amount)
 
 
+## Chasseurs visés par l'action en préparation du monstre (cible réelle du CombatCore).
+func set_enemy_targets(ids: Array) -> void:
+	for id in _c_party:
+		_c_party[id].targeted = ids.has(id)
+	(timeline as Object).set("enemy_aim", ids)
+
+
 func set_resonance_cost(cost: int) -> void:
 	for c in _c_party.values():
 		c.res_cost = cost
@@ -490,6 +497,7 @@ class PartyCard extends Control:
 	var active := false
 	var pickable := false
 	var res_cost := 30
+	var targeted := false
 	var _shown_hp := -1.0
 	var _t := 0.0
 	var _gain := 0
@@ -537,9 +545,13 @@ class PartyCard extends Control:
 		var w := size.x - x - 10
 		UI.draw_icon(self, ROLE.get(actor_id, "sword"), Vector2(x + 7, 16), 7.0, UI.C_TEXT_2)
 		draw_string(UI.bold(), Vector2(x + 20, 21), display_name, HORIZONTAL_ALIGNMENT_LEFT, w - 20, UI.FS_MAIN, UI.C_TEXT_DIM if dead else UI.C_TEXT)
-		var tag := "K.O." if dead else ("Garde" if guard else "")
+		var tag := "K.O." if dead else ("Visé" if targeted else ("Garde" if guard else ""))
 		if tag != "":
-			draw_string(UI.bold(), Vector2(x, 21), tag, HORIZONTAL_ALIGNMENT_RIGHT, w, UI.FS_TINY, UI.C_DANGER if dead else UI.C_RESOURCE)
+			var tag_col := UI.C_DANGER if (dead or targeted) else UI.C_RESOURCE
+			draw_string(UI.bold(), Vector2(x, 21), tag, HORIZONTAL_ALIGNMENT_RIGHT, w, UI.FS_TINY, tag_col)
+			if targeted and not dead:
+				var tw := UI.bold().get_string_size(tag, HORIZONTAL_ALIGNMENT_LEFT, -1, UI.FS_TINY).x
+				UI.draw_icon(self, "warn", Vector2(x + w - tw - 10, 16), 6.0, UI.C_DANGER)
 		else:
 			draw_string(UI.font(), Vector2(x, 21), weapon, HORIZONTAL_ALIGNMENT_RIGHT, w, UI.FS_TINY, UI.C_TEXT_DIM)
 		# PV

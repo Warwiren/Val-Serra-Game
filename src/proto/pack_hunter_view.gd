@@ -14,6 +14,16 @@ var _walk_phase := 0.0
 var _height := 111.0
 var poses := false                   # Aren en combat : vraies poses (art/proto/aren_combat, tools/art/aren_poses.py)
 const POSE_DIR := "res://art/proto/aren_combat/"
+## Aren d'après ses planches de référence (art/proto/aren2, tools/art/aren_sheets.py) : vraies images d'animation.
+const AREN2 := "res://art/proto/aren2/"
+const AREN2_COMBAT := {   # animation du jeu -> (images de la planche, nombre, images/s, boucle)
+	"idle": ["repos", 4, 6.0, true], "prep": ["preparation", 5, 12.0, false], "avance": ["avance", 6, 18.0, false],
+	"strike": ["attaque", 6, 16.0, false], "follow": ["impact", 4, 12.0, false], "retour": ["retour", 5, 12.0, false],
+	"guard": ["garde", 4, 10.0, false], "hurt": ["touche", 4, 12.0, false],
+	"aether_prep": ["res_charge", 6, 10.0, false], "aether_strike": ["res_liberation", 6, 14.0, false],
+}
+var dir_sprites := false
+var targeted := false                # visé par l'action en préparation du monstre (cible verrouillée du CombatCore)             # images dédiées par direction (exploration : profils gauche / droit)
 const STEP := PX * 14                # pas vers l'avant pendant la frappe (aucune traversée du groupe)
 var vfx := true                      # false : poses seules, sans effets (contrôle des animations)
 
@@ -36,16 +46,45 @@ func setup(id: String, hunter_def: Dictionary, feet: Vector2, _scale_factor := 0
 	frames.set_animation_speed("idle", 2.5)
 	frames.set_animation_loop("idle", true)
 	var t0: Texture2D = load(DIR + key + ".png")
-	poses = def.get("combat", false) and ResourceLoader.exists(POSE_DIR + key + "_idle.png")
+	var aren2 := key == "aren" and ResourceLoader.exists(AREN2 + "repos_0.png")
+	var pose_dir := POSE_DIR if key == "aren" else DIR + key + "_combat/"     # poses de combat par personnage
+	poses = def.get("combat", false) and (aren2 or ResourceLoader.exists(pose_dir + key + "_idle.png"))
 	var fr0: Texture2D = t0
-	if poses:
-		fr0 = load(POSE_DIR + key + "_idle.png")
+	if aren2 and poses:
+		frames.remove_animation("idle")
+		for anim in AREN2_COMBAT:
+			var a: Array = AREN2_COMBAT[anim]
+			frames.add_animation(anim)
+			frames.set_animation_speed(anim, a[2])
+			frames.set_animation_loop(anim, a[3])
+			for i in range(a[1]):
+				frames.add_frame(anim, load(AREN2 + "%s_%d.png" % [a[0], i]))
+		fr0 = frames.get_frame_texture("idle", 0)
+	elif aren2:
+		dir_sprites = true
+		frames.set_animation_speed("idle", 2.0)
+		frames.add_frame("idle", load(AREN2 + "idle_right.png"))
+		frames.add_frame("idle", load(AREN2 + "idle_right_1.png"))
+		frames.add_animation("idle_l")
+		frames.set_animation_speed("idle_l", 2.0)
+		frames.add_frame("idle_l", load(AREN2 + "idle_left.png"))
+		frames.add_frame("idle_l", load(AREN2 + "idle_left_1.png"))
+		for w in [["walk", "walk_right"], ["walk_l", "walk_left"]]:
+			frames.add_animation(w[0])
+			frames.set_animation_speed(w[0], 0.0)
+			for i in range(4):
+				frames.add_frame(w[0], load(AREN2 + "%s_%d.png" % [w[1], i]))
+		fr0 = frames.get_frame_texture("idle", 0)
+	elif poses:
+		fr0 = load(pose_dir + key + "_idle.png")
 		frames.add_frame("idle", fr0)
-		frames.add_frame("idle", load(POSE_DIR + key + "_idle_1.png"))
+		frames.add_frame("idle", load(pose_dir + key + "_idle_1.png"))
 		for pz in ["prep", "strike", "follow", "guard", "hurt", "aether_prep", "aether_strike"]:
+			if not ResourceLoader.exists(pose_dir + key + "_" + pz + ".png"):
+				continue
 			frames.add_animation(pz)
 			frames.set_animation_loop(pz, false)
-			frames.add_frame(pz, load(POSE_DIR + key + "_" + pz + ".png"))
+			frames.add_frame(pz, load(pose_dir + key + "_" + pz + ".png"))
 	else:
 		frames.add_frame("idle", t0)
 		frames.add_frame("idle", load(DIR + key + "_1.png"))
@@ -67,7 +106,7 @@ func setup(id: String, hunter_def: Dictionary, feet: Vector2, _scale_factor := 0
 	rig.add_child(spr)
 	spr.play("idle")
 	spr.frame = int(hash(id)) % 2
-	_height = t0.get_height() * PX
+	_height = (40 if aren2 else t0.get_height()) * PX
 	var fxf := SpriteFrames.new()
 	fxf.remove_animation("default")
 	for anim in [["slash", 4, 18.0], ["guard", 3, 10.0]]:
@@ -103,6 +142,15 @@ func _draw() -> void:
 	if _active:
 		draw_arc(Vector2.ZERO, sw * 1.5 + 18, 0, TAU, 40, Color(Art.C_GOLD, 0.55 + 0.35 * sin(_t * 5.0)), 4.0, false)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	if targeted and not _ko:
+		# Cible annoncée du monstre : chevron rouge au-dessus de la tête (léger flottement, sans clignotement).
+		# Dessiné dans le sens de lecture de l'écran même si le sprite est retourné.
+		var y := -_height - 18.0 + 2.0 * sin(_t * 3.0)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2(scale.x, 1.0))
+		var pts := PackedVector2Array([Vector2(-11, y - 10), Vector2(11, y - 10), Vector2(0, y + 4)])
+		draw_colored_polygon(pts, Color(0.06, 0.04, 0.08, 0.9))
+		draw_colored_polygon(PackedVector2Array([Vector2(-8, y - 8), Vector2(8, y - 8), Vector2(0, y + 1)]), Color("#FF6B6B"))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 func center() -> Vector2:
@@ -124,6 +172,7 @@ func _flash(color: Color, amount: float, duration: float) -> void:
 
 const STRIDE := 18.0                 # px parcourus par image de marche (cadence liée à la vitesse réelle)
 var _walk_dist := 0.0
+var _facing_left := false
 var _last_pos := Vector2.INF
 
 
@@ -131,19 +180,24 @@ var _last_pos := Vector2.INF
 ## RÉELLEMENT parcourue depuis l'image précédente ; arrêt -> repos (respiration).
 func walk(moving: bool, dir_x: float, _delta: float) -> void:
 	if absf(dir_x) > 0.05:
-		scale.x = signf(dir_x)
+		if dir_sprites:
+			_facing_left = dir_x < 0.0          # vraies images de profil gauche / droit (pas de miroir)
+		else:
+			scale.x = signf(dir_x)
 	var d := 0.0 if _last_pos == Vector2.INF else global_position.distance_to(_last_pos)
 	_last_pos = global_position
 	if not spr.sprite_frames.has_animation("walk"):
 		return
+	var walk_anim := "walk_l" if (dir_sprites and _facing_left) else "walk"
+	var idle_anim := "idle_l" if (dir_sprites and _facing_left) else "idle"
 	if moving and d > 0.01:
 		_walk_dist += d
-		_set_anim("walk")
+		_set_anim(walk_anim)
 		spr.frame = int(_walk_dist / STRIDE) % 4
-	elif String(spr.animation) == "walk":
+	elif String(spr.animation).begins_with("walk") or String(spr.animation) != idle_anim:
 		_walk_dist = 0.0
-		_set_anim("idle")
-		spr.play("idle")
+		_set_anim(idle_anim)
+		spr.play(idle_anim)
 
 
 ## Change d'animation en gardant les pieds au même point (les canevas n'ont pas tous la même taille).
@@ -153,14 +207,21 @@ func _set_anim(name: String) -> void:
 	var tex: Texture2D = spr.sprite_frames.get_frame_texture(name, 0)
 	spr.animation = name
 	spr.offset = Vector2(-tex.get_width() / 2, -tex.get_height())
-	if name == "walk":
+	if name.begins_with("walk"):
 		spr.pause()
 
 
 # --- Combat (interface HunterView) ------------------------------------------------------------------
 
+const POSE_FALLBACK := {"aether_prep": "prep", "aether_strike": "strike", "avance": "prep", "retour": "follow"}
+
+
 func _pose(name: String) -> void:
-	if poses and spr.sprite_frames.has_animation(name):
+	if not poses:
+		return
+	if not spr.sprite_frames.has_animation(name):
+		name = POSE_FALLBACK.get(name, "")
+	if name != "" and spr.sprite_frames.has_animation(name):
 		spr.play(name)
 
 
@@ -188,9 +249,12 @@ func attack(target_global: Vector2, heavy: bool) -> void:
 	_pose("prep")
 	var t := create_tween()
 	t.tween_property(rig, "position", Vector2(-PX * 3, 0), 0.1)
-	t.tween_property(rig, "position", Vector2(STEP, 0), 0.12 if not heavy else 0.16).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
+	t.tween_callback(_pose.bind("avance"))
+	t.tween_property(rig, "position", Vector2(STEP, 0), 0.16 if not heavy else 0.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await t.finished
 	_pose("strike")
+	if spr.sprite_frames.has_animation("retour"):
+		await get_tree().create_timer(3.0 / 16.0).timeout    # image de contact de la planche (arc de lame)
 	if vfx:
 		Fx.slash(get_parent(), target_global, 90.0 if heavy else 70.0, Color(1.0, 0.92, 0.75))
 	if not poses:
@@ -203,9 +267,10 @@ func attack(target_global: Vector2, heavy: bool) -> void:
 	await get_tree().create_timer(0.07).timeout
 	_pose("follow")
 	var back := create_tween()
-	back.tween_interval(0.2)
+	back.tween_interval(0.25)
+	back.tween_callback(_pose.bind("retour") if spr.sprite_frames.has_animation("retour") else _rest)
+	back.tween_property(rig, "position", Vector2.ZERO, 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	back.tween_callback(_rest)
-	back.tween_property(rig, "position", Vector2.ZERO, 0.25).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 
 ## Lueur d'Aether LIMITÉE à la lame (petite, sans halo sur le corps) pendant la préparation de la technique.
@@ -319,9 +384,15 @@ func set_guard(on: bool) -> void:
 
 
 func guard_flash() -> void:
-	fx_spr.position = Vector2(34, -_height * 0.5)
-	fx_spr.visible = true
-	fx_spr.play("guard")
+	if poses:
+		# garde qui encaisse : pose de garde + anneau bref aux couleurs de la charte (plus de glyphe de l'ancien Aren)
+		_pose("guard")
+		if vfx:
+			Fx.ring(get_parent(), center(), Color("#56B9E8"), 70.0, 0.25, 3.0)
+	else:
+		fx_spr.position = Vector2(34, -_height * 0.5)
+		fx_spr.visible = true
+		fx_spr.play("guard")
 	_guarding = false
 	var t := create_tween()
 	t.tween_interval(0.35)

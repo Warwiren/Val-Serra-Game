@@ -6,6 +6,7 @@ extends Node2D
 const Fx = preload("res://src/presentation/fx.gd")
 const Hero = preload("res://src/proto/pack_hunter_view.gd")
 const Monster = preload("res://src/presentation/sprite_monster_view.gd")
+const DialogueBox = preload("res://src/proto/dialogue_box.gd")
 
 const PX := 3
 const WALK_MIN := Vector2(60, 462)
@@ -29,10 +30,7 @@ var cam: Camera2D
 var _trail: Array = []
 var _prompt: PanelContainer
 var _prompt_label: Label
-var _dialog: Control
-var _dialog_text: RichTextLabel
-var _dialog_lines: Array = []
-var _dialog_index := 0
+var _dialog
 var _locked := false
 var _engaging := false
 var _t := 0.0
@@ -171,48 +169,10 @@ func _build_ui() -> void:
 	_prompt.visible = false
 	overlay.add_child(_prompt)
 
-	# Boîte de dialogue courte : portrait, nom, texte
-	_dialog = Control.new()
-	_dialog.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_dialog.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_dialog.visible = false
+	# Dialogue narratif : deux portraits, locuteur, réponses au choix (src/proto/dialogue_box.gd)
+	_dialog = DialogueBox.new()
 	layer.add_child(_dialog)
-	var box := Panel.new()
-	box.position = Vector2(150, 548)
-	box.size = Vector2(980, 140)
-	var bs := StyleBoxFlat.new()
-	bs.bg_color = Color(0.05, 0.06, 0.1, 0.92)
-	bs.border_color = Color(0.85, 0.7, 0.42, 0.95)
-	bs.set_border_width_all(2)
-	bs.set_corner_radius_all(6)
-	box.add_theme_stylebox_override("panel", bs)
-	_dialog.add_child(box)
-	var data: Dictionary = JSON.parse_string(FileAccess.open(DIALOGUE, FileAccess.READ).get_as_text())
-	var por := TextureRect.new()
-	por.texture = load(data["portrait"])
-	por.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	por.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	por.position = Vector2(14, 10)
-	por.size = Vector2(120, 120)
-	box.add_child(por)
-	var name_l := Label.new()
-	name_l.text = data["name"]
-	name_l.position = Vector2(150, 12)
-	name_l.add_theme_font_size_override("font_size", 19)
-	name_l.add_theme_color_override("font_color", Color("#ffd27a"))
-	box.add_child(name_l)
-	_dialog_text = RichTextLabel.new()
-	_dialog_text.position = Vector2(150, 44)
-	_dialog_text.size = Vector2(810, 70)
-	_dialog_text.add_theme_font_size_override("normal_font_size", 19)
-	_dialog_text.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_child(_dialog_text)
-	var hint := Label.new()
-	hint.text = "E : suite   ·   Échap : fermer"
-	hint.position = Vector2(740, 112)
-	hint.add_theme_font_size_override("font_size", 13)
-	hint.add_theme_color_override("font_color", Color(0.8, 0.75, 0.62, 0.8))
-	box.add_child(hint)
+	_dialog.closed.connect(func(): _locked = false)
 	_title(layer, "Avant-poste de la lisière")
 
 
@@ -331,11 +291,8 @@ func _show_prompt(text: String, pos: Vector2) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
-	if _dialog.visible:
-		if event.keycode == KEY_ESCAPE:
-			_close_dialog()
-		elif event.physical_keycode == KEY_E or event.keycode == KEY_ENTER or event.keycode == KEY_SPACE:
-			_next_line()
+	if _dialog.is_open():
+		_dialog.handle_key(event)                  # E / Échap / ↑↓ consommés par le dialogue (pas de double action)
 		get_viewport().set_input_as_handled()
 		return
 	if _locked:
@@ -350,35 +307,12 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _open_dialog() -> void:
 	var data: Dictionary = JSON.parse_string(FileAccess.open(DIALOGUE, FileAccess.READ).get_as_text())
-	_dialog_lines = data["after_victory"] if GameState.enemy_defeated else data["lines"]
-	_dialog_index = -1
+	var steps: Array = data["after_victory"] if GameState.enemy_defeated else data["start"]
+	var spk: Dictionary = data["speakers"].duplicate(true)
+	spk["heros"]["name"] = GameState.hero_name
 	_locked = true
-	hero.scale.x = 1
-	_dialog.visible = true
-	_dialog.modulate.a = 0.0
-	create_tween().tween_property(_dialog, "modulate:a", 1.0, 0.15)
-	_next_line()
-
-
-func _next_line() -> void:
-	if _dialog_text.visible_ratio < 1.0 and _dialog_index >= 0:
-		_dialog_text.visible_ratio = 1.0
-		return
-	_dialog_index += 1
-	if _dialog_index >= _dialog_lines.size():
-		_close_dialog()
-		return
-	_dialog_text.text = _dialog_lines[_dialog_index]
-	_dialog_text.visible_ratio = 0.0
-	create_tween().tween_property(_dialog_text, "visible_ratio", 1.0, 0.02 * _dialog_text.text.length())
-
-
-func _close_dialog() -> void:
-	var t := create_tween()
-	t.tween_property(_dialog, "modulate:a", 0.0, 0.15)
-	await t.finished
-	_dialog.visible = false
-	_locked = false
+	hero.walk(false, 1.0, 0.0)
+	_dialog.open(steps, spk)
 
 
 func _engage() -> void:
@@ -408,21 +342,27 @@ func _engage() -> void:
 
 func _autoplay() -> void:
 	await get_tree().create_timer(1.5).timeout
+	if OS.get_cmdline_user_args().has("--demo-walk"):
+		# Démonstration de marche (vidéo de contrôle) : départ, arrêt, demi-tour, la file suit et s'arrête
+		for wp in [Vector2(1000, 520), Vector2(560, 545), Vector2(860, 500), Vector2(1040, 530), Vector2(700, 520)]:
+			await _walk_to(wp)
+			await get_tree().create_timer(1.2).timeout
+		await get_tree().create_timer(1.5).timeout
+		get_tree().quit()
+		return
 	if GameState.enemy_defeated:
 		await _walk_to(NPC_POS + Vector2(-90, 10))
 		_open_dialog()
-		for i in range(4):
+		while _dialog.is_open():
 			await get_tree().create_timer(1.6).timeout
-			if _dialog.visible:
-				_next_line()
+			_dialog.advance()
 		return
 	await _walk_to(Vector2(940, 520))
 	await _walk_to(NPC_POS + Vector2(-90, 10))
 	_open_dialog()
-	for i in range(5):
-		await get_tree().create_timer(1.7).timeout
-		if _dialog.visible:
-			_next_line()
+	while _dialog.is_open():
+		await get_tree().create_timer(1.7 if not _dialog.showing_choice() else 1.2).timeout
+		_dialog.advance()                          # réponse au choix : la première option est validée
 	await get_tree().create_timer(0.6).timeout
 	await _walk_to(Vector2(700, 535))
 	await _walk_to(MONSTER_POS + Vector2(200, -10))
