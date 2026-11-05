@@ -6,7 +6,22 @@ Référence : documents 07 (Brief MVP) et 08 (Mission Claude) du dossier Drive d
 > Tous les personnages, monstres, illustrations et nombres de ce dépôt sont **provisoires et non canoniques**.
 > Ce dépôt est indépendant du système Foundry du JDR (`Warwiren/Val-serra`), qui n'est pas modifié.
 
-## État actuel : Lot B — combat présentable + micro-boucle d'exploration
+## État actuel : prototype recentré (pack visuel)
+
+**F5 lance directement la boucle jouable** : avant-poste → dialogue avec le garde → contact avec le Vorgane →
+combat dans la même clairière → retour. Aren jouable, Ilya et Throné suivent ; tous les personnages
+partagent la même grille de pixels et la même palette (issus du pack visuel).
+Commandes : flèches/ZQSD, **E** pour parler, toucher le monstre pour combattre.
+Compte rendu (retiré / modifié / conservé / limites) : **`docs/RECENTRAGE.md`** ·
+vidéo : `docs/media/recentrage/prototype_recentre.mp4`.
+
+![Prototype recentré](docs/media/recentrage/05_combat.jpg)
+
+Les sections ci-dessous décrivent les lots précédents, toujours lançables en ligne de commande
+(`--start=battle`, `--start=zone`, `--start=hd2d`, `--start=artproto`) ; `--start=proto-battle` lance
+directement le combat du prototype.
+
+## Lot B — combat présentable + micro-boucle d'exploration
 
 | Ce qui existe | Où |
 |---|---|
@@ -40,6 +55,9 @@ Attendu : **36 lignes « OK »** et « TOUT EST VERT ».
 ## 3. Jouer la démo (le vrai test)
 
 Appuyez sur **F5** (ou le bouton ▶ en haut à droite ; sur portable **Fn + F5**, sur Mac **Cmd + B**).
+
+> Depuis le recentrage, F5 ouvre le **prototype recentré** (voir plus haut). Pour retrouver la démo du Lot B
+> ci-dessous, ouvrez `scenes/explore/hero_select.tscn` dans Godot et appuyez sur **F6** (lancer la scène courante).
 
 **a. Choix du héros** — cliquez sur la base masculine ou féminine, modifiez le nom si vous voulez,
 puis **Commencer**. (« Combat direct » saute l'exploration.)

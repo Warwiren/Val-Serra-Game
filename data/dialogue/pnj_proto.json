@@ -1,0 +1,13 @@
+{
+  "_note": "Dialogue court du prototype recentré (non canonique).",
+  "name": "Garde de l'avant-poste",
+  "portrait": "res://art/proto/portrait_pnj.png",
+  "lines": [
+    "Bonsoir, Chasseurs. Vous arrivez à point.",
+    "Un Vorgane des brumes rôde près du grand arbre, à l'ouest du sentier.",
+    "Sa glande d'Aether s'illumine avant qu'il ne crache. Frappez-la avant, ou protégez-vous."
+  ],
+  "after_victory": [
+    "Le Vorgane est tombé ? Merci, Chasseurs. L'avant-poste dormira tranquille ce soir."
+  ]
+}

@@ -18,6 +18,12 @@ const SpriteHunterView = preload("res://src/presentation/sprite_hunter_view.gd")
 const SpriteMonsterView = preload("res://src/presentation/sprite_monster_view.gd")
 const HUNTER_POS_PX := {"compagnon_vif": Vector2(225, 510), "heros": Vector2(405, 552), "compagnon_lourd": Vector2(585, 512)}
 const MONSTER_POS_PX := Vector2(935, 548)
+const ProtoHero = preload("res://src/proto/pack_hunter_view.gd")
+## Prototype recentré : groupe à droite tourné vers la gauche, monstre à gauche (maquette du pack, Octopath).
+const HUNTER_POS_PROTO := {"heros": Vector2(900, 500), "compagnon_vif": Vector2(1028, 468), "compagnon_lourd": Vector2(1150, 492)}
+const MONSTER_POS_PROTO := Vector2(330, 506)
+const PROTO_SPRITES := {"heros": "aren", "compagnon_vif": "ilya", "compagnon_lourd": "throne"}
+const PROTO_NAMES := {"heros": "Aren", "compagnon_vif": "Ilya", "compagnon_lourd": "Throné"}
 
 ## Prototype artistique : positions légèrement différentes (personnages plus grands).
 const HUNTER_POS_HD := {
@@ -71,6 +77,9 @@ var _cam_target_offset := Vector2.ZERO
 func _ready() -> void:
 	battle = BattleFactory.create_default({"potion": GameState.potions})
 	battle.get_combatant("heros").name = GameState.hero_name
+	if GameState.proto:
+		for id in PROTO_NAMES:
+			battle.get_combatant(id).name = PROTO_NAMES[id]
 	monster_id = battle.monsters()[0].id
 	_build_world()
 	_build_hud()
@@ -86,6 +95,9 @@ func _ready() -> void:
 # ---------------------------------------------------------------------------
 
 func _build_world() -> void:
+	if GameState.proto:
+		_build_world_proto()
+		return
 	stage = Stage.new()
 	if GameState.art_proto or GameState.hd2d:
 		_configure_hd_stage()
@@ -152,6 +164,79 @@ func _build_world() -> void:
 	_sync_parts()
 
 
+## Prototype recentré : le combat a lieu dans la clairière de la zone (même décor, même grille de pixels).
+func _build_world_proto() -> void:
+	var bg := Sprite2D.new()
+	bg.texture = load("res://art/proto/zone_bg.png")
+	bg.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	bg.centered = false
+	bg.scale = Vector2(3, 3)
+	bg.z_index = -100
+	add_child(bg)
+	var cm := CanvasModulate.new()
+	cm.color = Color(0.8, 0.8, 0.92)
+	add_child(cm)
+	for lp in [Vector2(60, 212), Vector2(683, 282), Vector2(951, 266), Vector2(1068, 262)]:
+		var l := PointLight2D.new()
+		l.texture = Fx.glow_texture(256)
+		l.position = lp
+		l.color = Color(1.0, 0.72, 0.38)
+		l.energy = 0.55
+		l.texture_scale = 1.5
+		add_child(l)
+	actors = Node2D.new()
+	add_child(actors)
+	var overlay := CanvasLayer.new()
+	overlay.layer = 1
+	overlay.follow_viewport_enabled = true
+	add_child(overlay)
+	fx = Node2D.new()
+	overlay.add_child(fx)
+	var mv := SpriteMonsterView.new()
+	mv.sprite_dir = "res://art/proto/vorgane/"
+	mv.facing_right = true
+	monster_view = mv
+	actors.add_child(monster_view)
+	monster_view.compact = true
+	monster_view.setup(MONSTER_POS_PROTO, 1.0, fx)
+	monster_view.z_index = int(MONSTER_POS_PROTO.y / 10.0) - 2
+	for c in battle.hunters():
+		var hv := ProtoHero.new()
+		actors.add_child(hv)
+		hv.setup(c.id, {"sprite": PROTO_SPRITES[c.id]}, HUNTER_POS_PROTO[c.id])
+		hv.scale.x = -1
+		hv.z_index = int(HUNTER_POS_PROTO[c.id].y / 10.0)
+		hunters[c.id] = hv
+	cam = Camera2D.new()
+	cam.position = Vector2(640, 360)
+	add_child(cam)
+	cam.make_current()
+	for c in battle.combatants:
+		disp_hp[c.id] = c.hp
+		disp_max[c.id] = c.max_hp
+		disp_res[c.id] = c.resonance
+		disp_guard[c.id] = false
+	_sync_parts()
+
+
+func _portrait(id: String) -> Texture2D:
+	if GameState.proto:
+		return load("res://art/proto/portrait_%s.png" % PROTO_SPRITES[id])
+	return load(Art.hunter(id, GameState.hero_gender)["portrait"])
+
+
+func _monster_icon() -> Texture2D:
+	if not GameState.proto:
+		return load(Art.MONSTER["portrait"])
+	# Icône tirée du sprite lui-même : la tête, autour du point « gueule »
+	var mv: SpriteMonsterView = monster_view
+	var a: Array = mv.anchors["idle_001"]["gueule"]
+	var at := AtlasTexture.new()
+	at.atlas = load("res://art/proto/vorgane/base/idle_001.png")
+	at.region = Rect2(a[0] - 12, a[1] - 26, 40, 40)
+	return at
+
+
 func _configure_hd_stage() -> void:
 	stage.layer_defs = Stage.HD_LAYERS
 	stage.front_def = Stage.HD_FRONT
@@ -190,20 +275,21 @@ func _build_hud() -> void:
 	layer.layer = 10
 	add_child(layer)
 	hud = BattleHud.new()
+	hud.simple = GameState.proto
 	layer.add_child(hud)
 	hud.build()
 	var i := 0
 	for c in battle.hunters():
-		hud.add_party_row(c.id, load(Art.hunter(c.id, GameState.hero_gender)["portrait"]), short_name(c.name), c.weapon_name, i)
+		hud.add_party_row(c.id, _portrait(c.id), short_name(c.name), c.weapon_name, i)
 		i += 1
 	var m = battle.get_combatant(monster_id)
 	hud.set_monster(m.name, m.max_hp)
 	hud.timeline.portraits = {}
 	for c in battle.hunters():
-		hud.timeline.portraits[c.id] = load(Art.hunter(c.id, GameState.hero_gender)["portrait"])
+		hud.timeline.portraits[c.id] = _portrait(c.id)
 		hud.timeline.colors[c.id] = Art.C_HUNTER
 		hud.timeline.short_names[c.id] = short_name(c.name)
-	hud.timeline.portraits[monster_id] = load(Art.MONSTER["portrait"])
+	hud.timeline.portraits[monster_id] = _monster_icon()
 	hud.timeline.colors[monster_id] = Art.C_MONSTER
 	hud.timeline.short_names[monster_id] = "Vorgane"
 	hud.action_selected.connect(_on_action_selected)
@@ -221,6 +307,8 @@ static func short_name(n: String) -> String:
 
 
 func _on_render_mode(mode: String) -> void:
+	if stage == null:
+		return
 	stage.set_mode(mode)
 	hud.set_render_label(GameState.render_label())
 
@@ -233,12 +321,13 @@ func _process(delta: float) -> void:
 	Engine.time_scale = 2.5 if Input.is_key_pressed(KEY_SPACE) else 1.0
 	_drift_t += delta
 	var drift := Vector2.ZERO
-	if GameState.render_mode == GameState.RENDER_25D:
+	if GameState.render_mode == GameState.RENDER_25D and not GameState.proto:
 		drift = Vector2(sin(_drift_t * 0.23) * 16.0, sin(_drift_t * 0.17) * 5.0)
 	_shake = maxf(0.0, _shake - delta * 40.0)
 	var shake_vec := Vector2(randf_range(-1, 1), randf_range(-1, 1)) * _shake
 	cam.offset = drift + _cam_target_offset + shake_vec
-	stage.update_parallax(drift + _cam_target_offset, delta)
+	if stage != null:
+		stage.update_parallax(drift + _cam_target_offset, delta)
 	if not busy and battle.state == Battle.State.AWAITING_COMMAND:
 		var hov := monster_view.part_at(get_global_mouse_position())
 		if hov != monster_view.hovered_part:
@@ -612,6 +701,8 @@ func _refresh_selection() -> void:
 	# Actions
 	var list: Array = []
 	for aid in a.action_ids:
+		if GameState.proto and aid == "serum_pulsation":
+			continue                      # prototype recentré : capacité de sérum masquée (conservée dans le CombatCore)
 		var def: Dictionary = battle.actions[aid]
 		var label: String = short_name(def["name"])
 		if def.has("item"):
@@ -751,7 +842,7 @@ func _confirm() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_L:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_L and not GameState.proto:
 		hud.toggle_log()
 		return
 	if busy or battle.state != Battle.State.AWAITING_COMMAND:
@@ -804,6 +895,8 @@ func _cycle_target(dir: int) -> void:
 ## Démonstration automatique (vidéos) : choisit comme la politique de test, en variant les modes.
 func _auto_turn() -> void:
 	var cmd := AutoPolicy.choose(battle)
+	if GameState.proto and cmd["action"] == "serum_pulsation":
+		cmd = {"action": "technique", "mode": "MESURE", "target": monster_id, "part": AutoPolicy.best_part(battle.get_combatant(monster_id), battle.current_actor.damage_type)}
 	await _wait(0.5)
 	sel_action = cmd["action"]
 	if cmd.has("part"):
@@ -847,7 +940,10 @@ func _show_result() -> void:
 			GameState.add_rewards(battle.rewards)
 			GameState.enemy_defeated = true
 		GameState.last_battle_result = "victory" if victory else "defeat"
-		buttons.append({"id": "zone", "label": "Retour à l'avant-poste"})
+		buttons.append({"id": "proto_zone" if GameState.proto else "zone", "label": "Retour à l'avant-poste"})
+	elif GameState.proto:
+		buttons.append({"id": "retry", "label": "Rejouer"})
+		buttons.append({"id": "proto_zone", "label": "Aller à l'avant-poste"})
 	else:
 		buttons.append({"id": "retry", "label": "Rejouer"})
 		buttons.append({"id": "menu", "label": "Menu"})
@@ -861,6 +957,8 @@ func _on_result_choice(choice: String) -> void:
 	match choice:
 		"zone":
 			GameState.goto(GameState.SCENE_ZONE)
+		"proto_zone":
+			GameState.goto(GameState.SCENE_PROTO_ZONE)
 		"retry":
 			GameState.goto(GameState.SCENE_BATTLE)
 		"menu":

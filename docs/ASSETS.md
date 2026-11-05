@@ -26,6 +26,10 @@ Aucun son n'est encore intégré.
 | `art/3d/source/Meshy_AI_Crystalback_Drake_…glb` | **Modèle original du Vorgane**, conservé intact (SHA-256 a3a42d9b…) | Meshy 6 Lite (fourni par le créateur) | **À vérifier** selon l'offre Meshy utilisée (attribution possible en offre gratuite) | Source |
 | `art/3d/blender/*.blend`, `art/3d/vorgane_rig.glb` | Vorgane riggé et animé ; parties destructibles séparées | Blender 5.2.3 (scripts `tools/blender/`) à partir du GLB Meshy | Dérivé du modèle Meshy (même conditions) | Production (test) |
 | `art/sprites/vorgane/**` | **Vorgane HD-2D** : 4 animations × 6 calques (corps, carapace et griffe intactes/brisées, glande) + ancrages | Rendus Blender convertis par `tools/art/pixelize_layers.py` | Dérivé du modèle Meshy | Production (test) |
+| `art/proto/source/pack_visuel.png` | **Pack visuel — Brief de recentrage** (planche de DA), conservé intact | Fourni par le créateur | **À consigner** : outil et conditions de création | Source |
+| `art/proto/{aren,ilya,throne,pnj}*.png`, `portrait_*.png` | **Prototype recentré** : sprites (même grille, même palette) et portraits | Dérivés du pack par `tools/art/pack_extract.py` | Mêmes conditions que le pack | Production (test) |
+| `art/proto/zone_bg.png` | Décor de l'avant-poste (zone et combat), personnages peints retirés | Dérivé du pack par `tools/art/pack_zone.py` | Mêmes conditions que le pack | Production (test) |
+| `art/proto/vorgane/**` | Vorgane à l'échelle du prototype (×3) | Rendus Blender convertis par `tools/art/pixelize_layers.py` (facteur 3) | Dérivé du modèle Meshy | Production (test) |
 | Lumières, particules, brume | Textures de dégradé générées dans le moteur (`src/presentation/fx.gd`) | Code | Projet | — |
 
 Rappel : la capture d'Octopath Traveler II fournie par le créateur est une **référence d'ambiance** ;

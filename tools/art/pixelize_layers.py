@@ -9,7 +9,7 @@ from PIL import Image
 
 src, out = sys.argv[1], sys.argv[2]
 K = int(sys.argv[3]) if len(sys.argv) > 3 else 32
-F = 2
+F = int(sys.argv[4]) if len(sys.argv) > 4 else 2
 LAYERS = {"base": "base", "part_carapace": "carapace", "part_carapace_broken": "carapace_broken",
           "part_griffe": "griffe", "part_griffe_broken": "griffe_broken", "part_glande": "glande"}
 

@@ -13,6 +13,7 @@ var parts: Dictionary = {}           # id -> {sprite, intact, broken, anchor(loc
 var markers: Node2D
 var _gland_glow: Sprite2D
 var _telegraph := false
+var compact := false                 # prototype recentré : repères plus petits, étiquette seulement sur la partie visée
 var _t := 0.0
 var _dead := false
 
@@ -113,6 +114,8 @@ func _draw_markers() -> void:
 		var sel: bool = targeting and id == selected_part
 		var hov: bool = id == hovered_part
 		var r := 30.0 if not sel else 36.0
+		if compact:
+			r = 16.0 if not sel else 20.0
 		var broken: bool = info.get("broken", false)
 		markers.draw_circle(p, r, Color(0.04, 0.06, 0.1, 0.22))
 		if broken:
@@ -134,6 +137,8 @@ func _draw_markers() -> void:
 		elif hov:
 			markers.draw_arc(p, r + 10, 0, TAU, 40, Color(1, 1, 1, 0.7), 3.0, true)
 		# Étiquette
+		if compact and not (sel or hov):
+			continue
 		var label: String = info["name"]
 		var sub: String = "BRISÉE" if broken else "%d / %d" % [info["integrity"], info["max"]]
 		var lp := p + Vector2(0, r + 28)

@@ -23,6 +23,9 @@ var anchors: Dictionary = {}
 var origin := Vector2.ZERO           # pieds dans l'image native
 var _busy := false
 var _damage_mat: Dictionary = {}
+var sprite_dir: String = DIR          # jeu d'images (ex. res://art/proto/vorgane/)
+var facing_right: bool = false        # monstre à gauche de l'écran, tourné vers le groupe
+var _frame_w := 256.0
 
 
 func setup(feet: Vector2, _scale_factor := 0.9, overlay: Node = null) -> void:
@@ -30,8 +33,9 @@ func setup(feet: Vector2, _scale_factor := 0.9, overlay: Node = null) -> void:
 	scale = Vector2.ONE
 	rig = Node2D.new()
 	add_child(rig)
-	anchors = JSON.parse_string(FileAccess.open(DIR + "anchors.json", FileAccess.READ).get_as_text())["images"]
-	var ref: Image = load(DIR + "base/idle_001.png").get_image()
+	anchors = JSON.parse_string(FileAccess.open(sprite_dir + "anchors.json", FileAccess.READ).get_as_text())["images"]
+	var ref: Image = load(sprite_dir + "base/idle_001.png").get_image()
+	_frame_w = float(ref.get_width())
 	var used := ref.get_used_rect()
 	origin = Vector2(used.position.x + used.size.x * 0.5, used.end.y)
 	for lname in ["base", "carapace", "griffe", "glande"]:
@@ -39,6 +43,9 @@ func setup(feet: Vector2, _scale_factor := 0.9, overlay: Node = null) -> void:
 		s.sprite_frames = _frames(lname)
 		s.centered = false
 		s.offset = -origin
+		if facing_right:
+			s.flip_h = true
+			s.offset = Vector2(-(_frame_w - origin.x), -origin.y)
 		s.scale = Vector2.ONE * PIXEL_SCALE
 		s.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		s.light_mask = 0          # pas de lumières ponctuelles : l'éclairage est déjà « peint » dans le rendu Blender
@@ -75,7 +82,7 @@ func _frames(lname: String) -> SpriteFrames:
 		sf.set_animation_speed(a, ANIMS[a]["fps"])
 		sf.set_animation_loop(a, ANIMS[a]["loop"])
 		for f in ANIMS[a]["frames"]:
-			sf.add_frame(a, load("%s%s/%s_%03d.png" % [DIR, lname, a, f]))
+			sf.add_frame(a, load("%s%s/%s_%03d.png" % [sprite_dir, lname, a, f]))
 	frames_cache[lname] = sf
 	return sf
 
@@ -108,7 +115,7 @@ func _process(delta: float) -> void:
 	if anchors.has(key):
 		var a: Dictionary = anchors[key]
 		for pid in ["griffe", "carapace", "glande"]:
-			parts[pid]["anchor"] = (Vector2(a[pid][0], a[pid][1]) - origin) * PIXEL_SCALE
+			parts[pid]["anchor"] = _local(a[pid])
 		_gland_glow.position = parts["glande"]["anchor"]
 	# États des parties
 	for pid in LAYER_PARTS:
@@ -131,13 +138,20 @@ func _process(delta: float) -> void:
 func mouth_global() -> Vector2:
 	var key := _frame_key()
 	if anchors.has(key):
-		var a: Array = anchors[key]["gueule"]
-		return rig.to_global((Vector2(a[0], a[1]) - origin) * PIXEL_SCALE)
+		return rig.to_global(_local(anchors[key]["gueule"]))
 	return center()
 
 
+## Point natif de l'image -> position locale (tient compte du retournement).
+func _local(p: Array) -> Vector2:
+	var v := (Vector2(p[0], p[1]) - origin) * PIXEL_SCALE
+	if facing_right:
+		v.x = -v.x
+	return v
+
+
 func center() -> Vector2:
-	return rig.to_global(Vector2(-40, -150))
+	return rig.to_global(Vector2(40 if facing_right else -40, -110))
 
 
 func set_telegraph(on: bool) -> void:
@@ -164,6 +178,8 @@ func lunge(target_global: Vector2) -> void:
 	_busy = true
 	_play("claw", 3)
 	var dx := clampf(target_global.x - global_position.x + 360.0, -280.0, -40.0)
+	if facing_right:
+		dx = clampf(target_global.x - global_position.x - 330.0, 40.0, 280.0)
 	var t := create_tween()
 	t.tween_property(rig, "position", Vector2(dx, 0), 0.14).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)
 	await get_tree().create_timer(float(CLAW_IMPACT_INDEX - 3) / ANIMS["claw"]["fps"]).timeout

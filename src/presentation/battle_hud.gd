@@ -33,6 +33,7 @@ var _banner: Label
 var _result: Control
 var _hint: Label
 var _input_enabled := true
+var simple := false                    # prototype recentré : pas de journal, d'aide clavier, de bouton de rendu ni de résonance
 
 
 func build() -> void:
@@ -151,6 +152,12 @@ func build() -> void:
 	_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_hint)
 
+	if simple:
+		_log_panel.visible = false
+		_hint.visible = false
+		_render_btn.visible = false
+		_monster_panel.position = Vector2(40, 128)
+
 	_banner = Label.new()
 	_banner.position = Vector2(0, 200)
 	_banner.size = Vector2(1280, 70)
@@ -171,6 +178,7 @@ func add_party_row(id: String, portrait: Texture2D, display_name: String, weapon
 	row.portrait = portrait
 	row.display_name = display_name
 	row.weapon = weapon
+	row.show_res = not simple
 	row.position = Vector2(892, 562 + index * 52)
 	row.size = Vector2(380, 50)
 	row.clicked.connect(func(aid): ally_selected.emit(aid))
@@ -407,6 +415,7 @@ class PartyRow extends Control:
 	var hp := 1
 	var max_hp := 1
 	var res := 0
+	var show_res := true
 	var guard := false
 	var active := false
 	var pickable := false
@@ -452,14 +461,18 @@ class PartyRow extends Control:
 		draw_rect(Rect2(56, 24, 200 * ratio, 10), hc)
 		draw_string(font, Vector2(262, 34), "%d/%d" % [hp, max_hp], HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("#e8eef2"))
 		# Résonance (repères à 30 = sérum)
-		draw_rect(Rect2(56, 38, 200, 7), Color(0, 0, 0, 0.6))
-		draw_rect(Rect2(56, 38, 2.0 * res, 7), Color("#5fe3ff"))
-		draw_line(Vector2(56 + 60, 36), Vector2(56 + 60, 47), Color(1, 1, 1, 0.7), 2.0)
-		draw_string(font, Vector2(262, 47), "Rés. %d" % res, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color("#5fe3ff"))
+		if show_res:
+			_draw_res(font)
 		if guard:
 			draw_string(font, Vector2(318, 34), "GARDE", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color("#bff6ff"))
 		if dead:
 			draw_string(font, Vector2(318, 34), "K.O.", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("#e8604c"))
+
+	func _draw_res(font: Font) -> void:
+		draw_rect(Rect2(56, 38, 200, 7), Color(0, 0, 0, 0.6))
+		draw_rect(Rect2(56, 38, 2.0 * res, 7), Color("#5fe3ff"))
+		draw_line(Vector2(56 + 60, 36), Vector2(56 + 60, 47), Color(1, 1, 1, 0.7), 2.0)
+		draw_string(font, Vector2(262, 47), "Rés. %d" % res, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color("#5fe3ff"))
 
 
 class MonsterPanel extends Control:

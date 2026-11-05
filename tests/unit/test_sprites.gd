@@ -31,3 +31,17 @@ func test_vorgane_layers_complete_and_aligned() -> void:
 				if layer == "base":
 					check(anchors.has(key) and anchors[key].has("glande") and anchors[key].has("griffe") and anchors[key].has("carapace"),
 						"%s : ancrages de ciblage" % key)
+
+
+## Prototype recentré : tous les personnages viennent de la même passe (pack visuel) et partagent l'échelle
+## (Aren 37-38 px natifs -> ~111 px à l'écran ×3 ; PNJ et compagnons dans la même fourchette).
+func test_proto_characters_share_one_scale() -> void:
+	for k in ["aren", "ilya", "throne", "pnj"]:
+		var p := "res://art/proto/%s.png" % k
+		check(FileAccess.file_exists(p), "%s présent" % k)
+		check_eq(_size(p), _size("res://art/proto/%s_1.png" % k), "%s : image de respiration de même taille" % k)
+		var h := _size(p).y
+		check(h >= 30 and h <= 40, "%s : hauteur native %d dans la fourchette commune 30-40 px" % [k, h])
+	check_eq(_size("res://art/proto/zone_bg.png"), Vector2i(427, 240), "décor natif 427×240 (×3 = 1280×720)")
+	var anchors: Dictionary = JSON.parse_string(FileAccess.open("res://art/proto/vorgane/anchors.json", FileAccess.READ).get_as_text())["images"]
+	check(anchors.has("idle_001"), "ancrages du Vorgane (échelle prototype) présents")
