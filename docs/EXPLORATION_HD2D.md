@@ -45,3 +45,16 @@ Seul ajout côté combat : le retour se fait vers la scène d'origine (`GameStat
   ni de transparence pour le retrouver.
 - **Zone** : un seul niveau praticable ; la caméra défile peu, car la zone fait 704×400 natifs pour une vue de
   640×360.
+
+## Itération 2 (retours de l'analyse critique)
+- **Occlusion** : une maison ou un arbre qui cache un membre du groupe devient translucide (alpha 0,5, transition
+  douce), et une silhouette bleutée du personnage reste visible au-dessus du décor.
+- **Dialogue** : il faut être à moins de 14 px natifs du garde pour lui parler (contre 26 avant). Plus loin, une
+  bulle « … » signale seulement sa présence.
+- **Monstre** : teinte crépusculaire et ombre de contact pleine sous le corps.
+- **Décor** : le scintillement du sol est supprimé (pixels isolés trop clairs remplacés par la médiane locale) ;
+  les feuillages reçoivent des grappes de feuilles peintes (arc éclairé, creux sombre) au lieu de volumes lisses.
+- **Tests** : 46 sur 46.
+
+Restent dépendants d'assets dessinés : sprites directionnels d'Ilya, Throné et du garde à l'échelle d'exploration ;
+feuillages et matières vraiment peints (le volume 3D reste perceptible dans les arbres).

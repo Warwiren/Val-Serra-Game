@@ -45,6 +45,42 @@ shadow = lum[..., 0] < 0.16
 rgb[shadow] = rgb[shadow] * 0.85 + np.array([0.035, 0.03, 0.08])          # ombres teintées bleu-violet
 rgb = np.clip(rgb ** 0.92, 0, 1) * 255.0
 
+# --- 3b. suppression du scintillement (bruit de rendu : pixels isolés bien plus clairs que leur voisinage) --------
+def med3(a):
+    st = np.stack([np.roll(np.roll(a, dy, 0), dx, 1) for dy in (-1, 0, 1) for dx in (-1, 0, 1)])
+    return np.median(st, axis=0)
+
+
+lumc = rgb.mean(-1)
+spark = (lumc > med3(lumc) + 26) & ~warm
+rgb[spark] = np.stack([med3(rgb[..., k]) for k in range(3)], -1)[spark]
+
+# --- 3c. feuillage peint : touffes de feuilles (dessus éclairé, creux sombre) sur arbres, buissons et lisière --
+foliage = np.zeros((NH, NW), bool)
+for g, m in masks.items():
+    if g.startswith("arbre") or g.startswith("buisson"):
+        foliage |= m
+back = np.array(layout["walkable"])[:, 1].min()               # haut du plateau : au-dessus, la lisière de forêt
+foliage |= green & (np.arange(NH)[:, None] < back - 4)
+lumf = rgb.mean(-1)
+locl = np.stack([np.roll(np.roll(lumf, dy, 0), dx, 1) for dy in (-3, 0, 3) for dx in (-3, 0, 3)]).mean(0)
+LEAF = [np.array(c) for c in ((34, 62, 52), (58, 96, 66), (96, 132, 84), (140, 160, 112))]
+for _ in range(int(foliage.sum() / 14)):
+    y, x = rng.integers(3, NH - 4), rng.integers(4, NW - 5)
+    if not foliage[y, x]:
+        continue
+    # ton de la grappe selon l'éclairage local (le volume 3D sert de guide de valeurs, pas de texture)
+    v = (lumf[y, x] - 40) / 70 + (0.35 if lumf[y, x] > locl[y, x] else -0.15)
+    k = int(np.clip(v * 2.2, 0, 3))
+    hi, lo = LEAF[k], LEAF[max(0, k - 1)] * 0.7
+    w = int(rng.integers(3, 6))
+    for dx in range(w):                                    # grappe : arc de feuilles éclairé, creux sombre dessous
+        yy_ = y - (1 if 0 < dx < w - 1 else 0)
+        if foliage[yy_, x + dx]:
+            rgb[yy_, x + dx] = hi
+        if foliage[y + 1, x + dx] and rng.random() < 0.7:
+            rgb[y + 1, x + dx] = lo
+
 # --- 4. herbe peinte (avant la palette, pour qu'elle en fasse partie) -----------------------------------
 any_el = np.zeros((NH, NW), bool)
 for g, m in masks.items():
@@ -55,13 +91,13 @@ for _ in range(int(NW * NH / 22)):                                          # to
     x, y = rng.integers(1, NW - 1), rng.integers(3, NH)
     if ground[y, x] and ground[y - 2, x]:
         base = rgb[y, x].copy()
-        rgb[y - 2:y, x] = np.clip(base * 1.32 + np.array([4, 10, 0]), 0, 255)
+        rgb[y - 2:y, x] = np.clip(base * 1.16 + np.array([2, 8, 0]), 0, 255)
         rgb[y, x] = base * 0.72
 for _ in range(int(NW * NH / 380)):                                         # fleurs violettes / blanches en petits groupes
     fx, fy = rng.integers(3, NW - 3), rng.integers(3, NH - 3)
     if not ground[fy, fx]:
         continue
-    col = np.array([150, 108, 196]) if rng.random() < 0.7 else np.array([210, 205, 230])
+    col = np.array([150, 108, 196]) if rng.random() < 0.8 else np.array([176, 160, 200])
     for _ in range(rng.integers(2, 6)):
         x, y = fx + rng.integers(-3, 4), fy + rng.integers(-2, 3)
         if 0 <= x < NW and 0 <= y < NH and ground[y, x]:

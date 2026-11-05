@@ -13,13 +13,15 @@ const SPEED := 72.0                       # px natifs / s (≈ 3,6 m/s)
 const Y_FACTOR := 0.8                     # vitesse verticale réduite (perspective)
 const FOOT_R := 3.0                       # rayon de collision des pieds (px natifs)
 const FOLLOW_GAP := 18.0                  # écart de file entre les membres du groupe
-const TALK_RANGE := 26.0
+const TALK_RANGE := 14.0                  # il faut être tout près du garde pour parler
+const NOTICE_RANGE := 34.0                # au-delà : simple bulle « … » au-dessus du PNJ
 const ENGAGE_RANGE := 22.0
 const DIALOGUE := "res://data/dialogue/pnj_proto.json"
 
 var zone: Dictionary
 var walkable := PackedVector2Array()
 var solids: Array = []                    # PackedVector2Array (emprises au sol)
+var occluders: Array = []                 # [{sprite, sort_y, rect}] : grands éléments qui peuvent cacher le groupe
 var hero: Walker
 var party: Array = []                     # [hero, ilya, throne]
 var npc: Walker
@@ -53,6 +55,8 @@ func _ready() -> void:
 		s.position = Vector2(e["pos"][0], e["pos"][1])
 		s.z_index = int(e["sort_y"])
 		add_child(s)
+		if g == "maison" or g.begins_with("arbre"):
+			occluders.append({"sprite": s, "sort_y": float(e["sort_y"]), "rect": Rect2(s.position, s.texture.get_size())})
 		if e["solid"] and e["footprint"].size() >= 3:
 			var poly := PackedVector2Array()
 			for p in e["footprint"]:
@@ -96,6 +100,14 @@ func _ready() -> void:
 	monster.z_index = int(monster_pos.y)
 	monster.play()
 	monster.visible = not GameState.enemy_defeated
+	# Intégration : teinte du crépuscule (le sprite vient du combat, plus clair que le décor) + ombre de contact
+	monster.modulate = Color(0.82, 0.8, 0.95)
+	var shadow := Shadow.new()
+	shadow.position = monster_pos
+	shadow.radius = Vector2(t0.get_width() * 0.42, 5.0)
+	shadow.z_index = int(monster_pos.y) - 1
+	shadow.visible = monster.visible
+	add_child(shadow)
 	add_child(monster)
 	# Caméra : suit le groupe en douceur, bornée au décor
 	cam = Camera2D.new()
@@ -215,6 +227,7 @@ func _process(delta: float) -> void:
 	for w in party + [npc]:
 		w.z_index = int(w.position.y)
 	cam.position = hero.position.round()
+	_update_occlusion(delta)
 	_update_prompt()
 	if monster.visible and not _engaging and hero.position.distance_to(monster_pos) < ENGAGE_RANGE + 18.0:
 		_engage()
@@ -237,11 +250,37 @@ func _follow(delta: float) -> void:
 		w.animate(d.normalized() if d.length() > 0.01 else Vector2.ZERO, delta)
 
 
+## Occlusion : quand un membre du groupe est DERRIÈRE un grand élément (pieds au-dessus de sa ligne de tri et
+## silhouette dans son emprise), l'élément devient translucide et une silhouette du personnage reste visible.
+func _update_occlusion(delta: float) -> void:
+	for w in party:
+		w.hidden_behind = false
+	for o in occluders:
+		var behind := false
+		for w in party:
+			var r := Rect2(w.position + Vector2(-8, -30), Vector2(16, 30))
+			if w.position.y < o["sort_y"] and o["rect"].intersects(r) and _opaque_at(o["sprite"], w.position + Vector2(0, -12)):
+				behind = true
+				w.hidden_behind = true
+		var s: Sprite2D = o["sprite"]
+		s.modulate.a = move_toward(s.modulate.a, 0.5 if behind else 1.0, delta * 4.0)
+
+
+func _opaque_at(s: Sprite2D, p: Vector2) -> bool:
+	var img: Image = s.get_meta("img") if s.has_meta("img") else null
+	if img == null:
+		img = s.texture.get_image()
+		s.set_meta("img", img)
+	var q := Vector2i((p - s.position).round())
+	return q.x >= 0 and q.y >= 0 and q.x < img.get_width() and q.y < img.get_height() and img.get_pixelv(q).a > 0.5
+
+
 func _update_prompt() -> void:
-	var near: bool = hero.position.distance_to(npc.position) < TALK_RANGE and not _dialog.is_open()
+	var d := hero.position.distance_to(npc.position)
+	var near: bool = d < NOTICE_RANGE and not _dialog.is_open()
 	_prompt.visible = near
 	if near:
-		_prompt.text = "E  Parler"
+		_prompt.text = "E  Parler" if d < TALK_RANGE else "…"
 		var sp := get_viewport().get_canvas_transform() * (npc.position + Vector2(-14, -40))
 		_prompt.position = sp
 
@@ -296,7 +335,7 @@ func _autoplay() -> void:
 		tf + Vector2(22, -14), tf + Vector2(-6, -16),      # DERRIÈRE l'arbre (le feuillage passe devant)
 		tf + Vector2(10, 18),                               # devant l'arbre
 		Vector2(hf.x - 30, hy_top - 6), Vector2(hf.x + 20, hy_top - 8),   # DERRIÈRE la maison
-		npc.position + Vector2(-20, 6),                     # vers le garde
+		npc.position + Vector2(-11, 4),                     # tout près du garde
 	]
 	for wp in route:
 		await _walk_to(wp)
@@ -341,6 +380,8 @@ class Walker extends Node2D:
 	var spr: AnimatedSprite2D
 	var _dist := 0.0
 	var _dir := "right"
+	var hidden_behind := false
+	var ghost: AnimatedSprite2D
 
 	func _init(k: String, four_dirs: bool) -> void:
 		key = k
@@ -371,6 +412,19 @@ class Walker extends Node2D:
 					sf.add_frame("walk_right", load(base + "walk_%d.png" % i))
 		spr.sprite_frames = sf
 		add_child(spr)
+		# silhouette (au-dessus de tout, teinte unie claire) affichée quand le personnage est caché par le décor
+		ghost = AnimatedSprite2D.new()
+		ghost.sprite_frames = sf
+		ghost.centered = false
+		ghost.z_as_relative = false
+		ghost.z_index = 3900
+		var sh := Shader.new()
+		sh.code = "shader_type canvas_item; void fragment(){ vec4 c = texture(TEXTURE, UV); COLOR = vec4(0.55, 0.66, 0.92, c.a * 0.4); }"
+		var sm := ShaderMaterial.new()
+		sm.shader = sh
+		ghost.material = sm
+		ghost.visible = false
+		add_child(ghost)
 		_anim("idle_" + ("face" if dirs else "right"))
 		spr.play()
 
@@ -424,4 +478,22 @@ class Walker extends Node2D:
 
 	func _process(_d: float) -> void:
 		spr.position = position.round() - position          # sprite calé sur la grille de pixels
+		ghost.visible = hidden_behind
+		if hidden_behind:
+			ghost.animation = spr.animation
+			ghost.frame = spr.frame
+			ghost.offset = spr.offset
+			ghost.flip_h = spr.flip_h
+			ghost.position = spr.position
 		queue_redraw()
+
+
+class Shadow extends Node2D:
+	## Ombre de contact pleine, sans flou.
+	var radius := Vector2(30, 5)
+
+	func _draw() -> void:
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, radius.y / radius.x))
+		draw_circle(Vector2.ZERO, radius.x, Color(0.02, 0.02, 0.06, 0.55))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
