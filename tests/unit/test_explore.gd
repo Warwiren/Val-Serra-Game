@@ -235,3 +235,21 @@ func test_ground_layers_fall_back_and_stack() -> void:
 	check(l.size() == 1 and l[0][0].ends_with("sol/sol.png"), "calques fusionnés par l'importeur : une seule texture")
 	DirAccess.remove_absolute(base + "sol/sol.png")
 	check(ResourceLoader.exists("res://art/explore_hd2d/fond.png"), "le fond actuel est conservé")
+
+
+## Essai de décor (--essai=v1) : fichiers cohérents, éléments remplacés existants, sol d'essai séparé du sol du jeu.
+func test_decor_trial_is_isolated_and_consistent() -> void:
+	var base := "res://art/explore_hd2d/essai_v1/"
+	if not FileAccess.file_exists(base + "essai.json"):
+		return
+	var spec: Dictionary = JSON.parse_string(FileAccess.open(base + "essai.json", FileAccess.READ).get_as_text())
+	var zone: Dictionary = JSON.parse_string(FileAccess.open("res://art/explore_hd2d/zone.json", FileAccess.READ).get_as_text())
+	for k in spec["remplace"]:
+		check(zone["sprites"].has(k), "élément remplacé « %s » présent (emprise, collision et tri conservés)" % k)
+		for layer in spec["remplace"][k]["calques"]:
+			check(ResourceLoader.exists(base + "%s.png" % layer), "calque %s" % layer)
+	for k in spec.get("masquer", []):
+		check(zone["sprites"].has(k) and not zone["sprites"][k]["solid"], "élément masqué « %s » sans collision" % k)
+	var l: Array = Zone.ground_layers("res://art/explore_hd2d/", true, "essai_v1/sol/")
+	check(l[0][0].contains("essai_v1/sol/"), "sol d'essai lu dans son propre dossier")
+	check(not FileAccess.file_exists("res://art/explore_hd2d/sol/sol.json"), "aucun sol intégré par défaut (jeu inchangé sans --essai)")

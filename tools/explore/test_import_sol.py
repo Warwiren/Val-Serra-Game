@@ -10,6 +10,8 @@ SCRIPT = os.path.join(ROOT, "tools/explore/import_sol.py")
 tmp = tempfile.mkdtemp()
 shutil.copytree(os.path.join(ROOT, "art/source/gabarits"), os.path.join(tmp, "art/source/gabarits"))
 os.makedirs(os.path.join(tmp, "art/source/sol"))
+os.makedirs(os.path.join(tmp, "docs/media/gabarits_exploration/terrain"))
+shutil.copy(os.path.join(ROOT, "docs/media/gabarits_exploration/terrain/chemin_trace_exact.png"), os.path.join(tmp, "docs/media/gabarits_exploration/terrain/"))
 fails = []
 
 
@@ -55,7 +57,7 @@ check(o[..., 3].max() > 100 and (o[..., 3] > 0).mean() < 0.6, "ombres actuelles 
 shifted = Image.new("RGB", (1408, 800)); shifted.paste(gab, (24, 0))
 shifted.save(src)
 code, txt = run("--verifier")
-check("ATTENTION" in txt and "décalée" in txt, "plaque décalée de 24 px signalée")
+check("ATTENTION" in txt and "chemin décalé" in txt, "plaque décalée de 24 px signalée (chemin)")
 
 Image.new("RGBA", (1408, 800), (0, 0, 0, 0)).save(os.path.join(tmp, "art/source/sol/sol_ombres.png"))
 gab.save(src)

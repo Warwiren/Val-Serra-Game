@@ -21,6 +21,12 @@ from PIL import Image, ImageFilter
 SRC = "art/source/sol"
 REF = "art/source/gabarits"
 OUT = "art/explore_hd2d/sol"
+PLAQUE = "sol_plaque.png"
+for i, arg in enumerate(sys.argv):                         # essais : --sortie <dossier> --plaque <fichier de SRC>
+    if arg == "--sortie":
+        OUT = sys.argv[i + 1]
+    if arg == "--plaque":
+        PLAQUE = sys.argv[i + 1]
 W, H = 1408, 800
 
 
@@ -87,6 +93,27 @@ def alignment(plaque):
     return best
 
 
+def path_check(plaque):
+    """Recalage du CHEMIN : pavés repérés à la couleur, comparés au tracé exact (gabarit). Renvoie le décalage
+    qui superpose le mieux, et la part des pavés détectés qui tombe dans le tracé exact."""
+    trace = "docs/media/gabarits_exploration/terrain/chemin_trace_exact.png"
+    if not os.path.exists(trace):
+        return None
+    t = np.asarray(Image.open(trace))[..., 3] > 0
+    a = np.asarray(plaque.convert("RGB")).astype(int); R, G, B = a[..., 0], a[..., 1], a[..., 2]
+    m = (B >= G - 4) & (R >= G - 2) & (a.mean(-1) > 70) & (np.abs(R - B) < 45)
+    m[:200] = False                                           # la lisière (en haut) n'a pas de chemin
+    best = (-1, 0, 0)
+    for dy in range(-30, 31, 3):
+        for dx in range(-30, 31, 3):
+            sh = np.roll(np.roll(m, dy, 0), dx, 1)
+            inter = (sh & t).sum(); iou = inter / max(1, (sh | t).sum())
+            if iou > best[0]:
+                best = (iou, -dx, -dy)
+    inside = (m & t).sum() / max(1, m.sum())
+    return best[0], best[1], best[2], inside
+
+
 def sha(p):
     return hashlib.sha256(open(p, "rb").read()).hexdigest()[:16]
 
@@ -98,23 +125,27 @@ if "--retirer" in sys.argv:
     sys.exit(0)
 
 print("Importation du sol depuis", SRC)
-plaque = load("sol_plaque.png", opaque=True)
+plaque = load(PLAQUE, opaque=True)
 if plaque is None:
-    fail("art/source/sol/sol_plaque.png manquant")
+    fail("art/source/sol/%s manquant" % PLAQUE)
 ombres = load("sol_ombres.png")
 lumieres = load("sol_lumieres.png")
 c, dx, dy = alignment(plaque)
-print("  recalage sur le gabarit : décalage estimé (%d, %d) px, corrélation des contours %.2f" % (dx, dy, c))
-if abs(dx) > 4 or abs(dy) > 4:
-    print("  ATTENTION : la plaque semble décalée par rapport au gabarit : chemins et collisions ne coïncideront pas")
-if c < 0.15:
-    print("  ATTENTION : faible ressemblance avec le gabarit (chemin, lisière) : vérifier le cadrage")
+print("  contours d'ensemble : décalage estimé (%d, %d) px, corrélation %.2f (indicatif : une nouvelle peinture diffère du gabarit)" % (dx, dy, c))
+pc = path_check(plaque)
+if pc:
+    iou, pdx, pdy, inside = pc
+    print("  CHEMIN : décalage estimé (%d, %d) px, recouvrement avec le tracé exact %.0f %%, pavés dans le tracé %.0f %%" % (pdx, pdy, iou * 100, inside * 100))
+    if abs(pdx) > 6 or abs(pdy) > 6:
+        print("  ATTENTION : chemin décalé par rapport au tracé exact : il ne coïncidera pas avec la zone de marche")
+    if inside < 0.75:
+        print("  ATTENTION : une partie des pavés sort du tracé exact (chemin trop large ou mal placé)")
 if "--verifier" in sys.argv:
     sys.exit(0)
 os.makedirs(OUT, exist_ok=True)
 info = {"cadre": [W, H], "importe_le": time.strftime("%Y-%m-%d %H:%M"), "recalage": {"decalage_px": [dx, dy], "correlation": round(c, 3)}, "calques": {}}
 plaque.convert("RGB").save(os.path.join(OUT, "sol_plaque.png"))
-info["calques"]["sol_plaque"] = {"origine": "fourni", "source_sha256": sha(os.path.join(SRC, "sol_plaque.png"))}
+info["calques"]["sol_plaque"] = {"origine": "fourni", "source": PLAQUE, "source_sha256": sha(os.path.join(SRC, PLAQUE))}
 for name, im, default in (("sol_ombres", ombres, existing_shadows), ("sol_lumieres", lumieres, existing_lights)):
     flag = "--sans-" + name.split("_")[1]                    # --sans-ombres / --sans-lumieres : calque absent
     if flag in sys.argv:                                      # (ex. lumière déjà peinte dans la plaque)
@@ -124,6 +155,17 @@ for name, im, default in (("sol_ombres", ombres, existing_shadows), ("sol_lumier
         continue
     if im is None:
         im = default(); origin = "existant (rendu de la scène actuelle)"
+        excl = [sys.argv[i + 1] for i, x in enumerate(sys.argv) if x == "--exclure-ombres"]
+        if name == "sol_ombres" and excl:                     # ex. muret retiré : son ombre (et le sol noir dessous) aussi
+            z = json.load(open("art/explore_hd2d/zone.json"))
+            a = np.asarray(im).copy()
+            for el in ",".join(excl).split(","):
+                e = z["sprites"][el]; sp = Image.open("art/explore_hd2d/el_%s.png" % el).convert("RGBA")
+                m = Image.new("L", (W, H), 0)
+                m.paste(sp.getchannel("A").resize((sp.width * 2, sp.height * 2), Image.NEAREST), (int(e["pos"][0] * 2), int(e["pos"][1] * 2)))
+                m = np.asarray(m.filter(ImageFilter.MaxFilter(9))) > 0
+                a[m, 3] = 0
+            im = Image.fromarray(a); origin += " sans " + ",".join(excl)
     else:
         origin = "fourni"
         if name == "sol_lumieres":                          # lumière ajoutée : on travaille en RVB prémultiplié

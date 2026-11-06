@@ -29,7 +29,7 @@ Référence : documents 07 (Brief MVP) et 08 (Mission Claude) du dossier Drive d
 
 **Vérifications en ligne de commande**
 ```
-godot --headless --path . --script res://tests/run_tests.gd          # 65 tests
+godot --headless --path . --script res://tests/run_tests.gd          # 66 tests
 godot --headless --path . --script res://tests/e2e_zone_retour.gd    # retour de combat (victoire, défaite)
 godot --path . -- --autoplay                                         # démo complète : zone, dialogue, combat, retour
 godot --path . -- --start=hd2d-zone --course=pnj                     # approches du garde au clavier (gauche, droite, bas…)
@@ -60,11 +60,13 @@ vérification du dialogue par touches simulées).
 - **Arène de combat pilote « Lisière de l'avant-poste »** (refonte des décors, à valider) :
   `godot --path . -- --start=proto-battle --arena=lisiere` ; **F2** bascule entre l'ancien et le nouveau décor
   pendant le combat. Compte rendu : **`docs/ARENE_COMBAT.md`** · captures : `docs/media/arena/`.
-- Tests automatiques : 65 sur 65 (+ `python3 tools/explore/test_import_sol.py`).
+- Tests automatiques : 66 sur 66 (+ `python3 tools/explore/test_import_sol.py`).
 - **Refonte artistique de l'exploration (branche `exploration-illustree`)** : gabarits du sol, de la maison et du
   grand arbre, cadre, perspective et fichiers à fournir dans **`docs/GABARITS_EXPLORATION.md`**.
 - **Sol illustré (branche `sol-illustre`)** : déposer `sol_plaque.png` (1408×800) dans `art/source/sol/`, puis
   `python3 tools/explore/import_sol.py` ; détails dans **`docs/INTEGRATION_SOL.md`**. `--sol=ancien` pour comparer.
+- **Essai de décor v1 (branche `essai-decor-v1`, non intégré)** : `godot --path . -- --essai=v1` ; sol recalé,
+  grand arbre et buissons tirés des concepts ; compte rendu **`docs/ESSAI_DECOR_V1.md`**.
 - **Décors illustrés (branche `decors-illustres`)** : arène illustrée, accessoires et sol illustrés en exploration ;
   analyse des planches et ressources manquantes dans `docs/PRODUCTION_GRAPHIQUE.md`, performances dans
   `docs/PERFORMANCES.md`.
