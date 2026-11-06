@@ -41,6 +41,7 @@ var proto: bool = false                # prototype recentré (pack visuel) : pr�
 var art_proto: bool = false            # prototype artistique HD (héros et monstre articulés, arène nocturne)
 var arena: String = ""                 # décor de combat : "lisiere" = pilote, "ancien" = décor du pack ; "" = pilote
                                        # seulement pour un combat lancé depuis la zone HD-2D (F2 bascule en combat)
+var decor: String = ""                 # exploration : "" = décor illustré (pilote), "ancien" = décor d'origine (--decor=ancien)
 var course: String = ""                # parcours de locomotion mesuré (--course=manuel), aussi lançable depuis l'éditeur
 
 var _fade: ColorRect
@@ -67,6 +68,8 @@ func _ready() -> void:
 			_start_scene.call_deferred(SCENE_BATTLE)
 		elif arg.begins_with("--arena="):
 			arena = arg.substr(8)
+		elif arg.begins_with("--decor="):
+			decor = arg.substr(8)
 		elif arg.begins_with("--course="):
 			course = arg.substr(9)
 		elif arg == "--start=hd2d-zone":

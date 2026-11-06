@@ -47,3 +47,18 @@ func test_arena_palette_is_limited() -> void:
 				if c.a > 0.5:
 					colors[c.to_rgba32()] = true
 	check(colors.size() <= 72, "palette limitée et commune à l'exploration (%d couleurs, contours compris)" % colors.size())
+
+
+func test_illustrated_arena_keeps_screen_size_and_lights_on_lanterns() -> void:
+	if not FileAccess.file_exists(DIR + "peint/hd.json"):
+		return
+	var hd: Dictionary = JSON.parse_string(FileAccess.open(DIR + "peint/hd.json", FileAccess.READ).get_as_text())
+	var im := Image.load_from_file(ProjectSettings.globalize_path(DIR + "peint/" + hd["image"]))
+	check(im.get_width() == 1296 and im.get_height() == 732, "illustration à la taille de l'écran (pas plus grande : %s)" % str(im.get_size()))
+	for p in hd["lumieres"]:
+		var best := 0.0
+		for dy in range(-4, 5):
+			for dx in range(-4, 5):
+				var c := im.get_pixel(clampi(int(p[0]) + dx, 0, im.get_width() - 1), clampi(int(p[1]) + dy, 0, im.get_height() - 1))
+				best = maxf(best, c.r + c.g - c.b)
+		check(best > 1.1, "lumière posée sur une lanterne peinte %s" % str(p))

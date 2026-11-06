@@ -1,0 +1,1437 @@
+{
+ "taille_par_dossier_mo": {
+  "docs/media": 130.95,
+  "art/3d": 18.41,
+  "art/proto": 12.56,
+  "docs/captures": 8.23,
+  "docs/vorgane_3d": 3.86,
+  "art/fonts": 1.34,
+  "art/sprites": 1.04,
+  "art/explore_hd2d": 0.43,
+  "art/hd": 0.29,
+  "tools": 0.28,
+  "src": 0.22,
+  "scenes": 0.16,
+  "art/arena": 0.12,
+  "docs": 0.1,
+  "art/stage": 0.07,
+  "tests": 0.05,
+  "art/characters": 0.03,
+  "data": 0.02,
+  "art/monster": 0.02,
+  "art/portraits": 0.02,
+  ".": 0.01,
+  "art/zone": 0.01
+ },
+ "textures_du_jeu": {
+  "nombre": 1544,
+  "octets_disque_mo": 6.95,
+  "vram_si_tout_charge_mo": 195.7
+ },
+ "plus_lourdes": [
+  {
+   "fichier": "art/3d/vorgane_rig_Image_0.jpg",
+   "dims": [
+    2048,
+    2048
+   ],
+   "octets": 2643632,
+   "vram_estimee_mo": 21.33,
+   "import": {
+    "compress/mode": "0",
+    "mipmaps/generate": "true",
+    "process/fix_alpha_border": "true"
+   }
+  },
+  {
+   "fichier": "art/explore_hd2d/fond.png",
+   "dims": [
+    704,
+    400
+   ],
+   "octets": 199772,
+   "vram_estimee_mo": 1.07,
+   "import": {
+    "compress/mode": "0",
+    "mipmaps/generate": "false",
+    "process/fix_alpha_border": "true"
+   }
+  },
+  {
+   "fichier": "art/explore_hd2d/el_muret.png",
+   "dims": [
+    704,
+    153
+   ],
+   "octets": 7250,
+   "vram_estimee_mo": 0.41,
+   "import": {
+    "compress/mode": "0",
+    "mipmaps/generate": "false",
+    "process/fix_alpha_border": "true"
+   }
+  },
+  {
+   "fichier": "art/arena/lisiere/lisiere.png",
+   "dims": [
+    432,
+    244
+   ],
+   "octets": 43140,
+   "vram_estimee_mo": 0.4,
+   "import": {
+    "compress/mode": "0",
+    "mipmaps/generate": "false",
+    "process/fix_alpha_border": "true"
+   }
+  },
+  {
+   "fichier": "art/arena/lisiere/base.png",
+   "dims": [
+    432,
+    244
+   ],
+   "octets": 38863,
+   "vram_estimee_mo": 0.4,
+   "import": {
+    "compress/mode": "0",
+    "mipmaps/generate": "false",
+    "process/fix_alpha_border": "true"
+   }
+  },
+  {
+   "fichier": "art/arena/lisiere/loin.png",
+   "dims": [
+    432,
+    244
+   ],
+   "octets": 34809,
+   "vram_estimee_mo": 0.4,
+   "import": {
+    "compress/mode": "0",
+    "mipmaps/generate": "false",
+    "process/fix_alpha_border": "true"
+   }
+  },
+  {
+   "fichier": "art/arena/lisiere/avant.png",
+   "dims": [
+    432,
+    244
+   ],
+   "octets": 1006,
+   "vram_estimee_mo": 0.4,
+   "import": {
+    "compress/mode": "0",
+    "mipmaps/generate": "false",
+    "process/fix_alpha_border": "true"
+   }
+  },
+  {
+   "fichier": "art/proto/zone_bg.png",
+   "dims": [
+    427,
+    240
+   ],
+   "octets": 187676,
+   "vram_estimee_mo": 0.39,
+   "import": {
+    "compress/mode": "0",
+    "mipmaps/generate": "false",
+    "process/fix_alpha_border": "true"
+   }
+  },
+  {
+   "fichier": "art/sprites/vorgane/carapace/claw_012.png",
+   "dims": [
+    256,
+    256
+   ],
+   "octets": 6088,
+   "vram_estimee_mo": 0.25,
+   "import": {
+    "compress/mode": "0",
+    "mipmaps/generate": "false",
+    "process/fix_alpha_border": "true"
+   }
+  },
+  {
+   "fichier": "art/sprites/vorgane/carapace/walk_017.png",
+   "dims": [
+    256,
+    256
+   ],
+   "octets": 5724,
+   "vram_estimee_mo": 0.25,
+   "import": {
+    "compress/mode": "0",
+    "mipmaps/generate": "false",
+    "process/fix_alpha_border": "true"
+   }
+  },
+  {
+   "fichier": "art/sprites/vorgane/carapace/idle_001.png",
+   "dims": [
+    256,
+    256
+   ],
+   "octets": 5880,
+   "vram_estimee_mo": 0.25,
+   "import": {
+    "compress/mode": "0",
+    "mipmaps/generate": "false",
+    "process/fix_alpha_border": "true"
+   }
+  },
+  {
+   "fichier": "art/sprites/vorgane/carapace/idle_031.png",
+   "dims": [
+    256,
+    256
+   ],
+   "octets": 5886,
+   "vram_estimee_mo": 0.25,
+   "import": {
+    "compress/mode": "0",
+    "mipmaps/generate": "false",
+    "process/fix_alpha_border": "true"
+   }
+  },
+  {
+   "fichier": "art/sprites/vorgane/carapace/idle_037.png",
+   "dims": [
+    256,
+    256
+   ],
+   "octets": 5984,
+   "vram_estimee_mo": 0.25,
+   "import": {
+    "compress/mode": "0",
+    "mipmaps/generate": "false",
+    "process/fix_alpha_border": "true"
+   }
+  },
+  {
+   "fichier": "art/sprites/vorgane/carapace/walk_021.png",
+   "dims": [
+    256,
+    256
+   ],
+   "octets": 5874,
+   "vram_estimee_mo": 0.25,
+   "import": {
+    "compress/mode": "0",
+    "mipmaps/generate": "false",
+    "process/fix_alpha_border": "true"
+   }
+  },
+  {
+   "fichier": "art/sprites/vorgane/carapace/hit_018.png",
+   "dims": [
+    256,
+    256
+   ],
+   "octets": 5880,
+   "vram_estimee_mo": 0.25,
+   "import": {
+    "compress/mode": "0",
+    "mipmaps/generate": "false",
+    "process/fix_alpha_border": "true"
+   }
+  }
+ ],
+ "plus_grandes_que_l_ecran": [
+  "art/3d/vorgane_rig_Image_0.jpg"
+ ],
+ "doublons": [
+  [
+   "art/proto/vorgane_p1/carapace/walk_017.png",
+   "art/proto/vorgane_p1/carapace/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane_p1/carapace/idle_001.png",
+   "art/proto/vorgane_p1/carapace/hit_018.png",
+   "art/proto/vorgane_p1/carapace/hit_001.png",
+   "art/proto/vorgane_p1/carapace/claw_030.png",
+   "art/proto/vorgane_p1/carapace/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane_p1/carapace/idle_031.png",
+   "art/proto/vorgane_p1/carapace/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane_p1/carapace/idle_037.png",
+   "art/proto/vorgane_p1/carapace/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane_p1/carapace/walk_021.png",
+   "art/proto/vorgane_p1/carapace/walk_005.png"
+  ],
+  [
+   "art/proto/vorgane_p1/carapace/charge_014.png",
+   "art/proto/vorgane_p1/carapace/charge_026.png",
+   "art/proto/vorgane_p1/carapace/release_001.png"
+  ],
+  [
+   "art/proto/vorgane_p1/carapace/walk_013.png",
+   "art/proto/vorgane_p1/carapace/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane_p1/carapace/walk_009.png",
+   "art/proto/vorgane_p1/carapace/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane_p1/carapace/charge_001.png",
+   "art/proto/vorgane_p1/carapace/release_018.png"
+  ],
+  [
+   "art/proto/vorgane_p1/carapace/release_005.png",
+   "art/proto/vorgane_p1/carapace/release_009.png",
+   "art/proto/vorgane_p1/carapace/release_007.png"
+  ],
+  [
+   "art/proto/vorgane_p1/glande/walk_017.png",
+   "art/proto/vorgane_p1/glande/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane_p1/glande/idle_001.png",
+   "art/proto/vorgane_p1/glande/hit_018.png",
+   "art/proto/vorgane_p1/glande/hit_001.png",
+   "art/proto/vorgane_p1/glande/claw_030.png",
+   "art/proto/vorgane_p1/glande/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane_p1/glande/idle_031.png",
+   "art/proto/vorgane_p1/glande/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane_p1/glande/idle_037.png",
+   "art/proto/vorgane_p1/glande/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane_p1/glande/walk_021.png",
+   "art/proto/vorgane_p1/glande/walk_005.png",
+   "art/proto/vorgane_p1/glande/walk_013.png",
+   "art/proto/vorgane_p1/glande/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane_p1/glande/charge_014.png",
+   "art/proto/vorgane_p1/glande/charge_026.png",
+   "art/proto/vorgane_p1/glande/release_001.png"
+  ],
+  [
+   "art/proto/vorgane_p1/glande/walk_009.png",
+   "art/proto/vorgane_p1/glande/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane_p1/glande/charge_001.png",
+   "art/proto/vorgane_p1/glande/release_018.png"
+  ],
+  [
+   "art/proto/vorgane_p1/glande/release_005.png",
+   "art/proto/vorgane_p1/glande/release_009.png",
+   "art/proto/vorgane_p1/glande/release_007.png"
+  ],
+  [
+   "art/proto/vorgane_p1/glande/idle_043.png",
+   "art/proto/vorgane_p1/glande/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe_broken/walk_017.png",
+   "art/proto/vorgane_p1/griffe_broken/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe_broken/idle_001.png",
+   "art/proto/vorgane_p1/griffe_broken/hit_018.png",
+   "art/proto/vorgane_p1/griffe_broken/hit_001.png",
+   "art/proto/vorgane_p1/griffe_broken/claw_030.png",
+   "art/proto/vorgane_p1/griffe_broken/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe_broken/idle_031.png",
+   "art/proto/vorgane_p1/griffe_broken/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe_broken/idle_037.png",
+   "art/proto/vorgane_p1/griffe_broken/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe_broken/walk_021.png",
+   "art/proto/vorgane_p1/griffe_broken/walk_005.png",
+   "art/proto/vorgane_p1/griffe_broken/walk_013.png",
+   "art/proto/vorgane_p1/griffe_broken/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe_broken/charge_014.png",
+   "art/proto/vorgane_p1/griffe_broken/charge_026.png",
+   "art/proto/vorgane_p1/griffe_broken/release_001.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe_broken/walk_009.png",
+   "art/proto/vorgane_p1/griffe_broken/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe_broken/charge_001.png",
+   "art/proto/vorgane_p1/griffe_broken/release_018.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe_broken/release_005.png",
+   "art/proto/vorgane_p1/griffe_broken/release_009.png",
+   "art/proto/vorgane_p1/griffe_broken/release_007.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe_broken/idle_043.png",
+   "art/proto/vorgane_p1/griffe_broken/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe_broken/claw_016.png",
+   "art/proto/vorgane_nuit_p1/griffe_broken/claw_016.png",
+   "art/proto/vorgane_nuit/griffe_broken/claw_016.png",
+   "art/proto/vorgane/griffe_broken/claw_016.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe/walk_017.png",
+   "art/proto/vorgane_p1/griffe/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe/idle_001.png",
+   "art/proto/vorgane_p1/griffe/hit_018.png",
+   "art/proto/vorgane_p1/griffe/hit_001.png",
+   "art/proto/vorgane_p1/griffe/claw_030.png",
+   "art/proto/vorgane_p1/griffe/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe/idle_031.png",
+   "art/proto/vorgane_p1/griffe/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe/idle_037.png",
+   "art/proto/vorgane_p1/griffe/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe/walk_021.png",
+   "art/proto/vorgane_p1/griffe/walk_005.png",
+   "art/proto/vorgane_p1/griffe/walk_013.png",
+   "art/proto/vorgane_p1/griffe/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe/charge_014.png",
+   "art/proto/vorgane_p1/griffe/charge_026.png",
+   "art/proto/vorgane_p1/griffe/release_001.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe/walk_009.png",
+   "art/proto/vorgane_p1/griffe/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe/charge_001.png",
+   "art/proto/vorgane_p1/griffe/release_018.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe/release_005.png",
+   "art/proto/vorgane_p1/griffe/release_009.png",
+   "art/proto/vorgane_p1/griffe/release_007.png"
+  ],
+  [
+   "art/proto/vorgane_p1/griffe/idle_043.png",
+   "art/proto/vorgane_p1/griffe/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane_p1/base/walk_017.png",
+   "art/proto/vorgane_p1/base/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane_p1/base/idle_001.png",
+   "art/proto/vorgane_p1/base/hit_018.png",
+   "art/proto/vorgane_p1/base/hit_001.png",
+   "art/proto/vorgane_p1/base/claw_030.png",
+   "art/proto/vorgane_p1/base/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane_p1/base/idle_031.png",
+   "art/proto/vorgane_p1/base/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane_p1/base/idle_037.png",
+   "art/proto/vorgane_p1/base/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane_p1/base/walk_021.png",
+   "art/proto/vorgane_p1/base/walk_005.png",
+   "art/proto/vorgane_p1/base/walk_013.png",
+   "art/proto/vorgane_p1/base/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane_p1/base/charge_014.png",
+   "art/proto/vorgane_p1/base/charge_026.png",
+   "art/proto/vorgane_p1/base/release_001.png"
+  ],
+  [
+   "art/proto/vorgane_p1/base/walk_009.png",
+   "art/proto/vorgane_p1/base/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane_p1/base/charge_001.png",
+   "art/proto/vorgane_p1/base/release_018.png"
+  ],
+  [
+   "art/proto/vorgane_p1/base/release_005.png",
+   "art/proto/vorgane_p1/base/release_009.png",
+   "art/proto/vorgane_p1/base/release_007.png"
+  ],
+  [
+   "art/proto/vorgane_p1/base/idle_043.png",
+   "art/proto/vorgane_p1/base/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane_p1/carapace_broken/walk_017.png",
+   "art/proto/vorgane_p1/carapace_broken/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane_p1/carapace_broken/idle_001.png",
+   "art/proto/vorgane_p1/carapace_broken/hit_018.png",
+   "art/proto/vorgane_p1/carapace_broken/hit_001.png",
+   "art/proto/vorgane_p1/carapace_broken/claw_030.png",
+   "art/proto/vorgane_p1/carapace_broken/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane_p1/carapace_broken/idle_031.png",
+   "art/proto/vorgane_p1/carapace_broken/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane_p1/carapace_broken/idle_037.png",
+   "art/proto/vorgane_p1/carapace_broken/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane_p1/carapace_broken/walk_021.png",
+   "art/proto/vorgane_p1/carapace_broken/walk_005.png",
+   "art/proto/vorgane_p1/carapace_broken/walk_013.png",
+   "art/proto/vorgane_p1/carapace_broken/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane_p1/carapace_broken/charge_014.png",
+   "art/proto/vorgane_p1/carapace_broken/charge_026.png",
+   "art/proto/vorgane_p1/carapace_broken/release_001.png"
+  ],
+  [
+   "art/proto/vorgane_p1/carapace_broken/walk_009.png",
+   "art/proto/vorgane_p1/carapace_broken/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane_p1/carapace_broken/charge_001.png",
+   "art/proto/vorgane_p1/carapace_broken/release_018.png"
+  ],
+  [
+   "art/proto/vorgane_p1/carapace_broken/release_005.png",
+   "art/proto/vorgane_p1/carapace_broken/release_009.png",
+   "art/proto/vorgane_p1/carapace_broken/release_007.png"
+  ],
+  [
+   "art/proto/vorgane_p1/carapace_broken/idle_043.png",
+   "art/proto/vorgane_p1/carapace_broken/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace/walk_017.png",
+   "art/proto/vorgane_nuit_p1/carapace/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace/idle_001.png",
+   "art/proto/vorgane_nuit_p1/carapace/hit_018.png",
+   "art/proto/vorgane_nuit_p1/carapace/hit_001.png",
+   "art/proto/vorgane_nuit_p1/carapace/claw_030.png",
+   "art/proto/vorgane_nuit_p1/carapace/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace/idle_031.png",
+   "art/proto/vorgane_nuit_p1/carapace/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace/idle_037.png",
+   "art/proto/vorgane_nuit_p1/carapace/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace/walk_021.png",
+   "art/proto/vorgane_nuit_p1/carapace/walk_005.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace/charge_014.png",
+   "art/proto/vorgane_nuit_p1/carapace/charge_026.png",
+   "art/proto/vorgane_nuit_p1/carapace/release_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace/walk_013.png",
+   "art/proto/vorgane_nuit_p1/carapace/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace/walk_009.png",
+   "art/proto/vorgane_nuit_p1/carapace/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace/charge_001.png",
+   "art/proto/vorgane_nuit_p1/carapace/release_018.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace/release_005.png",
+   "art/proto/vorgane_nuit_p1/carapace/release_009.png",
+   "art/proto/vorgane_nuit_p1/carapace/release_007.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/glande/walk_017.png",
+   "art/proto/vorgane_nuit_p1/glande/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/glande/idle_001.png",
+   "art/proto/vorgane_nuit_p1/glande/hit_018.png",
+   "art/proto/vorgane_nuit_p1/glande/hit_001.png",
+   "art/proto/vorgane_nuit_p1/glande/claw_030.png",
+   "art/proto/vorgane_nuit_p1/glande/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/glande/idle_031.png",
+   "art/proto/vorgane_nuit_p1/glande/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/glande/idle_037.png",
+   "art/proto/vorgane_nuit_p1/glande/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/glande/walk_021.png",
+   "art/proto/vorgane_nuit_p1/glande/walk_005.png",
+   "art/proto/vorgane_nuit_p1/glande/walk_013.png",
+   "art/proto/vorgane_nuit_p1/glande/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/glande/charge_014.png",
+   "art/proto/vorgane_nuit_p1/glande/charge_026.png",
+   "art/proto/vorgane_nuit_p1/glande/release_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/glande/walk_009.png",
+   "art/proto/vorgane_nuit_p1/glande/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/glande/charge_001.png",
+   "art/proto/vorgane_nuit_p1/glande/release_018.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/glande/release_005.png",
+   "art/proto/vorgane_nuit_p1/glande/release_009.png",
+   "art/proto/vorgane_nuit_p1/glande/release_007.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/glande/idle_043.png",
+   "art/proto/vorgane_nuit_p1/glande/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe_broken/walk_017.png",
+   "art/proto/vorgane_nuit_p1/griffe_broken/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe_broken/idle_001.png",
+   "art/proto/vorgane_nuit_p1/griffe_broken/hit_018.png",
+   "art/proto/vorgane_nuit_p1/griffe_broken/hit_001.png",
+   "art/proto/vorgane_nuit_p1/griffe_broken/claw_030.png",
+   "art/proto/vorgane_nuit_p1/griffe_broken/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe_broken/idle_031.png",
+   "art/proto/vorgane_nuit_p1/griffe_broken/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe_broken/idle_037.png",
+   "art/proto/vorgane_nuit_p1/griffe_broken/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe_broken/walk_021.png",
+   "art/proto/vorgane_nuit_p1/griffe_broken/walk_005.png",
+   "art/proto/vorgane_nuit_p1/griffe_broken/walk_013.png",
+   "art/proto/vorgane_nuit_p1/griffe_broken/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe_broken/charge_014.png",
+   "art/proto/vorgane_nuit_p1/griffe_broken/charge_026.png",
+   "art/proto/vorgane_nuit_p1/griffe_broken/release_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe_broken/walk_009.png",
+   "art/proto/vorgane_nuit_p1/griffe_broken/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe_broken/charge_001.png",
+   "art/proto/vorgane_nuit_p1/griffe_broken/release_018.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe_broken/release_005.png",
+   "art/proto/vorgane_nuit_p1/griffe_broken/release_009.png",
+   "art/proto/vorgane_nuit_p1/griffe_broken/release_007.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe_broken/idle_043.png",
+   "art/proto/vorgane_nuit_p1/griffe_broken/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe/walk_017.png",
+   "art/proto/vorgane_nuit_p1/griffe/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe/idle_001.png",
+   "art/proto/vorgane_nuit_p1/griffe/hit_018.png",
+   "art/proto/vorgane_nuit_p1/griffe/hit_001.png",
+   "art/proto/vorgane_nuit_p1/griffe/claw_030.png",
+   "art/proto/vorgane_nuit_p1/griffe/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe/idle_031.png",
+   "art/proto/vorgane_nuit_p1/griffe/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe/idle_037.png",
+   "art/proto/vorgane_nuit_p1/griffe/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe/walk_021.png",
+   "art/proto/vorgane_nuit_p1/griffe/walk_005.png",
+   "art/proto/vorgane_nuit_p1/griffe/walk_013.png",
+   "art/proto/vorgane_nuit_p1/griffe/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe/charge_014.png",
+   "art/proto/vorgane_nuit_p1/griffe/charge_026.png",
+   "art/proto/vorgane_nuit_p1/griffe/release_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe/walk_009.png",
+   "art/proto/vorgane_nuit_p1/griffe/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe/charge_001.png",
+   "art/proto/vorgane_nuit_p1/griffe/release_018.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe/release_005.png",
+   "art/proto/vorgane_nuit_p1/griffe/release_009.png",
+   "art/proto/vorgane_nuit_p1/griffe/release_007.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/griffe/idle_043.png",
+   "art/proto/vorgane_nuit_p1/griffe/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/base/walk_017.png",
+   "art/proto/vorgane_nuit_p1/base/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/base/idle_001.png",
+   "art/proto/vorgane_nuit_p1/base/hit_018.png",
+   "art/proto/vorgane_nuit_p1/base/hit_001.png",
+   "art/proto/vorgane_nuit_p1/base/claw_030.png",
+   "art/proto/vorgane_nuit_p1/base/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/base/idle_031.png",
+   "art/proto/vorgane_nuit_p1/base/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/base/idle_037.png",
+   "art/proto/vorgane_nuit_p1/base/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/base/walk_021.png",
+   "art/proto/vorgane_nuit_p1/base/walk_005.png",
+   "art/proto/vorgane_nuit_p1/base/walk_013.png",
+   "art/proto/vorgane_nuit_p1/base/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/base/charge_014.png",
+   "art/proto/vorgane_nuit_p1/base/charge_026.png",
+   "art/proto/vorgane_nuit_p1/base/release_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/base/walk_009.png",
+   "art/proto/vorgane_nuit_p1/base/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/base/charge_001.png",
+   "art/proto/vorgane_nuit_p1/base/release_018.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/base/release_005.png",
+   "art/proto/vorgane_nuit_p1/base/release_009.png",
+   "art/proto/vorgane_nuit_p1/base/release_007.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/base/idle_043.png",
+   "art/proto/vorgane_nuit_p1/base/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace_broken/walk_017.png",
+   "art/proto/vorgane_nuit_p1/carapace_broken/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace_broken/idle_001.png",
+   "art/proto/vorgane_nuit_p1/carapace_broken/hit_018.png",
+   "art/proto/vorgane_nuit_p1/carapace_broken/hit_001.png",
+   "art/proto/vorgane_nuit_p1/carapace_broken/claw_030.png",
+   "art/proto/vorgane_nuit_p1/carapace_broken/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace_broken/idle_031.png",
+   "art/proto/vorgane_nuit_p1/carapace_broken/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace_broken/idle_037.png",
+   "art/proto/vorgane_nuit_p1/carapace_broken/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace_broken/walk_021.png",
+   "art/proto/vorgane_nuit_p1/carapace_broken/walk_005.png",
+   "art/proto/vorgane_nuit_p1/carapace_broken/walk_013.png",
+   "art/proto/vorgane_nuit_p1/carapace_broken/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace_broken/charge_014.png",
+   "art/proto/vorgane_nuit_p1/carapace_broken/charge_026.png",
+   "art/proto/vorgane_nuit_p1/carapace_broken/release_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace_broken/walk_009.png",
+   "art/proto/vorgane_nuit_p1/carapace_broken/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace_broken/charge_001.png",
+   "art/proto/vorgane_nuit_p1/carapace_broken/release_018.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace_broken/release_005.png",
+   "art/proto/vorgane_nuit_p1/carapace_broken/release_009.png",
+   "art/proto/vorgane_nuit_p1/carapace_broken/release_007.png"
+  ],
+  [
+   "art/proto/vorgane_nuit_p1/carapace_broken/idle_043.png",
+   "art/proto/vorgane_nuit_p1/carapace_broken/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/carapace/walk_017.png",
+   "art/proto/vorgane_nuit/carapace/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/carapace/idle_001.png",
+   "art/proto/vorgane_nuit/carapace/hit_018.png",
+   "art/proto/vorgane_nuit/carapace/hit_001.png",
+   "art/proto/vorgane_nuit/carapace/claw_030.png",
+   "art/proto/vorgane_nuit/carapace/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/carapace/idle_031.png",
+   "art/proto/vorgane_nuit/carapace/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/carapace/idle_037.png",
+   "art/proto/vorgane_nuit/carapace/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/carapace/walk_021.png",
+   "art/proto/vorgane_nuit/carapace/walk_005.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/carapace/walk_013.png",
+   "art/proto/vorgane_nuit/carapace/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/carapace/walk_009.png",
+   "art/proto/vorgane_nuit/carapace/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/carapace/idle_043.png",
+   "art/proto/vorgane_nuit/carapace/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/glande/walk_017.png",
+   "art/proto/vorgane_nuit/glande/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/glande/idle_001.png",
+   "art/proto/vorgane_nuit/glande/hit_018.png",
+   "art/proto/vorgane_nuit/glande/hit_001.png",
+   "art/proto/vorgane_nuit/glande/claw_030.png",
+   "art/proto/vorgane_nuit/glande/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/glande/idle_031.png",
+   "art/proto/vorgane_nuit/glande/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/glande/idle_037.png",
+   "art/proto/vorgane_nuit/glande/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/glande/walk_021.png",
+   "art/proto/vorgane_nuit/glande/walk_005.png",
+   "art/proto/vorgane_nuit/glande/walk_013.png",
+   "art/proto/vorgane_nuit/glande/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/glande/walk_009.png",
+   "art/proto/vorgane_nuit/glande/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/glande/idle_043.png",
+   "art/proto/vorgane_nuit/glande/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/griffe_broken/walk_017.png",
+   "art/proto/vorgane_nuit/griffe_broken/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/griffe_broken/idle_001.png",
+   "art/proto/vorgane_nuit/griffe_broken/hit_018.png",
+   "art/proto/vorgane_nuit/griffe_broken/hit_001.png",
+   "art/proto/vorgane_nuit/griffe_broken/claw_030.png",
+   "art/proto/vorgane_nuit/griffe_broken/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/griffe_broken/idle_031.png",
+   "art/proto/vorgane_nuit/griffe_broken/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/griffe_broken/idle_037.png",
+   "art/proto/vorgane_nuit/griffe_broken/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/griffe_broken/walk_021.png",
+   "art/proto/vorgane_nuit/griffe_broken/walk_005.png",
+   "art/proto/vorgane_nuit/griffe_broken/walk_013.png",
+   "art/proto/vorgane_nuit/griffe_broken/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/griffe_broken/walk_009.png",
+   "art/proto/vorgane_nuit/griffe_broken/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/griffe_broken/idle_043.png",
+   "art/proto/vorgane_nuit/griffe_broken/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/griffe/walk_017.png",
+   "art/proto/vorgane_nuit/griffe/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/griffe/idle_001.png",
+   "art/proto/vorgane_nuit/griffe/hit_018.png",
+   "art/proto/vorgane_nuit/griffe/hit_001.png",
+   "art/proto/vorgane_nuit/griffe/claw_030.png",
+   "art/proto/vorgane_nuit/griffe/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/griffe/idle_031.png",
+   "art/proto/vorgane_nuit/griffe/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/griffe/idle_037.png",
+   "art/proto/vorgane_nuit/griffe/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/griffe/walk_021.png",
+   "art/proto/vorgane_nuit/griffe/walk_005.png",
+   "art/proto/vorgane_nuit/griffe/walk_013.png",
+   "art/proto/vorgane_nuit/griffe/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/griffe/walk_009.png",
+   "art/proto/vorgane_nuit/griffe/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/griffe/idle_043.png",
+   "art/proto/vorgane_nuit/griffe/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/base/walk_017.png",
+   "art/proto/vorgane_nuit/base/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/base/idle_001.png",
+   "art/proto/vorgane_nuit/base/hit_018.png",
+   "art/proto/vorgane_nuit/base/hit_001.png",
+   "art/proto/vorgane_nuit/base/claw_030.png",
+   "art/proto/vorgane_nuit/base/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/base/idle_031.png",
+   "art/proto/vorgane_nuit/base/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/base/idle_037.png",
+   "art/proto/vorgane_nuit/base/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/base/walk_021.png",
+   "art/proto/vorgane_nuit/base/walk_005.png",
+   "art/proto/vorgane_nuit/base/walk_013.png",
+   "art/proto/vorgane_nuit/base/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/base/walk_009.png",
+   "art/proto/vorgane_nuit/base/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/base/idle_043.png",
+   "art/proto/vorgane_nuit/base/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/carapace_broken/walk_017.png",
+   "art/proto/vorgane_nuit/carapace_broken/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/carapace_broken/idle_001.png",
+   "art/proto/vorgane_nuit/carapace_broken/hit_018.png",
+   "art/proto/vorgane_nuit/carapace_broken/hit_001.png",
+   "art/proto/vorgane_nuit/carapace_broken/claw_030.png",
+   "art/proto/vorgane_nuit/carapace_broken/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/carapace_broken/idle_031.png",
+   "art/proto/vorgane_nuit/carapace_broken/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/carapace_broken/idle_037.png",
+   "art/proto/vorgane_nuit/carapace_broken/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/carapace_broken/walk_021.png",
+   "art/proto/vorgane_nuit/carapace_broken/walk_005.png",
+   "art/proto/vorgane_nuit/carapace_broken/walk_013.png",
+   "art/proto/vorgane_nuit/carapace_broken/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane_nuit/carapace_broken/walk_009.png",
+   "art/proto/vorgane_nuit/carapace_broken/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane/carapace/walk_017.png",
+   "art/proto/vorgane/carapace/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane/carapace/idle_001.png",
+   "art/proto/vorgane/carapace/hit_018.png",
+   "art/proto/vorgane/carapace/hit_001.png",
+   "art/proto/vorgane/carapace/claw_030.png",
+   "art/proto/vorgane/carapace/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane/carapace/idle_031.png",
+   "art/proto/vorgane/carapace/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane/carapace/idle_037.png",
+   "art/proto/vorgane/carapace/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane/carapace/walk_021.png",
+   "art/proto/vorgane/carapace/walk_005.png"
+  ],
+  [
+   "art/proto/vorgane/carapace/walk_013.png",
+   "art/proto/vorgane/carapace/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane/carapace/walk_009.png",
+   "art/proto/vorgane/carapace/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane/carapace/idle_043.png",
+   "art/proto/vorgane/carapace/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane/glande/walk_017.png",
+   "art/proto/vorgane/glande/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane/glande/idle_001.png",
+   "art/proto/vorgane/glande/hit_018.png",
+   "art/proto/vorgane/glande/hit_001.png",
+   "art/proto/vorgane/glande/claw_030.png",
+   "art/proto/vorgane/glande/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane/glande/idle_031.png",
+   "art/proto/vorgane/glande/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane/glande/idle_037.png",
+   "art/proto/vorgane/glande/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane/glande/walk_021.png",
+   "art/proto/vorgane/glande/walk_005.png",
+   "art/proto/vorgane/glande/walk_013.png",
+   "art/proto/vorgane/glande/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane/glande/walk_009.png",
+   "art/proto/vorgane/glande/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane/glande/idle_043.png",
+   "art/proto/vorgane/glande/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane/griffe_broken/walk_017.png",
+   "art/proto/vorgane/griffe_broken/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane/griffe_broken/idle_001.png",
+   "art/proto/vorgane/griffe_broken/hit_018.png",
+   "art/proto/vorgane/griffe_broken/hit_001.png",
+   "art/proto/vorgane/griffe_broken/claw_030.png",
+   "art/proto/vorgane/griffe_broken/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane/griffe_broken/idle_031.png",
+   "art/proto/vorgane/griffe_broken/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane/griffe_broken/idle_037.png",
+   "art/proto/vorgane/griffe_broken/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane/griffe_broken/walk_021.png",
+   "art/proto/vorgane/griffe_broken/walk_005.png",
+   "art/proto/vorgane/griffe_broken/walk_013.png",
+   "art/proto/vorgane/griffe_broken/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane/griffe_broken/walk_009.png",
+   "art/proto/vorgane/griffe_broken/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane/griffe_broken/idle_043.png",
+   "art/proto/vorgane/griffe_broken/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane/griffe/walk_017.png",
+   "art/proto/vorgane/griffe/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane/griffe/idle_001.png",
+   "art/proto/vorgane/griffe/hit_018.png",
+   "art/proto/vorgane/griffe/hit_001.png",
+   "art/proto/vorgane/griffe/claw_030.png",
+   "art/proto/vorgane/griffe/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane/griffe/idle_031.png",
+   "art/proto/vorgane/griffe/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane/griffe/idle_037.png",
+   "art/proto/vorgane/griffe/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane/griffe/walk_021.png",
+   "art/proto/vorgane/griffe/walk_005.png",
+   "art/proto/vorgane/griffe/walk_013.png",
+   "art/proto/vorgane/griffe/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane/griffe/walk_009.png",
+   "art/proto/vorgane/griffe/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane/griffe/idle_043.png",
+   "art/proto/vorgane/griffe/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane/base/walk_017.png",
+   "art/proto/vorgane/base/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane/base/idle_001.png",
+   "art/proto/vorgane/base/hit_018.png",
+   "art/proto/vorgane/base/hit_001.png",
+   "art/proto/vorgane/base/claw_030.png",
+   "art/proto/vorgane/base/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane/base/idle_031.png",
+   "art/proto/vorgane/base/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane/base/idle_037.png",
+   "art/proto/vorgane/base/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane/base/walk_021.png",
+   "art/proto/vorgane/base/walk_005.png",
+   "art/proto/vorgane/base/walk_013.png",
+   "art/proto/vorgane/base/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane/base/walk_009.png",
+   "art/proto/vorgane/base/walk_025.png"
+  ],
+  [
+   "art/proto/vorgane/base/idle_043.png",
+   "art/proto/vorgane/base/idle_007.png"
+  ],
+  [
+   "art/proto/vorgane/carapace_broken/walk_017.png",
+   "art/proto/vorgane/carapace_broken/walk_001.png"
+  ],
+  [
+   "art/proto/vorgane/carapace_broken/idle_001.png",
+   "art/proto/vorgane/carapace_broken/hit_018.png",
+   "art/proto/vorgane/carapace_broken/hit_001.png",
+   "art/proto/vorgane/carapace_broken/claw_030.png",
+   "art/proto/vorgane/carapace_broken/claw_001.png"
+  ],
+  [
+   "art/proto/vorgane/carapace_broken/idle_031.png",
+   "art/proto/vorgane/carapace_broken/idle_019.png"
+  ],
+  [
+   "art/proto/vorgane/carapace_broken/idle_037.png",
+   "art/proto/vorgane/carapace_broken/idle_013.png"
+  ],
+  [
+   "art/proto/vorgane/carapace_broken/walk_021.png",
+   "art/proto/vorgane/carapace_broken/walk_005.png",
+   "art/proto/vorgane/carapace_broken/walk_013.png",
+   "art/proto/vorgane/carapace_broken/walk_029.png"
+  ],
+  [
+   "art/proto/vorgane/carapace_broken/walk_009.png",
+   "art/proto/vorgane/carapace_broken/walk_025.png"
+  ],
+  [
+   "art/sprites/aren/pose_garde.png",
+   "art/sprites/aren/guard_3.png",
+   "art/sprites/aren/guard_0.png"
+  ],
+  [
+   "art/sprites/aren/guard_2.png",
+   "art/sprites/aren/guard_1.png"
+  ],
+  [
+   "art/sprites/aren/idle_0.png",
+   "art/sprites/aren/idle_3.png",
+   "art/sprites/aren/pose_repos.png"
+  ],
+  [
+   "art/sprites/aren/idle_1.png",
+   "art/sprites/aren/idle_2.png"
+  ],
+  [
+   "art/sprites/vorgane/carapace/walk_017.png",
+   "art/sprites/vorgane/carapace/walk_001.png"
+  ],
+  [
+   "art/sprites/vorgane/carapace/idle_001.png",
+   "art/sprites/vorgane/carapace/hit_018.png",
+   "art/sprites/vorgane/carapace/hit_001.png",
+   "art/sprites/vorgane/carapace/claw_030.png",
+   "art/sprites/vorgane/carapace/claw_001.png"
+  ],
+  [
+   "art/sprites/vorgane/carapace/idle_031.png",
+   "art/sprites/vorgane/carapace/idle_019.png"
+  ],
+  [
+   "art/sprites/vorgane/carapace/idle_037.png",
+   "art/sprites/vorgane/carapace/idle_013.png"
+  ],
+  [
+   "art/sprites/vorgane/carapace/walk_021.png",
+   "art/sprites/vorgane/carapace/walk_005.png",
+   "art/sprites/vorgane/carapace/walk_013.png",
+   "art/sprites/vorgane/carapace/walk_029.png"
+  ],
+  [
+   "art/sprites/vorgane/carapace/walk_009.png",
+   "art/sprites/vorgane/carapace/walk_025.png"
+  ],
+  [
+   "art/sprites/vorgane/glande/walk_017.png",
+   "art/sprites/vorgane/glande/walk_001.png"
+  ],
+  [
+   "art/sprites/vorgane/glande/idle_001.png",
+   "art/sprites/vorgane/glande/hit_018.png",
+   "art/sprites/vorgane/glande/hit_001.png",
+   "art/sprites/vorgane/glande/claw_030.png",
+   "art/sprites/vorgane/glande/claw_001.png"
+  ],
+  [
+   "art/sprites/vorgane/glande/idle_031.png",
+   "art/sprites/vorgane/glande/idle_019.png"
+  ],
+  [
+   "art/sprites/vorgane/glande/idle_037.png",
+   "art/sprites/vorgane/glande/idle_013.png"
+  ],
+  [
+   "art/sprites/vorgane/glande/walk_021.png",
+   "art/sprites/vorgane/glande/walk_005.png",
+   "art/sprites/vorgane/glande/walk_013.png",
+   "art/sprites/vorgane/glande/walk_029.png"
+  ],
+  [
+   "art/sprites/vorgane/glande/walk_009.png",
+   "art/sprites/vorgane/glande/walk_025.png"
+  ],
+  [
+   "art/sprites/vorgane/glande/idle_043.png",
+   "art/sprites/vorgane/glande/idle_007.png"
+  ],
+  [
+   "art/sprites/vorgane/griffe_broken/walk_017.png",
+   "art/sprites/vorgane/griffe_broken/walk_001.png"
+  ],
+  [
+   "art/sprites/vorgane/griffe_broken/idle_001.png",
+   "art/sprites/vorgane/griffe_broken/hit_018.png",
+   "art/sprites/vorgane/griffe_broken/hit_001.png",
+   "art/sprites/vorgane/griffe_broken/claw_030.png",
+   "art/sprites/vorgane/griffe_broken/claw_001.png"
+  ],
+  [
+   "art/sprites/vorgane/griffe_broken/idle_031.png",
+   "art/sprites/vorgane/griffe_broken/idle_019.png"
+  ],
+  [
+   "art/sprites/vorgane/griffe_broken/idle_037.png",
+   "art/sprites/vorgane/griffe_broken/idle_013.png"
+  ],
+  [
+   "art/sprites/vorgane/griffe_broken/walk_021.png",
+   "art/sprites/vorgane/griffe_broken/walk_005.png",
+   "art/sprites/vorgane/griffe_broken/walk_013.png",
+   "art/sprites/vorgane/griffe_broken/walk_029.png"
+  ],
+  [
+   "art/sprites/vorgane/griffe_broken/walk_009.png",
+   "art/sprites/vorgane/griffe_broken/walk_025.png"
+  ],
+  [
+   "art/sprites/vorgane/griffe_broken/idle_043.png",
+   "art/sprites/vorgane/griffe_broken/idle_007.png"
+  ],
+  [
+   "art/sprites/vorgane/griffe/walk_017.png",
+   "art/sprites/vorgane/griffe/walk_001.png"
+  ],
+  [
+   "art/sprites/vorgane/griffe/idle_001.png",
+   "art/sprites/vorgane/griffe/hit_018.png",
+   "art/sprites/vorgane/griffe/hit_001.png",
+   "art/sprites/vorgane/griffe/claw_030.png",
+   "art/sprites/vorgane/griffe/claw_001.png"
+  ],
+  [
+   "art/sprites/vorgane/griffe/idle_031.png",
+   "art/sprites/vorgane/griffe/idle_019.png"
+  ],
+  [
+   "art/sprites/vorgane/griffe/idle_037.png",
+   "art/sprites/vorgane/griffe/idle_013.png"
+  ],
+  [
+   "art/sprites/vorgane/griffe/walk_021.png",
+   "art/sprites/vorgane/griffe/walk_005.png",
+   "art/sprites/vorgane/griffe/walk_013.png",
+   "art/sprites/vorgane/griffe/walk_029.png"
+  ],
+  [
+   "art/sprites/vorgane/griffe/walk_009.png",
+   "art/sprites/vorgane/griffe/walk_025.png"
+  ],
+  [
+   "art/sprites/vorgane/griffe/idle_043.png",
+   "art/sprites/vorgane/griffe/idle_007.png"
+  ],
+  [
+   "art/sprites/vorgane/base/walk_017.png",
+   "art/sprites/vorgane/base/walk_001.png"
+  ],
+  [
+   "art/sprites/vorgane/base/idle_001.png",
+   "art/sprites/vorgane/base/hit_018.png",
+   "art/sprites/vorgane/base/hit_001.png",
+   "art/sprites/vorgane/base/claw_030.png",
+   "art/sprites/vorgane/base/claw_001.png"
+  ],
+  [
+   "art/sprites/vorgane/base/idle_031.png",
+   "art/sprites/vorgane/base/idle_019.png"
+  ],
+  [
+   "art/sprites/vorgane/base/idle_037.png",
+   "art/sprites/vorgane/base/idle_013.png"
+  ],
+  [
+   "art/sprites/vorgane/base/walk_021.png",
+   "art/sprites/vorgane/base/walk_005.png",
+   "art/sprites/vorgane/base/walk_013.png",
+   "art/sprites/vorgane/base/walk_029.png"
+  ],
+  [
+   "art/sprites/vorgane/base/walk_009.png",
+   "art/sprites/vorgane/base/walk_025.png"
+  ],
+  [
+   "art/sprites/vorgane/base/idle_043.png",
+   "art/sprites/vorgane/base/idle_007.png"
+  ],
+  [
+   "art/sprites/vorgane/carapace_broken/walk_017.png",
+   "art/sprites/vorgane/carapace_broken/walk_001.png"
+  ],
+  [
+   "art/sprites/vorgane/carapace_broken/idle_001.png",
+   "art/sprites/vorgane/carapace_broken/hit_018.png",
+   "art/sprites/vorgane/carapace_broken/hit_001.png",
+   "art/sprites/vorgane/carapace_broken/claw_030.png",
+   "art/sprites/vorgane/carapace_broken/claw_001.png"
+  ],
+  [
+   "art/sprites/vorgane/carapace_broken/idle_031.png",
+   "art/sprites/vorgane/carapace_broken/idle_019.png"
+  ],
+  [
+   "art/sprites/vorgane/carapace_broken/idle_037.png",
+   "art/sprites/vorgane/carapace_broken/idle_013.png"
+  ],
+  [
+   "art/sprites/vorgane/carapace_broken/walk_021.png",
+   "art/sprites/vorgane/carapace_broken/walk_005.png",
+   "art/sprites/vorgane/carapace_broken/walk_013.png",
+   "art/sprites/vorgane/carapace_broken/walk_029.png"
+  ],
+  [
+   "art/sprites/vorgane/carapace_broken/walk_009.png",
+   "art/sprites/vorgane/carapace_broken/walk_025.png"
+  ],
+  [
+   "art/explore_hd2d/chars/vorgane/idle_5.png",
+   "art/explore_hd2d/chars/vorgane/idle_3.png"
+  ],
+  [
+   "art/explore_hd2d/chars/vorgane/idle_6.png",
+   "art/explore_hd2d/chars/vorgane/idle_2.png"
+  ],
+  [
+   "art/explore_hd2d/chars/vorgane_x/idle_7.png",
+   "art/explore_hd2d/chars/vorgane_x/idle_1.png"
+  ],
+  [
+   "art/explore_hd2d/chars/vorgane_x/idle_5.png",
+   "art/explore_hd2d/chars/vorgane_x/idle_3.png"
+  ],
+  [
+   "art/explore_hd2d/chars/vorgane_x/idle_6.png",
+   "art/explore_hd2d/chars/vorgane_x/idle_2.png"
+  ]
+ ],
+ "modes_import": {
+  "0": 1544
+ }
+}

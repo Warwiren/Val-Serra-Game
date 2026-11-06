@@ -113,6 +113,7 @@ func _ready() -> void:
 			for p in e["footprint"]:
 				poly.append(Vector2(p[0], p[1]))
 			solids.append(poly)
+	_illustrated_decor()
 	_lights()
 	# Groupe
 	var sp: Array = zone["spawn"]["heros"]
@@ -191,6 +192,54 @@ func _ready() -> void:
 		add_child(load("res://scenes/explore_hd2d/locomotion_course.gd").new(self, GameState.course))
 	if GameState.autoplay:
 		_autoplay()
+
+
+## DÉCOR ILLUSTRÉ (pilote, planches fournies) : art/explore_hd2d/hd/decor.json. Les textures sont en pixels
+## d'écran et affichées à l'échelle 0,5 (la caméra double) : 1 pixel de texture = 1 pixel d'écran, sans
+## pixellisation. Un élément remplacé garde son emprise au sol, sa ligne de tri et sa transparence locale.
+## Option --decor=ancien : décor d'origine (comparaison).
+func _illustrated_decor() -> void:
+	if GameState.decor == "ancien" or not FileAccess.file_exists(DIR + "hd/decor.json"):
+		return
+	var spec: Dictionary = JSON.parse_string(FileAccess.open(DIR + "hd/decor.json", FileAccess.READ).get_as_text())
+	for o in occluders:
+		var r = spec["remplace"].get(o["name"])
+		if r == null:
+			continue
+		var e: Dictionary = zone["sprites"][o["name"]]
+		var foot := Vector2.ZERO
+		if r.get("sol", "") == "avant_gauche":            # extrémité avant gauche du tracé (clôtures)
+			for q in e["footprint"]:
+				if q[1] > foot.y:
+					foot = Vector2(q[0], q[1])
+		else:                                             # centre de l'emprise, au bord avant
+			var c := Vector2.ZERO
+			for q in e["footprint"]:
+				c += Vector2(q[0], q[1])
+			foot = Vector2(c.x / e["footprint"].size(), float(e["sort_y"]))
+		var old: Sprite2D = o["sprite"]
+		var s := _hd_sprite(r["sprite"], foot, Vector2(r["pivot"][0], r["pivot"][1]))
+		s.z_index = old.z_index
+		s.material = old.material
+		old.queue_free()
+		o["sprite"] = s
+		o["rect"] = Rect2(s.position, s.texture.get_size() * s.scale)
+	var index: Dictionary = JSON.parse_string(FileAccess.open(DIR + "hd/index.json", FileAccess.READ).get_as_text())
+	for d in spec["sol"]:
+		var a: Array = index[d[0]]["appui"]
+		var s := _hd_sprite(d[0], Vector2(d[1], d[2]), Vector2(a[0], a[1]))
+		s.z_index = int(d[2])                             # trié comme les personnages (on passe devant ou derrière)
+
+
+func _hd_sprite(name: String, foot: Vector2, pivot: Vector2) -> Sprite2D:
+	var s := Sprite2D.new()
+	s.texture = load(DIR + "hd/%s.png" % name)
+	s.centered = false
+	s.scale = Vector2(0.5, 0.5)
+	s.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	s.position = foot - pivot * 0.5
+	add_child(s)
+	return s
 
 
 func _lights() -> void:
@@ -425,7 +474,7 @@ func _update_occlusion(_delta: float) -> void:
 			var r := Rect2(w.position + Vector2(-8, -30), Vector2(16, 30))
 			if not drawn_in_front(w, o) and o["rect"].intersects(r) and (_opaque_at(s, w.position + Vector2(0, -12)) or _opaque_at(s, w.position + Vector2(0, -24)) or _opaque_at(s, w.position + Vector2(0, -3))):
 				if holes.size() < 3:
-					holes.append(w.position + Vector2(0, -14) - s.position)
+					holes.append((w.position + Vector2(0, -14) - s.position) / s.scale)
 				else:
 					w.hidden_behind = true
 		var m: ShaderMaterial = o["mat"]
@@ -433,7 +482,7 @@ func _update_occlusion(_delta: float) -> void:
 			holes.append(Vector2(-999, -999))
 		m.set_shader_parameter("holes", holes)
 		m.set_shader_parameter("hole_count", 3)
-		m.set_shader_parameter("radius", Vector2(OCC_RX, OCC_RY))
+		m.set_shader_parameter("radius", Vector2(OCC_RX, OCC_RY) / s.scale)
 		m.set_shader_parameter("min_alpha", OCC_ALPHA)
 
 
@@ -442,7 +491,7 @@ func _opaque_at(s: Sprite2D, p: Vector2) -> bool:
 	if img == null:
 		img = s.texture.get_image()
 		s.set_meta("img", img)
-	var q := Vector2i((p - s.position).round())
+	var q := Vector2i(((p - s.position) / s.scale).round())
 	return q.x >= 0 and q.y >= 0 and q.x < img.get_width() and q.y < img.get_height() and img.get_pixelv(q).a > 0.5
 
 

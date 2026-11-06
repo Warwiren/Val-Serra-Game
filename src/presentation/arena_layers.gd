@@ -24,6 +24,12 @@ var _t := 0.0
 ## `front_parent` reçoit le premier plan (dessiné au-dessus des combattants).
 func build(front_parent: Node) -> void:
 	data = JSON.parse_string(FileAccess.open(dir + "arena.json", FileAccess.READ).get_as_text())
+	_front = Node2D.new()
+	_front.z_index = 60
+	front_parent.add_child(_front)
+	if use_painted and FileAccess.file_exists(dir + "peint/hd.json"):
+		_build_hd()
+		return
 	var origin := _origin()
 	var z := -100
 	for n in ["base", "loin", "lisiere"]:
@@ -34,9 +40,6 @@ func build(front_parent: Node) -> void:
 		if n == "loin":
 			_add_mist(-97, 0.16, 138.0)                          # brume entre la forêt lointaine et la lisière
 	_add_mist(-93, 0.08, 168.0)                                  # voile bas devant la lisière, derrière les combattants
-	_front = Node2D.new()
-	_front.z_index = 60
-	front_parent.add_child(_front)
 	_front.add_child(_sprite("avant", origin))
 	var cm := CanvasModulate.new()
 	cm.color = Color(0.86, 0.86, 0.95)
@@ -50,6 +53,39 @@ func build(front_parent: Node) -> void:
 		l.color = Color(1.0, 0.66, 0.34)
 		l.energy = 0.7
 		l.texture_scale = 3.2
+		add_child(l)
+		_lamps.append(l)
+	_add_motes()
+
+
+## Illustration fournie, affichée 1:1 (pas de pixellisation). Elle contient déjà brume, lumière peinte et
+## profondeur : pas de bandes de brume ajoutées ; lanternes Godot discrètes aux lanternes peintes (elles éclairent
+## les combattants et le Vorgane) ; lucioles. Un seul plan tant que la version en calques n'est pas fournie.
+func _build_hd() -> void:
+	var hd: Dictionary = JSON.parse_string(FileAccess.open(dir + "peint/hd.json", FileAccess.READ).get_as_text())
+	var s := Sprite2D.new()
+	s.texture = load(dir + "peint/" + hd["image"])
+	s.centered = false
+	var origin := ((Vector2(1280, 720) - s.texture.get_size()) / 2.0).round()
+	s.position = origin
+	s.z_index = -100
+	s.set_meta("origin", origin)
+	s.set_meta("parallax", 0.0)
+	add_child(s)
+	_layers["base"] = s
+	painted.append("hd")
+	var cm := CanvasModulate.new()
+	cm.color = Color(0.93, 0.92, 0.98)
+	add_child(cm)
+	for p in hd["lumieres"]:
+		var sp := origin + Vector2(p[0], p[1])
+		lights.append(sp)
+		var l := PointLight2D.new()
+		l.texture = _radial(128)
+		l.position = sp
+		l.color = Color(1.0, 0.68, 0.38)
+		l.energy = 0.45
+		l.texture_scale = 2.6
 		add_child(l)
 		_lamps.append(l)
 	_add_motes()
@@ -156,7 +192,7 @@ func update_parallax(cam_offset: Vector2, delta: float) -> void:
 		var s: Sprite2D = _layers[n]
 		s.position = (s.get_meta("origin") + cam_offset * float(s.get_meta("parallax"))).round()
 	for i in _lamps.size():
-		_lamps[i].energy = 0.7 + 0.08 * sin(_t * 2.3 + i * 1.7) + 0.04 * sin(_t * 7.1 + i)
+		_lamps[i].energy = (0.45 if painted.has("hd") else 0.7) + 0.08 * sin(_t * 2.3 + i * 1.7) + 0.04 * sin(_t * 7.1 + i)
 	for i in _mists.size():
 		_mists[i].position.x = 640 + sin(_t * 0.07 + i) * 30.0
 

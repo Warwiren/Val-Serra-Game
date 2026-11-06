@@ -197,3 +197,16 @@ func test_guard_footprint_prevents_overlap_but_allows_talk() -> void:
 	for side in [Vector2(-13.5, 0), Vector2(13.5, 0), Vector2(0, 7.5), Vector2(-9, 6), Vector2(9, 6)]:
 		check(z.free_at(n + side) and Zone.can_talk(n + side, n), "position collée au garde %s : libre et dialogue possible" % str(side))
 	_free_stub(z)
+
+
+func test_illustrated_decor_is_consistent() -> void:
+	var dir := "res://art/explore_hd2d/"
+	var spec: Dictionary = JSON.parse_string(FileAccess.open(dir + "hd/decor.json", FileAccess.READ).get_as_text())
+	var zone: Dictionary = JSON.parse_string(FileAccess.open(dir + "zone.json", FileAccess.READ).get_as_text())
+	for k in spec["remplace"]:
+		check(zone["sprites"].has(k), "élément remplacé « %s » présent dans la zone (emprise et tri conservés)" % k)
+		var path: String = dir + "hd/%s.png" % spec["remplace"][k]["sprite"]
+		check(ResourceLoader.exists(path), "texture %s" % path)
+	for d in spec["sol"]:
+		var tex: Texture2D = load(dir + "hd/%s.png" % d[0])
+		check(tex != null and tex.get_height() <= 128, "détail au sol %s à la taille d'affichage (pas de texture surdimensionnée)" % d[0])

@@ -4,6 +4,49 @@ Objectif : faire progresser la **qualité artistique** sans multiplier les versi
 d'intégration sont prêts ; ce qui manque maintenant, ce sont des **illustrations originales**. Les scripts ne
 produiront plus de nouveaux assets « automatiques » tant qu'ils ne dépassent pas nettement l'existant.
 
+## 0. Planches du 6 novembre 2026 — analyse et intégration (branche `decors-illustres`)
+Sources conservées intactes dans `art/source/planches_2026-11-06/` (WebP, sans transparence, fond sombre uni ;
+ignorées par l'import et l'export). Rien n'a été pixellisé : chaque élément est réduit **une fois**, en qualité,
+à sa taille réelle à l'écran, et affiché 1:1.
+
+| Planche | Exploitable tel quel | À séparer / adapter | À redessiner |
+|---|---|---|---|
+| **4 — Arène « Lisière »** (1590×896) | **Oui** : composition, lumière et finition conformes ; centre dégagé, ligne de sol à la hauteur des combattants. Intégrée en 1296×732 (`tools/arena/import_hd_arena.py`). | Une seule image : pas de vrais plans (parallaxe, avant-plan devant les combattants, lumière par plan). | — |
+| **2 — Bâtiments et accessoires** (1194×888) | **Oui pour les accessoires** : lanterne, barriques, caisses, banc, sacs, sections de clôture (découpés, `tools/explore/extract_planche.py`). | Clôtures : vues de face, **cisaillées** pour suivre le tracé en biais du jeu. Caisses et barriques : **empilées** pour recouvrir la place de l'ancien objet dans la façade. | **Maison** : perspective isométrique (~30° de chaque côté, pignon à gauche) incompatible avec la caméra du jeu (35°/20°, façade presque de face) et avec son emprise au sol. Portail, panneau, tableau d'affichage : non placés (pas d'emplacement). |
+| **3 — Sols et nature** (1194×884) | **Oui pour les détails** : rochers, herbes, roseaux, fleurs, champignons, cristaux d'Aether, feuilles (posés comme petits éléments triés en profondeur). | — | **Tuiles de sol** et chemin : losanges isométriques (2:1), impossibles à raccorder au sol du jeu. La petite scène en îlot est une illustration, pas un asset. |
+| **1 — Arbres et accessoires** (844×844) | **Non** : style cartoon diurne (vert vif, contour épais), différent des trois autres et du crépuscule. | — | Arbres et buissons à refaire dans la DA des planches 2 à 4. |
+
+**Intégré**
+- **Combat** : l'illustration remplace le décor du pilote (`--arena=lisiere`, défaut depuis la zone ; F2 compare
+  avec l'ancien décor ; `--arena=lisiere-rendu` pour le pilote Blender). Lanternes Godot posées sur les lanternes
+  peintes (elles éclairent aussi le Vorgane), lucioles, pas de brume ajoutée (déjà peinte). HUD et combat
+  inchangés ; texte de Résonance lisible.
+- **Exploration** (défaut ; `--decor=ancien` pour comparer) : 3 lanternes, barriques, caisses, banc et les deux
+  clôtures remplacés — mêmes emprises, collisions, tri et transparence locale ; 27 détails au sol (rochers,
+  fleurs, herbes, champignons, cristaux près du Vorgane).
+- Captures (même cadrage, 1280×720) et vidéo : `docs/media/decors_illustres/`.
+
+**Limites honnêtes**
+- **Densité de pixels mélangée** : décor fin (illustration) et personnages en gros pixels (×3 en combat, ×2 en
+  exploration). C'est l'esprit HD-2D, mais l'écart est visible ; il se réduira avec les nouveaux sprites.
+- **Exploration** : le gain est réel sur les accessoires, mais le **sol, les arbres, les buissons et la maison**
+  restent ceux du rendu Blender, qui contrastent désormais avec les accessoires illustrés.
+- Les planches sont en WebP compressé : légers artefacts sur les bords des éléments découpés, visibles seulement
+  en très gros plan.
+- Arène : un seul plan. Pas de parallaxe, pas d'avant-plan qui passe devant les combattants.
+
+**Fichiers réellement nécessaires pour la suite** (même DA que les planches 2 à 4, fond transparent si possible,
+PNG sans perte plutôt que WebP)
+1. **Arène en calques** (PSD/Krita, 1590×896 ou plus) : ciel + forêt lointaine, lisière (arbre, clôture, maison),
+   sol, premier plan (fleurs, rochers, feuillage) — pour la parallaxe et l'avant-plan.
+2. **Maison d'exploration redessinée sous la caméra du jeu** : façade presque de face, côté droit étroit, mêmes
+   proportions que l'actuelle (porte, deux fenêtres, colombages), à poser sur `docs/media/exploration/hd2d_v3_*`
+   comme gabarit ; ≈ 360×360 px à l'écran.
+3. **Arbre d'exploration** : tronc et feuillage séparés, ≈ 260×280 px à l'écran, même angle ; puis 2 buissons
+   (≈ 80×60, 60×45).
+4. **Sol** : une plaque peinte de la zone entière à 1408×800 (×2 du natif), ou 3 textures de sol **sans
+   perspective isométrique** (vue de dessus étirée à 35°) qui se raccordent.
+
 ## 1. Pourquoi le pilote « Lisière » reste en deçà
 - **Limite de méthode** : volumes Blender simples + passe pixel par script. Les feuillages restent des boules,
   les conifères des cônes, les matières (bois, pierre, sol) des bruits procéduraux. Le script ne sait pas dessiner

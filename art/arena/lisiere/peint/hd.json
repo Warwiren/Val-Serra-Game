@@ -1,0 +1,32 @@
+{
+ "image": "hd_base.png",
+ "taille": [
+  1296,
+  732
+ ],
+ "source": "art/source/planches_2026-11-06/4_arene_lisiere.webp",
+ "echelle": 0.81696,
+ "lumieres": [
+  [
+   812.7,
+   263.1
+  ],
+  [
+   1033.3,
+   254.9
+  ],
+  [
+   1168.9,
+   259.8
+  ],
+  [
+   544.7,
+   238.6
+  ],
+  [
+   88.9,
+   230.4
+  ]
+ ],
+ "plans": "illustration unique : les plans loin/lisière/avant attendent la version en calques"
+}
