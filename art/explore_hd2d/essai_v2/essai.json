@@ -1,0 +1,85 @@
+{
+ "remplace": {
+  "arbre_g": {
+   "calques": [
+    "arbre_tronc",
+    "arbre_feuillage"
+   ],
+   "pivot": [
+    150,
+    263
+   ]
+  },
+  "arbre_d": {
+   "calques": [
+    "arbre_d_tronc",
+    "arbre_d_feuillage"
+   ],
+   "pivot": [
+    146,
+    255
+   ]
+  },
+  "buisson_0": {
+   "calques": [
+    "buisson_0"
+   ],
+   "pivot": [
+    45,
+    43
+   ]
+  },
+  "buisson_1": {
+   "calques": [
+    "buisson_1"
+   ],
+   "pivot": [
+    53,
+    55
+   ]
+  },
+  "buisson_2": {
+   "calques": [
+    "buisson_2"
+   ],
+   "pivot": [
+    42,
+    44
+   ]
+  },
+  "buisson_3": {
+   "calques": [
+    "buisson_3"
+   ],
+   "pivot": [
+    55,
+    59
+   ]
+  },
+  "buisson_4": {
+   "calques": [
+    "buisson_4"
+   ],
+   "pivot": [
+    40,
+    52
+   ]
+  },
+  "maison": {
+   "calques": [
+    "maison"
+   ],
+   "pivot": [
+    211.37,
+    357.8
+   ]
+  }
+ },
+ "masquer": [
+  "muret"
+ ],
+ "sol_gardes": [
+  "cristal_aether",
+  "cristal_petit"
+ ]
+}

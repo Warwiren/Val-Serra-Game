@@ -52,6 +52,9 @@ var _fps: Label
 
 func _ready() -> void:
 	autoplay = OS.get_cmdline_user_args().has("--autoplay")
+	# Essai de décor lancé par F5 : réglage du projet « val_serra/essai_decor » (Projet > Paramètres du projet,
+	# vide = jeu normal). L'option --essai=… de la ligne de commande a priorité (--essai=aucun pour l'ignorer).
+	essai = str(ProjectSettings.get_setting("val_serra/essai_decor", ""))
 	for arg in OS.get_cmdline_user_args():
 		if arg == "--render=A":
 			render_mode = RENDER_2D
@@ -71,7 +74,7 @@ func _ready() -> void:
 		elif arg.begins_with("--arena="):
 			arena = arg.substr(8)
 		elif arg.begins_with("--essai="):
-			essai = arg.substr(8)
+			essai = "" if arg.substr(8) == "aucun" else arg.substr(8)
 		elif arg.begins_with("--sol="):
 			sol = arg.substr(6)
 		elif arg.begins_with("--decor="):

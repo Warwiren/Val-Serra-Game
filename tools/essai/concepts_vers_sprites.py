@@ -7,13 +7,15 @@ grand arbre (tronc et feuillage séparés) et buissons. Pour chaque élément :
   4. arbre : séparation tronc / feuillage par la couleur (feuillage = tout ce qui n'est pas brun (écorce) au-dessus de la butte du pied).
 Sorties : art/explore_hd2d/essai_v1/*.png + essai.json (pivots). Les sources ne sont jamais modifiées.
     python3 tools/essai/concepts_vers_sprites.py"""
-import json, os
+import json, os, sys
 import numpy as np
 from PIL import Image
 
 SRC = "art/source/concepts_2026-11-06/concept_c_arbre_maison_buissons.webp"
-SOL = "art/source/sol/sol_plaque_essai_v1.png"
-OUT = "art/explore_hd2d/essai_v1/"
+SOL = "art/source/sol/sol_plaque_essai_%s.png" % (sys.argv[1] if len(sys.argv) > 1 else "v2")
+import sys
+VERSION = sys.argv[1] if len(sys.argv) > 1 else "v2"
+OUT = "art/explore_hd2d/essai_%s/" % VERSION
 D = "art/explore_hd2d/"
 os.makedirs(OUT, exist_ok=True)
 zone = json.load(open(D + "zone.json"))
@@ -51,7 +53,10 @@ def shrink(a, w, h):
     return np.dstack([np.clip(rgb, 0, 255), al]).astype(np.uint8)
 
 
-spec = {"remplace": {}, "masquer": ["muret"]}                   # le sol d'essai peint son propre bord bas
+spec = {"remplace": {}, "masquer": ["muret"],                  # le sol d'essai peint son propre bord bas
+        # détails au sol : le sol peint a déjà ses pierres, herbes et fleurs ; on ne garde que les traces d'Aether
+        # (sinon doublons « collés » par-dessus la peinture, avec leur propre ombre)
+        "sol_gardes": ["cristal_aether", "cristal_petit"]}
 # --- grand arbre (arbre_g) : même pied, même hauteur d'affichage que le gabarit ---------------------------------
 tree = cut((44, 36, 712, 668))
 g = json.load(open("docs/media/gabarits_exploration/gabarits.json"))["elements"]["arbre"]
@@ -77,6 +82,14 @@ Image.fromarray(leaves.astype(np.uint8)).save(OUT + "arbre_feuillage.png")
 brown = (~green) & (al > 128) & (rows > h * 0.62) & (rows < h * 0.80)  # pied : milieu du tronc au-dessus de la butte
 foot_x = int(np.median(np.nonzero(brown)[1]))
 spec["remplace"]["arbre_g"] = {"calques": ["arbre_tronc", "arbre_feuillage"], "pivot": [foot_x, int(h * 0.93)]}
+# arbre de droite (arbre_d) : même essence, en miroir (pas de jumeau visible), à l'échelle de son propre gabarit
+# (largeur de son gabarit Blender : 0,97 × celle du grand arbre ; docs/media/gabarits_exploration/arbre_d/)
+K_D = 0.97
+for nm, arr in (("arbre_d_tronc", trunk), ("arbre_d_feuillage", leaves)):
+    im = Image.fromarray(arr.astype(np.uint8)).transpose(Image.FLIP_LEFT_RIGHT)
+    im = Image.fromarray(shrink(np.asarray(im).astype(np.float32), round(w * K_D), round(h * K_D)))
+    im.save(OUT + nm + ".png")
+spec["remplace"]["arbre_d"] = {"calques": ["arbre_d_tronc", "arbre_d_feuillage"], "pivot": [round((w - foot_x) * K_D), round(h * 0.93 * K_D)]}
 print("arbre : %d×%d (source %d×%d, ×%.2f), pied x=%d" % (w, h, tree.shape[1], tree.shape[0], k, foot_x))
 
 # --- buissons : chacun remplace un buisson actuel, à sa largeur d'affichage (×1,15) ---------------------------

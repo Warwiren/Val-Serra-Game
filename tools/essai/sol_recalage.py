@@ -9,13 +9,27 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
 SRC = "art/source/sol/esquisse_sol_v0_1663x945.webp"
-OUT = "art/source/sol/sol_plaque_essai_v1.png"
+import sys
+OUT = sys.argv[1] if len(sys.argv) > 1 else "art/source/sol/sol_plaque_essai_v2.png"
 W, H = 1408, 800
 g = json.load(open("docs/media/gabarits_exploration/gabarits.json"))
 Mx = np.array(g["projection_sol_vers_natif"]["x"]); My = np.array(g["projection_sol_vers_natif"]["y"])
 A = np.array([[Mx[0], Mx[1]], [My[0], My[1]]]) * 2.0; b = np.array([Mx[2], My[2]]) * 2.0
 Ai = np.linalg.inv(A)
-PATH = np.array([(-12, -8.6), (-7, -5.5), (-2, -2.5), (2.5, 0.2), (4.6, 1.8), (9, 0.8), (16, 1.4)], float)
+PATH0 = np.array([(-12, -8.6), (-7, -5.5), (-2, -2.5), (2.5, 0.2), (4.6, 1.8), (9, 0.8), (16, 1.4)], float)
+
+
+def chaikin(p, n=4):
+    """Tracé lissé (coins arrondis) : repère continu le long du chemin, plus de couture aux coudes."""
+    for _ in range(n):
+        q = [p[0]]
+        for a, b in zip(p[:-1], p[1:]):
+            q += [a * 0.75 + b * 0.25, a * 0.25 + b * 0.75]
+        q.append(p[-1]); p = np.array(q)
+    return p
+
+
+PATH = chaikin(PATH0)
 img = np.asarray(Image.open(SRC).convert("RGB").resize((W, H), Image.LANCZOS)).astype(np.float32)
 
 
@@ -110,6 +124,30 @@ mask = Image.new("L", (W, H), 0); ImageDraw.Draw(mask).ellipse(box, fill=255)
 mask = np.asarray(mask.filter(ImageFilter.GaussianBlur(10))).astype(np.float32)[..., None] / 255.0
 patch = np.roll(out, -dy_src, axis=0)
 out = out * (1 - mask) + patch * mask
+# 5. Bord inférieur : l'arête du talus est une ligne droite trop nette. On la repère colonne par colonne
+#    (passage à la bande très sombre, lissé), puis on la rend légèrement irrégulière : petites avancées d'herbe
+#    de 1 à 4 px, prises juste au-dessus de l'arête (pas de « coulures »).
+lum = out.mean(-1)
+edge = np.full(W, -1.0)
+for x in range(W):
+    col = lum[540:, x]
+    idx = np.nonzero((col < 24) & (np.r_[col[4:], [0] * 4] < 30))[0]
+    if len(idx):
+        edge[x] = 540 + idx[0]
+good = edge > 0
+xi = np.arange(W)
+edge = np.interp(xi, xi[good], edge[good])
+edge = np.array([np.median(edge[max(0, x - 15):x + 16]) for x in range(W)])      # lissage robuste
+rng = np.random.default_rng(3)
+bump = np.convolve(rng.uniform(0, 1, W + 20), np.ones(5) / 5, mode="same")[10:W + 10]
+bump = np.clip((bump - 0.45) * 9, 0, 4)                                          # 0 à 4 px, par endroits
+for x in range(W):
+    y0 = int(round(edge[x]))
+    for dy in range(int(bump[x])):
+        y = y0 + dy
+        if 2 <= y < H and y0 - 3 >= 0:
+            out[y, x] = out[y0 - 2 - (dy % 2), x]
+print("arête du bord bas repérée sur %d colonnes" % good.sum())
 Image.fromarray(np.clip(out, 0, 255).astype(np.uint8)).save(OUT)
 # contrôle : chemin mesuré après recalage
 ys, xs = np.nonzero(path_mask(out)); P2 = to_ground(np.c_[xs, ys].astype(float))

@@ -274,7 +274,13 @@ func _illustrated_decor() -> void:
 		o["sprite"] = s
 		o["rect"] = Rect2(s.position, s.texture.get_size() * s.scale)
 	var index: Dictionary = JSON.parse_string(FileAccess.open(DIR + "hd/index.json", FileAccess.READ).get_as_text())
+	var kept = null                                      # essai : seuls les détails gardés par essai.json (pas de doublon
+	var ep := DIR + "essai_%s/essai.json" % GameState.essai   # avec les pierres et fleurs déjà peintes dans le sol)
+	if GameState.essai != "" and FileAccess.file_exists(ep):
+		kept = JSON.parse_string(FileAccess.open(ep, FileAccess.READ).get_as_text()).get("sol_gardes")
 	for d in spec["sol"]:
+		if kept != null and not kept.has(d[0]):
+			continue
 		var a: Array = index[d[0]]["appui"]
 		# 4e champ éventuel : variante masquée par le décor du fond (tools/explore/masque_decor.py)
 		var s := _hd_sprite(d[3] if d.size() > 3 and GameState.essai == "" else d[0], Vector2(d[1], d[2]), Vector2(a[0], a[1]))
