@@ -34,13 +34,19 @@ static func glow_texture(size := 128, hard := false) -> Texture2D:
 
 
 ## Texte qui monte et s'efface (dégâts, soins, « GARDE », etc.).
-static func float_text(parent: Node, pos: Vector2, text: String, color: Color, size := 30, rise := 70.0, duration := 0.9) -> void:
+## `strong` : contour épais et ombre portée, pour rester lisible devant un décor clair (lanternes, fenêtres).
+static func float_text(parent: Node, pos: Vector2, text: String, color: Color, size := 30, rise := 70.0, duration := 0.9, strong := false) -> void:
 	var l := Label.new()
 	l.text = text
 	l.add_theme_font_size_override("font_size", size)
 	l.add_theme_color_override("font_color", color)
-	l.add_theme_color_override("font_outline_color", Color(0.05, 0.05, 0.08))
-	l.add_theme_constant_override("outline_size", maxi(4, size / 5))
+	l.add_theme_color_override("font_outline_color", Color(0.03, 0.03, 0.06))
+	l.add_theme_constant_override("outline_size", maxi(8, size / 3) if strong else maxi(4, size / 5))
+	if strong:
+		l.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.75))
+		l.add_theme_constant_override("shadow_offset_x", 2)
+		l.add_theme_constant_override("shadow_offset_y", 3)
+		l.add_theme_constant_override("shadow_outline_size", maxi(8, size / 3) + 2)
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.size = Vector2(240, size * 1.4)
 	l.position = pos - Vector2(120, size * 0.7)

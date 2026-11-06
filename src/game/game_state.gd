@@ -101,6 +101,9 @@ func _process(_delta: float) -> void:
 
 ## Lancement direct d'une scène (démo, captures) : godot --path . -- --start=battle
 func _start_scene(path: String) -> void:
+	var cur := get_tree().current_scene
+	if cur != null and cur.scene_file_path == path:
+		return                                   # déjà la scène principale (F5) : ne pas la charger deux fois
 	get_tree().change_scene_to_file(path)
 
 
@@ -115,7 +118,7 @@ func _unhandled_input(event: InputEvent) -> void:
 ## Décor de combat pilote « Lisière » : demandé explicitement, ou combat venu de la zone HD-2D.
 func use_pilot_arena() -> bool:
 	if arena != "":
-		return arena == "lisiere"
+		return arena.begins_with("lisiere")      # "lisiere" (plans repeints s'il y en a) ou "lisiere-rendu"
 	return from_zone and explore_return == SCENE_EXPLORE_HD2D
 
 

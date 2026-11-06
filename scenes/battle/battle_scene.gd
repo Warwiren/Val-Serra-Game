@@ -204,6 +204,7 @@ func _build_world_proto() -> void:
 		_old_arena.append(l)
 	# Décor pilote toujours construit en combat recentré : F2 compare l'ancien et le nouveau à tout moment
 	arena = ArenaLayers.new()
+	arena.use_painted = GameState.arena != "lisiere-rendu"
 	add_child(arena)
 	arena.build(self)
 	_show_arena(GameState.use_pilot_arena())
@@ -560,7 +561,7 @@ func _play(e: Dictionary) -> void:
 			disp_res[actor_id] = int(d.get("value", 0))
 			if GameState.proto and hunters.has(actor_id):
 				# Gain visible à chaque fois (petit, sur le Chasseur) + repère sur sa carte du HUD
-				Fx.float_text(fx, hunters[actor_id].center() + Vector2(0, -95), "+%d Résonance" % int(d["amount"]), UI.C_RESOURCE, 18, 30.0, 0.8)
+				Fx.float_text(fx, hunters[actor_id].center() + Vector2(0, -95), "+%d Résonance" % int(d["amount"]), UI.C_RESOURCE.lightened(0.25), 20, 30.0, 1.1, true)
 				if hud.has_method("notify_resonance"):
 					hud.notify_resonance(actor_id, int(d["amount"]))
 			elif hunters.has(actor_id) and d.get("amount", 0) >= 10:

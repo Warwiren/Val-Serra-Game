@@ -29,9 +29,12 @@ void fragment() {
 static var OCC_SHADER: Shader = null
 
 
-## Règle unique de dialogue (utilisée par le joueur, la démo et les tests) : il faut être PRÈS du PNJ.
-static func can_talk(hero_pos: Vector2, npc_pos: Vector2, talk_range := 14.0) -> bool:
-	return hero_pos.distance_to(npc_pos) < talk_range
+## Règle de distance du dialogue : ellipse au sol autour des pieds du PNJ, plus large que haute (perspective :
+## une même distance au sol paraît plus courte à la verticale). 22 × 16 px natifs ≈ 1,1 m sur les côtés : il
+## suffit d'arriver à côté du PNJ, de face ou en diagonale, sans viser un point précis.
+static func can_talk(hero_pos: Vector2, npc_pos: Vector2, rx := 22.0, ry := 16.0) -> bool:
+	var d := hero_pos - npc_pos
+	return (d.x / rx) ** 2 + (d.y / ry) ** 2 <= 1.0
 
 
 ## Contact monstre : pieds du héros dans l'ellipse au sol du monstre élargie d'une petite marge.
@@ -44,7 +47,8 @@ const Y_FACTOR := 0.8                     # vitesse verticale réduite (perspect
 const FOOT_R := 3.0                       # rayon de collision des pieds (px natifs)
 const FOLLOW_GAP := 20.0                  # écart de file, mesuré LE LONG de la trace du héros (px natifs)
 const TRAIL_STEP := 1.0                   # un point de trace par px parcouru
-const TALK_RANGE := 14.0                  # il faut être tout près du garde pour parler
+const TALK_RX := 22.0                     # zone de dialogue : ellipse au sol (voir can_talk)
+const TALK_RY := 16.0
 const NOTICE_RANGE := 34.0                # au-delà : simple bulle « … » au-dessus du PNJ
 const ENGAGE_MARGIN := 6.0               # le combat se déclenche quand on touche presque le monstre (ellipse au sol + 6 px)
 const OCC_RX := 11.0                     # trou de transparence locale autour du personnage caché (px natifs)
@@ -70,6 +74,7 @@ var _dialog
 var _prompt: Label
 var _locked := false
 var _engaging := false
+var _npc_solid := PackedVector2Array()
 var _engage_armed := false                # le contact ne relance un combat qu'après être sorti de la zone de contact
 var _auto_path := PackedVector2Array()   # démo : itinéraire simplifié (points de passage sans arrêt)
 
@@ -127,7 +132,8 @@ func _ready() -> void:
 	add_child(npc)
 	npc.position = Vector2(np_[0], np_[1])
 	npc.face(-1.0)
-	solids.append(_circle(npc.position, 5.0))
+	_npc_solid = _circle(npc.position, 5.0)
+	solids.append(_npc_solid)
 	# Monstre déclencheur
 	var mp: Array = zone["spawn"]["monstre"]
 	monster_pos = Vector2(mp[0], mp[1])
@@ -436,12 +442,31 @@ func _opaque_at(s: Sprite2D, p: Vector2) -> bool:
 	return q.x >= 0 and q.y >= 0 and q.x < img.get_width() and q.y < img.get_height() and img.get_pixelv(q).a > 0.5
 
 
+## Dialogue réellement possible maintenant : dans l'ellipse ET rien entre le héros et le PNJ (bâtiment,
+## clôture, tonneaux…). Même règle pour l'invite « E  Parler », la touche E, la démo et les tests.
+func can_talk_now() -> bool:
+	return can_talk(hero.position, npc.position, TALK_RX, TALK_RY) and line_clear(hero.position, npc.position)
+
+
+## Aucun obstacle (hors le PNJ lui-même) sur le segment au sol entre deux points.
+func line_clear(a: Vector2, b: Vector2) -> bool:
+	var n := maxi(1, int(ceil(a.distance_to(b) / 2.0)))
+	for k in range(1, n):
+		var p := a.lerp(b, float(k) / n)
+		if not Geometry2D.is_point_in_polygon(p, walkable):
+			return false
+		for poly in solids:
+			if poly != _npc_solid and Geometry2D.is_point_in_polygon(p, poly):
+				return false
+	return true
+
+
 func _update_prompt() -> void:
 	var d := hero.position.distance_to(npc.position)
 	var near: bool = d < NOTICE_RANGE and not _dialog.is_open()
 	_prompt.visible = near
 	if near:
-		_prompt.text = "E  Parler" if can_talk(hero.position, npc.position, TALK_RANGE) else "…"
+		_prompt.text = "E  Parler" if can_talk_now() else "…"
 		var sp := get_viewport().get_canvas_transform() * (npc.position + Vector2(-14, -40))
 		_prompt.position = sp
 
@@ -459,7 +484,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## Ouvre le dialogue SEULEMENT si le héros est près du garde. Renvoie true si le dialogue s'est ouvert.
 func _open_dialog() -> bool:
-	if _dialog.is_open() or not can_talk(hero.position, npc.position, TALK_RANGE):
+	if _dialog.is_open() or not can_talk_now():
 		return false
 	var data: Dictionary = JSON.parse_string(FileAccess.open(DIALOGUE, FileAccess.READ).get_as_text())
 	var steps: Array = data["after_victory"] if GameState.enemy_defeated else data["start"]
@@ -546,7 +571,7 @@ func _check_talk() -> void:
 	ok = ok and far_ok
 	# s'approcher en maintenant les flèches (vraies touches), avec les collisions
 	var guard := 0
-	while not can_talk(hero.position, npc.position, TALK_RANGE) and guard < 900:
+	while not can_talk_now() and guard < 900:
 		var to := npc.position + Vector2(-9, 3) - hero.position
 		_hold(KEY_RIGHT, to.x > 1.5); _hold(KEY_LEFT, to.x < -1.5)
 		_hold(KEY_DOWN, to.y > 1.5); _hold(KEY_UP, to.y < -1.5)
@@ -753,12 +778,16 @@ class Walker extends Node2D:
 		_anim("idle_" + ("face" if dirs else "right"))
 		spr.play()
 
+	## Les pieds du sprite (milieu du bas de l'image) sont TOUJOURS calés sur la position. Correctif : l'ancien
+	## code sortait avant de poser ce calage quand l'animation demandée était déjà l'animation par défaut du
+	## SpriteFrames ; un personnage qui ne marche jamais (le garde) restait alors dessiné 25 px trop bas et 7 px
+	## trop à droite de sa position réelle (collision, dialogue).
 	func _anim(anim: String) -> void:
+		var tex: Texture2D = spr.sprite_frames.get_frame_texture(anim, 0)
+		spr.offset = Vector2(-int(tex.get_width() / 2), -tex.get_height())
 		if String(spr.animation) == anim:
 			return
-		var tex: Texture2D = spr.sprite_frames.get_frame_texture(anim, 0)
 		spr.animation = anim
-		spr.offset = Vector2(-int(tex.get_width() / 2), -tex.get_height())
 		spr.play()
 
 	func face(x: float) -> void:

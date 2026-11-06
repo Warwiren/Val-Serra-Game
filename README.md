@@ -12,7 +12,8 @@ Référence : documents 07 (Brief MVP) et 08 (Mission Claude) du dossier Drive d
 2. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (la première ouverture réimporte
    les images : quelques secondes).
 3. **F5** : la nouvelle **exploration HD-2D** (`scenes/explore_hd2d/zone_hd2d.tscn`).
-   Flèches ou ZQSD pour marcher, **E** pour parler au garde (il faut être tout près), toucher le Vorgane lance le
+   Flèches ou ZQSD pour marcher, **E** pour parler au garde quand l'invite « E  Parler » s'affiche (à côté de lui
+   ou devant lui, pas à travers un mur), toucher le Vorgane lance le
    combat ; après la victoire, retour dans la zone, le Vorgane a disparu. Après une défaite, le groupe revient
    au point de départ et le Vorgane attend toujours. En combat, **F2** compare l'ancien et le nouveau décor.
 
@@ -28,9 +29,12 @@ Référence : documents 07 (Brief MVP) et 08 (Mission Claude) du dossier Drive d
 
 **Vérifications en ligne de commande**
 ```
-godot --headless --path . --script res://tests/run_tests.gd          # 58 tests
+godot --headless --path . --script res://tests/run_tests.gd          # 61 tests
 godot --headless --path . --script res://tests/e2e_zone_retour.gd    # retour de combat (victoire, défaite)
 godot --path . -- --autoplay                                         # démo complète : zone, dialogue, combat, retour
+godot --path . -- --start=hd2d-zone --course=pnj                     # approches du garde au clavier (gauche, droite, bas…)
+godot --path . -- --start=hd2d-zone --course=manuel                  # parcours de locomotion au clavier
+godot --path . -- --start=proto-battle --arena=lisiere               # combat sur l'arène pilote (F2 : ancien décor)
 ```
 
 ## Exploration HD-2D expérimentale — branche `exploration-hd2d`
@@ -53,7 +57,8 @@ vérification du dialogue par touches simulées).
 - **Arène de combat pilote « Lisière de l'avant-poste »** (refonte des décors, à valider) :
   `godot --path . -- --start=proto-battle --arena=lisiere` ; **F2** bascule entre l'ancien et le nouveau décor
   pendant le combat. Compte rendu : **`docs/ARENE_COMBAT.md`** · captures : `docs/media/arena/`.
-- Tests automatiques : 58 sur 58.
+- Tests automatiques : 61 sur 61.
+- Production graphique (illustrations à fournir, kit de l'illustrateur) : **`docs/PRODUCTION_GRAPHIQUE.md`**.
 
 ![Exploration HD-2D](docs/media/exploration/hd2d_v3_derriere_arbre.jpg)
 
