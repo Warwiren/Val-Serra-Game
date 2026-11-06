@@ -34,3 +34,110 @@ func test_zone_layers_are_not_duplicated() -> void:
 				if fond.get_pixel(x + int(pos[0]), y + int(pos[1])).is_equal_approx(c):
 					same += 1
 	check(total > 0 and float(same) / total < 0.2, "fond sans la maison (%d / %d pixels identiques)" % [same, total])
+
+
+# --- Locomotion (P0) ------------------------------------------------------------------------------------------
+## Zone minimale hors arbre de scène : praticable + emprise de la maison (collisions réelles de zone.json).
+func _zone_stub():
+	var z = Zone.new()
+	var data: Dictionary = JSON.parse_string(FileAccess.open("res://art/explore_hd2d/zone.json", FileAccess.READ).get_as_text())
+	for p in data["walkable"]:
+		z.walkable.append(Vector2(p[0], p[1]))
+	for g in data["sprites"]:
+		var e: Dictionary = data["sprites"][g]
+		if e["solid"] and e["footprint"].size() >= 3:
+			z.solids.append(z._poly(e["footprint"]))
+	z.hero = Zone.Walker.new("aren", true)
+	return z
+
+
+func _free_stub(z) -> void:
+	z.hero.free()
+	z.free()
+
+
+func test_walk_frames_follow_real_distance() -> void:
+	for fps in [30.0, 60.0, 144.0]:
+		var w := Zone.Walker.new("aren", true)
+		var travelled := 0.0
+		while travelled < 12.0 - 0.001:                      # 12 px parcourus = 2 images de pas, quelle que soit la cadence
+			w.animate(Vector2(72.0 / fps, 0), 1.0 / fps)
+			travelled += 72.0 / fps
+		check_eq(w.spr.frame, 2, "%d i/s : image de pas après 12 px" % fps)
+		w.animate(Vector2.ZERO, 1.0 / fps)                    # blocage d'une image : pas de retour au repos
+		check(String(w.spr.animation).begins_with("walk"), "%d i/s : un arrêt d'une image ne repasse pas au repos" % fps)
+		for i in 20:
+			w.animate(Vector2.ZERO, 1.0 / fps)
+		check_eq(String(w.spr.animation), "idle_right", "%d i/s : repos après un vrai arrêt" % fps)
+		w.free()
+	var s := Zone.Walker.new("aren", true)
+	for i in 10:
+		s.animate(Vector2(0.4, 0), 1.0 / 60.0)                 # glissement lent contre un obstacle : 4 px
+	check_eq(s.spr.frame, 0, "glissement lent : les pas ne défilent pas à la vitesse théorique")
+	s.free()
+
+
+func test_facing_is_stable_on_diagonals_and_key_release() -> void:
+	var w := Zone.Walker.new("aren", true)
+	for i in 30:                                              # diagonale bas-droite au clavier (déplacement réel)
+		w.animate(Vector2(0.85, 0.68), 1.0 / 60.0)
+	check_eq(String(w.spr.animation), "walk_right", "diagonale : profil stable")
+	for i in 2:                                               # on lâche « droite » deux images avant « bas »
+		w.animate(Vector2(0, 0.96), 1.0 / 60.0)
+	check_eq(String(w.spr.animation), "walk_right", "relâchement décalé : pas d'orientation parasite")
+	for i in 10:
+		w.animate(Vector2.ZERO, 1.0 / 60.0)
+	check_eq(String(w.spr.animation), "idle_right", "à l'arrêt : garde l'orientation de la marche")
+	for i in 10:                                              # vrai virage vers le bas : adopté
+		w.animate(Vector2(0, 0.96), 1.0 / 60.0)
+	check_eq(String(w.spr.animation), "walk_face", "virage réel vers le bas : de face")
+	w.free()
+
+
+func test_followers_hold_constant_distance_along_trail() -> void:
+	var z = _zone_stub()
+	z.hero.position = Vector2(300, 250)
+	z.trail = [Vector2(250, 280), Vector2(270, 280), Vector2(280, 270), Vector2(300, 250)]
+	var p1: Vector2 = z.trail_point(20.0)
+	var p2: Vector2 = z.trail_point(40.0)
+	check(absf(p1.distance_to(Vector2(300, 250)) - 20.0) < 0.01, "1er suiveur à 20 px le long de la trace")
+	var along := p1.distance_to(Vector2(280, 270)) + Vector2(280, 270).distance_to(p2)
+	check(absf(along - 20.0) < 0.05, "2e suiveur à 20 px de plus, en suivant le virage (%.2f)" % along)
+	_free_stub(z)
+
+
+func test_corner_and_axis_moves_do_not_snag() -> void:
+	var z = _zone_stub()
+	z.hero.position = Vector2(318.6, 130.4)                   # contre l'angle arrière gauche de la maison
+	check(z.free_at(z.hero.position), "position de départ libre")
+	var np: Vector2 = z.move(z.hero, Vector2(0, -1.92))        # flèche « haut » seule (30 i/s)
+	check(np != z.hero.position and z.free_at(np), "l'angle ne bloque pas une marche verticale")
+	var ok := true
+	z.hero.position = Vector2(330, 205)
+	for i in 120:                                             # pousser « haut » contre la façade : jamais dans le mur
+		z.hero.position = z.move(z.hero, Vector2(0, -1.2))
+		ok = ok and z.free_at(z.hero.position)
+	check(ok, "contre la façade : aucune position interdite")
+	_free_stub(z)
+
+
+func test_depth_uses_real_front_edge_of_slanted_walls() -> void:
+	var data: Dictionary = JSON.parse_string(FileAccess.open("res://art/explore_hd2d/zone.json", FileAccess.READ).get_as_text())
+	var fp := PackedVector2Array()
+	for p in data["sprites"]["maison"]["footprint"]:
+		fp.append(Vector2(p[0], p[1]))
+	var sort_y: float = data["sprites"]["maison"]["sort_y"]
+	var guard := Vector2(448, 170.2)
+	check(guard.y < sort_y, "le garde est au-dessus de la ligne de tri horizontale de la maison (ancien tri : derrière)")
+	check(guard.y > Zone.front_edge(fp, guard.x), "mais il est DEVANT le mur de façade à son abscisse")
+	check(Vector2(440, 92).y < Zone.front_edge(fp, 440), "derrière la maison : derrière")
+
+
+func test_demo_route_is_simplified_without_micro_waypoints() -> void:
+	var z = _zone_stub()
+	var pts := PackedVector2Array()
+	for i in 41:                                              # 40 cellules de 4 px en ligne droite dans un espace libre
+		pts.append(Vector2(200 + i * 4, 300 - i * 1))
+	var out: PackedVector2Array = z.simplify_path(pts)
+	check_eq(out.size(), 2, "ligne droite praticable : un seul segment")
+	_free_stub(z)

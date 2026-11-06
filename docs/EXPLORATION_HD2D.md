@@ -98,3 +98,54 @@ contact avec le monstre à une distance visuelle cohérente, fond sans duplicati
 - Le Vorgane d'exploration n'a qu'une animation de repos (pas de marche ni de réaction).
 - Quand un objet devant la maison (par exemple un arbre) devient transparent, la zone de la maison qu'il
   recouvrait apparaît vide (terrain), car la maison n'est dessinée que là où elle est visible dans le rendu.
+
+## Itération 4 : locomotion (P0) — branche `exploration-hd2d-polish`
+Diagnostic **mesuré** avant correction, avec un parcours clavier reproductible
+(`scenes/explore_hd2d/locomotion_course.gd`) : de vraies touches simulées (le même chemin que le joueur, sans
+autoplay), départs, arrêts, lignes droites, diagonales, virages, demi-tour, glissement contre la façade, tour
+complet de la maison, relâchements de touches décalés. Le script mesure chaque image : orientation, image de pas,
+distance réellement parcourue, espacement du groupe, positions interdites, ordre de profondeur.
+
+Le code de déplacement du joueur et du suivi est **identique en v2 et en v3** (vérifié par `git diff`) : la
+régression perçue dans la vidéo v3 vient surtout de la nouvelle démo A*, mais le parcours clavier révèle aussi
+des défauts présents depuis la v1.
+
+**Défauts confirmés et corrections**
+| Défaut (v3) | Cause | Correction |
+|---|---|---|
+| Démo : 291 images de repos au milieu de la marche d'Aren, 53 orientations de moins de 0,15 s | un arrêt complet (et la remise à zéro des pas) à chaque cellule A* de 4 px | itinéraire A* simplifié en segments droits (visibilité directe, mêmes collisions) parcourus sans arrêt |
+| Pas désynchronisés (compagnons : 0,67 image par 6 px) | images avancées selon 72 px/s théoriques, pas la distance | les pas avancent avec le déplacement réel de l'image (glissement, blocage, diagonales, vertical) |
+| Compagnons : ~110 arrêts-relances par parcours, écart 14 à 47 px | cible = n-ième point de trace (espacement variable) + vitesse 1,05 + arrêt près du meneur | position à une distance fixe **le long de la trace** (20 px par rang) : même vitesse que le héros, arrêt à écart constant |
+| Orientation parasite en lâchant deux touches à quelques images d'écart | orientation recalculée à chaque image | hystérésis (les diagonales restent de profil) + une orientation doit tenir 0,06 s ; arrêts de moins de 0,1 s ignorés |
+| Accroché à l'angle arrière gauche de la maison (à 30 i/s, flèche « haut » seule) | un axe nul « réussissait » sur place dans le glissement | axe nul ignoré, puis pas tourné de ±45°/±60° pour longer un angle |
+| Personnage contre la façade dessiné derrière la maison (43 images), qui devient alors translucide | tri sur une seule ligne horizontale (y maximal de l'emprise) alors que la façade est en biais | tri sur le bord avant réel de l'emprise à l'abscisse du personnage |
+| Au retour de combat, compagnons placés à −18 px sans vérification | position non testée | file placée sur des positions libres et trace amorcée |
+
+**Mesures (parcours clavier, 60 i/s ; détails dans `docs/media/exploration/locomotion/mesures_*.json`)**
+| | v3 | corrigé |
+|---|---|---|
+| Images de repos en pleine marche (Aren / Ilya / Throné) | 0 / 110 / 100 | 0 / 0 / 0 |
+| Arrêts d'un compagnon pendant que le héros marche | 115 / 102 | 0 / 0 |
+| Pas / distance (1,00 = synchronisé) | 1,08 / 0,67 / 0,70 | 0,98 / 0,98 / 0,98 |
+| Écart Aren–Ilya en marche : moyenne, écart-type | 24,7 px, 5,4 | 18,6 px, 2,9 |
+| Images mal triées en profondeur (Aren) | 43 | 0 |
+| Étapes du parcours non atteintes à 30 i/s | 6 (accroché à l'angle) | 0 |
+| Démo : images de repos parasites / orientations brèves (Aren) | 291 / 53 | 0 / 0 |
+
+Résultats identiques à 30, 60 et 144 i/s. L'occlusion (transparence locale) n'est pas modifiée, conformément à
+la décision du 6 novembre ; seul l'ordre « devant / derrière » est corrigé.
+
+**Vidéos** (`docs/media/exploration/locomotion/`) : `locomotion_manuel_clavier.mp4` (touches affichées),
+`comparatif_manuel_v3_corrige.mp4` et `comparatif_demo_v3_corrige.mp4` (côte à côte, même parcours),
+`demo_auto_corrigee.mp4` (démo, dialogue, contact, combat). Reproduction : `tools/explore/record_locomotion.sh`.
+
+**Défauts restants**
+- Demi-tour : le héros repasse à travers ses compagnons pendant 3 à 5 images (comportement classique d'une file
+  qui suit la trace ; il n'y a pas de collisions entre membres du groupe).
+- Ilya et Throné n'ont qu'un profil (retourné) : en marche verticale, ils gardent leur dernier profil.
+- Quatre orientations seulement pour Aren : les diagonales sont jouées de profil.
+- « Sur le toit » derrière la maison : ce n'est pas une erreur de position (les pieds sont au sol, derrière le mur,
+  et le tri est correct) ; c'est l'effet de la transparence locale, qui montre le personnage à travers le toit.
+  Il est conservé tel quel (décision du 6 novembre).
+- Un personnage qui traverse le buisson au pied de l'angle gauche de la maison peut passer devant le feuillage
+  pendant une image : la maison et le buisson ne peuvent pas être ordonnés autrement avec un seul niveau par objet.

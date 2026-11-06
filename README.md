@@ -19,7 +19,11 @@ vérification du dialogue par touches simulées).
   l'angle de l'exploration, combat au contact.
 - Compte rendu et limites : **`docs/EXPLORATION_HD2D.md`** · spécifications des assets à illustrer :
   **`docs/SPEC_ASSETS_EXPLORATION.md`** · vidéo : `docs/media/exploration/exploration_hd2d_demo_v3.mp4`.
-- Tests automatiques : 49 sur 49.
+- **Locomotion fiabilisée (branche `exploration-hd2d-polish`)** : pas synchronisés sur la distance réelle, orientation
+  stable, compagnons à distance constante sur la trace, démo sans micro-arrêts, tri de profondeur devant les murs
+  en biais. Parcours clavier mesuré : `godot --path . -- --start=hd2d-zone --course=manuel` (code de sortie 1 si
+  un critère n'est pas tenu) ; vidéos : `docs/media/exploration/locomotion/`.
+- Tests automatiques : 55 sur 55.
 
 ![Exploration HD-2D](docs/media/exploration/hd2d_v3_derriere_arbre.jpg)
 
