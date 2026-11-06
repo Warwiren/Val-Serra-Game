@@ -17,7 +17,7 @@ Puis, depuis la racine du projet :
 python3 tools/explore/import_sol.py --verifier     # contrôle seulement (taille, opacité, recalage)
 python3 tools/explore/import_sol.py                # importe
 ```
-Lancer le jeu (**F5**). Comparaison : `godot --path . -- --sol=ancien`. Retour au fond actuel :
+Lancer le jeu (**F5**). Comparaison : `godot --path . -- (comparaison retirée)`. Retour au fond actuel :
 `python3 tools/explore/import_sol.py --retirer`.
 
 Options : `--sans-ombres`, `--sans-lumieres` si la plaque contient déjà les ombres ou la lumière des lanternes
@@ -29,7 +29,7 @@ Options : `--sans-ombres`, `--sans-lumieres` si la plaque contient déjà les om
   (alerte au-delà de 4 px : chemin et collisions ne coïncideraient plus).
 - **Conserve les ombres et la lumière actuelles** si elles ne sont pas fournies : elles sont recalculées depuis la
   scène Blender du jeu (`art/source/gabarits/` : rendu avec et sans ombres d'objets, avec et sans lanternes).
-- **Fusionne** plaque + ombres + lumière en une seule texture `art/explore_hd2d/sol/sol.png` (une image plein
+- **Fusionne** plaque + ombres + lumière en une seule texture `art/explore_hd2d/illustre/sol/sol.png` (une image plein
   écran à dessiner au lieu de trois). Les sources restent séparées : retoucher un calque = relancer l'import.
 - Écrit `sol.json` (origine de chaque calque, empreinte de la source, recalage mesuré).
 - Le jeu affiche le sol **1:1 à l'écran** (échelle 0,5 du monde, filtrage linéaire) : pas de pixellisation.
@@ -61,7 +61,7 @@ Captures : `docs/media/sol/cloture_avant_apres_en_jeu.png`, `cloture_avant_apres
   plaque transparente refusée, ×2 réduite une fois, recalage détecté à (0, 0), décalage de 24 px signalé, ombres et
   lumière actuelles conservées puis remplacées si fournies, `--sans-lumieres`, `--calques-separes`, retrait.
 - Godot : `test_ground_layers_fall_back_and_stack` (fond actuel sans import, une texture après fusion, trois
-  calques séparés, `--sol=ancien`).
+  calques séparés, `(comparaison retirée)`).
 - **Essai complet** dans une copie temporaire du projet, avec le **gabarit lui-même comme plaque de test** (ce
   n'est pas un sol illustré, rien n'a été versionné) : import recalé à (0, 0) ; 65 tests sur 65 ; parcours clavier
   RÉUSSI ; approches du garde 11/11 ; retour de combat RÉUSSI ; démo complète (dialogue, combat, retour) ;
@@ -90,7 +90,7 @@ terre exacts) au-dessus de l'illustration, avec `reperes_terrain.png` (praticabl
 `docs/media/sol/esquisse_v0_contre_gabarit.jpg`, `esquisse_v0_essai_en_jeu_1280.jpg`, `esquisse_v0_nettete_x3.png`.
 
 ## 7. Bascule et vérifications à l'intégration définitive
-- **F4** en jeu : sol illustré / fond actuel (sans recharger) ; `--sol=ancien` au lancement.
+- **F4** en jeu : sol illustré / fond actuel (sans recharger) ; `(comparaison retirée)` au lancement.
 - Ombres et lumières : un seul exemplaire (calques séparés des sources, fusionnés à l'import ; `--sans-ombres` /
   `--sans-lumieres` si elles sont déjà peintes).
 - Collisions, praticable, points d'interaction : inchangés (`zone.json`) ; contrôlés par le parcours clavier,

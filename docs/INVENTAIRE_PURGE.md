@@ -118,3 +118,17 @@ listé ici y reste récupérable (`git checkout sauvegarde-avant-purge -- <chemi
 
 - `art/proto/vorgane_p1/` (2,7 Mo) et doublons d'images du Vorgane : à vérifier avec le combat avant retrait.
 - `art/3d/vorgane_rig_Image_0.jpg` (2048², 2,6 Mo) : utilisé par l'outil `scenes/art/compare_ab.tscn`.
+
+## Bilan après purge (mesuré)
+| | Avant (`10e2f15` = `sauvegarde-avant-purge` + maison) | Après (`decor-final`) |
+|---|---|---|
+| Fichiers suivis par Git | 3 660 | 3 402 |
+| Poids des fichiers de travail suivis | 231,9 Mo | 68,1 Mo |
+| Dossier de travail (hors `.git`, `.godot`, `build`) | 242 Mo | 78 Mo |
+| Export Windows : contenu du jeu (`.pck`) | 16,7 Mo | 14,4 Mo |
+| Export Windows : moteur (`.exe`) | 96,8 Mo | 96,8 Mo |
+| Historique Git (`.git`, paquets) | 223 Mo (133 Mo de paquets) | **inchangé** : l'historique n'est pas réécrit, les fichiers supprimés y restent |
+
+Vérifications après purge : aucune scène, aucun script ni outil ne référence un fichier supprimé (recherche dans
+`*.gd`, `*.tscn`, `*.py`, `*.sh`) ; tous les tests passent (voir `docs/DECOR_EXPLORATION.md`).
+Pour réduire aussi l'historique, il faudrait le réécrire (ou déplacer les vidéos vers Git LFS) : non fait, à décider.

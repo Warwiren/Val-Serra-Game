@@ -8,73 +8,48 @@ Référence : documents 07 (Brief MVP) et 08 (Mission Claude) du dossier Drive d
 
 ## Lancer le jeu (Godot 4.5 à 4.7)
 
-1. Télécharger la branche `main` (GitHub : **Code → Download ZIP**) et la décompresser.
+1. Télécharger la branche de travail (GitHub : **Code → Download ZIP**) et la décompresser.
 2. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (la première ouverture réimporte
    les images : quelques secondes).
-3. **F5** : la nouvelle **exploration HD-2D** (`scenes/explore_hd2d/zone_hd2d.tscn`).
-   Flèches ou ZQSD pour marcher, **E** pour parler au garde quand l'invite « E  Parler » s'affiche (à côté de lui
-   ou devant lui, pas à travers un mur), toucher le Vorgane lance le
-   combat ; après la victoire, retour dans la zone, le Vorgane a disparu. Après une défaite, le groupe revient
-   au point de départ et le Vorgane attend toujours. En combat, **F2** compare l'ancien et le nouveau décor.
+3. **F5** : l'**exploration HD-2D** de l'avant-poste avec son **décor définitif illustré**, sans aucun réglage.
+   Flèches ou ZQSD pour marcher, **E** pour parler au garde quand l'invite « E  Parler » s'affiche, toucher le
+   Vorgane lance le combat (arène illustrée) ; après la victoire, retour dans la zone, le Vorgane a disparu ;
+   après une défaite, le groupe revient au point de départ.
 
-**Autres scènes** : les ouvrir dans l'éditeur, puis **F6** (lancer la scène courante).
+**Autres scènes** (ouvrir dans l'éditeur, puis **F6**) :
 
 | Scène | Contenu |
 |---|---|
-| `scenes/proto/proto_zone.tscn` | **ancien avant-poste** (ancienne boucle, décor du pack), inchangé |
-| `scenes/dev/essai_combat_lisiere.tscn` | combat direct sur le décor pilote « Lisière » |
-| `scenes/dev/essai_combat_ancien.tscn` | même combat sur l'ancien décor |
+| `scenes/dev/essai_combat_lisiere.tscn` | combat direct sur l'arène illustrée |
 | `scenes/dev/essai_parcours_clavier.tscn` | parcours de locomotion au clavier simulé ; verdict dans le panneau « Sortie » |
+| `scenes/proto/proto_zone.tscn` | ancien avant-poste (ancienne boucle, décor du pack) |
 | `scenes/explore/hero_select.tscn` | toute première boucle (choix du héros) |
 
 **Vérifications en ligne de commande**
 ```
-godot --headless --path . --script res://tests/run_tests.gd          # 66 tests
+godot --headless --path . --script res://tests/run_tests.gd          # tests automatiques
 godot --headless --path . --script res://tests/e2e_zone_retour.gd    # retour de combat (victoire, défaite)
-godot --path . -- --autoplay                                         # démo complète : zone, dialogue, combat, retour
-godot --path . -- --start=hd2d-zone --course=pnj                     # approches du garde au clavier (gauche, droite, bas…)
+godot --path . -- --autoplay                                         # démo : zone, dialogue, combat, retour
 godot --path . -- --start=hd2d-zone --course=manuel                  # parcours de locomotion au clavier
-godot --path . -- --start=proto-battle --arena=lisiere               # combat sur l'arène illustrée (F2 : ancien décor)
-godot --path . -- --start=proto-battle --arena=lisiere-rendu         # arène pilote précédente (rendu Blender)
-godot --path . -- --decor=ancien                                     # exploration avec le décor d'origine (comparaison)
-godot --path . --script res://tests/perf_probe.gd                    # mesures de performances (voir docs/PERFORMANCES.md)
+godot --path . -- --start=hd2d-zone --course=pnj                     # approches du garde au clavier
+godot --path . --script res://tests/perf_probe.gd                    # performances (docs/PERFORMANCES.md)
+python3 tools/explore/test_import_sol.py                             # importeur du sol
 ```
 
-## Exploration HD-2D expérimentale — branche `exploration-hd2d`
+## Zone d'exploration HD-2D — état définitif (branche `decor-final`)
 
-Petite zone jouable en vue trois-quarts surélevée (plongée 35°, rotation 20°), crépuscule bleu-violet,
-indépendante de la boucle F5. Ouvrir `scenes/explore_hd2d/zone_hd2d.tscn` puis **F6**, ou :
-`godot --path . -- --start=hd2d-zone` (ajouter `--autoplay` pour la démo, `--autoplay --check-talk` pour la
-vérification du dialogue par touches simulées).
-
-- Décor construit dans Blender puis retouché en pixel art (`tools/explore/`) : **fond = terrain seul**, objets
-  sur des couches séparées triées par la ligne de leurs pieds, transparence locale autour des personnages cachés.
-- Déplacement 8 directions, compagnons qui suivent, collisions, dialogue (distance vérifiée), Vorgane rendu sous
-  l'angle de l'exploration, combat au contact.
-- Compte rendu et limites : **`docs/EXPLORATION_HD2D.md`** · spécifications des assets à illustrer :
-  **`docs/SPEC_ASSETS_EXPLORATION.md`** · vidéo : `docs/media/exploration/exploration_hd2d_demo_v3.mp4`.
-- **Locomotion fiabilisée (branche `exploration-hd2d-polish`)** : pas synchronisés sur la distance réelle, orientation
-  stable, compagnons à distance constante sur la trace, démo sans micro-arrêts, tri de profondeur devant les murs
-  en biais. Parcours clavier mesuré : `godot --path . -- --start=hd2d-zone --course=manuel` (code de sortie 1 si
-  un critère n'est pas tenu) ; vidéos : `docs/media/exploration/locomotion/`.
-- **Arène de combat pilote « Lisière de l'avant-poste »** (refonte des décors, à valider) :
-  `godot --path . -- --start=proto-battle --arena=lisiere` ; **F2** bascule entre l'ancien et le nouveau décor
-  pendant le combat. Compte rendu : **`docs/ARENE_COMBAT.md`** · captures : `docs/media/arena/`.
-- Tests automatiques : 66 sur 66 (+ `python3 tools/explore/test_import_sol.py`).
-- **Refonte artistique de l'exploration (branche `exploration-illustree`)** : gabarits du sol, de la maison et du
-  grand arbre, cadre, perspective et fichiers à fournir dans **`docs/GABARITS_EXPLORATION.md`**.
-- **Sol illustré (branche `sol-illustre`)** : déposer `sol_plaque.png` (1408×800) dans `art/source/sol/`, puis
-  `python3 tools/explore/import_sol.py` ; détails dans **`docs/INTEGRATION_SOL.md`**. `--sol=ancien` pour comparer.
-- **Essai de décor v2 (branche `essai-decor-v2`)** : **F5 lance l'essai** (réglage `val_serra/essai_decor` dans
-  `project.godot`, vider pour revenir au jeu normal) ; compte rendu **`docs/ESSAI_DECOR_V2.md`**.
-- **Essai de décor v1 (branche `essai-decor-v1`, non intégré)** : `godot --path . -- --essai=v1` ; sol recalé,
-  grand arbre et buissons tirés des concepts ; compte rendu **`docs/ESSAI_DECOR_V1.md`**.
-- **Décors illustrés (branche `decors-illustres`)** : arène illustrée, accessoires et sol illustrés en exploration ;
-  analyse des planches et ressources manquantes dans `docs/PRODUCTION_GRAPHIQUE.md`, performances dans
-  `docs/PERFORMANCES.md`.
-- Production graphique (illustrations à fournir, kit de l'illustrateur) : **`docs/PRODUCTION_GRAPHIQUE.md`**.
-
-![Exploration HD-2D](docs/media/exploration/hd2d_v3_derriere_arbre.jpg)
+- Caméra orthographique (plongée 35°, rotation 20°), monde 704×400 affiché ×2, crépuscule bleu-violet.
+- **Décor définitif unique** : `art/explore_hd2d/illustre/` (sol peint, maison d'après la référence officielle,
+  deux arbres, cinq buissons, accessoires, cristaux) décrit par `illustre/decor.json` ; géométrie de jeu
+  (praticable, collisions, tri) : `art/explore_hd2d/zone.json`. Compte rendu : **`docs/DECOR_EXPLORATION.md`**.
+- Sources et régénération : `art/source/` (planches, concepts, esquisse du sol, gabarits Blender),
+  `docs/media/gabarits_exploration/`, `tools/explore/` ; importeur du sol : **`docs/INTEGRATION_SOL.md`**.
+- Locomotion, suivi du groupe, dialogue et collisions : `docs/EXPLORATION_HD2D.md`. Arène de combat :
+  `docs/ARENE_COMBAT.md`. Performances : `docs/PERFORMANCES.md`.
+- **Purge du 7 novembre 2026** : une seule version active de chaque asset ; les anciennes versions (essais,
+  arène rendue, médias de comparaison) sont dans la branche **`sauvegarde-avant-purge`** — inventaire :
+  **`docs/INVENTAIRE_PURGE.md`**. Certains anciens comptes rendus citent des médias qui n'y sont plus que dans
+  cette branche.
 
 ## Dernière passe : correctifs et HUD de combat (brief unifié v1.1) — branche `correctifs-hud`
 

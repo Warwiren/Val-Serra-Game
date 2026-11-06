@@ -98,7 +98,7 @@ func _run() -> void:
 	_last_us = 0
 	await _sample("exploration", ms)
 	out["exploration"]["chargement_froid_ms"] = snappedf(cold, 0.1)
-	var arenas := ["ancien", "lisiere-rendu"]
+	var arenas := ["ancien"]
 	if ResourceLoader.exists("res://art/arena/lisiere/peint/hd.json") or DirAccess.dir_exists_absolute("res://art/arena/lisiere/peint"):
 		arenas.append("lisiere")
 	for ar in arenas:

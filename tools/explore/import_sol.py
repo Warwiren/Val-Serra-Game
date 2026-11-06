@@ -1,6 +1,6 @@
 """IMPORTEUR DU SOL ILLUSTRÉ de l'exploration (calques recalés sur le gabarit 1408×800).
 
-    python3 tools/explore/import_sol.py            importe art/source/sol/ -> art/explore_hd2d/sol/
+    python3 tools/explore/import_sol.py            importe art/source/sol/ -> art/explore_hd2d/illustre/sol/
     python3 tools/explore/import_sol.py --retirer  retire le sol importé (le jeu revient au fond actuel)
     python3 tools/explore/import_sol.py --verifier contrôle les fichiers déposés sans rien écrire
     options : --sans-ombres / --sans-lumieres  (si la plaque contient déjà ombres ou lumière des lanternes)
@@ -10,7 +10,7 @@ Fichiers à déposer dans art/source/sol/ (dossier ignoré par Godot, sources co
   sol_ombres.png    facultatif. Ombres des objets, RGBA transparent. Absent : ombres actuelles conservées.
   sol_lumieres.png  facultatif. Lumière des lanternes et fenêtres, sur fond noir (ajoutée). Absent : actuelle.
 Contrôles : taille, opacité, recalage sur le gabarit (décalage détecté), cohérence des calques.
-Sortie (utilisée par le jeu) : art/explore_hd2d/sol/sol.png (calques fusionnés) + sol.json ; avec
+Sortie (utilisée par le jeu) : art/explore_hd2d/illustre/sol/sol.png (calques fusionnés) + sol.json ; avec
 --calques-separes : sol_plaque.png, sol_ombres.png, sol_lumieres.png affichés l'un sur l'autre (réglages en direct).
 Le jeu affiche ces calques 1:1 à l'écran (échelle 0,5 du monde), sans pixellisation. Les collisions, le
 praticable et le tri viennent toujours de zone.json : l'illustration ne change aucune mécanique."""
@@ -20,7 +20,7 @@ from PIL import Image, ImageFilter
 
 SRC = "art/source/sol"
 REF = "art/source/gabarits"
-OUT = "art/explore_hd2d/sol"
+OUT = "art/explore_hd2d/illustre/sol"
 PLAQUE = "sol_plaque.png"
 for i, arg in enumerate(sys.argv):                         # essais : --sortie <dossier> --plaque <fichier de SRC>
     if arg == "--sortie":
@@ -121,7 +121,7 @@ def sha(p):
 if "--retirer" in sys.argv:
     if os.path.isdir(OUT):
         shutil.rmtree(OUT)
-    print("sol importé retiré : le jeu utilise de nouveau art/explore_hd2d/fond.png")
+    print("sol importé retiré (le jeu a besoin d'un sol : réimporter)")
     sys.exit(0)
 
 print("Importation du sol depuis", SRC)
@@ -160,7 +160,7 @@ for name, im, default in (("sol_ombres", ombres, existing_shadows), ("sol_lumier
             z = json.load(open("art/explore_hd2d/zone.json"))
             a = np.asarray(im).copy()
             for el in ",".join(excl).split(","):
-                e = z["sprites"][el]; sp = Image.open("art/explore_hd2d/el_%s.png" % el).convert("RGBA")
+                e = z["sprites"][el]; sp = Image.open("art/source/gabarits/rendu_blender/el_%s.png" % el).convert("RGBA")
                 m = Image.new("L", (W, H), 0)
                 m.paste(sp.getchannel("A").resize((sp.width * 2, sp.height * 2), Image.NEAREST), (int(e["pos"][0] * 2), int(e["pos"][1] * 2)))
                 m = np.asarray(m.filter(ImageFilter.MaxFilter(9))) > 0

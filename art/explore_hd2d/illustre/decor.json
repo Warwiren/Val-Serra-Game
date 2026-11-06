@@ -1,0 +1,177 @@
+{
+ "_doc": "DÉCOR DÉFINITIF de la zone d'exploration HD-2D (seule version active). Textures en pixels d'ÉCRAN, affichées à l'échelle 0,5 du monde (caméra ×2) : 1 pixel de texture = 1 pixel d'écran. Pour chaque élément de zone.json : ses calques (dessinés dans l'ordre, triés sur la ligne de tri de l'élément) et le pivot = point de la texture posé sur le pied de l'élément (centre de l'emprise au bord avant, ou extrémité avant gauche si \"pied\" = \"avant_gauche\"). L'emprise, la collision, la ligne de tri et la transparence locale viennent de zone.json. \"masquer\" : éléments sans dessin (le sol peint les contient). \"details\" : petits éléments posés au sol (nom, x, y natifs, appui).",
+ "sol": "sol/sol.png",
+ "elements": {
+  "maison": {
+   "calques": [
+    "maison"
+   ],
+   "pivot": [
+    211.37,
+    357.8
+   ]
+  },
+  "arbre_g": {
+   "calques": [
+    "arbre_tronc",
+    "arbre_feuillage"
+   ],
+   "pivot": [
+    150,
+    263
+   ]
+  },
+  "arbre_d": {
+   "calques": [
+    "arbre_d_tronc",
+    "arbre_d_feuillage"
+   ],
+   "pivot": [
+    146,
+    255
+   ]
+  },
+  "buisson_0": {
+   "calques": [
+    "buisson_0"
+   ],
+   "pivot": [
+    45,
+    43
+   ]
+  },
+  "buisson_1": {
+   "calques": [
+    "buisson_1"
+   ],
+   "pivot": [
+    53,
+    55
+   ]
+  },
+  "buisson_2": {
+   "calques": [
+    "buisson_2"
+   ],
+   "pivot": [
+    42,
+    44
+   ]
+  },
+  "buisson_3": {
+   "calques": [
+    "buisson_3"
+   ],
+   "pivot": [
+    55,
+    59
+   ]
+  },
+  "buisson_4": {
+   "calques": [
+    "buisson_4"
+   ],
+   "pivot": [
+    40,
+    52
+   ]
+  },
+  "lanterne_0": {
+   "calques": [
+    "lanterne"
+   ],
+   "pivot": [
+    30,
+    107
+   ]
+  },
+  "lanterne_1": {
+   "calques": [
+    "lanterne"
+   ],
+   "pivot": [
+    30,
+    107
+   ]
+  },
+  "lanterne_2": {
+   "calques": [
+    "lanterne"
+   ],
+   "pivot": [
+    30,
+    107
+   ]
+  },
+  "tonneaux": {
+   "calques": [
+    "barriques_pile"
+   ],
+   "pivot": [
+    32,
+    77
+   ]
+  },
+  "caisses": {
+   "calques": [
+    "caisses_pile"
+   ],
+   "pivot": [
+    40,
+    81
+   ]
+  },
+  "banc": {
+   "calques": [
+    "banc"
+   ],
+   "pivot": [
+    38,
+    39
+   ]
+  },
+  "cloture_d": {
+   "calques": [
+    "cloture_d"
+   ],
+   "pivot": [
+    0,
+    99
+   ],
+   "pied": "avant_gauche"
+  },
+  "cloture_g": {
+   "calques": [
+    "cloture_g"
+   ],
+   "pivot": [
+    0,
+    99
+   ],
+   "pied": "avant_gauche"
+  }
+ },
+ "masquer": [
+  "muret"
+ ],
+ "details": [
+  [
+   "cristal_aether",
+   128,
+   318,
+   [
+    22,
+    35
+   ]
+  ],
+  [
+   "cristal_petit",
+   172,
+   326,
+   [
+    12,
+    22
+   ]
+  ]
+ ]
+}
