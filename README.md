@@ -6,20 +6,32 @@ Référence : documents 07 (Brief MVP) et 08 (Mission Claude) du dossier Drive d
 > Tous les personnages, monstres, illustrations et nombres de ce dépôt sont **provisoires et non canoniques**.
 > Ce dépôt est indépendant du système Foundry du JDR (`Warwiren/Val-serra`), qui n'est pas modifié.
 
-## Tester les dernières modifications dans l'éditeur (Godot 4.5 à 4.7)
+## Lancer le jeu (Godot 4.5 à 4.7)
 
-**F5 lance toujours l'ancienne boucle** (`scenes/proto/proto_zone.tscn`, décor du pack) : ce n'est pas là que
-se trouvent l'exploration HD-2D, la locomotion corrigée ni l'arène pilote. Ouvrir la scène voulue puis **F6** :
+1. Télécharger la branche `main` (GitHub : **Code → Download ZIP**) et la décompresser.
+2. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (la première ouverture réimporte
+   les images : quelques secondes).
+3. **F5** : la nouvelle **exploration HD-2D** (`scenes/explore_hd2d/zone_hd2d.tscn`).
+   Flèches ou ZQSD pour marcher, **E** pour parler au garde (il faut être tout près), toucher le Vorgane lance le
+   combat ; après la victoire, retour dans la zone, le Vorgane a disparu. Après une défaite, le groupe revient
+   au point de départ et le Vorgane attend toujours. En combat, **F2** compare l'ancien et le nouveau décor.
 
-| Scène (`scenes/dev/`) | Ce qu'on teste |
+**Autres scènes** : les ouvrir dans l'éditeur, puis **F6** (lancer la scène courante).
+
+| Scène | Contenu |
 |---|---|
-| `essai_zone_hd2d.tscn` | exploration HD-2D, déplacements corrigés ; toucher le Vorgane lance le combat sur le décor pilote |
-| `essai_combat_lisiere.tscn` | combat directement sur le décor pilote « Lisière » (**F2** : ancien / nouveau) |
-| `essai_combat_ancien.tscn` | même combat sur le décor actuel, pour comparer |
-| `essai_parcours_clavier.tscn` | parcours de locomotion au clavier simulé ; mesures et verdict dans la console « Sortie », puis le jeu se ferme |
+| `scenes/proto/proto_zone.tscn` | **ancien avant-poste** (ancienne boucle, décor du pack), inchangé |
+| `scenes/dev/essai_combat_lisiere.tscn` | combat direct sur le décor pilote « Lisière » |
+| `scenes/dev/essai_combat_ancien.tscn` | même combat sur l'ancien décor |
+| `scenes/dev/essai_parcours_clavier.tscn` | parcours de locomotion au clavier simulé ; verdict dans le panneau « Sortie » |
+| `scenes/explore/hero_select.tscn` | toute première boucle (choix du héros) |
 
-Vérifié avec Godot 4.7.2 (58 tests sur 58, parcours « RÉUSSI »). À l'ouverture, Godot 4.7 réimporte les
-ressources (dossier `.godot/` local, non versionné) : c'est normal.
+**Vérifications en ligne de commande**
+```
+godot --headless --path . --script res://tests/run_tests.gd          # 58 tests
+godot --headless --path . --script res://tests/e2e_zone_retour.gd    # retour de combat (victoire, défaite)
+godot --path . -- --autoplay                                         # démo complète : zone, dialogue, combat, retour
+```
 
 ## Exploration HD-2D expérimentale — branche `exploration-hd2d`
 

@@ -70,6 +70,7 @@ var _dialog
 var _prompt: Label
 var _locked := false
 var _engaging := false
+var _engage_armed := false                # le contact ne relance un combat qu'après être sorti de la zone de contact
 var _auto_path := PackedVector2Array()   # démo : itinéraire simplifié (points de passage sans arrêt)
 
 
@@ -116,8 +117,11 @@ func _ready() -> void:
 		var w := Walker.new(k, false)
 		add_child(w)
 		party.append(w)
+	var returning: bool = GameState.explore_return == scene_file_path and GameState.last_battle_result != ""
 	if GameState.zone_return_pos != Vector2.ZERO and GameState.explore_return == scene_file_path:
 		hero.position = GameState.zone_return_pos
+	if returning and GameState.last_battle_result == "defeat":
+		hero.position = Vector2(sp[0], sp[1])      # défaite : le groupe se replie au point de départ, loin du monstre
 	var np_: Array = zone["spawn"]["pnj"]
 	npc = Walker.new("pnj", false)
 	add_child(npc)
@@ -168,6 +172,8 @@ func _ready() -> void:
 	_dialog = DialogueBox.new()
 	layer.add_child(_dialog)
 	_dialog.closed.connect(func(): _locked = false)
+	if GameState.autoplay:
+		print("ZONE chargée : retour=%s, Vorgane présent=%s, héros=%s" % [GameState.last_battle_result if returning else "-", monster.visible, hero.position.round()])
 	if GameState.last_battle_result != "" and GameState.explore_return == scene_file_path:
 		GameState.last_battle_result = ""
 		GameState.from_zone = false
@@ -360,7 +366,10 @@ func _process(delta: float) -> void:
 	cam.position = hero.position.round()
 	_update_occlusion(delta)
 	_update_prompt()
-	if monster.visible and not _engaging and touches_monster(hero.position, monster_pos, monster_rx, monster_ry, ENGAGE_MARGIN):
+	var touching := touches_monster(hero.position, monster_pos, monster_rx, monster_ry, ENGAGE_MARGIN)
+	if not touching:
+		_engage_armed = true
+	if monster.visible and not _engaging and _engage_armed and touching:
 		_engage()
 
 
