@@ -202,12 +202,9 @@ func _build_world_proto() -> void:
 		l.texture_scale = 1.5
 		add_child(l)
 		_old_arena.append(l)
-	# Décor pilote toujours construit en combat recentré : F2 compare l'ancien et le nouveau à tout moment
-	arena = ArenaLayers.new()
-	arena.use_painted = GameState.arena != "lisiere-rendu"
-	add_child(arena)
-	arena.build(self)
-	_show_arena(GameState.use_pilot_arena())
+	# Décor pilote construit seulement s'il est affiché (F2 le construit à la demande pour comparer)
+	if GameState.use_pilot_arena():
+		_show_arena(true)
 	actors = Node2D.new()
 	add_child(actors)
 	var overlay := CanvasLayer.new()
@@ -248,6 +245,11 @@ func _build_world_proto() -> void:
 
 ## Comparaison A/B du décor de combat (F2) : présentation seulement, le combat continue.
 func _show_arena(new_one: bool) -> void:
+	if new_one and arena == null:
+		arena = ArenaLayers.new()
+		arena.use_painted = GameState.arena != "lisiere-rendu"
+		add_child(arena)
+		arena.build(self)
 	for n in _old_arena:
 		n.visible = not new_one
 	if arena != null:
@@ -987,8 +989,8 @@ func _confirm() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F2 and arena != null:
-		_show_arena(not arena.visible)
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F2 and GameState.proto:
+		_show_arena(arena == null or not arena.visible)
 		return
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_L and not GameState.proto:
 		hud.toggle_log()

@@ -175,3 +175,38 @@ func test_sprite_feet_match_logical_position_from_the_start() -> void:
 		var feet: Vector2 = w.spr.offset + Vector2(tex.get_width() / 2.0, tex.get_height())
 		check(absf(feet.x) <= 1.0 and absf(feet.y) < 0.01, "%s : pieds du sprite sur la position dès l'apparition (écart %s)" % [spec[0], str(feet)])
 		w.free()
+
+
+func test_guard_footprint_prevents_overlap_but_allows_talk() -> void:
+	var z = _zone_stub()
+	var n := Vector2(300, 250)
+	z._npc_solid = z._ellipse(n, Zone.NPC_RX, Zone.NPC_RY)
+	z.solids.append(z._npc_solid)
+	var intrusions := 0
+	var talk_spots := 0
+	for dy in range(-12, 13):
+		for dx in range(-20, 21):
+			var p := n + Vector2(dx, dy)
+			if z.free_at(p):
+				if (dx / 11.5) ** 2 + (dy / 5.5) ** 2 < 1.0:
+					intrusions += 1
+				if Zone.can_talk(p, n):
+					talk_spots += 1
+	check_eq(intrusions, 0, "aucune position libre à l'intérieur de l'emprise du garde")
+	check(talk_spots > 200, "beaucoup de positions libres d'où l'on peut lui parler (%d)" % talk_spots)
+	for side in [Vector2(-13.5, 0), Vector2(13.5, 0), Vector2(0, 7.5), Vector2(-9, 6), Vector2(9, 6)]:
+		check(z.free_at(n + side) and Zone.can_talk(n + side, n), "position collée au garde %s : libre et dialogue possible" % str(side))
+	_free_stub(z)
+
+
+func test_illustrated_decor_is_consistent() -> void:
+	var dir := "res://art/explore_hd2d/"
+	var spec: Dictionary = JSON.parse_string(FileAccess.open(dir + "hd/decor.json", FileAccess.READ).get_as_text())
+	var zone: Dictionary = JSON.parse_string(FileAccess.open(dir + "zone.json", FileAccess.READ).get_as_text())
+	for k in spec["remplace"]:
+		check(zone["sprites"].has(k), "élément remplacé « %s » présent dans la zone (emprise et tri conservés)" % k)
+		var path: String = dir + "hd/%s.png" % spec["remplace"][k]["sprite"]
+		check(ResourceLoader.exists(path), "texture %s" % path)
+	for d in spec["sol"]:
+		var tex: Texture2D = load(dir + "hd/%s.png" % d[0])
+		check(tex != null and tex.get_height() <= 128, "détail au sol %s à la taille d'affichage (pas de texture surdimensionnée)" % d[0])

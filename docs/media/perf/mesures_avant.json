@@ -1,0 +1,58 @@
+{
+  "_conditions": {
+    "duree_mesure_s": 6.0,
+    "fenetre": "(1280, 720)",
+    "moteur": "4.5-stable (official)",
+    "pilote": "Mesa",
+    "processeur": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "processeurs": 4,
+    "rendu": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "tag": "avant",
+    "vsync": "coupée"
+  },
+  "combat_ancien": {
+    "appels_dessin": 234,
+    "chargement_ms": 462.9,
+    "images_par_s": 27.5,
+    "memoire_statique_mo": 41.9,
+    "memoire_textures_mo": 46.3,
+    "memoire_video_mo": 54.7,
+    "objets_dessines": 932,
+    "temps_image_ms_moyen": 36.39,
+    "temps_image_ms_p99": 44.94
+  },
+  "combat_lisiere-rendu": {
+    "appels_dessin": 255,
+    "chargement_ms": 271.9,
+    "images_par_s": 16.6,
+    "memoire_statique_mo": 42.0,
+    "memoire_textures_mo": 46.3,
+    "memoire_video_mo": 54.7,
+    "objets_dessines": 987,
+    "temps_image_ms_moyen": 60.16,
+    "temps_image_ms_p99": 73.69
+  },
+  "combat_lisiere-rendu_effets_coupes": {
+    "appels_dessin": 234,
+    "chargement_ms": 0.0,
+    "images_par_s": 28.3,
+    "memoire_statique_mo": 45.6,
+    "memoire_textures_mo": 50.1,
+    "memoire_video_mo": 58.5,
+    "objets_dessines": 906,
+    "temps_image_ms_moyen": 35.29,
+    "temps_image_ms_p99": 49.33
+  },
+  "exploration": {
+    "appels_dessin": 28,
+    "chargement_froid_ms": 228.8,
+    "chargement_ms": 58.2,
+    "images_par_s": 65.2,
+    "memoire_statique_mo": 33.2,
+    "memoire_textures_mo": 10.1,
+    "memoire_video_mo": 16.3,
+    "objets_dessines": 28,
+    "temps_image_ms_moyen": 15.34,
+    "temps_image_ms_p99": 25.24
+  }
+}

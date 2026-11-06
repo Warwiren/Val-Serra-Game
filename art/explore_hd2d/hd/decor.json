@@ -1,0 +1,200 @@
+{
+ "_doc": "Décor illustré de l'exploration (pilote). Textures en pixels d'ÉCRAN, affichées à l'échelle 0,5 du monde (caméra ×2) : 1 pixel de texture = 1 pixel d'écran. 'remplace' : l'élément d'origine garde son emprise au sol, sa ligne de tri et sa transparence locale ; seul son dessin change. 'pivot' = point de la texture posé sur 'sol' (pixels natifs du monde). 'sol' : petits éléments sans collision, triés en profondeur comme les personnages.",
+ "remplace": {
+  "lanterne_0": {
+   "sprite": "lanterne",
+   "pivot": [
+    30,
+    107
+   ]
+  },
+  "lanterne_1": {
+   "sprite": "lanterne",
+   "pivot": [
+    30,
+    107
+   ]
+  },
+  "lanterne_2": {
+   "sprite": "lanterne",
+   "pivot": [
+    30,
+    107
+   ]
+  },
+  "tonneaux": {
+   "sprite": "barriques_pile",
+   "pivot": [
+    32,
+    77
+   ]
+  },
+  "caisses": {
+   "sprite": "caisses_pile",
+   "pivot": [
+    40,
+    81
+   ]
+  },
+  "banc": {
+   "sprite": "banc",
+   "pivot": [
+    38,
+    39
+   ]
+  },
+  "cloture_d": {
+   "sprite": "cloture_d",
+   "pivot": [
+    0,
+    99
+   ],
+   "sol": "avant_gauche"
+  },
+  "cloture_g": {
+   "sprite": "cloture_g",
+   "pivot": [
+    0,
+    99
+   ],
+   "sol": "avant_gauche"
+  }
+ },
+ "sol": [
+  [
+   "rocher_a",
+   92,
+   238
+  ],
+  [
+   "herbe_a",
+   76,
+   242
+  ],
+  [
+   "champignons",
+   108,
+   232
+  ],
+  [
+   "rocher_b",
+   210,
+   205
+  ],
+  [
+   "fleurs_lupins",
+   198,
+   212
+  ],
+  [
+   "fleurs_violettes",
+   292,
+   208
+  ],
+  [
+   "herbe_b",
+   318,
+   236
+  ],
+  [
+   "rocher_c",
+   470,
+   206
+  ],
+  [
+   "fleurs_petites",
+   488,
+   214
+  ],
+  [
+   "herbe_a",
+   545,
+   226
+  ],
+  [
+   "rocher_a",
+   640,
+   238
+  ],
+  [
+   "fleurs_lupins",
+   620,
+   244
+  ],
+  [
+   "roseaux",
+   672,
+   230
+  ],
+  [
+   "arbuste",
+   560,
+   160
+  ],
+  [
+   "fleurs_violettes",
+   520,
+   172
+  ],
+  [
+   "cristal_aether",
+   128,
+   318
+  ],
+  [
+   "cristal_petit",
+   172,
+   326
+  ],
+  [
+   "feuilles_mortes",
+   160,
+   284
+  ],
+  [
+   "rocher_d",
+   300,
+   300
+  ],
+  [
+   "fleurs_petites",
+   330,
+   312
+  ],
+  [
+   "herbe_b",
+   230,
+   344
+  ],
+  [
+   "rocher_b",
+   400,
+   330
+  ],
+  [
+   "fleurs_violettes",
+   455,
+   300
+  ],
+  [
+   "herbe_a",
+   520,
+   290
+  ],
+  [
+   "sacs",
+   362,
+   186
+  ],
+  [
+   "fleurs_petites",
+   270,
+   160
+  ],
+  [
+   "rocher_c",
+   250,
+   150
+  ]
+ ]
+}

@@ -29,12 +29,15 @@ Référence : documents 07 (Brief MVP) et 08 (Mission Claude) du dossier Drive d
 
 **Vérifications en ligne de commande**
 ```
-godot --headless --path . --script res://tests/run_tests.gd          # 61 tests
+godot --headless --path . --script res://tests/run_tests.gd          # 64 tests
 godot --headless --path . --script res://tests/e2e_zone_retour.gd    # retour de combat (victoire, défaite)
 godot --path . -- --autoplay                                         # démo complète : zone, dialogue, combat, retour
 godot --path . -- --start=hd2d-zone --course=pnj                     # approches du garde au clavier (gauche, droite, bas…)
 godot --path . -- --start=hd2d-zone --course=manuel                  # parcours de locomotion au clavier
-godot --path . -- --start=proto-battle --arena=lisiere               # combat sur l'arène pilote (F2 : ancien décor)
+godot --path . -- --start=proto-battle --arena=lisiere               # combat sur l'arène illustrée (F2 : ancien décor)
+godot --path . -- --start=proto-battle --arena=lisiere-rendu         # arène pilote précédente (rendu Blender)
+godot --path . -- --decor=ancien                                     # exploration avec le décor d'origine (comparaison)
+godot --path . --script res://tests/perf_probe.gd                    # mesures de performances (voir docs/PERFORMANCES.md)
 ```
 
 ## Exploration HD-2D expérimentale — branche `exploration-hd2d`
@@ -57,7 +60,12 @@ vérification du dialogue par touches simulées).
 - **Arène de combat pilote « Lisière de l'avant-poste »** (refonte des décors, à valider) :
   `godot --path . -- --start=proto-battle --arena=lisiere` ; **F2** bascule entre l'ancien et le nouveau décor
   pendant le combat. Compte rendu : **`docs/ARENE_COMBAT.md`** · captures : `docs/media/arena/`.
-- Tests automatiques : 61 sur 61.
+- Tests automatiques : 64 sur 64.
+- **Refonte artistique de l'exploration (branche `exploration-illustree`)** : gabarits du sol, de la maison et du
+  grand arbre, cadre, perspective et fichiers à fournir dans **`docs/GABARITS_EXPLORATION.md`**.
+- **Décors illustrés (branche `decors-illustres`)** : arène illustrée, accessoires et sol illustrés en exploration ;
+  analyse des planches et ressources manquantes dans `docs/PRODUCTION_GRAPHIQUE.md`, performances dans
+  `docs/PERFORMANCES.md`.
 - Production graphique (illustrations à fournir, kit de l'illustrateur) : **`docs/PRODUCTION_GRAPHIQUE.md`**.
 
 ![Exploration HD-2D](docs/media/exploration/hd2d_v3_derriere_arbre.jpg)

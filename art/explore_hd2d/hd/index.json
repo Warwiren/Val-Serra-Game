@@ -1,0 +1,376 @@
+{
+ "lanterne": {
+  "taille": [
+   68,
+   110
+  ],
+  "appui": [
+   34,
+   110
+  ],
+  "source": "2_batiments_accessoires.webp",
+  "boite": [
+   36,
+   412,
+   166,
+   610
+  ]
+ },
+ "barriques": {
+  "taille": [
+   72,
+   52
+  ],
+  "appui": [
+   36,
+   52
+  ],
+  "source": "2_batiments_accessoires.webp",
+  "boite": [
+   402,
+   580,
+   512,
+   660
+  ]
+ },
+ "caisses": {
+  "taille": [
+   88,
+   49
+  ],
+  "appui": [
+   44,
+   49
+  ],
+  "source": "2_batiments_accessoires.webp",
+  "boite": [
+   528,
+   578,
+   664,
+   656
+  ]
+ },
+ "banc": {
+  "taille": [
+   76,
+   41
+  ],
+  "appui": [
+   38,
+   41
+  ],
+  "source": "2_batiments_accessoires.webp",
+  "boite": [
+   266,
+   592,
+   394,
+   658
+  ]
+ },
+ "cloture_longue": {
+  "taille": [
+   195,
+   44
+  ],
+  "appui": [
+   98,
+   44
+  ],
+  "source": "2_batiments_accessoires.webp",
+  "boite": [
+   368,
+   438,
+   688,
+   516
+  ]
+ },
+ "cloture_courte": {
+  "taille": [
+   132,
+   44
+  ],
+  "appui": [
+   66,
+   44
+  ],
+  "source": "2_batiments_accessoires.webp",
+  "boite": [
+   952,
+   442,
+   1150,
+   514
+  ]
+ },
+ "sacs": {
+  "taille": [
+   41,
+   34
+  ],
+  "appui": [
+   20,
+   34
+  ],
+  "source": "2_batiments_accessoires.webp",
+  "boite": [
+   678,
+   584,
+   770,
+   656
+  ]
+ },
+ "rocher_a": {
+  "taille": [
+   99,
+   54
+  ],
+  "appui": [
+   50,
+   54
+  ],
+  "source": "3_sols_nature.webp",
+  "boite": [
+   552,
+   378,
+   704,
+   462
+  ]
+ },
+ "rocher_b": {
+  "taille": [
+   64,
+   42
+  ],
+  "appui": [
+   32,
+   42
+  ],
+  "source": "3_sols_nature.webp",
+  "boite": [
+   716,
+   392,
+   824,
+   460
+  ]
+ },
+ "rocher_c": {
+  "taille": [
+   51,
+   32
+  ],
+  "appui": [
+   26,
+   32
+  ],
+  "source": "3_sols_nature.webp",
+  "boite": [
+   832,
+   398,
+   912,
+   452
+  ]
+ },
+ "rocher_d": {
+  "taille": [
+   38,
+   26
+  ],
+  "appui": [
+   19,
+   26
+  ],
+  "source": "3_sols_nature.webp",
+  "boite": [
+   922,
+   408,
+   988,
+   454
+  ]
+ },
+ "herbe_a": {
+  "taille": [
+   55,
+   35
+  ],
+  "appui": [
+   28,
+   35
+  ],
+  "source": "3_sols_nature.webp",
+  "boite": [
+   556,
+   466,
+   644,
+   528
+  ]
+ },
+ "herbe_b": {
+  "taille": [
+   69,
+   35
+  ],
+  "appui": [
+   34,
+   35
+  ],
+  "source": "3_sols_nature.webp",
+  "boite": [
+   656,
+   466,
+   766,
+   528
+  ]
+ },
+ "roseaux": {
+  "taille": [
+   41,
+   42
+  ],
+  "appui": [
+   20,
+   42
+  ],
+  "source": "3_sols_nature.webp",
+  "boite": [
+   794,
+   458,
+   864,
+   530
+  ]
+ },
+ "arbuste": {
+  "taille": [
+   67,
+   35
+  ],
+  "appui": [
+   34,
+   35
+  ],
+  "source": "3_sols_nature.webp",
+  "boite": [
+   890,
+   472,
+   994,
+   530
+  ]
+ },
+ "fleurs_lupins": {
+  "taille": [
+   72,
+   48
+  ],
+  "appui": [
+   36,
+   48
+  ],
+  "source": "3_sols_nature.webp",
+  "boite": [
+   556,
+   526,
+   684,
+   614
+  ]
+ },
+ "fleurs_violettes": {
+  "taille": [
+   68,
+   38
+  ],
+  "appui": [
+   34,
+   38
+  ],
+  "source": "3_sols_nature.webp",
+  "boite": [
+   700,
+   536,
+   816,
+   606
+  ]
+ },
+ "fleurs_petites": {
+  "taille": [
+   32,
+   26
+  ],
+  "appui": [
+   16,
+   26
+  ],
+  "source": "3_sols_nature.webp",
+  "boite": [
+   836,
+   552,
+   900,
+   606
+  ]
+ },
+ "champignons": {
+  "taille": [
+   38,
+   29
+  ],
+  "appui": [
+   19,
+   29
+  ],
+  "source": "3_sols_nature.webp",
+  "boite": [
+   566,
+   620,
+   636,
+   678
+  ]
+ },
+ "cristal_aether": {
+  "taille": [
+   44,
+   35
+  ],
+  "appui": [
+   22,
+   35
+  ],
+  "source": "3_sols_nature.webp",
+  "boite": [
+   916,
+   610,
+   996,
+   674
+  ]
+ },
+ "cristal_petit": {
+  "taille": [
+   24,
+   22
+  ],
+  "appui": [
+   12,
+   22
+  ],
+  "source": "3_sols_nature.webp",
+  "boite": [
+   1008,
+   634,
+   1064,
+   676
+  ]
+ },
+ "feuilles_mortes": {
+  "taille": [
+   54,
+   22
+  ],
+  "appui": [
+   27,
+   22
+  ],
+  "source": "3_sols_nature.webp",
+  "boite": [
+   774,
+   630,
+   864,
+   676
+  ]
+ }
+}
