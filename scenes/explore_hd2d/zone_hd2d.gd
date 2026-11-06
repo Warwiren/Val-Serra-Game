@@ -89,11 +89,7 @@ func _ready() -> void:
 	zone = JSON.parse_string(FileAccess.open(DIR + "zone.json", FileAccess.READ).get_as_text())
 	for p in zone["walkable"]:
 		walkable.append(Vector2(p[0], p[1]))
-	var bg := Sprite2D.new()
-	bg.texture = load(DIR + "fond.png")
-	bg.centered = false
-	bg.z_index = -4000
-	add_child(bg)
+	_ground()
 	# Éléments contournables : sprites triés par la ligne de leurs pieds (z = y)
 	for g in zone["sprites"]:
 		var e: Dictionary = zone["sprites"][g]
@@ -194,6 +190,40 @@ func _ready() -> void:
 		_autoplay()
 
 
+## Calques du sol à afficher : sol illustré importé (tools/explore/import_sol.py) s'il existe, sinon le fond
+## actuel. [fichier, mélange, échelle] ; mélange « mix » (normal) ou « add » (lumière ajoutée).
+static func ground_layers(dir: String, use_illustrated := true) -> Array:
+	if use_illustrated and FileAccess.file_exists(dir + "sol/sol.json"):
+		if FileAccess.file_exists(dir + "sol/sol.png"):          # calques fusionnés par l'importeur (cas normal)
+			return [[dir + "sol/sol.png", "mix", 0.5]]
+		var out := [[dir + "sol/sol_plaque.png", "mix", 0.5]]
+		for n in ["sol_ombres", "sol_lumieres"]:
+			if FileAccess.file_exists(dir + "sol/%s.png" % n):
+				out.append([dir + "sol/%s.png" % n, "add" if n == "sol_lumieres" else "mix", 0.5])
+		return out
+	return [[dir + "fond.png", "mix", 1.0]]
+
+
+## Sol : plaque 1408×800 affichée 1:1 (échelle 0,5 du monde), puis ombres des objets, puis lumière des lanternes.
+## Tous sous les éléments triés (z −4000 à −3998). --sol=ancien (ou --decor=ancien) : fond actuel.
+func _ground() -> void:
+	var z := -4000
+	for l in ground_layers(DIR, GameState.sol != "ancien" and GameState.decor != "ancien"):
+		var s := Sprite2D.new()
+		s.texture = load(l[0])
+		s.centered = false
+		s.scale = Vector2(l[2], l[2])
+		if l[2] < 1.0:
+			s.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		if l[1] == "add":
+			var m := CanvasItemMaterial.new()
+			m.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+			s.material = m
+		s.z_index = z
+		z += 1
+		add_child(s)
+
+
 ## DÉCOR ILLUSTRÉ (pilote, planches fournies) : art/explore_hd2d/hd/decor.json. Les textures sont en pixels
 ## d'écran et affichées à l'échelle 0,5 (la caméra double) : 1 pixel de texture = 1 pixel d'écran, sans
 ## pixellisation. Un élément remplacé garde son emprise au sol, sa ligne de tri et sa transparence locale.
@@ -227,7 +257,8 @@ func _illustrated_decor() -> void:
 	var index: Dictionary = JSON.parse_string(FileAccess.open(DIR + "hd/index.json", FileAccess.READ).get_as_text())
 	for d in spec["sol"]:
 		var a: Array = index[d[0]]["appui"]
-		var s := _hd_sprite(d[0], Vector2(d[1], d[2]), Vector2(a[0], a[1]))
+		# 4e champ éventuel : variante masquée par le décor du fond (tools/explore/masque_decor.py)
+		var s := _hd_sprite(d[3] if d.size() > 3 else d[0], Vector2(d[1], d[2]), Vector2(a[0], a[1]))
 		s.z_index = int(d[2])                             # trié comme les personnages (on passe devant ou derrière)
 
 

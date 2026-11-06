@@ -49,10 +49,11 @@ omb.save(os.path.join(OUT, "terrain", "terrain_avec_ombres_1408x800.png"))
 
 
 def shadow_mask(with_s, base):
-    a = np.asarray(with_s.convert("RGB")).astype(np.float32).mean(-1) + 1
-    b = np.asarray(base.convert("RGB")).astype(np.float32).mean(-1) + 1
+    from PIL import ImageFilter
+    a = np.asarray(with_s.convert("L").filter(ImageFilter.MedianFilter(5))).astype(np.float32) + 1
+    b = np.asarray(base.convert("L").filter(ImageFilter.MedianFilter(5))).astype(np.float32) + 1
     s = np.clip(1 - a / b, 0, 1)
-    s[s < 0.06] = 0
+    s[s < 0.10] = 0
     return Image.fromarray(np.dstack([np.zeros_like(s), np.zeros_like(s), np.full_like(s, 30), s * 255]).astype(np.uint8), "RGBA")
 
 
@@ -228,8 +229,9 @@ for name, e in z["sprites"].items():
         sp = Image.open(D + "el_%s.png" % name).convert("RGBA")
         im = sp.resize((sp.width * K, sp.height * K), Image.NEAREST); pos = (e["pos"][0] * K, e["pos"][1] * K)
     layers.append((int(e["sort_y"]), im, pos))
-for nm, x, y in spec["sol"]:
-    im = Image.open(D + "hd/%s.png" % nm).convert("RGBA"); a = index[nm]["appui"]
+for dcl in spec["sol"]:
+    nm, x, y = dcl[:3]
+    im = Image.open(D + "hd/%s.png" % (dcl[3] if len(dcl) > 3 else nm)).convert("RGBA"); a = index[nm]["appui"]
     layers.append((int(y), im, (round(x * K - a[0]), round(y * K - a[1]))))
 for _, im, pos in sorted(layers, key=lambda t: t[0]):
     tmp = Image.new("RGBA", (W, H)); tmp.alpha_composite(im, (max(0, pos[0]), max(0, pos[1])), (max(0, -pos[0]), max(0, -pos[1])))

@@ -210,3 +210,28 @@ func test_illustrated_decor_is_consistent() -> void:
 	for d in spec["sol"]:
 		var tex: Texture2D = load(dir + "hd/%s.png" % d[0])
 		check(tex != null and tex.get_height() <= 128, "détail au sol %s à la taille d'affichage (pas de texture surdimensionnée)" % d[0])
+
+
+## Sol illustré : sans fichiers importés, le jeu garde le fond actuel ; avec, il empile plaque, ombres et
+## lumières (affichées 1:1 à l'écran). Vérifié dans un dossier temporaire, sans toucher aux fichiers du jeu.
+func test_ground_layers_fall_back_and_stack() -> void:
+	var base := "user://test_sol/"
+	DirAccess.make_dir_recursive_absolute(base + "sol")
+	for f in ["sol/sol.json", "sol/sol_plaque.png", "sol/sol_ombres.png", "sol/sol_lumieres.png"]:
+		if FileAccess.file_exists(base + f):
+			DirAccess.remove_absolute(base + f)
+	var l: Array = Zone.ground_layers(base)
+	check(l.size() == 1 and l[0][0].ends_with("fond.png") and l[0][2] == 1.0, "sans sol importé : fond actuel")
+	FileAccess.open(base + "sol/sol.json", FileAccess.WRITE).store_string("{}")
+	for f in ["sol_plaque", "sol_ombres", "sol_lumieres"]:
+		FileAccess.open(base + "sol/%s.png" % f, FileAccess.WRITE).store_string("x")
+	l = Zone.ground_layers(base)
+	check(l.size() == 3, "plaque + ombres + lumières")
+	check(l[0][0].ends_with("sol_plaque.png") and l[0][2] == 0.5, "plaque affichée 1:1 à l'écran (échelle 0,5 du monde)")
+	check(l[2][1] == "add", "lumières ajoutées")
+	check(Zone.ground_layers(base, false)[0][0].ends_with("fond.png"), "--sol=ancien : fond actuel")
+	FileAccess.open(base + "sol/sol.png", FileAccess.WRITE).store_string("x")
+	l = Zone.ground_layers(base)
+	check(l.size() == 1 and l[0][0].ends_with("sol/sol.png"), "calques fusionnés par l'importeur : une seule texture")
+	DirAccess.remove_absolute(base + "sol/sol.png")
+	check(ResourceLoader.exists("res://art/explore_hd2d/fond.png"), "le fond actuel est conservé")

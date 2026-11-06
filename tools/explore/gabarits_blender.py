@@ -14,7 +14,8 @@ import json, os, sys
 
 OUT = sys.argv[1]
 SAMPLES = int(sys.argv[2]) if len(sys.argv) > 2 else 32
-ONLY_DEPTH = len(sys.argv) > 3 and sys.argv[3] == "profondeur"     # seulement les cartes de profondeur
+MODE = sys.argv[3] if len(sys.argv) > 3 else ""                  # "profondeur" | "lumieres" | "" (tout)
+ONLY_DEPTH = MODE == "profondeur"                                    # seulement les cartes de profondeur
 HERE = os.path.dirname(os.path.abspath(__file__))
 src = open(os.path.join(HERE, "scene_blender.py"), encoding="utf-8").read()
 cut = src.index('bpy.context.view_layer.update()\nrender(os.path.join(OUT, "plate.png")')
@@ -74,6 +75,11 @@ def depth_maps():
 
 if ONLY_DEPTH:
     depth_maps()
+    sys.exit(0)
+if MODE == "lumieres":            # terrain sans lanternes ni fenêtres allumées
+    for l in [o for o in sc.objects if o.type == "LIGHT" and (o.name.startswith("lanterne") or o.name.startswith("fenetre"))]:
+        l.hide_render = True
+    setup(); render(os.path.join(OUT, "terrain_sans_lumieres.png"), SAMPLES)
     sys.exit(0)
 setup(); render(os.path.join(OUT, "terrain_sans_objets.png"), SAMPLES)
 setup(shadow_groups=list(GROUPS)); render(os.path.join(OUT, "terrain_ombres_objets.png"), SAMPLES)
