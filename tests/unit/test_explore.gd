@@ -7,8 +7,33 @@ const Zone = preload("res://scenes/explore_hd2d/zone_hd2d.gd")
 func test_cannot_talk_from_far_can_talk_when_close() -> void:
 	var npc := Vector2(448, 170)
 	check(not Zone.can_talk(npc + Vector2(-80, -40), npc), "derrière la maison (≈ 90 px) : pas de dialogue")
-	check(not Zone.can_talk(npc + Vector2(-20, 0), npc), "à 20 px : pas encore de dialogue")
+	check(not Zone.can_talk(npc + Vector2(0, 30), npc), "30 px devant lui : pas encore de dialogue")
+	check(not Zone.can_talk(npc + Vector2(-26, 4), npc), "26 px à côté : pas encore de dialogue")
 	check(Zone.can_talk(npc + Vector2(-10, 4), npc), "à ≈ 11 px : dialogue possible")
+
+
+## Approches naturelles (arrêt quand les deux personnages se touchent) mesurées en jeu au clavier
+## (--course=pnj) : elles échouaient toutes avec l'ancien rayon de 14 px, sauf de face.
+func test_talk_zone_accepts_natural_approaches() -> void:
+	var npc := Vector2(448, 170)
+	for c in [["gauche", Vector2(-14.8, 7.5)], ["droite", Vector2(13.9, 5.1)], ["bas", Vector2(0.4, 12.2)],
+			["bas-gauche", Vector2(-7.0, 14.2)], ["bas-droite", Vector2(6.6, 13.5)], ["côte à côte", Vector2(-17, 2)]]:
+		check(Zone.can_talk(npc + c[1], npc), "approche %s %s : dialogue possible" % [c[0], str(c[1])])
+		check(c[1].length() >= 14.0 or c[0] == "bas", "(référence) l'ancien rayon de 14 px refusait l'approche %s" % c[0])
+
+
+func test_cannot_talk_through_an_obstacle() -> void:
+	var z = _zone_stub()
+	z.npc = Zone.Walker.new("pnj", false)
+	z.npc.position = Vector2(300, 250)
+	z._npc_solid = z._circle(z.npc.position, 5.0)
+	z.solids.append(z._npc_solid)
+	z.hero.position = Vector2(282, 250)
+	check(z.can_talk_now(), "à 18 px, rien entre eux : dialogue possible")
+	z.solids.append(PackedVector2Array([Vector2(289, 240), Vector2(292, 240), Vector2(292, 260), Vector2(289, 260)]))
+	check(not z.can_talk_now(), "même distance, une palissade entre eux : pas de dialogue")
+	z.npc.free()
+	_free_stub(z)
 
 
 func test_monster_contact_matches_visual_proximity() -> void:
@@ -141,3 +166,12 @@ func test_demo_route_is_simplified_without_micro_waypoints() -> void:
 	var out: PackedVector2Array = z.simplify_path(pts)
 	check_eq(out.size(), 2, "ligne droite praticable : un seul segment")
 	_free_stub(z)
+
+
+func test_sprite_feet_match_logical_position_from_the_start() -> void:
+	for spec in [["pnj", false], ["aren", true], ["ilya", false]]:
+		var w := Zone.Walker.new(spec[0], spec[1])
+		var tex: Texture2D = w.spr.sprite_frames.get_frame_texture(w.spr.animation, w.spr.frame)
+		var feet: Vector2 = w.spr.offset + Vector2(tex.get_width() / 2.0, tex.get_height())
+		check(absf(feet.x) <= 1.0 and absf(feet.y) < 0.01, "%s : pieds du sprite sur la position dès l'apparition (écart %s)" % [spec[0], str(feet)])
+		w.free()

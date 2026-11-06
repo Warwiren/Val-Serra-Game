@@ -101,6 +101,9 @@ func _process(_delta: float) -> void:
 
 ## Lancement direct d'une scène (démo, captures) : godot --path . -- --start=battle
 func _start_scene(path: String) -> void:
+	var cur := get_tree().current_scene
+	if cur != null and cur.scene_file_path == path:
+		return                                   # déjà la scène principale (F5) : ne pas la charger deux fois
 	get_tree().change_scene_to_file(path)
 
 

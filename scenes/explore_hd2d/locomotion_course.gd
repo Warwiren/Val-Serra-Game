@@ -33,7 +33,7 @@ func _init(z, m: String) -> void:
 
 func _ready() -> void:
 	process_priority = 1000             # mesure APRÈS la mise à jour de la zone (même image)
-	if mode == "manuel":
+	if mode == "manuel" or mode == "pnj":
 		var layer := CanvasLayer.new()
 		layer.layer = 50
 		add_child(layer)
@@ -45,6 +45,8 @@ func _ready() -> void:
 		layer.add_child(_hud)
 	if mode == "manuel":
 		_run.call_deferred()
+	elif mode == "pnj":
+		_run_pnj.call_deferred()
 
 
 ## Parcours : départ arrêté, ligne droite, arrêts, diagonales, virages enchaînés, glissement contre un obstacle,
@@ -82,6 +84,74 @@ func _run() -> void:
 	await _step("relâchement décalé (bas lâché en premier)", [K_L], 0.05)
 	await _step("arrêt final", [], 1.2)
 	_finish()
+
+
+## Parcours « PNJ » : on s'approche du garde AU CLAVIER depuis plusieurs côtés, comme un joueur : on marche
+## vers lui et on s'arrête quand les deux personnages se touchent visuellement (ou quand on bute sur lui),
+## puis on appuie sur E. On vérifie aussi qu'on ne parle ni de loin ni à travers la maison.
+## godot --path . -- --start=hd2d-zone --course=pnj
+func _run_pnj() -> void:
+	await get_tree().create_timer(0.6).timeout
+	var n: Vector2 = zone.npc.position
+	var results := []
+	# [nom, départ, touches tenues, arrêt quand (personnages côte à côte), parler attendu]
+	var cases := [
+		["gauche", n + Vector2(-40, 6), [K_R], func(p: Vector2): return p.x >= n.x - 16.0, true],
+		["droite", n + Vector2(40, 2), [K_L], func(p: Vector2): return p.x <= n.x + 16.0, true],
+		["bas", n + Vector2(0, 40), [K_U], func(p: Vector2): return p.y <= n.y + 14.0, true],
+		["bas-gauche (diagonale)", n + Vector2(-32, 34), [K_U, K_R], func(p: Vector2): return p.distance_to(n) <= 17.0, true],
+		["bas-droite (diagonale)", n + Vector2(32, 34), [K_U, K_L], func(p: Vector2): return p.distance_to(n) <= 17.0, true],
+		["gauche, on longe le mur jusque sous lui", n + Vector2(-40, 6), [K_R], func(p: Vector2): return p.x >= n.x - 3.0, true],
+		["bas, contre lui", n + Vector2(0, 40), [K_U], func(_p: Vector2): return false, true],
+		["trop loin (bas, 34 px)", n + Vector2(0, 40), [K_U], func(p: Vector2): return p.y <= n.y + 34.0, false],
+		["derrière la maison", n + Vector2(-8, -78), [K_D], func(_p: Vector2): return false, false],
+	]
+	for c in cases:
+		if c[0] == "derrière la maison":                      # on fait le tour par la gauche, comme un joueur
+			for wp in [Vector2(392, 200), Vector2(296, 205), Vector2(296, 160), Vector2(318, 113)]:
+				await _goto("contournement", wp)
+		await _goto("départ " + c[0], c[1])
+		events.append({"t": _t, "label": "approche " + c[0], "depart": zone.hero.position})
+		_set_keys(c[2])
+		var t := 0.0
+		var last: Vector2 = zone.hero.position
+		var still := 0.0
+		while t < 3.0:
+			await get_tree().process_frame
+			t += get_process_delta_time()
+			still = still + get_process_delta_time() if zone.hero.position.distance_to(last) < 0.05 else 0.0
+			last = zone.hero.position
+			if c[3].call(zone.hero.position) or still > 0.25:
+				break
+		_set_keys([])
+		await get_tree().create_timer(0.25).timeout
+		var prompt: String = zone._prompt.text if zone._prompt.visible else ""
+		_press(KEY_E)
+		await get_tree().create_timer(0.1).timeout
+		var opened: bool = zone._dialog.is_open()
+		var ok: bool = opened == c[4]
+		var d: Vector2 = zone.hero.position - n
+		results.append({"cas": c[0], "position_relative": [snappedf(d.x, 0.1), snappedf(d.y, 0.1)], "distance": snappedf(d.length(), 0.1),
+				"invite": prompt, "dialogue": opened, "attendu": c[4], "ok": ok and (prompt == "E  Parler") == opened})
+		print("PNJ %s %-24s rel=(%5.1f,%5.1f) dist=%4.1f invite=«%s» dialogue=%s" % ["ok  " if results[-1]["ok"] else "ÉCHEC", c[0], d.x, d.y, d.length(), prompt, opened])
+		_shot("pnj " + c[0])
+		if opened:
+			_press(KEY_ESCAPE)
+			await get_tree().create_timer(0.3).timeout
+	var fails := results.filter(func(r): return not r["ok"])
+	print("PNJ VERDICT : %s (%d/%d)" % ["RÉUSSI" if fails.is_empty() else "ÉCHEC", results.size() - fails.size(), results.size()])
+	if out_path != "":
+		FileAccess.open(out_path, FileAccess.WRITE).store_string(JSON.stringify({"pnj": results}, "  "))
+	get_tree().quit(0 if fails.is_empty() else 1)
+
+
+func _press(k: Key) -> void:
+	for down in [true, false]:
+		var ev := InputEventKey.new()
+		ev.keycode = k
+		ev.physical_keycode = k
+		ev.pressed = down
+		Input.parse_input_event(ev)
 
 
 func _step(label: String, keys: Array, sec: float) -> void:
