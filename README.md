@@ -65,6 +65,8 @@ vérification du dialogue par touches simulées).
   grand arbre, cadre, perspective et fichiers à fournir dans **`docs/GABARITS_EXPLORATION.md`**.
 - **Sol illustré (branche `sol-illustre`)** : déposer `sol_plaque.png` (1408×800) dans `art/source/sol/`, puis
   `python3 tools/explore/import_sol.py` ; détails dans **`docs/INTEGRATION_SOL.md`**. `--sol=ancien` pour comparer.
+- **Essai de décor v2 (branche `essai-decor-v2`)** : **F5 lance l'essai** (réglage `val_serra/essai_decor` dans
+  `project.godot`, vider pour revenir au jeu normal) ; compte rendu **`docs/ESSAI_DECOR_V2.md`**.
 - **Essai de décor v1 (branche `essai-decor-v1`, non intégré)** : `godot --path . -- --essai=v1` ; sol recalé,
   grand arbre et buissons tirés des concepts ; compte rendu **`docs/ESSAI_DECOR_V1.md`**.
 - **Décors illustrés (branche `decors-illustres`)** : arène illustrée, accessoires et sol illustrés en exploration ;

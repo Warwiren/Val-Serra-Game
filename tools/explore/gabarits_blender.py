@@ -76,6 +76,10 @@ def depth_maps():
 if ONLY_DEPTH:
     depth_maps()
     sys.exit(0)
+if MODE == "arbre_d":                                         # gabarit de l'arbre de droite
+    setup(camera_groups=["arbre_d"], terrain=False); render(os.path.join(OUT, "arbre_d_seul.png"), SAMPLES, transparent=True)
+    setup(shadow_groups=["arbre_d"]); render(os.path.join(OUT, "terrain_ombre_arbre_d.png"), SAMPLES)
+    sys.exit(0)
 if MODE == "lumieres":            # terrain sans lanternes ni fenêtres allumées
     for l in [o for o in sc.objects if o.type == "LIGHT" and (o.name.startswith("lanterne") or o.name.startswith("fenetre"))]:
         l.hide_render = True

@@ -239,7 +239,14 @@ func test_ground_layers_fall_back_and_stack() -> void:
 
 ## Essai de décor (--essai=v1) : fichiers cohérents, éléments remplacés existants, sol d'essai séparé du sol du jeu.
 func test_decor_trial_is_isolated_and_consistent() -> void:
-	var base := "res://art/explore_hd2d/essai_v1/"
+	for v in ["v1", "v2"]:
+		_check_trial(v)
+	var setting := str(ProjectSettings.get_setting("val_serra/essai_decor", ""))
+	check(setting == "" or FileAccess.file_exists("res://art/explore_hd2d/essai_%s/essai.json" % setting), "réglage F5 « val_serra/essai_decor » = %s : essai présent" % setting)
+
+
+func _check_trial(v: String) -> void:
+	var base := "res://art/explore_hd2d/essai_%s/" % v
 	if not FileAccess.file_exists(base + "essai.json"):
 		return
 	var spec: Dictionary = JSON.parse_string(FileAccess.open(base + "essai.json", FileAccess.READ).get_as_text())
@@ -250,6 +257,6 @@ func test_decor_trial_is_isolated_and_consistent() -> void:
 			check(ResourceLoader.exists(base + "%s.png" % layer), "calque %s" % layer)
 	for k in spec.get("masquer", []):
 		check(zone["sprites"].has(k) and not zone["sprites"][k]["solid"], "élément masqué « %s » sans collision" % k)
-	var l: Array = Zone.ground_layers("res://art/explore_hd2d/", true, "essai_v1/sol/")
-	check(l[0][0].contains("essai_v1/sol/"), "sol d'essai lu dans son propre dossier")
+	var l: Array = Zone.ground_layers("res://art/explore_hd2d/", true, "essai_%s/sol/" % v)
+	check(l[0][0].contains("essai_%s/sol/" % v), "sol d'essai %s lu dans son propre dossier" % v)
 	check(not FileAccess.file_exists("res://art/explore_hd2d/sol/sol.json"), "aucun sol intégré par défaut (jeu inchangé sans --essai)")
