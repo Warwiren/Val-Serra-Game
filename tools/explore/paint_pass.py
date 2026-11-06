@@ -27,83 +27,94 @@ def reduce(a):
 
 
 plate = reduce(np.asarray(Image.open(os.path.join(SRC, "plate.png")).convert("RGB")).astype(np.float32))
+terrain_path = os.path.join(SRC, "terrain.png")
+terrain = reduce(np.asarray(Image.open(terrain_path).convert("RGB")).astype(np.float32)) if os.path.exists(terrain_path) else None
 masks = {}
 for g in layout["elements"]:
     m = np.asarray(Image.open(os.path.join(SRC, "mask_%s.png" % g)).convert("RGBA")).astype(np.float32)
-    # masque rendu à 1 éch./px à la résolution finale ×SS : alpha moyen par bloc
     masks[g] = reduce(m[..., 3:4])[..., 0] > 100
 
-# --- 2. étalonnage --------------------------------------------------------------------------------------
-rgb = plate / 255.0
-lum = rgb.mean(-1, keepdims=True)
-warm = (rgb[..., 0] > rgb[..., 2] * 1.3) & (lum[..., 0] > 0.25)
-green = (rgb[..., 1] > rgb[..., 0] * 1.05) & (rgb[..., 1] > rgb[..., 2] * 0.85) & ~warm
-sat = np.where(green[..., None], 1.55, np.where(warm[..., None], 1.25, 1.15))
-rgb = lum + (rgb - lum) * sat
-rgb = np.where(green[..., None], rgb * np.array([0.95, 1.12, 0.95]), rgb)
-shadow = lum[..., 0] < 0.16
-rgb[shadow] = rgb[shadow] * 0.85 + np.array([0.035, 0.03, 0.08])          # ombres teintées bleu-violet
-rgb = np.clip(rgb ** 0.92, 0, 1) * 255.0
 
-# --- 3b. suppression du scintillement (bruit de rendu : pixels isolés bien plus clairs que leur voisinage) --------
-def med3(a):
-    st = np.stack([np.roll(np.roll(a, dy, 0), dx, 1) for dy in (-1, 0, 1) for dx in (-1, 0, 1)])
-    return np.median(st, axis=0)
+def paint(plate, el_masks, seed):
+    """Étalonnage + scintillement + feuillage + herbe peints. Même graine -> mêmes touffes sur le fond et les objets."""
+    rng = np.random.default_rng(seed)
+    # --- 2. étalonnage --------------------------------------------------------------------------------------
+    rgb = plate / 255.0
+    lum = rgb.mean(-1, keepdims=True)
+    warm = (rgb[..., 0] > rgb[..., 2] * 1.3) & (lum[..., 0] > 0.25)
+    green = (rgb[..., 1] > rgb[..., 0] * 1.05) & (rgb[..., 1] > rgb[..., 2] * 0.85) & ~warm
+    sat = np.where(green[..., None], 1.55, np.where(warm[..., None], 1.25, 1.15))
+    rgb = lum + (rgb - lum) * sat
+    rgb = np.where(green[..., None], rgb * np.array([0.95, 1.12, 0.95]), rgb)
+    shadow = lum[..., 0] < 0.16
+    rgb[shadow] = rgb[shadow] * 0.85 + np.array([0.035, 0.03, 0.08])          # ombres teintées bleu-violet
+    rgb = np.clip(rgb ** 0.92, 0, 1) * 255.0
+
+    # --- 3b. suppression du scintillement (bruit de rendu : pixels isolés bien plus clairs que leur voisinage) --------
+    def med3(a):
+        st = np.stack([np.roll(np.roll(a, dy, 0), dx, 1) for dy in (-1, 0, 1) for dx in (-1, 0, 1)])
+        return np.median(st, axis=0)
 
 
-lumc = rgb.mean(-1)
-spark = (lumc > med3(lumc) + 26) & ~warm
-rgb[spark] = np.stack([med3(rgb[..., k]) for k in range(3)], -1)[spark]
+    lumc = rgb.mean(-1)
+    spark = (lumc > med3(lumc) + 26) & ~warm
+    rgb[spark] = np.stack([med3(rgb[..., k]) for k in range(3)], -1)[spark]
 
-# --- 3c. feuillage peint : touffes de feuilles (dessus éclairé, creux sombre) sur arbres, buissons et lisière --
-foliage = np.zeros((NH, NW), bool)
-for g, m in masks.items():
-    if g.startswith("arbre") or g.startswith("buisson"):
-        foliage |= m
-back = np.array(layout["walkable"])[:, 1].min()               # haut du plateau : au-dessus, la lisière de forêt
-foliage |= green & (np.arange(NH)[:, None] < back - 4)
-lumf = rgb.mean(-1)
-locl = np.stack([np.roll(np.roll(lumf, dy, 0), dx, 1) for dy in (-3, 0, 3) for dx in (-3, 0, 3)]).mean(0)
-LEAF = [np.array(c) for c in ((34, 62, 52), (58, 96, 66), (96, 132, 84), (140, 160, 112))]
-for _ in range(int(foliage.sum() / 14)):
-    y, x = rng.integers(3, NH - 4), rng.integers(4, NW - 5)
-    if not foliage[y, x]:
-        continue
-    # ton de la grappe selon l'éclairage local (le volume 3D sert de guide de valeurs, pas de texture)
-    v = (lumf[y, x] - 40) / 70 + (0.35 if lumf[y, x] > locl[y, x] else -0.15)
-    k = int(np.clip(v * 2.2, 0, 3))
-    hi, lo = LEAF[k], LEAF[max(0, k - 1)] * 0.7
-    w = int(rng.integers(3, 6))
-    for dx in range(w):                                    # grappe : arc de feuilles éclairé, creux sombre dessous
-        yy_ = y - (1 if 0 < dx < w - 1 else 0)
-        if foliage[yy_, x + dx]:
-            rgb[yy_, x + dx] = hi
-        if foliage[y + 1, x + dx] and rng.random() < 0.7:
-            rgb[y + 1, x + dx] = lo
+    # --- 3c. feuillage peint : touffes de feuilles (dessus éclairé, creux sombre) sur arbres, buissons et lisière --
+    foliage = np.zeros((NH, NW), bool)
+    for g, m in el_masks.items():
+        if g.startswith("arbre") or g.startswith("buisson"):
+            foliage |= m
+    back = np.array(layout["walkable"])[:, 1].min()               # haut du plateau : au-dessus, la lisière de forêt
+    foliage |= green & (np.arange(NH)[:, None] < back - 4)
+    lumf = rgb.mean(-1)
+    locl = np.stack([np.roll(np.roll(lumf, dy, 0), dx, 1) for dy in (-3, 0, 3) for dx in (-3, 0, 3)]).mean(0)
+    LEAF = [np.array(c) for c in ((34, 62, 52), (58, 96, 66), (96, 132, 84), (140, 160, 112))]
+    for _ in range(int(foliage.sum() / 14)):
+        y, x = rng.integers(3, NH - 4), rng.integers(4, NW - 5)
+        if not foliage[y, x]:
+            continue
+        # ton de la grappe selon l'éclairage local (le volume 3D sert de guide de valeurs, pas de texture)
+        v = (lumf[y, x] - 40) / 70 + (0.35 if lumf[y, x] > locl[y, x] else -0.15)
+        k = int(np.clip(v * 2.2, 0, 3))
+        hi, lo = LEAF[k], LEAF[max(0, k - 1)] * 0.7
+        w = int(rng.integers(3, 6))
+        for dx in range(w):                                    # grappe : arc de feuilles éclairé, creux sombre dessous
+            yy_ = y - (1 if 0 < dx < w - 1 else 0)
+            if foliage[yy_, x + dx]:
+                rgb[yy_, x + dx] = hi
+            if foliage[y + 1, x + dx] and rng.random() < 0.7:
+                rgb[y + 1, x + dx] = lo
 
-# --- 4. herbe peinte (avant la palette, pour qu'elle en fasse partie) -----------------------------------
-any_el = np.zeros((NH, NW), bool)
-for g, m in masks.items():
-    any_el |= m
-ground = green & ~any_el
-yy, xx = np.mgrid[0:NH, 0:NW]
-for _ in range(int(NW * NH / 22)):                                          # touffes : brins clairs + pied sombre
-    x, y = rng.integers(1, NW - 1), rng.integers(3, NH)
-    if ground[y, x] and ground[y - 2, x]:
-        base = rgb[y, x].copy()
-        rgb[y - 2:y, x] = np.clip(base * 1.16 + np.array([2, 8, 0]), 0, 255)
-        rgb[y, x] = base * 0.72
-for _ in range(int(NW * NH / 380)):                                         # fleurs violettes / blanches en petits groupes
-    fx, fy = rng.integers(3, NW - 3), rng.integers(3, NH - 3)
-    if not ground[fy, fx]:
-        continue
-    col = np.array([150, 108, 196]) if rng.random() < 0.8 else np.array([176, 160, 200])
-    for _ in range(rng.integers(2, 6)):
-        x, y = fx + rng.integers(-3, 4), fy + rng.integers(-2, 3)
-        if 0 <= x < NW and 0 <= y < NH and ground[y, x]:
-            rgb[y, x] = col * (0.75 + 0.5 * lum[y, x, 0])
+    # --- 4. herbe peinte (avant la palette, pour qu'elle en fasse partie) -----------------------------------
+    any_el = np.zeros((NH, NW), bool)
+    for g, m in el_masks.items():
+        any_el |= m
+    ground = green & ~any_el
+    yy, xx = np.mgrid[0:NH, 0:NW]
+    for _ in range(int(NW * NH / 22)):                                          # touffes : brins clairs + pied sombre
+        x, y = rng.integers(1, NW - 1), rng.integers(3, NH)
+        if ground[y, x] and ground[y - 2, x]:
+            base = rgb[y, x].copy()
+            rgb[y - 2:y, x] = np.clip(base * 1.16 + np.array([2, 8, 0]), 0, 255)
+            rgb[y, x] = base * 0.72
+    for _ in range(int(NW * NH / 380)):                                         # fleurs violettes / blanches en petits groupes
+        fx, fy = rng.integers(3, NW - 3), rng.integers(3, NH - 3)
+        if not ground[fy, fx]:
+            continue
+        col = np.array([150, 108, 196]) if rng.random() < 0.8 else np.array([176, 160, 200])
+        for _ in range(rng.integers(2, 6)):
+            x, y = fx + rng.integers(-3, 4), fy + rng.integers(-2, 3)
+            if 0 <= x < NW and 0 <= y < NH and ground[y, x]:
+                rgb[y, x] = col * (0.75 + 0.5 * lum[y, x, 0])
+
+    return rgb, warm
+
 
 # --- 3. palette -----------------------------------------------------------------------------------------
+rgb, warm = paint(plate, masks, 11)
+rng = np.random.default_rng(11)
+yy, xx = np.mgrid[0:NH, 0:NW]
 px = rgb.reshape(-1, 3)
 K = 40
 c = px[rng.choice(len(px), K, replace=False)]
@@ -123,6 +134,24 @@ for i in range(0, len(flat), 20000):
     idx[i:i + 20000] = ((flat[i:i + 20000, None] - c[None]) ** 2).sum(-1).argmin(1)
 out = c[idx].reshape(NH, NW, 3)
 
+
+
+def quantize(img_rgb):
+    q2 = img_rgb + bayer
+    ix = np.zeros(NH * NW, int)
+    fl = q2.reshape(-1, 3)
+    for i0 in range(0, len(fl), 20000):
+        ix[i0:i0 + 20000] = ((fl[i0:i0 + 20000, None] - c[None]) ** 2).sum(-1).argmin(1)
+    return c[ix].reshape(NH, NW, 3)
+
+
+# Fond = TERRAIN SEUL (sans les objets triés), peint et quantifié avec la même palette
+if terrain is not None:
+    trgb, _ = paint(terrain, {}, 11)
+    back_out = quantize(trgb)
+else:
+    back_out = out.copy()
+
 # --- 5. contours des éléments ---------------------------------------------------------------------------
 def edge_of(m):
     nb = sum(np.roll(np.roll(m, dy, 0), dx, 1).astype(int) for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)))
@@ -137,7 +166,8 @@ for g, m in masks.items():
 
 # --- 6. découpe ------------------------------------------------------------------------------------------
 img = np.dstack([out, np.full((NH, NW), 255.0)]).astype(np.uint8)
-Image.fromarray(img, "RGBA").save(os.path.join(OUT, "fond.png"))
+Image.fromarray(np.dstack([back_out, np.full((NH, NW), 255.0)]).astype(np.uint8), "RGBA").save(os.path.join(OUT, "fond.png"))
+Image.fromarray(img, "RGBA").save(os.path.join(OUT, "apercu_complet.png"))     # contrôle : scène complète
 sprites = {}
 for g, m in masks.items():
     if not m.any():

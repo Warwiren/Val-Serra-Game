@@ -1,0 +1,245 @@
+{
+  "echecs": [],
+  "events": [
+    {
+      "depart": "(266.3, 299.7)",
+      "label": "départ arrêté",
+      "t": 0.800000000000001
+    },
+    {
+      "depart": "(266.3, 299.7)",
+      "label": "droite",
+      "t": 1.31666666666667
+    },
+    {
+      "depart": "(338.3007, 299.7)",
+      "label": "arrêt",
+      "t": 2.31666666666666
+    },
+    {
+      "depart": "(338.3007, 299.7)",
+      "label": "haut",
+      "t": 2.83333333333333
+    },
+    {
+      "depart": "(338.3007, 259.3804)",
+      "label": "arrêt",
+      "t": 3.53333333333333
+    },
+    {
+      "depart": "(338.3007, 259.3804)",
+      "label": "diagonale haut-gauche",
+      "t": 3.94999999999999
+    },
+    {
+      "depart": "(292.4795, 222.7242)",
+      "label": "relâchement décalé (gauche lâché en premier)",
+      "t": 4.84999999999999
+    },
+    {
+      "depart": "(292.4795, 218.8841)",
+      "label": "arrêt",
+      "t": 4.91666666666665
+    },
+    {
+      "depart": "(292.4795, 218.8841)",
+      "label": "diagonale bas-droite",
+      "t": 5.43333333333332
+    },
+    {
+      "depart": "(333.2095, 251.4674)",
+      "label": "virage : droite",
+      "t": 6.23333333333332
+    },
+    {
+      "depart": "(363.2098, 251.4674)",
+      "label": "virage : haut",
+      "t": 6.64999999999998
+    },
+    {
+      "depart": "(363.2098, 227.4672)",
+      "label": "virage : gauche",
+      "t": 7.06666666666665
+    },
+    {
+      "depart": "(332.6095, 226.8672)",
+      "label": "demi-tour : droite",
+      "t": 7.58333333333331
+    },
+    {
+      "depart": "(369.2098, 226.2672)",
+      "label": "arrêt",
+      "t": 8.09999999999998
+    },
+    {
+      "depart": "(369.2098, 226.2672)",
+      "label": "devant les caisses",
+      "ok": true,
+      "t": 8.61666666666667
+    },
+    {
+      "depart": "(332.1049, 205.2238)",
+      "label": "glissement : haut-droite contre la maison",
+      "t": 9.28333333333337
+    },
+    {
+      "depart": "(412.3649, 176.7135)",
+      "label": "arrêt",
+      "t": 10.9000000000001
+    },
+    {
+      "depart": "(412.3649, 176.7135)",
+      "label": "retour devant la porte",
+      "ok": true,
+      "t": 11.3166666666668
+    },
+    {
+      "depart": "(391.9999, 197.8052)",
+      "label": "devant le banc",
+      "ok": true,
+      "t": 11.8000000000002
+    },
+    {
+      "depart": "(298.8107, 204.1957)",
+      "label": "côté gauche de la maison",
+      "ok": true,
+      "t": 13.1500000000002
+    },
+    {
+      "depart": "(297.6107, 161.9554)",
+      "label": "arrière gauche",
+      "ok": true,
+      "t": 13.9000000000003
+    },
+    {
+      "depart": "(317.4957, 115.4237)",
+      "label": "arrière droit",
+      "ok": true,
+      "t": 14.8333333333337
+    },
+    {
+      "depart": "(437.7779, 89.34714)",
+      "label": "au-delà de l'angle",
+      "ok": true,
+      "t": 16.7500000000003
+    },
+    {
+      "depart": "(510.1802, 111.7484)",
+      "label": "droite des tonneaux",
+      "ok": true,
+      "t": 17.9166666666669
+    },
+    {
+      "depart": "(511.3802, 167.4286)",
+      "label": "devant le garde",
+      "ok": true,
+      "t": 18.9000000000002
+    },
+    {
+      "depart": "(454.1664, 185.3591)",
+      "label": "arrêt",
+      "t": 19.8333333333335
+    },
+    {
+      "depart": "(452.9663, 185.3591)",
+      "label": "devant la porte",
+      "ok": true,
+      "t": 20.4333333333335
+    },
+    {
+      "depart": "(394.3466, 199.6143)",
+      "label": "diagonale bas-gauche",
+      "t": 21.3500000000001
+    },
+    {
+      "depart": "(343.0826, 239.6645)",
+      "label": "relâchement décalé (bas lâché en premier)",
+      "t": 22.35
+    },
+    {
+      "depart": "(338.2826, 239.6645)",
+      "label": "arrêt final",
+      "t": 22.4166666666667
+    }
+  ],
+  "summary": {
+    "aren": {
+      "arrets_pendant_marche_du_heros": 0,
+      "changements_orientation": 18,
+      "distance_marche_px": 1179.5,
+      "erreurs_profondeur_images": {
+
+      },
+      "flashs_repos_en_marche": 0,
+      "images_de_pas_avancees": 193,
+      "images_en_position_interdite": 0,
+      "orientations_breves": 2,
+      "px_par_image_de_marche_moy": 5.51,
+      "px_par_image_ecart_type": 1.36,
+      "ratio_pas_distance": 0.98
+    },
+    "chevauchements": [
+      "aren-ilya @5.53s (diagonale bas-droite)",
+      "aren-ilya @7.70s (demi-tour : droite)",
+      "aren-ilya @8.77s (devant les caisses)",
+      "aren-ilya @9.45s (glissement : haut-droite contre la maison)",
+      "aren-ilya @11.43s (retour devant la porte)",
+      "ilya-throne @5.85s (diagonale bas-droite)",
+      "ilya-throne @7.97s (demi-tour : droite)",
+      "ilya-throne @9.07s (devant les caisses)",
+      "ilya-throne @9.75s (glissement : haut-droite contre la maison)",
+      "ilya-throne @11.73s (retour devant la porte)"
+    ],
+    "duree_s": 23.62,
+    "ecart_aren_ilya": {
+      "ecart_type": 2.91,
+      "images_chevauchement": 20,
+      "max": 20.0,
+      "min": 1.2,
+      "moy": 18.63
+    },
+    "ecart_ilya_throne": {
+      "ecart_type": 2.93,
+      "images_chevauchement": 21,
+      "max": 20.0,
+      "min": 1.3,
+      "moy": 18.63
+    },
+    "etapes_ratees": [],
+    "frames": 1417,
+    "ilya": {
+      "arrets_pendant_marche_du_heros": 0,
+      "changements_orientation": 9,
+      "distance_marche_px": 1171.6,
+      "erreurs_profondeur_images": {
+
+      },
+      "flashs_repos_en_marche": 0,
+      "images_de_pas_avancees": 191,
+      "images_en_position_interdite": 0,
+      "orientations_breves": 0,
+      "px_par_image_de_marche_moy": 5.83,
+      "px_par_image_ecart_type": 0.94,
+      "ratio_pas_distance": 0.98
+    },
+    "orientations_breves_detail": [
+      "aren back→right @5.45s (diagonale bas-droite)",
+      "aren face→left @11.88s (devant le banc)"
+    ],
+    "throne": {
+      "arrets_pendant_marche_du_heros": 0,
+      "changements_orientation": 9,
+      "distance_marche_px": 1172.5,
+      "erreurs_profondeur_images": {
+
+      },
+      "flashs_repos_en_marche": 0,
+      "images_de_pas_avancees": 191,
+      "images_en_position_interdite": 0,
+      "orientations_breves": 0,
+      "px_par_image_de_marche_moy": 5.83,
+      "px_par_image_ecart_type": 0.93,
+      "ratio_pas_distance": 0.98
+    }
+  }
+}

@@ -8,20 +8,57 @@ extends Node2D
 ## Commandes : flèches / ZQSD (8 directions), E parler, toucher le monstre = combat.
 
 const DialogueBox = preload("res://src/proto/dialogue_box.gd")
+## Transparence LOCALE d'un élément de décor : ellipses douces autour des personnages qui sont derrière.
+const OCC_SHADER_CODE := """
+shader_type canvas_item;
+uniform vec2 holes[3];
+uniform int hole_count = 0;
+uniform vec2 radius = vec2(11.0, 17.0);
+uniform float min_alpha = 0.5;
+void fragment() {
+	vec2 px = UV / TEXTURE_PIXEL_SIZE;
+	float a = 1.0;
+	for (int i = 0; i < hole_count; i++) {
+		vec2 d = (px - holes[i]) / radius;
+		float r = length(d);
+		a = min(a, mix(min_alpha, 1.0, smoothstep(0.55, 1.0, r)));
+	}
+	COLOR.a *= a;                       // COLOR contient déjà texture × modulation (Godot 4)
+}
+"""
+static var OCC_SHADER: Shader = null
+
+
+## Règle unique de dialogue (utilisée par le joueur, la démo et les tests) : il faut être PRÈS du PNJ.
+static func can_talk(hero_pos: Vector2, npc_pos: Vector2, talk_range := 14.0) -> bool:
+	return hero_pos.distance_to(npc_pos) < talk_range
+
+
+## Contact monstre : pieds du héros dans l'ellipse au sol du monstre élargie d'une petite marge.
+static func touches_monster(hero_pos: Vector2, mpos: Vector2, rx: float, ry: float, margin := 6.0) -> bool:
+	var d := hero_pos - mpos
+	return (d.x / (rx + margin)) ** 2 + (d.y / (ry + margin * 0.5)) ** 2 < 1.0
 const DIR := "res://art/explore_hd2d/"
 const SPEED := 72.0                       # px natifs / s (≈ 3,6 m/s)
 const Y_FACTOR := 0.8                     # vitesse verticale réduite (perspective)
 const FOOT_R := 3.0                       # rayon de collision des pieds (px natifs)
-const FOLLOW_GAP := 18.0                  # écart de file entre les membres du groupe
+const FOLLOW_GAP := 20.0                  # écart de file, mesuré LE LONG de la trace du héros (px natifs)
+const TRAIL_STEP := 1.0                   # un point de trace par px parcouru
 const TALK_RANGE := 14.0                  # il faut être tout près du garde pour parler
 const NOTICE_RANGE := 34.0                # au-delà : simple bulle « … » au-dessus du PNJ
-const ENGAGE_RANGE := 22.0
+const ENGAGE_MARGIN := 6.0               # le combat se déclenche quand on touche presque le monstre (ellipse au sol + 6 px)
+const OCC_RX := 11.0                     # trou de transparence locale autour du personnage caché (px natifs)
+const OCC_RY := 17.0
+const OCC_ALPHA := 0.5
 const DIALOGUE := "res://data/dialogue/pnj_proto.json"
 
 var zone: Dictionary
 var walkable := PackedVector2Array()
 var solids: Array = []                    # PackedVector2Array (emprises au sol)
-var occluders: Array = []                 # [{sprite, sort_y, rect}] : grands éléments qui peuvent cacher le groupe
+var occluders: Array = []                 # [{sprite, sort_y, rect, mat}] : éléments qui peuvent cacher le groupe
+var monster_rx := 20.0                    # demi-axes de l'emprise au sol du monstre (ellipse)
+var monster_ry := 8.0
+var demo_log: Array = []                  # trace des étapes de la démo (vérification)
 var hero: Walker
 var party: Array = []                     # [hero, ilya, throne]
 var npc: Walker
@@ -33,11 +70,14 @@ var _dialog
 var _prompt: Label
 var _locked := false
 var _engaging := false
-var _auto_target := Vector2.INF
+var _auto_path := PackedVector2Array()   # démo : itinéraire simplifié (points de passage sans arrêt)
 
 
 func _ready() -> void:
 	GameState.proto = true
+	if OCC_SHADER == null:
+		OCC_SHADER = Shader.new()
+		OCC_SHADER.code = OCC_SHADER_CODE
 	zone = JSON.parse_string(FileAccess.open(DIR + "zone.json", FileAccess.READ).get_as_text())
 	for p in zone["walkable"]:
 		walkable.append(Vector2(p[0], p[1]))
@@ -55,8 +95,11 @@ func _ready() -> void:
 		s.position = Vector2(e["pos"][0], e["pos"][1])
 		s.z_index = int(e["sort_y"])
 		add_child(s)
-		if g == "maison" or g.begins_with("arbre"):
-			occluders.append({"sprite": s, "sort_y": float(e["sort_y"]), "rect": Rect2(s.position, s.texture.get_size())})
+		if g != "muret":
+			var m := ShaderMaterial.new()
+			m.shader = OCC_SHADER
+			s.material = m
+			occluders.append({"name": g, "sprite": s, "sort_y": float(e["sort_y"]), "rect": Rect2(s.position, s.texture.get_size()), "mat": m, "footprint": _poly(e["footprint"])})
 		if e["solid"] and e["footprint"].size() >= 3:
 			var poly := PackedVector2Array()
 			for p in e["footprint"]:
@@ -72,12 +115,9 @@ func _ready() -> void:
 	for k in ["ilya", "throne"]:
 		var w := Walker.new(k, false)
 		add_child(w)
-		w.position = hero.position + Vector2(-FOLLOW_GAP * party.size(), 4)
 		party.append(w)
 	if GameState.zone_return_pos != Vector2.ZERO and GameState.explore_return == scene_file_path:
 		hero.position = GameState.zone_return_pos
-		for i in range(1, party.size()):
-			party[i].position = hero.position + Vector2(-FOLLOW_GAP * i, 4)
 	var np_: Array = zone["spawn"]["pnj"]
 	npc = Walker.new("pnj", false)
 	add_child(npc)
@@ -89,26 +129,21 @@ func _ready() -> void:
 	monster_pos = Vector2(mp[0], mp[1])
 	monster = AnimatedSprite2D.new()
 	var sf := SpriteFrames.new()
-	sf.set_animation_speed("default", 7.0)
+	sf.set_animation_speed("default", 6.0)
 	for i in range(8):
-		sf.add_frame("default", load(DIR + "chars/vorgane/idle_%d.png" % i))
+		sf.add_frame("default", load(DIR + "chars/vorgane_x/idle_%d.png" % i))
 	monster.sprite_frames = sf
 	monster.centered = false
-	var t0: Texture2D = sf.get_frame_texture("default", 0)
-	monster.offset = Vector2(-t0.get_width() * 0.5, -t0.get_height())
+	var anc: Dictionary = JSON.parse_string(FileAccess.open(DIR + "chars/vorgane_x/anchor.json", FileAccess.READ).get_as_text())
+	monster.offset = -Vector2(anc["feet"][0], anc["feet"][1]).round()        # pieds du rendu = position au sol
 	monster.position = monster_pos
 	monster.z_index = int(monster_pos.y)
 	monster.play()
 	monster.visible = not GameState.enemy_defeated
-	# Intégration : teinte du crépuscule (le sprite vient du combat, plus clair que le décor) + ombre de contact
-	monster.modulate = Color(0.82, 0.8, 0.95)
-	var shadow := Shadow.new()
-	shadow.position = monster_pos
-	shadow.radius = Vector2(t0.get_width() * 0.42, 5.0)
-	shadow.z_index = int(monster_pos.y) - 1
-	shadow.visible = monster.visible
-	add_child(shadow)
 	add_child(monster)
+	if monster.visible:
+		solids.append(_ellipse(monster_pos, monster_rx, monster_ry))      # on ne traverse pas le monstre
+	_place_party()
 	# Caméra : suit le groupe en douceur, bornée au décor
 	cam = Camera2D.new()
 	cam.zoom = Vector2(2, 2)
@@ -136,6 +171,9 @@ func _ready() -> void:
 	if GameState.last_battle_result != "" and GameState.explore_return == scene_file_path:
 		GameState.last_battle_result = ""
 		GameState.from_zone = false
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--course="):
+			add_child(load("res://scenes/explore_hd2d/locomotion_course.gd").new(self, a.substr(9)))
 	if GameState.autoplay:
 		_autoplay()
 
@@ -165,6 +203,98 @@ func _lights() -> void:
 		tw.tween_property(l, "energy", 0.3, 1.1).set_trans(Tween.TRANS_SINE)
 
 
+## Place les compagnons en file derrière le héros, sur des positions LIBRES (jamais dans un obstacle, y compris
+## au retour de combat), et amorce la trace avec cette file pour que le suivi parte sans à-coup.
+func _place_party() -> void:
+	trail.clear()
+	var dirs := [Vector2(-1, 0.2), Vector2(1, 0.2), Vector2(0, 1), Vector2(0, -1), Vector2(-1, -0.6), Vector2(1, -0.6)]
+	var chosen := Vector2(-1, 0.2).normalized()
+	for d in dirs:
+		var ok := true
+		for i in range(1, party.size()):
+			ok = ok and free_at(hero.position + d.normalized() * FOLLOW_GAP * i)
+		if ok:
+			chosen = d.normalized()
+			break
+	for i in range(party.size() - 1, 0, -1):
+		party[i].position = hero.position + chosen * FOLLOW_GAP * i
+		trail.append(party[i].position)
+	trail.append(hero.position)
+	for i in range(1, party.size()):
+		party[i].face_toward(-chosen)
+
+
+func _poly(a: Array) -> PackedVector2Array:
+	var p := PackedVector2Array()
+	for q in a:
+		p.append(Vector2(q[0], q[1]))
+	return p
+
+
+## Ordre d'affichage effectif d'un personnage par rapport à un élément de décor (QA de profondeur).
+func drawn_in_front(w: Node2D, o: Dictionary) -> bool:
+	return w.z_index >= (o["sprite"] as Sprite2D).z_index
+
+
+## Bord avant de l'emprise au sol (y maximal du polygone) à l'abscisse x, x ramené dans l'emprise.
+static func front_edge(fp: PackedVector2Array, x: float) -> float:
+	var lo := INF
+	var hi := -INF
+	for q in fp:
+		lo = minf(lo, q.x)
+		hi = maxf(hi, q.x)
+	x = clampf(x, lo + 0.01, hi - 0.01)
+	var best := -INF
+	for i in fp.size():
+		var a := fp[i]
+		var b := fp[(i + 1) % fp.size()]
+		if x < minf(a.x, b.x) or x > maxf(a.x, b.x) or absf(b.x - a.x) < 0.001:
+			continue
+		best = maxf(best, lerpf(a.y, b.y, (x - a.x) / (b.x - a.x)))
+	return best
+
+
+## Tri de profondeur d'un personnage : la ligne de ses pieds, SAUF devant un élément dont le bord avant est en
+## biais (maison, clôtures) : une seule ligne horizontale (y maximal) le ferait passer derrière le mur alors
+## qu'il est devant. On compare donc au bord avant réel de l'emprise, à son abscisse.
+func depth_z(p: Vector2) -> int:
+	var z := int(p.y)
+	var sure := -(1 << 20)                  # devant un élément, à une abscisse COUVERTE par son emprise (certain)
+	var cap := 1 << 20
+	var r := Rect2(p + Vector2(-8, -30), Vector2(16, 30))
+	for o in occluders:
+		var fp: PackedVector2Array = o["footprint"]
+		if fp.size() < 3 or not o["rect"].intersects(r):
+			continue
+		var sz: int = (o["sprite"] as Sprite2D).z_index
+		if p.y > front_edge(fp, p.x):
+			z = maxi(z, sz + 1)                 # devant cet élément
+			if _covers_x(fp, p.x):
+				sure = maxi(sure, sz + 1)
+		else:
+			cap = mini(cap, sz - 1)             # derrière cet élément : il doit rester devant le personnage
+	# conflit (devant un mur mais dans un buisson moins profond) : être caché par le mur serait bien plus
+	# visible qu'empiéter sur le feuillage, donc « devant » l'emporte quand il est certain.
+	return maxi(mini(z, maxi(cap, int(p.y))), sure)
+
+
+static func _covers_x(fp: PackedVector2Array, x: float) -> bool:
+	var lo := INF
+	var hi := -INF
+	for q in fp:
+		lo = minf(lo, q.x)
+		hi = maxf(hi, q.x)
+	return x >= lo and x <= hi
+
+
+func _ellipse(c: Vector2, rx: float, ry: float) -> PackedVector2Array:
+	var p := PackedVector2Array()
+	for i in range(14):
+		var a := TAU * i / 14.0
+		p.append(c + Vector2(cos(a) * rx, sin(a) * ry))
+	return p
+
+
 func _circle(c: Vector2, r: float) -> PackedVector2Array:
 	var p := PackedVector2Array()
 	for i in range(10):
@@ -187,15 +317,22 @@ func free_at(p: Vector2) -> bool:
 	return true
 
 
-## Déplacement avec glissement le long des obstacles (essai complet, puis axe par axe).
+## Déplacement avec glissement le long des obstacles (essai complet, puis axe par axe), puis contournement des
+## ANGLES et murs en biais : si l'on bute, un pas tourné de ±45° puis ±60° (réduit à sa composante utile) permet
+## de longer le coin au lieu de rester accroché ; contre un mur plat abordé de face, ces pas restent bloqués.
 func move(w: Walker, step: Vector2) -> Vector2:
 	var p := w.position
 	if free_at(p + step):
 		return p + step
-	if free_at(p + Vector2(step.x, 0)):
+	# (un axe nul ne compte pas comme un glissement : sinon on « réussit » sur place et on reste accroché)
+	if absf(step.x) > 0.001 and free_at(p + Vector2(step.x, 0)):
 		return p + Vector2(step.x, 0)
-	if free_at(p + Vector2(0, step.y)):
+	if absf(step.y) > 0.001 and free_at(p + Vector2(0, step.y)):
 		return p + Vector2(0, step.y)
+	for a in [PI / 4.0, -PI / 4.0, PI / 3.0, -PI / 3.0]:
+		var s := step.rotated(a) * cos(a)
+		if free_at(p + s):
+			return p + s
 	return p
 
 
@@ -203,67 +340,83 @@ func move(w: Walker, step: Vector2) -> Vector2:
 func _process(delta: float) -> void:
 	var dir := Vector2.ZERO
 	if not _locked:
-		if _auto_target != Vector2.INF:
-			var to := _auto_target - hero.position
-			if to.length() < 2.0:
-				_auto_target = Vector2.INF
-			else:
-				dir = to.normalized()
+		if not _auto_path.is_empty():
+			dir = _auto_dir(delta)
 		else:
 			dir.x = float(Input.is_key_pressed(KEY_RIGHT) or Input.is_physical_key_pressed(KEY_D)) - float(Input.is_key_pressed(KEY_LEFT) or Input.is_physical_key_pressed(KEY_A))
 			dir.y = float(Input.is_key_pressed(KEY_DOWN) or Input.is_physical_key_pressed(KEY_S)) - float(Input.is_key_pressed(KEY_UP) or Input.is_physical_key_pressed(KEY_W))
 			dir = dir.normalized()
-	var moved := false
+	var before := hero.position
 	if dir != Vector2.ZERO:
-		var np := move(hero, Vector2(dir.x, dir.y * Y_FACTOR) * SPEED * delta)
-		moved = np.distance_to(hero.position) > 0.01
-		hero.position = np
-		if trail.is_empty() or trail[-1].distance_to(hero.position) > 1.5:
+		hero.position = move(hero, Vector2(dir.x, dir.y * Y_FACTOR) * SPEED * delta)
+		if trail[-1].distance_to(hero.position) >= TRAIL_STEP:
 			trail.append(hero.position)
-			if trail.size() > 200:
+			if trail.size() > 600:
 				trail.pop_front()
-	hero.animate(dir if moved else Vector2.ZERO, delta)
+	# l'animation suit le déplacement RÉEL (glissement, blocage) ; l'intention sert seulement à l'orientation à l'arrêt
+	hero.animate(hero.position - before, delta, Vector2(dir.x, dir.y * Y_FACTOR))
 	_follow(delta)
 	for w in party + [npc]:
-		w.z_index = int(w.position.y)
+		w.z_index = depth_z(w.position)
 	cam.position = hero.position.round()
 	_update_occlusion(delta)
 	_update_prompt()
-	if monster.visible and not _engaging and hero.position.distance_to(monster_pos) < ENGAGE_RANGE + 18.0:
+	if monster.visible and not _engaging and touches_monster(hero.position, monster_pos, monster_rx, monster_ry, ENGAGE_MARGIN):
 		_engage()
 
 
-## Compagnons : suivent la trace du héros avec un retard fixe ; mêmes collisions ; s'arrêtent avec lui.
+## Compagnons : chacun se tient sur la trace du héros, à une DISTANCE PARCOURUE fixe derrière lui
+## (FOLLOW_GAP × rang). Ils avancent exactement quand le héros avance, à la même vitesse, et s'arrêtent avec lui
+## à espacement constant : pas d'arrêt-relance ni de rattrapage. La trace est faite de positions déjà valides
+## pour le héros ; les mêmes collisions restent appliquées par sécurité.
 func _follow(delta: float) -> void:
 	for i in range(1, party.size()):
 		var w: Walker = party[i]
-		var lag := int(FOLLOW_GAP / 1.5) * i
-		var target: Vector2 = trail[trail.size() - lag] if trail.size() > lag else w.position
-		var to := target - w.position
-		var leader: Walker = party[i - 1]
-		var go := to.length() > 1.0 and w.position.distance_to(leader.position) > FOLLOW_GAP * 0.85
-		var d := Vector2.ZERO
-		if go:
-			var np := move(w, to.normalized() * minf(SPEED * 1.05 * delta, to.length()))
-			d = np - w.position
-			w.position = np
-		w.animate(d.normalized() if d.length() > 0.01 else Vector2.ZERO, delta)
+		var to := trail_point(FOLLOW_GAP * i) - w.position
+		var before := w.position
+		if to.length() > 0.05:
+			w.position = move(w, to.limit_length(SPEED * 1.6 * delta))
+		w.animate(w.position - before, delta)
 
 
-## Occlusion : quand un membre du groupe est DERRIÈRE un grand élément (pieds au-dessus de sa ligne de tri et
-## silhouette dans son emprise), l'élément devient translucide et une silhouette du personnage reste visible.
-func _update_occlusion(delta: float) -> void:
+## Point de la trace situé à une distance « back » (le long du chemin) derrière la position actuelle du héros.
+func trail_point(back: float) -> Vector2:
+	var acc := 0.0
+	var prev := hero.position
+	for k in range(trail.size() - 1, -1, -1):
+		var p: Vector2 = trail[k]
+		var seg := prev.distance_to(p)
+		if seg > 0.0 and acc + seg >= back:
+			return prev.lerp(p, (back - acc) / seg)
+		acc += seg
+		prev = p
+	return prev
+
+
+## Occlusion : le fond ne contient PAS les éléments triés (terrain seul) ; chaque élément est une couche séparée.
+## Quand un membre du groupe est derrière un élément (pieds au-dessus de sa ligne de tri) ET réellement recouvert
+## par ses pixels, l'élément devient transparent LOCALEMENT autour de lui (ellipse douce). La silhouette de
+## secours (très discrète) ne s'affiche que si le personnage est masqué par plus de 3 trous (cas limite).
+func _update_occlusion(_delta: float) -> void:
 	for w in party:
 		w.hidden_behind = false
 	for o in occluders:
-		var behind := false
+		var holes := PackedVector2Array()
+		var s: Sprite2D = o["sprite"]
 		for w in party:
 			var r := Rect2(w.position + Vector2(-8, -30), Vector2(16, 30))
-			if w.position.y < o["sort_y"] and o["rect"].intersects(r) and _opaque_at(o["sprite"], w.position + Vector2(0, -12)):
-				behind = true
-				w.hidden_behind = true
-		var s: Sprite2D = o["sprite"]
-		s.modulate.a = move_toward(s.modulate.a, 0.5 if behind else 1.0, delta * 4.0)
+			if not drawn_in_front(w, o) and o["rect"].intersects(r) and (_opaque_at(s, w.position + Vector2(0, -12)) or _opaque_at(s, w.position + Vector2(0, -24)) or _opaque_at(s, w.position + Vector2(0, -3))):
+				if holes.size() < 3:
+					holes.append(w.position + Vector2(0, -14) - s.position)
+				else:
+					w.hidden_behind = true
+		var m: ShaderMaterial = o["mat"]
+		while holes.size() < 3:
+			holes.append(Vector2(-999, -999))
+		m.set_shader_parameter("holes", holes)
+		m.set_shader_parameter("hole_count", 3)
+		m.set_shader_parameter("radius", Vector2(OCC_RX, OCC_RY))
+		m.set_shader_parameter("min_alpha", OCC_ALPHA)
 
 
 func _opaque_at(s: Sprite2D, p: Vector2) -> bool:
@@ -280,7 +433,7 @@ func _update_prompt() -> void:
 	var near: bool = d < NOTICE_RANGE and not _dialog.is_open()
 	_prompt.visible = near
 	if near:
-		_prompt.text = "E  Parler" if d < TALK_RANGE else "…"
+		_prompt.text = "E  Parler" if can_talk(hero.position, npc.position, TALK_RANGE) else "…"
 		var sp := get_viewport().get_canvas_transform() * (npc.position + Vector2(-14, -40))
 		_prompt.position = sp
 
@@ -292,24 +445,32 @@ func _unhandled_input(event: InputEvent) -> void:
 		_dialog.handle_key(event)
 		get_viewport().set_input_as_handled()
 		return
-	if not _locked and (event.physical_keycode == KEY_E or event.keycode == KEY_ENTER) and hero.position.distance_to(npc.position) < TALK_RANGE:
-		_open_dialog()
+	if not _locked and (event.physical_keycode == KEY_E or event.keycode == KEY_ENTER):
+		_open_dialog()                               # la distance est vérifiée DANS _open_dialog
 
 
-func _open_dialog() -> void:
+## Ouvre le dialogue SEULEMENT si le héros est près du garde. Renvoie true si le dialogue s'est ouvert.
+func _open_dialog() -> bool:
+	if _dialog.is_open() or not can_talk(hero.position, npc.position, TALK_RANGE):
+		return false
 	var data: Dictionary = JSON.parse_string(FileAccess.open(DIALOGUE, FileAccess.READ).get_as_text())
 	var steps: Array = data["after_victory"] if GameState.enemy_defeated else data["start"]
 	var spk: Dictionary = data["speakers"].duplicate(true)
 	spk["heros"]["name"] = GameState.hero_name
 	_locked = true
-	hero.animate(Vector2.ZERO, 0.0)
+	_auto_path.clear()
+	for w in party:
+		w.stop()
 	hero.face_toward(npc.position - hero.position)
 	_dialog.open(steps, spk)
+	return true
 
 
 func _engage() -> void:
 	_engaging = true
 	_locked = true
+	for w in party:
+		w.stop()
 	var t := create_tween()
 	t.tween_property(cam, "zoom", Vector2(2.4, 2.4), 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await t.finished
@@ -321,60 +482,216 @@ func _engage() -> void:
 
 
 # ---------------------------------------------------------------------------------------------- démo (vidéo)
+## La démo n'utilise AUCUN raccourci : chaque étape doit être réellement atteinte (sinon elle s'arrête et le
+## signale), et le dialogue passe par la même règle de distance que le joueur.
 func _autoplay() -> void:
+	if OS.get_cmdline_user_args().has("--check-talk"):
+		await _check_talk()
+		return
 	await get_tree().create_timer(1.0).timeout
+	var house: Dictionary = zone["sprites"]["maison"]
 	var tree_e: Dictionary = zone["sprites"]["arbre_g"]
-	var house_e: Dictionary = zone["sprites"]["maison"]
-	var tf := _centroid(tree_e["footprint"])
-	var hf := _centroid(house_e["footprint"])
-	var hy_top := 9999.0
-	for p in house_e["footprint"]:
-		hy_top = minf(hy_top, p[1])
+	var hb := _bounds(house["footprint"])
+	var tb := _bounds(tree_e["footprint"])
+	var tc := tb.get_center()
 	var route := [
-		hero.position + Vector2(60, -30),                  # diagonale
-		tf + Vector2(22, -14), tf + Vector2(-6, -16),      # DERRIÈRE l'arbre (le feuillage passe devant)
-		tf + Vector2(10, 18),                               # devant l'arbre
-		Vector2(hf.x - 30, hy_top - 6), Vector2(hf.x + 20, hy_top - 8),   # DERRIÈRE la maison
-		npc.position + Vector2(-11, 4),                     # tout près du garde
+		["devant la maison", Vector2(hb.position.x + hb.size.x * 0.35, hb.end.y + 10)],
+		["côté gauche de la maison", Vector2(hb.position.x - 10, hb.get_center().y)],
+		["derrière la maison", Vector2(hb.position.x + 6, hb.position.y - 8)],
+		["derrière la maison (milieu)", Vector2(hb.get_center().x, hb.position.y - 8)],
+		["retour côté gauche", Vector2(hb.position.x - 10, hb.get_center().y)],
+		["derrière l'arbre", Vector2(tc.x + 4, tb.position.y - 8)],
+		["devant l'arbre", Vector2(tc.x + 4, tb.end.y + 10)],
+		["vers le garde", npc.position + Vector2(-10, 4)],
 	]
-	for wp in route:
-		await _walk_to(wp)
-		await get_tree().create_timer(0.35).timeout
-	_open_dialog()
+	for step in route:
+		if not await _walk_to(step[1]):
+			push_warning("DEMO : étape « %s » non atteinte (obstacle) — démo arrêtée" % step[0])
+			demo_log.append("ÉCHEC " + step[0])
+			print("DEMO ÉCHEC %s" % step[0])
+			return
+		demo_log.append("ok " + step[0])
+		print("DEMO ok %s (distance au garde %.1f)" % [step[0], hero.position.distance_to(npc.position)])
+		await get_tree().create_timer(0.4).timeout
+	if not _open_dialog():
+		print("DEMO : trop loin du garde pour parler (%.1f px) — pas de dialogue" % hero.position.distance_to(npc.position))
+		return
+	print("DEMO dialogue ouvert à %.1f px du garde" % hero.position.distance_to(npc.position))
 	while _dialog.is_open():
-		await get_tree().create_timer(1.5 if not _dialog.showing_choice() else 1.0).timeout
+		await get_tree().create_timer(1.4 if not _dialog.showing_choice() else 1.0).timeout
 		_dialog.advance()
 	await get_tree().create_timer(0.5).timeout
-	await _walk_to(monster_pos + Vector2(40, 4))
-	await _walk_to(monster_pos + Vector2(10, 2))
+	await _walk_to(monster_pos + Vector2(monster_rx + 26, 6))
+	print("DEMO approche du monstre, distance %.1f" % hero.position.distance_to(monster_pos))
+	await _walk_to(monster_pos + Vector2(monster_rx - 2, 2))
 
 
-func _centroid(fp: Array) -> Vector2:
-	var c := Vector2.ZERO
+## Vérification « manuelle » par vraies touches simulées (InputEventKey) : on ne peut pas parler de loin,
+## on peut parler de près. Résultat écrit sur la console (CHECK ok / CHECK ÉCHEC).
+func _check_talk() -> void:
+	await get_tree().create_timer(0.5).timeout
+	var ok := true
+	_press(KEY_E)
+	await get_tree().process_frame
+	var far_ok: bool = not _dialog.is_open()
+	print("CHECK %s : E à %.1f px du garde -> dialogue %s" % ["ok" if far_ok else "ÉCHEC", hero.position.distance_to(npc.position), "fermé" if far_ok else "OUVERT"])
+	ok = ok and far_ok
+	# s'approcher en maintenant les flèches (vraies touches), avec les collisions
+	var guard := 0
+	while not can_talk(hero.position, npc.position, TALK_RANGE) and guard < 900:
+		var to := npc.position + Vector2(-9, 3) - hero.position
+		_hold(KEY_RIGHT, to.x > 1.5); _hold(KEY_LEFT, to.x < -1.5)
+		_hold(KEY_DOWN, to.y > 1.5); _hold(KEY_UP, to.y < -1.5)
+		await get_tree().process_frame
+		guard += 1
+	for k in [KEY_RIGHT, KEY_LEFT, KEY_DOWN, KEY_UP]:
+		_hold(k, false)
+	await get_tree().create_timer(0.3).timeout
+	_press(KEY_E)
+	await get_tree().process_frame
+	var near_ok: bool = _dialog.is_open()
+	print("CHECK %s : E à %.1f px du garde -> dialogue %s" % ["ok" if near_ok else "ÉCHEC", hero.position.distance_to(npc.position), "OUVERT" if near_ok else "fermé"])
+	ok = ok and near_ok
+	_press(KEY_ESCAPE)
+	await get_tree().create_timer(0.5).timeout
+	print("CHECK %s : Échap ferme le dialogue" % ("ok" if not _dialog.is_open() else "ÉCHEC"))
+	print("CHECK RÉSULTAT : %s" % ("RÉUSSI" if ok and not _dialog.is_open() else "ÉCHEC"))
+	get_tree().quit()
+
+
+func _press(k: Key) -> void:
+	for down in [true, false]:
+		var ev := InputEventKey.new()
+		ev.keycode = k
+		ev.physical_keycode = k
+		ev.pressed = down
+		Input.parse_input_event(ev)
+
+
+func _hold(k: Key, down: bool) -> void:
+	if Input.is_key_pressed(k) == down:
+		return
+	var ev := InputEventKey.new()
+	ev.keycode = k
+	ev.physical_keycode = k
+	ev.pressed = down
+	Input.parse_input_event(ev)
+
+
+func _bounds(fp: Array) -> Rect2:
+	var r := Rect2(Vector2(fp[0][0], fp[0][1]), Vector2.ZERO)
 	for p in fp:
-		c += Vector2(p[0], p[1])
-	return c / maxf(1.0, fp.size())
+		r = r.expand(Vector2(p[0], p[1]))
+	return r
 
 
-func _walk_to(target: Vector2) -> void:
-	_auto_target = target
+var _astar: AStarGrid2D
+const CELL := 4
+
+
+## Grille de navigation de la démo (mêmes règles de collision que le joueur).
+func _nav() -> AStarGrid2D:
+	if _astar == null:
+		_astar = AStarGrid2D.new()
+		_astar.region = Rect2i(0, 0, int(zone["native"][0]) / CELL, int(zone["native"][1]) / CELL)
+		_astar.cell_size = Vector2(CELL, CELL)
+		_astar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES
+		_astar.update()
+		for x in range(_astar.region.size.x):
+			for y in range(_astar.region.size.y):
+				_astar.set_point_solid(Vector2i(x, y), not free_at(Vector2(x, y) * CELL + Vector2(CELL, CELL) * 0.5))
+	return _astar
+
+
+## Marche automatique vers un point en CONTOURNANT les obstacles (itinéraire A*) ; renvoie false si le point est
+## inaccessible ou n'est pas atteint : une étape n'est jamais validée en silence.
+## L'itinéraire A* (cellules de 4 px) est SIMPLIFIÉ en segments droits (visibilité directe testée avec les mêmes
+## collisions) puis parcouru SANS arrêt aux points intermédiaires : pas de micro-virages ni d'images de repos.
+func _walk_to(target: Vector2) -> bool:
+	var nav := _nav()
+	var from := Vector2i(hero.position / CELL)
+	var to := Vector2i(target / CELL)
+	if not nav.region.has_point(to) or nav.is_point_solid(to):
+		# point visé dans un obstacle : cellule libre la plus proche (rayon 16 px) ; sinon échec explicite
+		var best := Vector2i(-1, -1)
+		for r in range(1, 5):
+			for dx in range(-r, r + 1):
+				for dy in range(-r, r + 1):
+					var c := to + Vector2i(dx, dy)
+					if nav.region.has_point(c) and not nav.is_point_solid(c) and (best.x < 0 or (c - to).length_squared() < (best - to).length_squared()):
+						best = c
+			if best.x >= 0:
+				break
+		if best.x < 0:
+			return false
+		to = best
+		target = Vector2(best) * CELL + Vector2(CELL, CELL) * 0.5
+	var raw := nav.get_point_path(from, to)
+	if raw.is_empty():
+		return false
+	var pts := PackedVector2Array([hero.position])
+	for i in range(1, raw.size() - 1):
+		pts.append(raw[i] + Vector2(CELL, CELL) * 0.5)
+	pts.append(target)
+	_auto_path = simplify_path(pts)
+	_auto_path.remove_at(0)
 	var t := 0.0
 	var last := hero.position
-	while _auto_target != Vector2.INF and not _engaging:
+	while not _auto_path.is_empty() and not _engaging:
 		await get_tree().process_frame
 		t += get_process_delta_time()
-		if t > 1.0:                                         # bloqué par un obstacle : on passe au point suivant
-			if hero.position.distance_to(last) < 2.0:
-				_auto_target = Vector2.INF
+		if t > 1.0:
+			if hero.position.distance_to(last) < 2.0:          # bloqué : on n'insiste pas en silence
+				_auto_path.clear()
+				break
 			last = hero.position
 			t = 0.0
+	return _engaging or hero.position.distance_to(target) < 3.0
+
+
+## Simplification par visibilité directe : on garde le point le plus lointain visible en ligne droite.
+func simplify_path(pts: PackedVector2Array) -> PackedVector2Array:
+	var out := PackedVector2Array([pts[0]])
+	var i := 0
+	while i < pts.size() - 1:
+		var j := pts.size() - 1
+		while j > i + 1 and not segment_free(pts[i], pts[j]):
+			j -= 1
+		out.append(pts[j])
+		i = j
+	return out
+
+
+func segment_free(a: Vector2, b: Vector2) -> bool:
+	var n := int(ceil(a.distance_to(b) / 2.0))
+	for k in range(1, n + 1):
+		if not free_at(a.lerp(b, float(k) / n)):
+			return false
+	return true
+
+
+## Direction de marche de la démo : on passe les points intermédiaires sans s'arrêter.
+func _auto_dir(delta: float) -> Vector2:
+	var reach := SPEED * delta * 1.5 + 0.5
+	while _auto_path.size() > 1 and hero.position.distance_to(_auto_path[0]) <= reach:
+		_auto_path.remove_at(0)
+	var to := _auto_path[0] - hero.position
+	if _auto_path.size() == 1 and to.length() < 2.0:
+		_auto_path.clear()
+		return Vector2.ZERO
+	return to.normalized()
 
 
 # ---------------------------------------------------------------------------------------------- personnage
 class Walker extends Node2D:
 	## Personnage d'exploration : 4 directions si disponibles (Aren), sinon profil retourné ; marche pilotée par la
 	## distance parcourue (pas de patinage) ; ombre de contact pleine.
-	const STRIDE := 6.0
+	const STRIDE := 6.0                 # px parcourus par image de marche (4 images = 24 px par cycle)
+	const TURN_DELAY := 0.06            # s : durée minimale d'une nouvelle orientation avant de l'adopter
+	const STOP_GRACE := 0.1             # s : un arrêt plus court ne repasse pas au repos
+	var _still := 0.0
+	var _cand := ""
+	var _cand_t := 0.0
 	var key: String
 	var dirs := false
 	var spr: AnimatedSprite2D
@@ -419,7 +736,7 @@ class Walker extends Node2D:
 		ghost.z_as_relative = false
 		ghost.z_index = 3900
 		var sh := Shader.new()
-		sh.code = "shader_type canvas_item; void fragment(){ vec4 c = texture(TEXTURE, UV); COLOR = vec4(0.55, 0.66, 0.92, c.a * 0.4); }"
+		sh.code = "shader_type canvas_item; void fragment(){ vec4 c = texture(TEXTURE, UV); COLOR = vec4(0.55, 0.66, 0.92, c.a * 0.22); }"
 		var sm := ShaderMaterial.new()
 		sm.shader = sh
 		ghost.material = sm
@@ -444,6 +761,7 @@ class Walker extends Node2D:
 			_dir = _dir_of(v)
 			_anim("idle_" + _dir)
 		else:
+			_dir = "left" if v.x < 0 else "right"
 			face(v.x)
 
 	func _dir_of(v: Vector2) -> String:
@@ -451,25 +769,64 @@ class Walker extends Node2D:
 			return "right" if v.x > 0 else "left"
 		return "face" if v.y > 0 else "back"
 
-	func animate(d: Vector2, delta: float) -> void:
-		var moving := d.length() > 0.01
-		if moving:
-			_dist += SPEED_OF(delta)
+	## Orientation avec HYSTÉRÉSIS : on garde l'orientation actuelle tant que le mouvement ne penche pas
+	## nettement vers une autre (les diagonales restent de profil, sans alterner profil / face).
+	func _facing_for(v: Vector2) -> String:
+		var ax := absf(v.x)
+		var ay := absf(v.y)
+		if not dirs:
+			if ax < 0.25 * v.length():
+				return _dir                                    # mouvement presque vertical : on ne se retourne pas
+			return "right" if v.x > 0 else "left"
+		var horizontal: bool
+		if _dir == "left" or _dir == "right":
+			horizontal = ay <= ax * 1.4
+		else:
+			horizontal = ax > ay * 1.1
+		if horizontal:
+			return "right" if v.x > 0 else "left"
+		return "face" if v.y > 0 else "back"
+
+	## d = déplacement RÉEL de l'image (px natifs). Les images de marche avancent avec la distance parcourue
+	## (une image tous les STRIDE px). Un changement d'orientation doit durer TURN_DELAY pour être pris en
+	## compte (évite l'orientation parasite quand on relâche deux touches à quelques images d'écart), et un arrêt
+	## de moins de STOP_GRACE ne repasse pas au repos. intent = direction voulue (orientation quand on est bloqué).
+	func animate(d: Vector2, delta: float, intent := Vector2.ZERO) -> void:
+		if d.length() > 0.01:
+			_still = 0.0
+			var walking := String(spr.animation).begins_with("walk")
+			_dist += d.length()
+			var c := _facing_for(d)
+			if c == _dir or not walking:
+				_dir = c
+				_cand = ""
+			elif c == _cand:
+				_cand_t += delta
+				if _cand_t >= TURN_DELAY:
+					_dir = c
+					_cand = ""
+			else:
+				_cand = c
+				_cand_t = delta
 			if dirs:
-				_dir = _dir_of(d)
 				_anim("walk_" + _dir)
 			else:
-				face(d.x)
+				face(-1.0 if _dir == "left" else 1.0)
 				if spr.sprite_frames.has_animation("walk_right"):
 					_anim("walk_right")
 			if String(spr.animation).begins_with("walk"):
 				spr.frame = int(_dist / STRIDE) % 4
 		else:
-			_dist = 0.0
-			_anim("idle_" + (_dir if dirs else "right"))
+			_still += delta
+			if _still >= STOP_GRACE:
+				if intent.length() > 0.01 and dirs:
+					_dir = _facing_for(intent)               # on pousse contre un obstacle : on lui fait face
+				stop()
 
-	func SPEED_OF(delta: float) -> float:
-		return 72.0 * delta
+	func stop() -> void:
+		_dist = 0.0
+		_cand = ""
+		_anim("idle_" + (_dir if dirs else "right"))
 
 	func _draw() -> void:
 		draw_set_transform(Vector2(0, -1), 0.0, Vector2(1.0, 0.35))
