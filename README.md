@@ -29,11 +29,14 @@ Vidéo de démonstration : [`docs/media/decor_final/demo_zone_definitive.mp4`](d
 
 ## Lancer le jeu (Godot 4.5 à 4.7)
 
-1. Télécharger le projet (GitHub : **Code → Download ZIP**) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p1-camera-hd2d`**, puis **Code → Download ZIP** ; le dossier
+   s'appelle `Val-Serra-Game-p1-camera-hd2d`) et le décompresser.
 2. Récupérer **Godot 4.5 ou plus récent** (édition standard, pas « .NET ») : <https://godotengine.org/download>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier**. La première ouverture réimporte
    les images (quelques secondes).
-4. **F5** : la zone d'exploration, sans aucun réglage.
+4. **F5** : la dernière version, sans aucun réglage. Sur cette branche, c'est la **zone de test agrandie P1**
+   (`scenes/explore_hd2d/zone_p1.tscn`), avec la caméra A par défaut (touches 1 / 2 / 3 ou C pour B et C).
+   L'avant-poste d'origine s'ouvre avec `scenes/explore_hd2d/zone_hd2d.tscn` puis **F6**.
 
 ### Commandes
 
@@ -51,7 +54,7 @@ Vidéo de démonstration : [`docs/media/decor_final/demo_zone_definitive.mp4`](d
 
 | Scène | Contenu |
 |---|---|
-| `scenes/explore_hd2d/zone_p1.tscn` | **P1** : zone de test agrandie (×4) pour comparer les caméras A / B / C (`--start=p1-zone`) |
+| `scenes/explore_hd2d/zone_hd2d.tscn` | avant-poste d'origine (`--start=hd2d-zone`) ; F5 lance la zone P1 sur cette branche |
 | `scenes/dev/essai_combat_lisiere.tscn` | combat direct sur l'arène illustrée |
 | `scenes/dev/essai_parcours_clavier.tscn` | parcours de locomotion au clavier simulé ; verdict dans le panneau « Sortie » |
 | `scenes/proto/proto_zone.tscn` | ancien avant-poste (prototype recentré, décor du pack) |

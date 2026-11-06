@@ -9,11 +9,12 @@ Branche **`p1-camera-hd2d`**, partie de `main` (dernier état du décor validé)
 godot --path . -- --start=p1-zone
 ```
 
-Dans l'éditeur : ouvrir `scenes/explore_hd2d/zone_p1.tscn`, puis **F6**.
+Dans l'éditeur : **F5** (scène principale de la branche `p1-camera-hd2d`), ou ouvrir
+`scenes/explore_hd2d/zone_p1.tscn` puis **F6**.
 
 En jeu : touches **1 / 2 / 3** pour choisir la caméra A / B / C, ou **C** pour passer à la suivante. Le changement
 se fait sans rechargement. La caméra choisie est conservée après un combat. `--cam=B` choisit la caméra au
-lancement ; `--cam-hud` affiche son nom en permanence. Les mêmes touches fonctionnent dans l'avant-poste (F5).
+lancement ; `--cam-hud` affiche son nom en permanence. Les mêmes touches fonctionnent dans l'avant-poste (`zone_hd2d.tscn`, F6).
 
 ## Zone de test agrandie (prototype, pas une nouvelle région)
 
