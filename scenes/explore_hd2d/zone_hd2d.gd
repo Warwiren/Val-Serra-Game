@@ -89,16 +89,13 @@ func _ready() -> void:
 	zone = JSON.parse_string(FileAccess.open(DIR + "zone.json", FileAccess.READ).get_as_text())
 	for p in zone["walkable"]:
 		walkable.append(Vector2(p[0], p[1]))
-	var bg := Sprite2D.new()
-	bg.texture = load(DIR + "fond.png")
-	bg.centered = false
-	bg.z_index = -4000
-	add_child(bg)
+	_ground()
 	# Éléments contournables : sprites triés par la ligne de leurs pieds (z = y)
 	for g in zone["sprites"]:
 		var e: Dictionary = zone["sprites"][g]
 		var s := Sprite2D.new()
 		s.texture = load(DIR + "el_%s.png" % g)
+		s.set_meta("element", g)
 		s.centered = false
 		s.position = Vector2(e["pos"][0], e["pos"][1])
 		s.z_index = int(e["sort_y"])
@@ -114,6 +111,7 @@ func _ready() -> void:
 				poly.append(Vector2(p[0], p[1]))
 			solids.append(poly)
 	_illustrated_decor()
+	_essai_decor()
 	_lights()
 	# Groupe
 	var sp: Array = zone["spawn"]["heros"]
@@ -194,6 +192,53 @@ func _ready() -> void:
 		_autoplay()
 
 
+## Calques du sol à afficher : sol illustré importé (tools/explore/import_sol.py) s'il existe, sinon le fond
+## actuel. [fichier, mélange, échelle] ; mélange « mix » (normal) ou « add » (lumière ajoutée).
+static func ground_layers(dir: String, use_illustrated := true, sol_dir := "sol/") -> Array:
+	if use_illustrated and FileAccess.file_exists(dir + sol_dir + "sol.json"):
+		if FileAccess.file_exists(dir + sol_dir + "sol.png"):    # calques fusionnés par l'importeur (cas normal)
+			return [[dir + sol_dir + "sol.png", "mix", 0.5]]
+		var out := [[dir + sol_dir + "sol_plaque.png", "mix", 0.5]]
+		for n in ["sol_ombres", "sol_lumieres"]:
+			if FileAccess.file_exists(dir + sol_dir + "%s.png" % n):
+				out.append([dir + sol_dir + "%s.png" % n, "add" if n == "sol_lumieres" else "mix", 0.5])
+		return out
+	return [[dir + "fond.png", "mix", 1.0]]
+
+
+## Sol : plaque 1408×800 affichée 1:1 (échelle 0,5 du monde), puis ombres des objets, puis lumière des lanternes.
+## Tous sous les éléments triés (z −4000 à −3998). --sol=ancien (ou --decor=ancien) : fond actuel.
+var _ground_nodes := {}                  # true : sol illustré, false : fond actuel (construit à la demande, F4)
+var _ground_new := true
+
+
+func _ground(illustrated := GameState.sol != "ancien" and GameState.decor != "ancien") -> void:
+	_ground_new = illustrated
+	for k in _ground_nodes:
+		for n in _ground_nodes[k]:
+			n.visible = k == illustrated
+	if _ground_nodes.has(illustrated):
+		return
+	_ground_nodes[illustrated] = []
+	var z := -4000
+	var sol_dir := "essai_%s/sol/" % GameState.essai if GameState.essai != "" else "sol/"
+	for l in ground_layers(DIR, illustrated, sol_dir):
+		var s := Sprite2D.new()
+		_ground_nodes[illustrated].append(s)
+		s.texture = load(l[0])
+		s.centered = false
+		s.scale = Vector2(l[2], l[2])
+		if l[2] < 1.0:
+			s.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		if l[1] == "add":
+			var m := CanvasItemMaterial.new()
+			m.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+			s.material = m
+		s.z_index = z
+		z += 1
+		add_child(s)
+
+
 ## DÉCOR ILLUSTRÉ (pilote, planches fournies) : art/explore_hd2d/hd/decor.json. Les textures sont en pixels
 ## d'écran et affichées à l'échelle 0,5 (la caméra double) : 1 pixel de texture = 1 pixel d'écran, sans
 ## pixellisation. Un élément remplacé garde son emprise au sol, sa ligne de tri et sa transparence locale.
@@ -218,7 +263,11 @@ func _illustrated_decor() -> void:
 				c += Vector2(q[0], q[1])
 			foot = Vector2(c.x / e["footprint"].size(), float(e["sort_y"]))
 		var old: Sprite2D = o["sprite"]
-		var s := _hd_sprite(r["sprite"], foot, Vector2(r["pivot"][0], r["pivot"][1]))
+		var tex_name: String = r["sprite"]
+		if GameState.essai != "" and tex_name.begins_with("occ/"):
+			# les variantes « occ/ » sont masquées par le décor de l'ANCIEN fond : sans objet sur le sol d'essai
+			tex_name = tex_name.substr(4).split("__")[0]
+		var s := _hd_sprite(tex_name, foot, Vector2(r["pivot"][0], r["pivot"][1]))
 		s.z_index = old.z_index
 		s.material = old.material
 		old.queue_free()
@@ -227,8 +276,58 @@ func _illustrated_decor() -> void:
 	var index: Dictionary = JSON.parse_string(FileAccess.open(DIR + "hd/index.json", FileAccess.READ).get_as_text())
 	for d in spec["sol"]:
 		var a: Array = index[d[0]]["appui"]
-		var s := _hd_sprite(d[0], Vector2(d[1], d[2]), Vector2(a[0], a[1]))
+		# 4e champ éventuel : variante masquée par le décor du fond (tools/explore/masque_decor.py)
+		var s := _hd_sprite(d[3] if d.size() > 3 and GameState.essai == "" else d[0], Vector2(d[1], d[2]), Vector2(a[0], a[1]))
 		s.z_index = int(d[2])                             # trié comme les personnages (on passe devant ou derrière)
+
+
+## ESSAI de décor (--essai=v1) : éléments tirés des concepts, NON intégrés par défaut. art/explore_hd2d/essai_v1/
+## essai.json : pour chaque élément remplacé, ses calques (ex. tronc puis feuillage) et le pivot (pied). L'emprise,
+## la collision, la ligne de tri et la transparence locale de l'élément d'origine sont conservées ; chaque calque
+## devient un occultant (le feuillage s'efface localement quand un personnage passe derrière).
+func _essai_decor() -> void:
+	if GameState.essai == "":
+		return
+	var base := DIR + "essai_%s/" % GameState.essai
+	if not FileAccess.file_exists(base + "essai.json"):
+		push_warning("essai %s introuvable" % GameState.essai)
+		return
+	var spec: Dictionary = JSON.parse_string(FileAccess.open(base + "essai.json", FileAccess.READ).get_as_text())
+	for child in get_children():                         # éléments masqués par l'essai (ex. muret repeint dans le sol)
+		if child is Sprite2D and child.has_meta("element") and spec.get("masquer", []).has(child.get_meta("element")):
+			child.visible = false
+	for o in occluders.duplicate():
+		var r = spec["remplace"].get(o["name"])
+		if r == null:
+			continue
+		var e: Dictionary = zone["sprites"][o["name"]]
+		var c := Vector2.ZERO
+		for q in e["footprint"]:
+			c += Vector2(q[0], q[1])
+		var foot := Vector2(c.x / e["footprint"].size(), float(e["sort_y"]))
+		var old: Sprite2D = o["sprite"]
+		var z := old.z_index
+		old.queue_free()
+		var first := true
+		for layer in r["calques"]:
+			var s := Sprite2D.new()
+			s.texture = load(base + "%s.png" % layer)
+			s.centered = false
+			s.scale = Vector2(0.5, 0.5)
+			s.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+			s.position = foot - Vector2(r["pivot"][0], r["pivot"][1]) * 0.5
+			s.z_index = z
+			var m := ShaderMaterial.new()
+			m.shader = OCC_SHADER
+			s.material = m
+			add_child(s)
+			var entry: Dictionary = o if first else o.duplicate()
+			entry["sprite"] = s
+			entry["mat"] = m
+			entry["rect"] = Rect2(s.position, s.texture.get_size() * s.scale)
+			if not first:
+				occluders.append(entry)
+			first = false
 
 
 func _hd_sprite(name: String, foot: Vector2, pivot: Vector2) -> Sprite2D:
@@ -526,6 +625,9 @@ func _update_prompt() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
+		return
+	if event.keycode == KEY_F4 and (FileAccess.file_exists(DIR + "sol/sol.json") or GameState.essai != ""):
+		_ground(not _ground_new)                             # comparaison : sol illustré / fond actuel
 		return
 	if _dialog.is_open():
 		_dialog.handle_key(event)

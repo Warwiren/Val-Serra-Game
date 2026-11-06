@@ -52,7 +52,7 @@
    "sol": "avant_gauche"
   },
   "cloture_g": {
-   "sprite": "cloture_g",
+   "sprite": "occ/cloture_g__cloture_g",
    "pivot": [
     0,
     99
@@ -164,7 +164,8 @@
   [
    "herbe_b",
    230,
-   344
+   344,
+   "occ/herbe_b__sol20"
   ],
   [
    "rocher_b",

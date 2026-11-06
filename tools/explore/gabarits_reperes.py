@@ -49,10 +49,11 @@ omb.save(os.path.join(OUT, "terrain", "terrain_avec_ombres_1408x800.png"))
 
 
 def shadow_mask(with_s, base):
-    a = np.asarray(with_s.convert("RGB")).astype(np.float32).mean(-1) + 1
-    b = np.asarray(base.convert("RGB")).astype(np.float32).mean(-1) + 1
+    from PIL import ImageFilter
+    a = np.asarray(with_s.convert("L").filter(ImageFilter.MedianFilter(5))).astype(np.float32) + 1
+    b = np.asarray(base.convert("L").filter(ImageFilter.MedianFilter(5))).astype(np.float32) + 1
     s = np.clip(1 - a / b, 0, 1)
-    s[s < 0.06] = 0
+    s[s < 0.10] = 0
     return Image.fromarray(np.dstack([np.zeros_like(s), np.zeros_like(s), np.full_like(s, 30), s * 255]).astype(np.uint8), "RGBA")
 
 
@@ -102,6 +103,28 @@ for p in z["lights"]:
     d.ellipse([x - 9, y - 9 - 28, x + 9, y + 9 - 28], outline=(255, 160, 60, 255), width=3)
     text(d, (x + 12, y - 44), "lanterne", (255, 180, 90, 255))
 rep.save(os.path.join(OUT, "terrain", "reperes_terrain.png"))
+# Tracé exact du chemin (scene_blender.py : pavés 1,9 m de large, bordure de terre 2,6 m) : masque à respecter
+PATH = [(-12, -8.6), (-7, -5.5), (-2, -2.5), (2.5, 0.2), (4.6, 1.8), (9, 0.8), (16, 1.4)]
+
+
+def band(w):
+    left, right = [], []
+    for i, (x, y) in enumerate(PATH):
+        a_, b_ = PATH[max(0, i - 1)], PATH[min(len(PATH) - 1, i + 1)]
+        tx, ty = b_[0] - a_[0], b_[1] - a_[1]; nn = (tx * tx + ty * ty) ** 0.5
+        nx, ny = -ty / nn, tx / nn
+        left.append(tuple(ground(x + nx * w, y + ny * w))); right.append(tuple(ground(x - nx * w, y - ny * w)))
+    return left + right[::-1]
+
+
+pm = Image.new("RGBA", (W, H)); pd = ImageDraw.Draw(pm)
+for w, col in ((1.3, (150, 100, 60, 150)), (0.95, (230, 220, 240, 220))):   # terre puis pavés
+    pd.polygon(band(w), fill=col)
+    for (x, y) in PATH:                                           # extrémités et coudes arrondis
+        c = ground(x, y); rx = abs(ground(x + w, y)[0] - c[0]) + abs(ground(x, y + w)[0] - c[0]) * 0.5
+        ry = abs(ground(x, y + w)[1] - c[1]) + abs(ground(x + w, y)[1] - c[1]) * 0.5
+        pd.ellipse([c[0] - rx, c[1] - ry, c[0] + rx, c[1] + ry], fill=col)
+pm.save(os.path.join(OUT, "terrain", "chemin_trace_exact.png"))
 tmp = nu.copy(); tmp.alpha_composite(grid); tmp.alpha_composite(rep)
 tmp.convert("RGB").save(os.path.join(OUT, "terrain", "terrain_gabarit_avec_reperes.jpg"), quality=90)
 
@@ -228,8 +251,9 @@ for name, e in z["sprites"].items():
         sp = Image.open(D + "el_%s.png" % name).convert("RGBA")
         im = sp.resize((sp.width * K, sp.height * K), Image.NEAREST); pos = (e["pos"][0] * K, e["pos"][1] * K)
     layers.append((int(e["sort_y"]), im, pos))
-for nm, x, y in spec["sol"]:
-    im = Image.open(D + "hd/%s.png" % nm).convert("RGBA"); a = index[nm]["appui"]
+for dcl in spec["sol"]:
+    nm, x, y = dcl[:3]
+    im = Image.open(D + "hd/%s.png" % (dcl[3] if len(dcl) > 3 else nm)).convert("RGBA"); a = index[nm]["appui"]
     layers.append((int(y), im, (round(x * K - a[0]), round(y * K - a[1]))))
 for _, im, pos in sorted(layers, key=lambda t: t[0]):
     tmp = Image.new("RGBA", (W, H)); tmp.alpha_composite(im, (max(0, pos[0]), max(0, pos[1])), (max(0, -pos[0]), max(0, -pos[1])))

@@ -39,7 +39,7 @@ ignorées par l'import et l'export). Rien n'a été pixellisé : chaque élémen
 PNG sans perte plutôt que WebP)
 1. **Arène en calques** (PSD/Krita, 1590×896 ou plus) : ciel + forêt lointaine, lisière (arbre, clôture, maison),
    sol, premier plan (fleurs, rochers, feuillage) — pour la parallaxe et l'avant-plan.
-2. **Maison d'exploration redessinée sous la caméra du jeu** : façade presque de face, côté droit étroit, mêmes
+2. **Maison d'exploration redessinée sous la caméra du jeu** : façade presque de face, côté GAUCHE étroit visible (correction : le gabarit montre le pignon gauche), mêmes
    proportions que l'actuelle (porte, deux fenêtres, colombages), à poser sur `docs/media/exploration/hd2d_v3_*`
    comme gabarit ; ≈ 360×360 px à l'écran.
 3. **Arbre d'exploration** : tronc et feuillage séparés, ≈ 260×280 px à l'écran, même angle ; puis 2 buissons

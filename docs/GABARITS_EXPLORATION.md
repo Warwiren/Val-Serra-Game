@@ -52,7 +52,7 @@ caméra ne monte jamais plus haut, il est inutile de peindre au-delà.
 | `ombre_au_sol_cadre_1408x800.png` | ombre de la maison seule |
 | `maison_actuel_en_jeu.png` | la maison actuelle du jeu : elle est **trouée** là où les caisses, la lanterne et les barriques la cachaient au rendu |
 
-Emprise (natif) : façade de (353,5 ; 178,9) à (477,6 ; 153,0), côté droit jusqu'à (444,7 ; 101,3) ; ligne de tri
+Emprise (natif) : façade de (353,5 ; 178,9) à (477,6 ; 153,0), arête arrière droite jusqu'à (444,7 ; 101,3) ; ligne de tri
 y = 178,9. Ces valeurs **ne changent pas** : la maison illustrée se pose sur ce gabarit.
 
 ## 4. Gabarit C — grand arbre (`arbre/`, élément `arbre_g`)
@@ -102,7 +102,7 @@ sans texte, sans personnage, sans PNJ ni monstre. Source en calques (PSD/Krita) 
 | 1b | `sol_ombres.png` | ombres des objets (maison, arbres, lanternes, clôtures…) en noir/violet transparent | calquées sur `ombres_des_objets_calque.png` |
 | 1c | `sol_lumieres.png` | flaques de lumière chaude des 3 lanternes et des fenêtres | centrées sur les repères « lanterne » |
 | 2 | `arbre_tronc.png`, `arbre_feuillage.png` | écorce, racines, branches ; grappes de feuilles organiques, tons froids, accents lumineux discrets | pied du tronc au repère, tronc dans `masque_tronc`, feuillage à peu près dans `masque_feuillage` (peut déborder un peu) |
-| 3 | `maison.png` (+ `maison_fenetres.png`) | colombages et bois patinés, enduit texturé, soubassement de pierre, ardoise usée et moussue, porte et trois fenêtres éclairées **aux emplacements du gabarit** | silhouette et façade du gabarit ; côté droit étroit ; même construction que la maison de l'arène |
+| 3 | `maison.png` (+ `maison_fenetres.png`) | colombages et bois patinés, enduit texturé, soubassement de pierre, ardoise usée et moussue, porte et trois fenêtres éclairées **aux emplacements du gabarit** | silhouette et façade du gabarit ; **côté gauche** étroit visible (et non le droit : voir le gabarit) ; même construction que la maison de l'arène |
 | 4 | puis : `buisson_*.png`, `muret.png` | après validation des trois grands éléments | — |
 
 ## 7. Arrêt pour validation
