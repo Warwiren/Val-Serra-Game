@@ -47,6 +47,8 @@ const Y_FACTOR := 0.8                     # vitesse verticale réduite (perspect
 const FOOT_R := 3.0                       # rayon de collision des pieds (px natifs)
 const FOLLOW_GAP := 20.0                  # écart de file, mesuré LE LONG de la trace du héros (px natifs)
 const TRAIL_STEP := 1.0                   # un point de trace par px parcouru
+const NPC_RX := 10.0                      # emprise au sol du garde (collision)
+const NPC_RY := 5.0
 const TALK_RX := 22.0                     # zone de dialogue : ellipse au sol (voir can_talk)
 const TALK_RY := 16.0
 const NOTICE_RANGE := 34.0                # au-delà : simple bulle « … » au-dessus du PNJ
@@ -132,7 +134,9 @@ func _ready() -> void:
 	add_child(npc)
 	npc.position = Vector2(np_[0], np_[1])
 	npc.face(-1.0)
-	_npc_solid = _circle(npc.position, 5.0)
+	# emprise au sol du garde : ellipse 10 × 5 px (largeur des épaules, faible profondeur), plus la marge des
+	# pieds du héros -> on s'arrête à côté de lui (13 px) ou devant lui (≈ 7 px), sans le traverser
+	_npc_solid = _ellipse(npc.position, NPC_RX, NPC_RY)
 	solids.append(_npc_solid)
 	# Monstre déclencheur
 	var mp: Array = zone["spawn"]["monstre"]

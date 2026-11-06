@@ -103,6 +103,8 @@ func _run_pnj() -> void:
 		["bas-droite (diagonale)", n + Vector2(32, 34), [K_U, K_L], func(p: Vector2): return p.distance_to(n) <= 17.0, true],
 		["gauche, on longe le mur jusque sous lui", n + Vector2(-40, 6), [K_R], func(p: Vector2): return p.x >= n.x - 3.0, true],
 		["bas, contre lui", n + Vector2(0, 40), [K_U], func(_p: Vector2): return false, true],
+		["droite, contre lui", n + Vector2(40, 2), [K_L], func(_p: Vector2): return false, true],
+		["bas-gauche, contre lui", n + Vector2(-30, 30), [K_U, K_R], func(_p: Vector2): return false, true],
 		["trop loin (bas, 34 px)", n + Vector2(0, 40), [K_U], func(p: Vector2): return p.y <= n.y + 34.0, false],
 		["derrière la maison", n + Vector2(-8, -78), [K_D], func(_p: Vector2): return false, false],
 	]
@@ -110,17 +112,24 @@ func _run_pnj() -> void:
 		if c[0] == "derrière la maison":                      # on fait le tour par la gauche, comme un joueur
 			for wp in [Vector2(392, 200), Vector2(296, 205), Vector2(296, 160), Vector2(318, 113)]:
 				await _goto("contournement", wp)
+		elif zone.hero.position.y < n.y + 20.0:              # on contourne le garde par devant (le pilote n'a pas d'A*)
+			await _goto("dégagement", Vector2(zone.hero.position.x, n.y + 30.0))
+			await _goto("dégagement", Vector2(c[1].x, n.y + 30.0))
 		await _goto("départ " + c[0], c[1])
 		events.append({"t": _t, "label": "approche " + c[0], "depart": zone.hero.position})
 		_set_keys(c[2])
 		var t := 0.0
 		var last: Vector2 = zone.hero.position
 		var still := 0.0
-		while t < 3.0:
+		var overlap := false
+		var hold := 0.7 if c[0].ends_with("contre lui") else 3.0     # « contre lui » : on pousse vers lui 0,7 s
+		while t < hold:
 			await get_tree().process_frame
 			t += get_process_delta_time()
 			still = still + get_process_delta_time() if zone.hero.position.distance_to(last) < 0.05 else 0.0
 			last = zone.hero.position
+			var dd0: Vector2 = (zone.hero.position - n).abs()
+			overlap = overlap or (dd0.x / 11.5) ** 2 + (dd0.y / 5.5) ** 2 < 1.0   # dans l'emprise du garde (+ pieds)
 			if c[3].call(zone.hero.position) or still > 0.25:
 				break
 		_set_keys([])
@@ -130,6 +139,9 @@ func _run_pnj() -> void:
 		await get_tree().create_timer(0.1).timeout
 		var opened: bool = zone._dialog.is_open()
 		var ok: bool = opened == c[4]
+		if overlap:
+			ok = false                                         # le héros est entré dans l'emprise du garde
+			print("PNJ chevauchement pendant l'approche « %s »" % c[0])
 		var d: Vector2 = zone.hero.position - n
 		results.append({"cas": c[0], "position_relative": [snappedf(d.x, 0.1), snappedf(d.y, 0.1)], "distance": snappedf(d.length(), 0.1),
 				"invite": prompt, "dialogue": opened, "attendu": c[4], "ok": ok and (prompt == "E  Parler") == opened})
