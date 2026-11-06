@@ -206,10 +206,22 @@ static func ground_layers(dir: String, use_illustrated := true) -> Array:
 
 ## Sol : plaque 1408×800 affichée 1:1 (échelle 0,5 du monde), puis ombres des objets, puis lumière des lanternes.
 ## Tous sous les éléments triés (z −4000 à −3998). --sol=ancien (ou --decor=ancien) : fond actuel.
-func _ground() -> void:
+var _ground_nodes := {}                  # true : sol illustré, false : fond actuel (construit à la demande, F4)
+var _ground_new := true
+
+
+func _ground(illustrated := GameState.sol != "ancien" and GameState.decor != "ancien") -> void:
+	_ground_new = illustrated
+	for k in _ground_nodes:
+		for n in _ground_nodes[k]:
+			n.visible = k == illustrated
+	if _ground_nodes.has(illustrated):
+		return
+	_ground_nodes[illustrated] = []
 	var z := -4000
-	for l in ground_layers(DIR, GameState.sol != "ancien" and GameState.decor != "ancien"):
+	for l in ground_layers(DIR, illustrated):
 		var s := Sprite2D.new()
+		_ground_nodes[illustrated].append(s)
 		s.texture = load(l[0])
 		s.centered = false
 		s.scale = Vector2(l[2], l[2])
@@ -557,6 +569,9 @@ func _update_prompt() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
+		return
+	if event.keycode == KEY_F4 and FileAccess.file_exists(DIR + "sol/sol.json"):
+		_ground(not _ground_new)                             # comparaison : sol illustré / fond actuel
 		return
 	if _dialog.is_open():
 		_dialog.handle_key(event)

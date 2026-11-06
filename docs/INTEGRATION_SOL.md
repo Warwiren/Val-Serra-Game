@@ -68,7 +68,36 @@ Captures : `docs/media/sol/cloture_avant_apres_en_jeu.png`, `cloture_avant_apres
   performances en exploration 64,0 images/s contre 63,2 sans sol importé (rendu logiciel), +2,9 Mo de mémoire de
   textures, chargement +20 ms.
 
-## 6. Cahier de production
+## 6. Contrôle de l'esquisse v0 (reçue le 6 novembre)
+Source conservée : `art/source/sol/esquisse_sol_v0_1663x945.webp`. **Non intégrée** au jeu.
+
+| Critère | Résultat |
+|---|---|
+| Taille | 1663 × 945 : bon rapport (1,76) mais pas le gabarit ; ramenée à 1408 × 800 pour l'essai. Livrer en 1408 × 800 ou 2816 × 1600, **PNG** (le WebP compressé ajoute des artefacts) |
+| Contenu | terrain seul, sans maison, arbre trié, accessoire ni personnage : **conforme** |
+| Perspective | cohérente avec la caméra (pas d'isométrie en losanges) : **conforme** |
+| **Tracé du chemin** | **décalé d'environ 1,3 à 1,5 m vers le fond** (≈ 40 à 50 px à l'écran) sur toute sa longueur, et **plus large** (3 à 4 m au lieu de 2,6 m bordure comprise) ; le coude et l'extrémité droite sont à peu près à leur place. L'importeur le détecte (décalage estimé (8, 24) px, faible corrélation avec le gabarit) |
+| Bord bas | le talus et l'eau en bas à droite ne suivent pas la ligne du muret (élément du jeu), qui flotte alors sur l'herbe |
+| Rochers | un gros rocher moussu à droite chevauche la limite praticable (on le traverserait) ; quelques pierres moyennes dans le praticable |
+| Lumière | lumière chaude peinte sur le chemin à des endroits qui ne correspondent pas aux trois lanternes ; à retirer de la plaque (ou à placer sur les repères) |
+| Ombres d'objets | absentes de la plaque : **conforme** (les ombres actuelles sont ajoutées par l'importeur) |
+| Netteté | bonne à la taille réelle (1:1, aucune pixellisation) |
+| Performances (essai) | 62,8 images/s en exploration contre 63,2 avec le sol actuel (rendu logiciel) ; +2,9 Mo de mémoire de textures |
+| Mécaniques (essai) | parcours clavier RÉUSSI, approches du garde 11/11 : la plaque ne change rien au jeu |
+
+Pour corriger : poser **`docs/media/gabarits_exploration/terrain/chemin_trace_exact.png`** (pavés et bordure de
+terre exacts) au-dessus de l'illustration, avec `reperes_terrain.png` (praticable, lanternes). Comparatifs :
+`docs/media/sol/esquisse_v0_contre_gabarit.jpg`, `esquisse_v0_essai_en_jeu_1280.jpg`, `esquisse_v0_nettete_x3.png`.
+
+## 7. Bascule et vérifications à l'intégration définitive
+- **F4** en jeu : sol illustré / fond actuel (sans recharger) ; `--sol=ancien` au lancement.
+- Ombres et lumières : un seul exemplaire (calques séparés des sources, fusionnés à l'import ; `--sans-ombres` /
+  `--sans-lumieres` si elles sont déjà peintes).
+- Collisions, praticable, points d'interaction : inchangés (`zone.json`) ; contrôlés par le parcours clavier,
+  les approches du garde et le retour de combat.
+- Comparatif avant/après à 1280 × 720, gros plan de netteté, mesure de performances.
+
+## 8. Cahier de production
 Le document `CAHIER_PRODUCTION_SOL_HD2D_v1.md` annoncé n'a pas été reçu (ni dans la conversation, ni dans le
 Drive). Le pipeline suit le message de validation et `docs/GABARITS_EXPLORATION.md` ; il sera ajusté au cahier
 dès sa réception si nécessaire.
