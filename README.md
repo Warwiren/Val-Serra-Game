@@ -6,6 +6,23 @@ Référence : documents 07 (Brief MVP) et 08 (Mission Claude) du dossier Drive d
 > Tous les personnages, monstres, illustrations et nombres de ce dépôt sont **provisoires et non canoniques**.
 > Ce dépôt est indépendant du système Foundry du JDR (`Warwiren/Val-serra`), qui n'est pas modifié.
 
+## Exploration HD-2D expérimentale — branche `exploration-hd2d`
+
+Petite zone jouable en vue trois-quarts surélevée (plongée 35°, rotation 20°), crépuscule bleu-violet,
+indépendante de la boucle F5. Ouvrir `scenes/explore_hd2d/zone_hd2d.tscn` puis **F6**, ou :
+`godot --path . -- --start=hd2d-zone` (ajouter `--autoplay` pour la démo, `--autoplay --check-talk` pour la
+vérification du dialogue par touches simulées).
+
+- Décor construit dans Blender puis retouché en pixel art (`tools/explore/`) : **fond = terrain seul**, objets
+  sur des couches séparées triées par la ligne de leurs pieds, transparence locale autour des personnages cachés.
+- Déplacement 8 directions, compagnons qui suivent, collisions, dialogue (distance vérifiée), Vorgane rendu sous
+  l'angle de l'exploration, combat au contact.
+- Compte rendu et limites : **`docs/EXPLORATION_HD2D.md`** · spécifications des assets à illustrer :
+  **`docs/SPEC_ASSETS_EXPLORATION.md`** · vidéo : `docs/media/exploration/exploration_hd2d_demo_v3.mp4`.
+- Tests automatiques : 49 sur 49.
+
+![Exploration HD-2D](docs/media/exploration/hd2d_v3_derriere_arbre.jpg)
+
 ## Dernière passe : correctifs et HUD de combat (brief unifié v1.1) — branche `correctifs-hud`
 
 Clignotement du Vorgane diagnostiqué et corrigé (mesures image par image), Vorgane étalonné sur la référence du pack,

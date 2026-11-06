@@ -338,6 +338,15 @@ def render(path, samples, transparent=False):
 
 bpy.context.view_layer.update()
 render(os.path.join(OUT, "plate.png"), SAMPLES)
+# Terrain seul (couche de fond) : les éléments triés en profondeur sont invisibles pour la CAMÉRA mais gardent
+# leurs ombres et leur lumière sur le sol -> aucun objet dupliqué dans le fond.
+for objs in GROUPS.values():
+    for o in objs:
+        o.visible_camera = False
+render(os.path.join(OUT, "terrain.png"), SAMPLES)
+for objs in GROUPS.values():
+    for o in objs:
+        o.visible_camera = True
 
 # ------------------------------------------------------------------------------------------------ masques et disposition
 def to_px(p):

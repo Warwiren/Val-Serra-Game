@@ -8,6 +8,36 @@ extends Node2D
 ## Commandes : flèches / ZQSD (8 directions), E parler, toucher le monstre = combat.
 
 const DialogueBox = preload("res://src/proto/dialogue_box.gd")
+## Transparence LOCALE d'un élément de décor : ellipses douces autour des personnages qui sont derrière.
+const OCC_SHADER_CODE := """
+shader_type canvas_item;
+uniform vec2 holes[3];
+uniform int hole_count = 0;
+uniform vec2 radius = vec2(11.0, 17.0);
+uniform float min_alpha = 0.5;
+void fragment() {
+	vec2 px = UV / TEXTURE_PIXEL_SIZE;
+	float a = 1.0;
+	for (int i = 0; i < hole_count; i++) {
+		vec2 d = (px - holes[i]) / radius;
+		float r = length(d);
+		a = min(a, mix(min_alpha, 1.0, smoothstep(0.55, 1.0, r)));
+	}
+	COLOR.a *= a;                       // COLOR contient déjà texture × modulation (Godot 4)
+}
+"""
+static var OCC_SHADER: Shader = null
+
+
+## Règle unique de dialogue (utilisée par le joueur, la démo et les tests) : il faut être PRÈS du PNJ.
+static func can_talk(hero_pos: Vector2, npc_pos: Vector2, talk_range := 14.0) -> bool:
+	return hero_pos.distance_to(npc_pos) < talk_range
+
+
+## Contact monstre : pieds du héros dans l'ellipse au sol du monstre élargie d'une petite marge.
+static func touches_monster(hero_pos: Vector2, mpos: Vector2, rx: float, ry: float, margin := 6.0) -> bool:
+	var d := hero_pos - mpos
+	return (d.x / (rx + margin)) ** 2 + (d.y / (ry + margin * 0.5)) ** 2 < 1.0
 const DIR := "res://art/explore_hd2d/"
 const SPEED := 72.0                       # px natifs / s (≈ 3,6 m/s)
 const Y_FACTOR := 0.8                     # vitesse verticale réduite (perspective)
@@ -15,13 +45,19 @@ const FOOT_R := 3.0                       # rayon de collision des pieds (px nat
 const FOLLOW_GAP := 18.0                  # écart de file entre les membres du groupe
 const TALK_RANGE := 14.0                  # il faut être tout près du garde pour parler
 const NOTICE_RANGE := 34.0                # au-delà : simple bulle « … » au-dessus du PNJ
-const ENGAGE_RANGE := 22.0
+const ENGAGE_MARGIN := 6.0               # le combat se déclenche quand on touche presque le monstre (ellipse au sol + 6 px)
+const OCC_RX := 11.0                     # trou de transparence locale autour du personnage caché (px natifs)
+const OCC_RY := 17.0
+const OCC_ALPHA := 0.5
 const DIALOGUE := "res://data/dialogue/pnj_proto.json"
 
 var zone: Dictionary
 var walkable := PackedVector2Array()
 var solids: Array = []                    # PackedVector2Array (emprises au sol)
-var occluders: Array = []                 # [{sprite, sort_y, rect}] : grands éléments qui peuvent cacher le groupe
+var occluders: Array = []                 # [{sprite, sort_y, rect, mat}] : éléments qui peuvent cacher le groupe
+var monster_rx := 20.0                    # demi-axes de l'emprise au sol du monstre (ellipse)
+var monster_ry := 8.0
+var demo_log: Array = []                  # trace des étapes de la démo (vérification)
 var hero: Walker
 var party: Array = []                     # [hero, ilya, throne]
 var npc: Walker
@@ -38,6 +74,9 @@ var _auto_target := Vector2.INF
 
 func _ready() -> void:
 	GameState.proto = true
+	if OCC_SHADER == null:
+		OCC_SHADER = Shader.new()
+		OCC_SHADER.code = OCC_SHADER_CODE
 	zone = JSON.parse_string(FileAccess.open(DIR + "zone.json", FileAccess.READ).get_as_text())
 	for p in zone["walkable"]:
 		walkable.append(Vector2(p[0], p[1]))
@@ -55,8 +94,11 @@ func _ready() -> void:
 		s.position = Vector2(e["pos"][0], e["pos"][1])
 		s.z_index = int(e["sort_y"])
 		add_child(s)
-		if g == "maison" or g.begins_with("arbre"):
-			occluders.append({"sprite": s, "sort_y": float(e["sort_y"]), "rect": Rect2(s.position, s.texture.get_size())})
+		if g != "muret":
+			var m := ShaderMaterial.new()
+			m.shader = OCC_SHADER
+			s.material = m
+			occluders.append({"sprite": s, "sort_y": float(e["sort_y"]), "rect": Rect2(s.position, s.texture.get_size()), "mat": m})
 		if e["solid"] and e["footprint"].size() >= 3:
 			var poly := PackedVector2Array()
 			for p in e["footprint"]:
@@ -89,26 +131,20 @@ func _ready() -> void:
 	monster_pos = Vector2(mp[0], mp[1])
 	monster = AnimatedSprite2D.new()
 	var sf := SpriteFrames.new()
-	sf.set_animation_speed("default", 7.0)
+	sf.set_animation_speed("default", 6.0)
 	for i in range(8):
-		sf.add_frame("default", load(DIR + "chars/vorgane/idle_%d.png" % i))
+		sf.add_frame("default", load(DIR + "chars/vorgane_x/idle_%d.png" % i))
 	monster.sprite_frames = sf
 	monster.centered = false
-	var t0: Texture2D = sf.get_frame_texture("default", 0)
-	monster.offset = Vector2(-t0.get_width() * 0.5, -t0.get_height())
+	var anc: Dictionary = JSON.parse_string(FileAccess.open(DIR + "chars/vorgane_x/anchor.json", FileAccess.READ).get_as_text())
+	monster.offset = -Vector2(anc["feet"][0], anc["feet"][1]).round()        # pieds du rendu = position au sol
 	monster.position = monster_pos
 	monster.z_index = int(monster_pos.y)
 	monster.play()
 	monster.visible = not GameState.enemy_defeated
-	# Intégration : teinte du crépuscule (le sprite vient du combat, plus clair que le décor) + ombre de contact
-	monster.modulate = Color(0.82, 0.8, 0.95)
-	var shadow := Shadow.new()
-	shadow.position = monster_pos
-	shadow.radius = Vector2(t0.get_width() * 0.42, 5.0)
-	shadow.z_index = int(monster_pos.y) - 1
-	shadow.visible = monster.visible
-	add_child(shadow)
 	add_child(monster)
+	if monster.visible:
+		solids.append(_ellipse(monster_pos, monster_rx, monster_ry))      # on ne traverse pas le monstre
 	# Caméra : suit le groupe en douceur, bornée au décor
 	cam = Camera2D.new()
 	cam.zoom = Vector2(2, 2)
@@ -163,6 +199,14 @@ func _lights() -> void:
 		var tw := create_tween().set_loops()
 		tw.tween_property(l, "energy", 0.45, 1.3).set_trans(Tween.TRANS_SINE)
 		tw.tween_property(l, "energy", 0.3, 1.1).set_trans(Tween.TRANS_SINE)
+
+
+func _ellipse(c: Vector2, rx: float, ry: float) -> PackedVector2Array:
+	var p := PackedVector2Array()
+	for i in range(14):
+		var a := TAU * i / 14.0
+		p.append(c + Vector2(cos(a) * rx, sin(a) * ry))
+	return p
 
 
 func _circle(c: Vector2, r: float) -> PackedVector2Array:
@@ -229,7 +273,7 @@ func _process(delta: float) -> void:
 	cam.position = hero.position.round()
 	_update_occlusion(delta)
 	_update_prompt()
-	if monster.visible and not _engaging and hero.position.distance_to(monster_pos) < ENGAGE_RANGE + 18.0:
+	if monster.visible and not _engaging and touches_monster(hero.position, monster_pos, monster_rx, monster_ry, ENGAGE_MARGIN):
 		_engage()
 
 
@@ -250,20 +294,30 @@ func _follow(delta: float) -> void:
 		w.animate(d.normalized() if d.length() > 0.01 else Vector2.ZERO, delta)
 
 
-## Occlusion : quand un membre du groupe est DERRIÈRE un grand élément (pieds au-dessus de sa ligne de tri et
-## silhouette dans son emprise), l'élément devient translucide et une silhouette du personnage reste visible.
-func _update_occlusion(delta: float) -> void:
+## Occlusion : le fond ne contient PAS les éléments triés (terrain seul) ; chaque élément est une couche séparée.
+## Quand un membre du groupe est derrière un élément (pieds au-dessus de sa ligne de tri) ET réellement recouvert
+## par ses pixels, l'élément devient transparent LOCALEMENT autour de lui (ellipse douce). La silhouette de
+## secours (très discrète) ne s'affiche que si le personnage est masqué par plus de 3 trous (cas limite).
+func _update_occlusion(_delta: float) -> void:
 	for w in party:
 		w.hidden_behind = false
 	for o in occluders:
-		var behind := false
+		var holes := PackedVector2Array()
+		var s: Sprite2D = o["sprite"]
 		for w in party:
 			var r := Rect2(w.position + Vector2(-8, -30), Vector2(16, 30))
-			if w.position.y < o["sort_y"] and o["rect"].intersects(r) and _opaque_at(o["sprite"], w.position + Vector2(0, -12)):
-				behind = true
-				w.hidden_behind = true
-		var s: Sprite2D = o["sprite"]
-		s.modulate.a = move_toward(s.modulate.a, 0.5 if behind else 1.0, delta * 4.0)
+			if w.position.y < o["sort_y"] and o["rect"].intersects(r) and (_opaque_at(s, w.position + Vector2(0, -12)) or _opaque_at(s, w.position + Vector2(0, -24)) or _opaque_at(s, w.position + Vector2(0, -3))):
+				if holes.size() < 3:
+					holes.append(w.position + Vector2(0, -14) - s.position)
+				else:
+					w.hidden_behind = true
+		var m: ShaderMaterial = o["mat"]
+		while holes.size() < 3:
+			holes.append(Vector2(-999, -999))
+		m.set_shader_parameter("holes", holes)
+		m.set_shader_parameter("hole_count", 3)
+		m.set_shader_parameter("radius", Vector2(OCC_RX, OCC_RY))
+		m.set_shader_parameter("min_alpha", OCC_ALPHA)
 
 
 func _opaque_at(s: Sprite2D, p: Vector2) -> bool:
@@ -280,7 +334,7 @@ func _update_prompt() -> void:
 	var near: bool = d < NOTICE_RANGE and not _dialog.is_open()
 	_prompt.visible = near
 	if near:
-		_prompt.text = "E  Parler" if d < TALK_RANGE else "…"
+		_prompt.text = "E  Parler" if can_talk(hero.position, npc.position, TALK_RANGE) else "…"
 		var sp := get_viewport().get_canvas_transform() * (npc.position + Vector2(-14, -40))
 		_prompt.position = sp
 
@@ -292,11 +346,14 @@ func _unhandled_input(event: InputEvent) -> void:
 		_dialog.handle_key(event)
 		get_viewport().set_input_as_handled()
 		return
-	if not _locked and (event.physical_keycode == KEY_E or event.keycode == KEY_ENTER) and hero.position.distance_to(npc.position) < TALK_RANGE:
-		_open_dialog()
+	if not _locked and (event.physical_keycode == KEY_E or event.keycode == KEY_ENTER):
+		_open_dialog()                               # la distance est vérifiée DANS _open_dialog
 
 
-func _open_dialog() -> void:
+## Ouvre le dialogue SEULEMENT si le héros est près du garde. Renvoie true si le dialogue s'est ouvert.
+func _open_dialog() -> bool:
+	if _dialog.is_open() or not can_talk(hero.position, npc.position, TALK_RANGE):
+		return false
 	var data: Dictionary = JSON.parse_string(FileAccess.open(DIALOGUE, FileAccess.READ).get_as_text())
 	var steps: Array = data["after_victory"] if GameState.enemy_defeated else data["start"]
 	var spk: Dictionary = data["speakers"].duplicate(true)
@@ -305,6 +362,7 @@ func _open_dialog() -> void:
 	hero.animate(Vector2.ZERO, 0.0)
 	hero.face_toward(npc.position - hero.position)
 	_dialog.open(steps, spk)
+	return true
 
 
 func _engage() -> void:
@@ -321,53 +379,169 @@ func _engage() -> void:
 
 
 # ---------------------------------------------------------------------------------------------- démo (vidéo)
+## La démo n'utilise AUCUN raccourci : chaque étape doit être réellement atteinte (sinon elle s'arrête et le
+## signale), et le dialogue passe par la même règle de distance que le joueur.
 func _autoplay() -> void:
+	if OS.get_cmdline_user_args().has("--check-talk"):
+		await _check_talk()
+		return
 	await get_tree().create_timer(1.0).timeout
+	var house: Dictionary = zone["sprites"]["maison"]
 	var tree_e: Dictionary = zone["sprites"]["arbre_g"]
-	var house_e: Dictionary = zone["sprites"]["maison"]
-	var tf := _centroid(tree_e["footprint"])
-	var hf := _centroid(house_e["footprint"])
-	var hy_top := 9999.0
-	for p in house_e["footprint"]:
-		hy_top = minf(hy_top, p[1])
+	var hb := _bounds(house["footprint"])
+	var tb := _bounds(tree_e["footprint"])
+	var tc := tb.get_center()
 	var route := [
-		hero.position + Vector2(60, -30),                  # diagonale
-		tf + Vector2(22, -14), tf + Vector2(-6, -16),      # DERRIÈRE l'arbre (le feuillage passe devant)
-		tf + Vector2(10, 18),                               # devant l'arbre
-		Vector2(hf.x - 30, hy_top - 6), Vector2(hf.x + 20, hy_top - 8),   # DERRIÈRE la maison
-		npc.position + Vector2(-11, 4),                     # tout près du garde
+		["devant la maison", Vector2(hb.position.x + hb.size.x * 0.35, hb.end.y + 10)],
+		["côté gauche de la maison", Vector2(hb.position.x - 10, hb.get_center().y)],
+		["derrière la maison", Vector2(hb.position.x + 6, hb.position.y - 8)],
+		["derrière la maison (milieu)", Vector2(hb.get_center().x, hb.position.y - 8)],
+		["retour côté gauche", Vector2(hb.position.x - 10, hb.get_center().y)],
+		["derrière l'arbre", Vector2(tc.x + 4, tb.position.y - 8)],
+		["devant l'arbre", Vector2(tc.x + 4, tb.end.y + 10)],
+		["vers le garde", npc.position + Vector2(-10, 4)],
 	]
-	for wp in route:
-		await _walk_to(wp)
-		await get_tree().create_timer(0.35).timeout
-	_open_dialog()
+	for step in route:
+		if not await _walk_to(step[1]):
+			push_warning("DEMO : étape « %s » non atteinte (obstacle) — démo arrêtée" % step[0])
+			demo_log.append("ÉCHEC " + step[0])
+			print("DEMO ÉCHEC %s" % step[0])
+			return
+		demo_log.append("ok " + step[0])
+		print("DEMO ok %s (distance au garde %.1f)" % [step[0], hero.position.distance_to(npc.position)])
+		await get_tree().create_timer(0.4).timeout
+	if not _open_dialog():
+		print("DEMO : trop loin du garde pour parler (%.1f px) — pas de dialogue" % hero.position.distance_to(npc.position))
+		return
+	print("DEMO dialogue ouvert à %.1f px du garde" % hero.position.distance_to(npc.position))
 	while _dialog.is_open():
-		await get_tree().create_timer(1.5 if not _dialog.showing_choice() else 1.0).timeout
+		await get_tree().create_timer(1.4 if not _dialog.showing_choice() else 1.0).timeout
 		_dialog.advance()
 	await get_tree().create_timer(0.5).timeout
-	await _walk_to(monster_pos + Vector2(40, 4))
-	await _walk_to(monster_pos + Vector2(10, 2))
+	await _walk_to(monster_pos + Vector2(monster_rx + 26, 6))
+	print("DEMO approche du monstre, distance %.1f" % hero.position.distance_to(monster_pos))
+	await _walk_to(monster_pos + Vector2(monster_rx - 2, 2))
 
 
-func _centroid(fp: Array) -> Vector2:
-	var c := Vector2.ZERO
+## Vérification « manuelle » par vraies touches simulées (InputEventKey) : on ne peut pas parler de loin,
+## on peut parler de près. Résultat écrit sur la console (CHECK ok / CHECK ÉCHEC).
+func _check_talk() -> void:
+	await get_tree().create_timer(0.5).timeout
+	var ok := true
+	_press(KEY_E)
+	await get_tree().process_frame
+	var far_ok: bool = not _dialog.is_open()
+	print("CHECK %s : E à %.1f px du garde -> dialogue %s" % ["ok" if far_ok else "ÉCHEC", hero.position.distance_to(npc.position), "fermé" if far_ok else "OUVERT"])
+	ok = ok and far_ok
+	# s'approcher en maintenant les flèches (vraies touches), avec les collisions
+	var guard := 0
+	while not can_talk(hero.position, npc.position, TALK_RANGE) and guard < 900:
+		var to := npc.position + Vector2(-9, 3) - hero.position
+		_hold(KEY_RIGHT, to.x > 1.5); _hold(KEY_LEFT, to.x < -1.5)
+		_hold(KEY_DOWN, to.y > 1.5); _hold(KEY_UP, to.y < -1.5)
+		await get_tree().process_frame
+		guard += 1
+	for k in [KEY_RIGHT, KEY_LEFT, KEY_DOWN, KEY_UP]:
+		_hold(k, false)
+	await get_tree().create_timer(0.3).timeout
+	_press(KEY_E)
+	await get_tree().process_frame
+	var near_ok: bool = _dialog.is_open()
+	print("CHECK %s : E à %.1f px du garde -> dialogue %s" % ["ok" if near_ok else "ÉCHEC", hero.position.distance_to(npc.position), "OUVERT" if near_ok else "fermé"])
+	ok = ok and near_ok
+	_press(KEY_ESCAPE)
+	await get_tree().create_timer(0.5).timeout
+	print("CHECK %s : Échap ferme le dialogue" % ("ok" if not _dialog.is_open() else "ÉCHEC"))
+	print("CHECK RÉSULTAT : %s" % ("RÉUSSI" if ok and not _dialog.is_open() else "ÉCHEC"))
+	get_tree().quit()
+
+
+func _press(k: Key) -> void:
+	for down in [true, false]:
+		var ev := InputEventKey.new()
+		ev.keycode = k
+		ev.physical_keycode = k
+		ev.pressed = down
+		Input.parse_input_event(ev)
+
+
+func _hold(k: Key, down: bool) -> void:
+	if Input.is_key_pressed(k) == down:
+		return
+	var ev := InputEventKey.new()
+	ev.keycode = k
+	ev.physical_keycode = k
+	ev.pressed = down
+	Input.parse_input_event(ev)
+
+
+func _bounds(fp: Array) -> Rect2:
+	var r := Rect2(Vector2(fp[0][0], fp[0][1]), Vector2.ZERO)
 	for p in fp:
-		c += Vector2(p[0], p[1])
-	return c / maxf(1.0, fp.size())
+		r = r.expand(Vector2(p[0], p[1]))
+	return r
 
 
-func _walk_to(target: Vector2) -> void:
+var _astar: AStarGrid2D
+const CELL := 4
+
+
+## Grille de navigation de la démo (mêmes règles de collision que le joueur).
+func _nav() -> AStarGrid2D:
+	if _astar == null:
+		_astar = AStarGrid2D.new()
+		_astar.region = Rect2i(0, 0, int(zone["native"][0]) / CELL, int(zone["native"][1]) / CELL)
+		_astar.cell_size = Vector2(CELL, CELL)
+		_astar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_ONLY_IF_NO_OBSTACLES
+		_astar.update()
+		for x in range(_astar.region.size.x):
+			for y in range(_astar.region.size.y):
+				_astar.set_point_solid(Vector2i(x, y), not free_at(Vector2(x, y) * CELL + Vector2(CELL, CELL) * 0.5))
+	return _astar
+
+
+## Marche automatique vers un point en CONTOURNANT les obstacles (itinéraire A*) ; renvoie false si le point est
+## inaccessible ou n'est pas atteint : une étape n'est jamais validée en silence.
+func _walk_to(target: Vector2) -> bool:
+	var nav := _nav()
+	var from := Vector2i(hero.position / CELL)
+	var to := Vector2i(target / CELL)
+	if not nav.region.has_point(to) or nav.is_point_solid(to):
+		# point visé dans un obstacle : cellule libre la plus proche (rayon 16 px) ; sinon échec explicite
+		var best := Vector2i(-1, -1)
+		for r in range(1, 5):
+			for dx in range(-r, r + 1):
+				for dy in range(-r, r + 1):
+					var c := to + Vector2i(dx, dy)
+					if nav.region.has_point(c) and not nav.is_point_solid(c) and (best.x < 0 or (c - to).length_squared() < (best - to).length_squared()):
+						best = c
+			if best.x >= 0:
+				break
+		if best.x < 0:
+			return false
+		to = best
+		target = Vector2(best) * CELL + Vector2(CELL, CELL) * 0.5
+	var path := nav.get_point_path(from, to)
+	for i in range(1, path.size() - 1):
+		if not await _walk_straight(path[i] + Vector2(CELL, CELL) * 0.5, 3.0):
+			return false
+	return await _walk_straight(target, 3.0)
+
+
+func _walk_straight(target: Vector2, tol: float) -> bool:
 	_auto_target = target
 	var t := 0.0
 	var last := hero.position
 	while _auto_target != Vector2.INF and not _engaging:
 		await get_tree().process_frame
 		t += get_process_delta_time()
-		if t > 1.0:                                         # bloqué par un obstacle : on passe au point suivant
+		if t > 1.0:
 			if hero.position.distance_to(last) < 2.0:
 				_auto_target = Vector2.INF
+				return hero.position.distance_to(target) < tol
 			last = hero.position
 			t = 0.0
+	return _engaging or hero.position.distance_to(target) < tol
 
 
 # ---------------------------------------------------------------------------------------------- personnage
@@ -419,7 +593,7 @@ class Walker extends Node2D:
 		ghost.z_as_relative = false
 		ghost.z_index = 3900
 		var sh := Shader.new()
-		sh.code = "shader_type canvas_item; void fragment(){ vec4 c = texture(TEXTURE, UV); COLOR = vec4(0.55, 0.66, 0.92, c.a * 0.4); }"
+		sh.code = "shader_type canvas_item; void fragment(){ vec4 c = texture(TEXTURE, UV); COLOR = vec4(0.55, 0.66, 0.92, c.a * 0.22); }"
 		var sm := ShaderMaterial.new()
 		sm.shader = sh
 		ghost.material = sm

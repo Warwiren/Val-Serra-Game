@@ -58,3 +58,43 @@ Seul ajout côté combat : le retour se fait vers la scène d'origine (`GameStat
 
 Restent dépendants d'assets dessinés : sprites directionnels d'Ilya, Throné et du garde à l'échelle d'exploration ;
 feuillages et matières vraiment peints (le volume 3D reste perceptible dans les arbres).
+
+## Itération 3 : fiabilisation et harmonisation
+**Dialogue**
+- `_open_dialog()` vérifie lui-même la distance (`can_talk`, 14 px natifs). Joueur, démo et tests passent tous
+  par cette règle.
+- La démo n'a plus de raccourci. Chaque étape doit être réellement atteinte : l'itinéraire contourne les
+  obstacles (A* sur les mêmes collisions que le joueur), et une étape non atteinte arrête la démo en le
+  signalant. Le dialogue s'est ouvert à 11 px du garde.
+- Vérification par touches simulées (`--autoplay --check-talk`) : E à 223 px ne fait rien, E à 12,7 px ouvre le
+  dialogue, Échap le ferme (`docs/media/exploration/verification_dialogue_touches.txt`).
+
+**Occlusion**
+- Blender rend maintenant aussi le **terrain seul** : les objets sont invisibles pour la caméra, mais leurs
+  ombres restent au sol. `fond.png` ne contient plus aucun objet ; chaque objet est une couche séparée, avec
+  la même palette.
+- Transparence **locale et douce** : ellipse autour de chaque personnage réellement recouvert, avec une opacité
+  minimale de 0,5. L'objet reste lisible devant lui.
+- La silhouette de secours ne sert plus qu'au-delà de 3 personnages cachés derrière un même objet.
+- Correction d'un défaut : le shader multipliait deux fois la texture, ce qui assombrissait les objets.
+
+**Vorgane**
+- Rendu original depuis son modèle Blender (`tools/explore/vorgane_explore.py`), sous la même projection que le
+  décor (35°, 20°) et le même éclairage, avec une ombre portée réelle et un repos en 8 images.
+- Il est tourné de trois-quarts vers la droite et mesure environ 1,5 fois la hauteur d'Aren (même rapport qu'en
+  combat). Ses pieds sont calés sur le point au sol.
+- Il est solide (on ne le traverse pas). Le combat se déclenche au contact de son emprise au sol, élargie de
+  6 px.
+- Conversion en pixel art : `tools/explore/vorgane_pixel.py`.
+
+**Tests** : 49 sur 49, dont 3 nouveaux dans `test_explore.gd` : dialogue impossible de loin et possible de près,
+contact avec le monstre à une distance visuelle cohérente, fond sans duplication de la maison.
+
+**Limites restantes**
+- Feuillages et matières : encore issus de volumes 3D retouchés ; ils doivent être illustrés (voir
+  `SPEC_ASSETS_EXPLORATION.md`).
+- Ilya, Throné et le garde : sprites provisoires, sans vues directionnelles. Ilya est proposée comme pilote, au
+  format défini dans la spécification.
+- Le Vorgane d'exploration n'a qu'une animation de repos (pas de marche ni de réaction).
+- Quand un objet devant la maison (par exemple un arbre) devient transparent, la zone de la maison qu'il
+  recouvrait apparaît vide (terrain), car la maison n'est dessinée que là où elle est visible dans le rendu.
