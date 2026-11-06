@@ -61,6 +61,8 @@ vérification du dialogue par touches simulées).
   `godot --path . -- --start=proto-battle --arena=lisiere` ; **F2** bascule entre l'ancien et le nouveau décor
   pendant le combat. Compte rendu : **`docs/ARENE_COMBAT.md`** · captures : `docs/media/arena/`.
 - Tests automatiques : 64 sur 64.
+- **Refonte artistique de l'exploration (branche `exploration-illustree`)** : gabarits du sol, de la maison et du
+  grand arbre, cadre, perspective et fichiers à fournir dans **`docs/GABARITS_EXPLORATION.md`**.
 - **Décors illustrés (branche `decors-illustres`)** : arène illustrée, accessoires et sol illustrés en exploration ;
   analyse des planches et ressources manquantes dans `docs/PRODUCTION_GRAPHIQUE.md`, performances dans
   `docs/PERFORMANCES.md`.
