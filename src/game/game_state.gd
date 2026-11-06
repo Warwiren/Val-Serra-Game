@@ -39,6 +39,7 @@ var autoplay: bool = false             # démonstration automatique (captures vi
 var hd2d: bool = false                 # combat HD-2D : Aren et Vorgane en sprites pixel art
 var proto: bool = false                # prototype recentré (pack visuel) : présentation unifiée, interface épurée
 var art_proto: bool = false            # prototype artistique HD (héros et monstre articulés, arène nocturne)
+var arena: String = ""                 # décor de combat : "" = actuel, "lisiere" = pilote de la refonte (--arena=lisiere)
 
 var _fade: ColorRect
 var _fps: Label
@@ -62,6 +63,8 @@ func _ready() -> void:
 		elif arg == "--start=hd2d":
 			hd2d = true
 			_start_scene.call_deferred(SCENE_BATTLE)
+		elif arg.begins_with("--arena="):
+			arena = arg.substr(8)
 		elif arg == "--start=hd2d-zone":
 			_start_scene.call_deferred(SCENE_EXPLORE_HD2D)
 		elif arg == "--start=proto-battle":

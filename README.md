@@ -23,7 +23,10 @@ vérification du dialogue par touches simulées).
   stable, compagnons à distance constante sur la trace, démo sans micro-arrêts, tri de profondeur devant les murs
   en biais. Parcours clavier mesuré : `godot --path . -- --start=hd2d-zone --course=manuel` (code de sortie 1 si
   un critère n'est pas tenu) ; vidéos : `docs/media/exploration/locomotion/`.
-- Tests automatiques : 55 sur 55.
+- **Arène de combat pilote « Lisière de l'avant-poste »** (refonte des décors, à valider) :
+  `godot --path . -- --start=proto-battle --arena=lisiere` ; **F2** bascule entre l'ancien et le nouveau décor
+  pendant le combat. Compte rendu : **`docs/ARENE_COMBAT.md`** · captures : `docs/media/arena/`.
+- Tests automatiques : 58 sur 58.
 
 ![Exploration HD-2D](docs/media/exploration/hd2d_v3_derriere_arbre.jpg)
 

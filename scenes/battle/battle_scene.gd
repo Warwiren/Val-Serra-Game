@@ -22,6 +22,7 @@ const ProtoHero = preload("res://src/proto/pack_hunter_view.gd")
 const CombatHud = preload("res://src/presentation/combat_hud.gd")
 const UI = preload("res://src/presentation/ui_style.gd")
 const Portraits = preload("res://src/proto/portraits.gd")
+const ArenaLayers = preload("res://src/presentation/arena_layers.gd")
 ## Prototype recentré : groupe à droite tourné vers la gauche, monstre à gauche (maquette du pack, Octopath).
 const HUNTER_POS_PROTO := {"heros": Vector2(900, 500), "compagnon_vif": Vector2(1028, 468), "compagnon_lourd": Vector2(1150, 492)}
 const MONSTER_POS_PROTO := Vector2(330, 506)
@@ -79,6 +80,8 @@ var _journal_pos := 0
 var _drift_t := 0.0
 var _shake := 0.0
 var _cam_target_offset := Vector2.ZERO
+var arena: ArenaLayers = null            # décor de combat en plans (pilote), si --arena=lisiere
+var _old_arena: Array = []               # nœuds du décor actuel (comparaison F2)
 
 
 func _ready() -> void:
@@ -189,6 +192,7 @@ func _build_world_proto() -> void:
 	var cm := CanvasModulate.new()
 	cm.color = Color(0.8, 0.8, 0.92)
 	add_child(cm)
+	_old_arena = [bg, cm]
 	for lp in PROTO_LIGHTS:
 		var l := PointLight2D.new()
 		l.texture = Fx.glow_texture(256)
@@ -197,6 +201,12 @@ func _build_world_proto() -> void:
 		l.energy = 0.55
 		l.texture_scale = 1.5
 		add_child(l)
+		_old_arena.append(l)
+	if GameState.arena == "lisiere":
+		arena = ArenaLayers.new()
+		add_child(arena)
+		arena.build(self)
+		_show_arena(true)
 	actors = Node2D.new()
 	add_child(actors)
 	var overlay := CanvasLayer.new()
@@ -208,7 +218,7 @@ func _build_world_proto() -> void:
 	var mv := SpriteMonsterView.new()
 	mv.sprite_dir = "res://art/proto/vorgane_nuit_p1/"
 	mv.facing_right = true
-	mv.scene_lights = PROTO_LIGHTS
+	mv.scene_lights = arena.lights if arena != null else PROTO_LIGHTS
 	monster_view = mv
 	actors.add_child(monster_view)
 	monster_view.compact = true
@@ -233,6 +243,14 @@ func _build_world_proto() -> void:
 		disp_res[c.id] = c.resonance
 		disp_guard[c.id] = false
 	_sync_parts()
+
+
+## Comparaison A/B du décor de combat (F2) : présentation seulement, le combat continue.
+func _show_arena(new_one: bool) -> void:
+	for n in _old_arena:
+		n.visible = not new_one
+	if arena != null:
+		arena.set_shown(new_one)
 
 
 func _portrait(id: String) -> Texture2D:
@@ -349,6 +367,8 @@ func _process(delta: float) -> void:
 	cam.offset = drift + _cam_target_offset + shake_vec
 	if stage != null:
 		stage.update_parallax(drift + _cam_target_offset, delta)
+	if arena != null:
+		arena.update_parallax(cam.offset, delta)
 	if not busy and battle.state == Battle.State.AWAITING_COMMAND:
 		var hov := monster_view.part_at(get_global_mouse_position())
 		if hov != monster_view.hovered_part:
@@ -966,6 +986,9 @@ func _confirm() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F2 and arena != null:
+		_show_arena(not arena.visible)
+		return
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_L and not GameState.proto:
 		hud.toggle_log()
 		return
