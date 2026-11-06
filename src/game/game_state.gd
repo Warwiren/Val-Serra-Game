@@ -118,7 +118,7 @@ func _unhandled_input(event: InputEvent) -> void:
 ## Décor de combat pilote « Lisière » : demandé explicitement, ou combat venu de la zone HD-2D.
 func use_pilot_arena() -> bool:
 	if arena != "":
-		return arena == "lisiere"
+		return arena.begins_with("lisiere")      # "lisiere" (plans repeints s'il y en a) ou "lisiere-rendu"
 	return from_zone and explore_return == SCENE_EXPLORE_HD2D
 
 

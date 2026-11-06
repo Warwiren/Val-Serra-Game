@@ -10,6 +10,8 @@ const PX := 3
 const PARALLAX := {"base": 0.0, "loin": 0.35, "lisiere": 0.15, "avant": -0.25}
 
 var dir := "res://art/arena/lisiere/"
+var use_painted := true                  # un plan repeint (dir/peint/<plan>.png) remplace le plan rendu
+var painted: Array = []                  # plans effectivement repeints (compte rendu, tests)
 var data: Dictionary
 var lights: Array = []                   # positions écran des lanternes (pour SpriteMonsterView.scene_lights)
 var _layers := {}
@@ -60,7 +62,12 @@ func _origin() -> Vector2:
 
 func _sprite(n: String, origin: Vector2) -> Sprite2D:
 	var s := Sprite2D.new()
-	s.texture = load(dir + n + ".png")
+	var p := dir + "peint/" + n + ".png"
+	if use_painted and ResourceLoader.exists(p):
+		s.texture = load(p)
+		painted.append(n)
+	else:
+		s.texture = load(dir + n + ".png")
 	s.centered = false
 	s.scale = Vector2(PX, PX)
 	s.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST

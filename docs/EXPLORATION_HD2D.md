@@ -149,3 +149,27 @@ la décision du 6 novembre ; seul l'ordre « devant / derrière » est corrigé.
   Il est conservé tel quel (décision du 6 novembre).
 - Un personnage qui traverse le buisson au pied de l'angle gauche de la maison peut passer devant le feuillage
   pendant une image : la maison et le buisson ne peuvent pas être ordonnés autrement avec un seul niveau par objet.
+
+## Itération 5 : interaction avec le garde (P0) — branche `interaction-pnj-art`
+**Reproduction** au clavier (`--course=pnj` : on marche vers le garde depuis la gauche, la droite, le bas et
+en diagonale, on s'arrête quand les deux personnages se touchent, puis E) : **4 approches sur 9** réussissaient.
+
+**Deux causes**
+1. **Sprite décalé** (bug) : `Walker._anim()` sortait avant de caler les pieds du sprite quand l'animation
+   demandée était déjà celle par défaut. Le garde, qui ne marche jamais, était dessiné **25 px plus bas et 7 px
+   plus à droite** que sa position réelle (collision, dialogue). Le joueur visait le dessin : il fallait se placer
+   « derrière » lui. Le même décalage touchait chaque personnage jusqu'à son premier pas.
+2. **Zone trop étroite** : un cercle de 14 px refuse un personnage arrêté juste à côté (15 à 17 px entre les deux
+   pieds).
+
+**Correction** : pieds toujours calés ; zone de dialogue **elliptique 22 × 16 px natifs** (≈ 1,1 m sur les côtés,
+plus courte en profondeur à cause de la perspective) **et** ligne de vue au sol (aucun bâtiment, clôture ou
+objet entre le héros et le PNJ). L'invite « E  Parler », la touche E, la démo et les tests utilisent la même
+règle (`can_talk_now()`). À plus de 34 px, aucune invite ; entre les deux, une bulle « … ».
+
+**Résultat** : 9 sur 9 (gauche, droite, bas, deux diagonales, en longeant le mur, contre lui ; refus à 32 px et
+derrière la maison). Carte vérifiée : aucune case accessible de l'ellipse n'est masquée par un obstacle.
+Démonstration : `docs/media/exploration/pnj/approches_pnj_clavier.mp4`, `approches_pnj.jpg`, résultats JSON.
+Tests ajoutés : approches naturelles, refus à travers un obstacle, pieds calés dès l'apparition.
+
+Autre correction : avec F5 sur la zone, `--start=hd2d-zone` chargeait la scène deux fois.
