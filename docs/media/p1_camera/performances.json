@@ -1,0 +1,46 @@
+{
+  "avant-poste A": {
+    "appels_dessin": 31.0,
+    "chargement_ms": 308.9,
+    "image_moy_ms": 13.11,
+    "image_p99_ms": 16.67,
+    "images_par_s": 76.3,
+    "memoire_statique_mo": 32.2,
+    "memoire_textures_mo": 15.0,
+    "memoire_video_mo": 21.2,
+    "objets_dessines": 31.0
+  },
+  "zone P1 A": {
+    "appels_dessin": 36.2,
+    "chargement_ms": 215.4,
+    "image_moy_ms": 13.36,
+    "image_p99_ms": 16.23,
+    "images_par_s": 74.9,
+    "memoire_statique_mo": 32.5,
+    "memoire_textures_mo": 28.1,
+    "memoire_video_mo": 34.2,
+    "objets_dessines": 36.2
+  },
+  "zone P1 B": {
+    "appels_dessin": 31.2,
+    "chargement_ms": 191.2,
+    "image_moy_ms": 12.73,
+    "image_p99_ms": 15.62,
+    "images_par_s": 78.6,
+    "memoire_statique_mo": 32.5,
+    "memoire_textures_mo": 28.1,
+    "memoire_video_mo": 34.2,
+    "objets_dessines": 31.2
+  },
+  "zone P1 C": {
+    "appels_dessin": 26.2,
+    "chargement_ms": 194.7,
+    "image_moy_ms": 12.94,
+    "image_p99_ms": 16.67,
+    "images_par_s": 77.3,
+    "memoire_statique_mo": 32.5,
+    "memoire_textures_mo": 28.1,
+    "memoire_video_mo": 34.2,
+    "objets_dessines": 26.2
+  }
+}

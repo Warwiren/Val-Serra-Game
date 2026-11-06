@@ -45,11 +45,13 @@ Vidéo de démonstration : [`docs/media/decor_final/demo_zone_definitive.mp4`](d
 | En combat : clic, ↑/↓ ou 1 à 5 | choisir une action ; ←/→ ou clic sur une partie : changer de cible |
 | En combat : Tab | changer de mode (VIF / MESURÉ / CHARGÉ) ; **Entrée** : confirmer |
 | Espace (maintenu) | accélérer les animations ; **F3** : images par seconde |
+| **1 / 2 / 3** ou **C** (exploration) | caméra A (actuelle, par défaut) / B / C — essai P1, voir `docs/P1_CAMERA.md` |
 
 ### Autres scènes (ouvrir dans l'éditeur, puis **F6**)
 
 | Scène | Contenu |
 |---|---|
+| `scenes/explore_hd2d/zone_p1.tscn` | **P1** : zone de test agrandie (×4) pour comparer les caméras A / B / C (`--start=p1-zone`) |
 | `scenes/dev/essai_combat_lisiere.tscn` | combat direct sur l'arène illustrée |
 | `scenes/dev/essai_parcours_clavier.tscn` | parcours de locomotion au clavier simulé ; verdict dans le panneau « Sortie » |
 | `scenes/proto/proto_zone.tscn` | ancien avant-poste (prototype recentré, décor du pack) |
@@ -102,6 +104,7 @@ Dans l'éditeur, les tests se lancent aussi avec `tests/test_runner.tscn` puis *
 
 | Document | Contenu |
 |---|---|
+| `docs/P1_CAMERA.md` | **P1** : zone de test agrandie, caméras A / B / C, mesures, recommandation (en attente de validation) |
 | `docs/DECOR_EXPLORATION.md` | décor définitif, toiture, défauts connus |
 | `docs/EXPLORATION_HD2D.md` | locomotion, suivi du groupe, collisions, dialogue, interaction avec le garde |
 | `docs/GABARITS_EXPLORATION.md`, `docs/INTEGRATION_SOL.md` | gabarits et importation des illustrations |

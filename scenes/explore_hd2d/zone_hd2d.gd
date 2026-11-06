@@ -55,6 +55,11 @@ const OCC_RX := 11.0                     # trou de transparence locale autour du
 const OCC_RY := 17.0
 const OCC_ALPHA := 0.5
 const DIALOGUE := "res://data/dialogue/pnj_proto.json"
+const CameraRig = preload("res://src/explore/camera_hd2d.gd")
+
+## Carte jouée : l'avant-poste (par défaut) ou la zone de test agrandie P1 (scenes/explore_hd2d/zone_p1.tscn).
+@export var zone_file := DIR + "zone.json"
+@export var decor_file := DIR + "illustre/decor.json"
 
 var zone: Dictionary
 var walkable := PackedVector2Array()
@@ -68,7 +73,9 @@ var party: Array = []                     # [hero, ilya, throne]
 var npc: Walker
 var monster: AnimatedSprite2D
 var monster_pos := Vector2.ZERO
-var cam: Camera2D
+var cam: CameraRig
+var _cam_label: Label
+var _cam_label_t := 0.0
 var trail: Array = []
 var _dialog
 var _prompt: Label
@@ -84,7 +91,7 @@ func _ready() -> void:
 	if OCC_SHADER == null:
 		OCC_SHADER = Shader.new()
 		OCC_SHADER.code = OCC_SHADER_CODE
-	zone = JSON.parse_string(FileAccess.open(DIR + "zone.json", FileAccess.READ).get_as_text())
+	zone = JSON.parse_string(FileAccess.open(zone_file, FileAccess.READ).get_as_text())
 	for p in zone["walkable"]:
 		walkable.append(Vector2(p[0], p[1]))
 	_decor()
@@ -133,17 +140,12 @@ func _ready() -> void:
 	if monster.visible:
 		solids.append(_ellipse(monster_pos, monster_rx, monster_ry))      # on ne traverse pas le monstre
 	_place_party()
-	# Caméra : suit le groupe en douceur, bornée au décor
-	cam = Camera2D.new()
-	cam.zoom = Vector2(2, 2)
-	cam.limit_left = 0
-	cam.limit_top = 0
-	cam.limit_right = int(zone["native"][0])
-	cam.limit_bottom = int(zone["native"][1])
-	cam.position_smoothing_enabled = true
-	cam.position_smoothing_speed = 4.0
-	cam.position = hero.position
+	# Caméra (P1) : configuration A / B / C, bornée au décor ; A = réglage d'origine, par défaut
+	cam = CameraRig.new()
+	cam.set_bounds(Rect2(0, 0, int(zone["native"][0]), int(zone["native"][1])))
+	cam.apply(GameState.camera_preset)
 	add_child(cam)
+	cam.snap_to(hero.position)
 	cam.make_current()
 	# Interface : invite et dialogue
 	var layer := CanvasLayer.new()
@@ -154,6 +156,13 @@ func _ready() -> void:
 	_prompt.add_theme_constant_override("outline_size", 6)
 	_prompt.visible = false
 	layer.add_child(_prompt)
+	_cam_label = Label.new()
+	_cam_label.add_theme_font_size_override("font_size", 15)
+	_cam_label.add_theme_color_override("font_outline_color", Color(0.05, 0.04, 0.08))
+	_cam_label.add_theme_constant_override("outline_size", 5)
+	_cam_label.position = Vector2(16, 690)
+	_cam_label.visible = false
+	layer.add_child(_cam_label)
 	_dialog = DialogueBox.new()
 	layer.add_child(_dialog)
 	_dialog.closed.connect(func(): _locked = false)
@@ -163,7 +172,10 @@ func _ready() -> void:
 		GameState.last_battle_result = ""
 		GameState.from_zone = false
 	if GameState.course != "":
-		add_child(load("res://scenes/explore_hd2d/locomotion_course.gd").new(self, GameState.course))
+		if GameState.course == "p1":
+			add_child(load("res://scenes/explore_hd2d/p1_camera_course.gd").new(self))
+		else:
+			add_child(load("res://scenes/explore_hd2d/locomotion_course.gd").new(self, GameState.course))
 	if GameState.autoplay:
 		_autoplay()
 
@@ -176,8 +188,8 @@ func _ready() -> void:
 const DECOR := DIR + "illustre/"
 
 
-static func decor_spec() -> Dictionary:
-	return JSON.parse_string(FileAccess.open(DECOR + "decor.json", FileAccess.READ).get_as_text())
+static func decor_spec(path := DECOR + "decor.json") -> Dictionary:
+	return JSON.parse_string(FileAccess.open(path, FileAccess.READ).get_as_text())
 
 
 ## Pied de l'élément (natif) : centre de l'emprise au bord avant, ou extrémité avant gauche (clôtures).
@@ -195,8 +207,9 @@ static func element_foot(e: Dictionary, mode: String) -> Vector2:
 
 
 func _decor() -> void:
-	var spec := decor_spec()
-	var ground := _tex_sprite(DECOR + spec["sol"], Vector2.ZERO)
+	var spec := decor_spec(decor_file)
+	var sol: String = spec["sol"]
+	var ground := _tex_sprite(sol if sol.begins_with("res://") else DECOR + sol, Vector2.ZERO)
 	ground.z_index = -4000
 	for g in zone["sprites"]:
 		var e: Dictionary = zone["sprites"][g]
@@ -410,7 +423,8 @@ func _process(delta: float) -> void:
 	_follow(delta)
 	for w in party + [npc]:
 		w.z_index = depth_z(w.position)
-	cam.position = hero.position.round()
+	cam.follow(hero.position, dir, delta)
+	_update_cam_label(delta)
 	_update_occlusion(delta)
 	_update_prompt()
 	var touching := touches_monster(hero.position, monster_pos, monster_rx, monster_ry, ENGAGE_MARGIN)
@@ -521,6 +535,39 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if not _locked and (event.physical_keycode == KEY_E or event.keycode == KEY_ENTER):
 		_open_dialog()                               # la distance est vérifiée DANS _open_dialog
+	elif not _engaging:
+		var k: Key = event.keycode
+		if k == KEY_1 or k == KEY_KP_1:
+			set_camera("A")
+		elif k == KEY_2 or k == KEY_KP_2:
+			set_camera("B")
+		elif k == KEY_3 or k == KEY_KP_3:
+			set_camera("C")
+		elif event.physical_keycode == KEY_C:
+			set_camera(CameraRig.next_of(cam.preset))
+
+
+## P1 : change la configuration de caméra EN JEU (sans rechargement) ; conservée au retour de combat.
+func set_camera(p: String) -> void:
+	if not CameraRig.PRESETS.has(p):
+		return
+	GameState.camera_preset = p
+	cam.apply(p, hero.position)
+	_cam_label.text = "Caméra %s   ·   1 / 2 / 3 ou C pour changer" % CameraRig.PRESETS[p]["label"]
+	_cam_label.visible = true
+	_cam_label_t = 2.5
+
+
+func _update_cam_label(delta: float) -> void:
+	if GameState.camera_hud:
+		_cam_label.text = "Caméra %s" % CameraRig.PRESETS[cam.preset]["label"]
+		_cam_label.visible = true
+		_cam_label.modulate.a = 1.0
+		return
+	if _cam_label_t > 0.0:
+		_cam_label_t -= delta
+		_cam_label.modulate.a = clampf(_cam_label_t / 0.5, 0.0, 1.0)
+		_cam_label.visible = _cam_label_t > 0.0
 
 
 ## Ouvre le dialogue SEULEMENT si le héros est près du garde. Renvoie true si le dialogue s'est ouvert.
@@ -546,7 +593,7 @@ func _engage() -> void:
 	for w in party:
 		w.stop()
 	var t := create_tween()
-	t.tween_property(cam, "zoom", Vector2(2.4, 2.4), 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	t.tween_property(cam, "zoom", cam.zoom * 1.2, 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await t.finished
 	GameState.from_zone = true
 	GameState.proto = true
