@@ -6,6 +6,21 @@ Référence : documents 07 (Brief MVP) et 08 (Mission Claude) du dossier Drive d
 > Tous les personnages, monstres, illustrations et nombres de ce dépôt sont **provisoires et non canoniques**.
 > Ce dépôt est indépendant du système Foundry du JDR (`Warwiren/Val-serra`), qui n'est pas modifié.
 
+## Tester les dernières modifications dans l'éditeur (Godot 4.5 à 4.7)
+
+**F5 lance toujours l'ancienne boucle** (`scenes/proto/proto_zone.tscn`, décor du pack) : ce n'est pas là que
+se trouvent l'exploration HD-2D, la locomotion corrigée ni l'arène pilote. Ouvrir la scène voulue puis **F6** :
+
+| Scène (`scenes/dev/`) | Ce qu'on teste |
+|---|---|
+| `essai_zone_hd2d.tscn` | exploration HD-2D, déplacements corrigés ; toucher le Vorgane lance le combat sur le décor pilote |
+| `essai_combat_lisiere.tscn` | combat directement sur le décor pilote « Lisière » (**F2** : ancien / nouveau) |
+| `essai_combat_ancien.tscn` | même combat sur le décor actuel, pour comparer |
+| `essai_parcours_clavier.tscn` | parcours de locomotion au clavier simulé ; mesures et verdict dans la console « Sortie », puis le jeu se ferme |
+
+Vérifié avec Godot 4.7.2 (58 tests sur 58, parcours « RÉUSSI »). À l'ouverture, Godot 4.7 réimporte les
+ressources (dossier `.godot/` local, non versionné) : c'est normal.
+
 ## Exploration HD-2D expérimentale — branche `exploration-hd2d`
 
 Petite zone jouable en vue trois-quarts surélevée (plongée 35°, rotation 20°), crépuscule bleu-violet,

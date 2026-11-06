@@ -171,9 +171,8 @@ func _ready() -> void:
 	if GameState.last_battle_result != "" and GameState.explore_return == scene_file_path:
 		GameState.last_battle_result = ""
 		GameState.from_zone = false
-	for a in OS.get_cmdline_user_args():
-		if a.begins_with("--course="):
-			add_child(load("res://scenes/explore_hd2d/locomotion_course.gd").new(self, a.substr(9)))
+	if GameState.course != "":
+		add_child(load("res://scenes/explore_hd2d/locomotion_course.gd").new(self, GameState.course))
 	if GameState.autoplay:
 		_autoplay()
 

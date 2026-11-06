@@ -202,11 +202,11 @@ func _build_world_proto() -> void:
 		l.texture_scale = 1.5
 		add_child(l)
 		_old_arena.append(l)
-	if GameState.arena == "lisiere":
-		arena = ArenaLayers.new()
-		add_child(arena)
-		arena.build(self)
-		_show_arena(true)
+	# Décor pilote toujours construit en combat recentré : F2 compare l'ancien et le nouveau à tout moment
+	arena = ArenaLayers.new()
+	add_child(arena)
+	arena.build(self)
+	_show_arena(GameState.use_pilot_arena())
 	actors = Node2D.new()
 	add_child(actors)
 	var overlay := CanvasLayer.new()
@@ -218,7 +218,7 @@ func _build_world_proto() -> void:
 	var mv := SpriteMonsterView.new()
 	mv.sprite_dir = "res://art/proto/vorgane_nuit_p1/"
 	mv.facing_right = true
-	mv.scene_lights = arena.lights if arena != null else PROTO_LIGHTS
+	mv.scene_lights = arena.lights if arena != null and arena.visible else PROTO_LIGHTS
 	monster_view = mv
 	actors.add_child(monster_view)
 	monster_view.compact = true

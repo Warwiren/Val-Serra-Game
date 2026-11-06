@@ -39,7 +39,9 @@ var autoplay: bool = false             # démonstration automatique (captures vi
 var hd2d: bool = false                 # combat HD-2D : Aren et Vorgane en sprites pixel art
 var proto: bool = false                # prototype recentré (pack visuel) : présentation unifiée, interface épurée
 var art_proto: bool = false            # prototype artistique HD (héros et monstre articulés, arène nocturne)
-var arena: String = ""                 # décor de combat : "" = actuel, "lisiere" = pilote de la refonte (--arena=lisiere)
+var arena: String = ""                 # décor de combat : "lisiere" = pilote, "ancien" = décor du pack ; "" = pilote
+                                       # seulement pour un combat lancé depuis la zone HD-2D (F2 bascule en combat)
+var course: String = ""                # parcours de locomotion mesuré (--course=manuel), aussi lançable depuis l'éditeur
 
 var _fade: ColorRect
 var _fps: Label
@@ -65,6 +67,8 @@ func _ready() -> void:
 			_start_scene.call_deferred(SCENE_BATTLE)
 		elif arg.begins_with("--arena="):
 			arena = arg.substr(8)
+		elif arg.begins_with("--course="):
+			course = arg.substr(9)
 		elif arg == "--start=hd2d-zone":
 			_start_scene.call_deferred(SCENE_EXPLORE_HD2D)
 		elif arg == "--start=proto-battle":
@@ -106,6 +110,13 @@ func _unhandled_input(event: InputEvent) -> void:
 			toggle_render_mode()
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F3:
 		_fps.visible = not _fps.visible
+
+
+## Décor de combat pilote « Lisière » : demandé explicitement, ou combat venu de la zone HD-2D.
+func use_pilot_arena() -> bool:
+	if arena != "":
+		return arena == "lisiere"
+	return from_zone and explore_return == SCENE_EXPLORE_HD2D
 
 
 func toggle_render_mode() -> void:
