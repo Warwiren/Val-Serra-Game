@@ -40,3 +40,18 @@ vidéo `essai_v2_demo.mp4` (parcours clavier puis démo : maison, arbres, dialog
   lumineux peint sur le chemin non lié aux lanternes.
 - Ombres au sol des arbres : celles des anciens arbres (rondes).
 - Mélange de finesse : décor illustré fin, personnages en gros pixels (attendus avec les nouveaux sprites).
+
+## Correction de la maison — référence officielle (7 novembre)
+Source conservée : `art/source/concepts_2026-11-07/maison_reference_officielle.webp`.
+`tools/essai/maison_reference.py` reprojette la référence **face par face** sur la géométrie exacte du gabarit :
+- toit et mur latéral gauche : homographie par leurs 4 coins ;
+- façade : transformation affine ajustée sur ses coins **et** sur les 4 ouvertures, puis porte et 3 fenêtres de la
+  référence posées **dans les rectangles exacts du gabarit** (aucun déplacement d'ouverture ni de collision) ;
+- cheminée et poutre faîtière de la référence ; repli sur la version précédente pour les débords (5 % des pixels) ;
+- étalonnage crépusculaire léger, fenêtres chaudes conservées.
+Version précédente gardée : `art/explore_hd2d/essai_v2/maison_transfert_matieres.png`.
+Comparatif en jeu : `docs/media/essai_v2/maison_reference_comparatif.jpg`.
+
+Vérifications : 66/66 tests, parcours clavier RÉUSSI, garde 11/11, retour de combat RÉUSSI, exploration 66,0 images/s.
+Limites : léger liseré sombre sur l'arête droite de la façade ; l'avancée de toit de la référence est un peu plus
+basse que celle du gabarit (la porte d'étage reste visible) ; la porte de la référence est réduite (≈ 45 px de haut).
