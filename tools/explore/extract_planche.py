@@ -1,5 +1,5 @@
 """Découpe les éléments des planches fournies (fond sombre uni) en sprites RGBA prêts pour le jeu.
-    python3 tools/explore/extract_planche.py [tools/explore/planches.json] [art/explore_hd2d/hd]
+    python3 tools/explore/extract_planche.py [tools/explore/planches.json] [art/source/planches_2026-11-06/extraits]
 Pour chaque élément : estimation du fond à partir du bord de la boîte, masque par écart de couleur (avec bord
 adouci de 1 px pour l'anticrénelage), suppression des îlots isolés, recadrage serré, puis UNE réduction de
 qualité (Lanczos) à la taille réellement affichée à l'écran. Les planches sources ne sont jamais modifiées.
@@ -9,7 +9,8 @@ import numpy as np
 from PIL import Image, ImageFilter
 
 SPEC = sys.argv[1] if len(sys.argv) > 1 else "tools/explore/planches.json"
-OUT = sys.argv[2] if len(sys.argv) > 2 else "art/explore_hd2d/hd"
+OUT = sys.argv[2] if len(sys.argv) > 2 else "art/source/planches_2026-11-06/extraits"
+JEU = "art/explore_hd2d/illustre"                         # éléments affichés tels quels par le jeu
 SRC = "art/source/planches_2026-11-06"
 os.makedirs(OUT, exist_ok=True)
 spec = json.load(open(SPEC))
@@ -63,7 +64,7 @@ for sheet, items in spec.items():
         small[..., 3] = np.clip(small[..., 3], 0, 255)
         rgb = np.where(small[..., 3:4] > 1, small[..., :3] * 255.0 / np.maximum(small[..., 3:4], 1), 0)
         out = np.dstack([np.clip(rgb, 0, 255), small[..., 3]]).astype(np.uint8)
-        Image.fromarray(out, "RGBA").save(os.path.join(OUT, name + ".png"))
+        Image.fromarray(out, "RGBA").save(os.path.join(JEU if it.get("jeu") else OUT, name + ".png"))
         col = (out[..., 3] > 64).any(0).nonzero()[0]
         index[name] = {"taille": [w, h], "appui": [round((col.min() + col.max() + 1) / 2), h], "source": sheet, "boite": it["boite"]}
         print("%-18s %3d×%-3d (source %d×%d)" % (name, w, h, bx1 - bx0, by1 - by0))

@@ -43,22 +43,27 @@ func test_monster_contact_matches_visual_proximity() -> void:
 	check(Zone.touches_monster(m + Vector2(24, 2), m, 22.0, 8.0), "contre son flanc : combat")
 
 
-func test_zone_layers_are_not_duplicated() -> void:
-	var fond := Image.load_from_file(ProjectSettings.globalize_path("res://art/explore_hd2d/fond.png"))
-	var house := Image.load_from_file(ProjectSettings.globalize_path("res://art/explore_hd2d/el_maison.png"))
+func test_ground_and_house_are_separate_layers() -> void:
+	# la maison n'est pas peinte dans le sol : le sol sous la maison diffère de la maison (pas de doublon visible
+	# quand la transparence locale s'applique)
+	var sol := Image.load_from_file(ProjectSettings.globalize_path(Zone.DECOR + "sol/sol.png"))
+	var house := Image.load_from_file(ProjectSettings.globalize_path(Zone.DECOR + "maison.png"))
 	var zone: Dictionary = JSON.parse_string(FileAccess.open("res://art/explore_hd2d/zone.json", FileAccess.READ).get_as_text())
-	var pos: Array = zone["sprites"]["maison"]["pos"]
-	# là où la maison est opaque, le fond ne doit pas contenir la maison (pixels différents dans la grande majorité)
+	var r: Dictionary = Zone.decor_spec()["elements"]["maison"]
+	var foot := Zone.element_foot(zone["sprites"]["maison"], "")
+	var pos := (foot * 2.0 - Vector2(r["pivot"][0], r["pivot"][1])).round()
 	var same := 0
 	var total := 0
 	for y in range(0, house.get_height(), 3):
 		for x in range(0, house.get_width(), 3):
 			var c := house.get_pixel(x, y)
-			if c.a > 0.5:
+			var q := Vector2i(x + int(pos.x), y + int(pos.y))
+			if c.a > 0.5 and q.x >= 0 and q.y >= 0 and q.x < sol.get_width() and q.y < sol.get_height():
 				total += 1
-				if fond.get_pixel(x + int(pos[0]), y + int(pos[1])).is_equal_approx(c):
+				var d := sol.get_pixelv(q)
+				if absf(d.r - c.r) + absf(d.g - c.g) + absf(d.b - c.b) < 0.04:
 					same += 1
-	check(total > 0 and float(same) / total < 0.2, "fond sans la maison (%d / %d pixels identiques)" % [same, total])
+	check(total > 1000 and float(same) / total < 0.1, "sol sans la maison (%d / %d pixels identiques)" % [same, total])
 
 
 # --- Locomotion (P0) ------------------------------------------------------------------------------------------
@@ -199,64 +204,22 @@ func test_guard_footprint_prevents_overlap_but_allows_talk() -> void:
 	_free_stub(z)
 
 
-func test_illustrated_decor_is_consistent() -> void:
-	var dir := "res://art/explore_hd2d/"
-	var spec: Dictionary = JSON.parse_string(FileAccess.open(dir + "hd/decor.json", FileAccess.READ).get_as_text())
-	var zone: Dictionary = JSON.parse_string(FileAccess.open(dir + "zone.json", FileAccess.READ).get_as_text())
-	for k in spec["remplace"]:
-		check(zone["sprites"].has(k), "élément remplacé « %s » présent dans la zone (emprise et tri conservés)" % k)
-		var path: String = dir + "hd/%s.png" % spec["remplace"][k]["sprite"]
-		check(ResourceLoader.exists(path), "texture %s" % path)
-	for d in spec["sol"]:
-		var tex: Texture2D = load(dir + "hd/%s.png" % d[0])
-		check(tex != null and tex.get_height() <= 128, "détail au sol %s à la taille d'affichage (pas de texture surdimensionnée)" % d[0])
-
-
-## Sol illustré : sans fichiers importés, le jeu garde le fond actuel ; avec, il empile plaque, ombres et
-## lumières (affichées 1:1 à l'écran). Vérifié dans un dossier temporaire, sans toucher aux fichiers du jeu.
-func test_ground_layers_fall_back_and_stack() -> void:
-	var base := "user://test_sol/"
-	DirAccess.make_dir_recursive_absolute(base + "sol")
-	for f in ["sol/sol.json", "sol/sol_plaque.png", "sol/sol_ombres.png", "sol/sol_lumieres.png"]:
-		if FileAccess.file_exists(base + f):
-			DirAccess.remove_absolute(base + f)
-	var l: Array = Zone.ground_layers(base)
-	check(l.size() == 1 and l[0][0].ends_with("fond.png") and l[0][2] == 1.0, "sans sol importé : fond actuel")
-	FileAccess.open(base + "sol/sol.json", FileAccess.WRITE).store_string("{}")
-	for f in ["sol_plaque", "sol_ombres", "sol_lumieres"]:
-		FileAccess.open(base + "sol/%s.png" % f, FileAccess.WRITE).store_string("x")
-	l = Zone.ground_layers(base)
-	check(l.size() == 3, "plaque + ombres + lumières")
-	check(l[0][0].ends_with("sol_plaque.png") and l[0][2] == 0.5, "plaque affichée 1:1 à l'écran (échelle 0,5 du monde)")
-	check(l[2][1] == "add", "lumières ajoutées")
-	check(Zone.ground_layers(base, false)[0][0].ends_with("fond.png"), "--sol=ancien : fond actuel")
-	FileAccess.open(base + "sol/sol.png", FileAccess.WRITE).store_string("x")
-	l = Zone.ground_layers(base)
-	check(l.size() == 1 and l[0][0].ends_with("sol/sol.png"), "calques fusionnés par l'importeur : une seule texture")
-	DirAccess.remove_absolute(base + "sol/sol.png")
-	check(ResourceLoader.exists("res://art/explore_hd2d/fond.png"), "le fond actuel est conservé")
-
-
-## Essai de décor (--essai=v1) : fichiers cohérents, éléments remplacés existants, sol d'essai séparé du sol du jeu.
-func test_decor_trial_is_isolated_and_consistent() -> void:
-	for v in ["v1", "v2"]:
-		_check_trial(v)
-	var setting := str(ProjectSettings.get_setting("val_serra/essai_decor", ""))
-	check(setting == "" or FileAccess.file_exists("res://art/explore_hd2d/essai_%s/essai.json" % setting), "réglage F5 « val_serra/essai_decor » = %s : essai présent" % setting)
-
-
-func _check_trial(v: String) -> void:
-	var base := "res://art/explore_hd2d/essai_%s/" % v
-	if not FileAccess.file_exists(base + "essai.json"):
-		return
-	var spec: Dictionary = JSON.parse_string(FileAccess.open(base + "essai.json", FileAccess.READ).get_as_text())
+## Décor définitif : une seule version, complète et cohérente avec zone.json (collisions et tri inchangés).
+func test_final_decor_is_single_and_complete() -> void:
+	var spec := Zone.decor_spec()
 	var zone: Dictionary = JSON.parse_string(FileAccess.open("res://art/explore_hd2d/zone.json", FileAccess.READ).get_as_text())
-	for k in spec["remplace"]:
-		check(zone["sprites"].has(k), "élément remplacé « %s » présent (emprise, collision et tri conservés)" % k)
-		for layer in spec["remplace"][k]["calques"]:
-			check(ResourceLoader.exists(base + "%s.png" % layer), "calque %s" % layer)
-	for k in spec.get("masquer", []):
-		check(zone["sprites"].has(k) and not zone["sprites"][k]["solid"], "élément masqué « %s » sans collision" % k)
-	var l: Array = Zone.ground_layers("res://art/explore_hd2d/", true, "essai_%s/sol/" % v)
-	check(l[0][0].contains("essai_%s/sol/" % v), "sol d'essai %s lu dans son propre dossier" % v)
-	check(not FileAccess.file_exists("res://art/explore_hd2d/sol/sol.json"), "aucun sol intégré par défaut (jeu inchangé sans --essai)")
+	var sol := Image.load_from_file(ProjectSettings.globalize_path(Zone.DECOR + spec["sol"]))
+	check(sol != null and sol.get_size() == Vector2i(1408, 800), "sol 1408×800 (affiché 1:1)")
+	for g in zone["sprites"]:
+		check(spec["elements"].has(g) or spec["masquer"].has(g), "élément « %s » dessiné ou volontairement masqué" % g)
+	for g in spec["elements"]:
+		check(zone["sprites"].has(g), "élément « %s » présent dans zone.json (emprise, collision, tri)" % g)
+		for layer in spec["elements"][g]["calques"]:
+			check(ResourceLoader.exists(Zone.DECOR + "%s.png" % layer), "calque %s" % layer)
+	for k in spec["masquer"]:
+		check(not zone["sprites"][k]["solid"], "élément masqué « %s » sans collision" % k)
+	for old in ["essai_v1", "essai_v2", "hd", "sol"]:
+		check(not DirAccess.dir_exists_absolute("res://art/explore_hd2d/" + old), "ancienne version « %s » absente du jeu" % old)
+	check(not FileAccess.file_exists("res://art/explore_hd2d/fond.png"), "ancien fond absent du jeu")
+	var fp := [[0, 10], [20, 6], [18, 0]]
+	check(Zone.element_foot({"footprint": fp, "sort_y": 10}, "avant_gauche") == Vector2(0, 10), "pied avant gauche (clôtures)")

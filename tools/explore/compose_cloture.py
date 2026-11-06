@@ -7,9 +7,10 @@ import numpy as np
 from PIL import Image
 
 D = "art/explore_hd2d/"
+X = "art/source/planches_2026-11-06/extraits/"
 zone = json.load(open(D + "zone.json"))
-longue = Image.open(D + "hd/cloture_longue.png")
-courte = Image.open(D + "hd/cloture_courte.png")
+longue = Image.open(X + "cloture_longue.png")
+courte = Image.open(X + "cloture_courte.png")
 out = {}
 for name in ("cloture_d", "cloture_g"):
     fp = zone["sprites"][name]["footprint"]
@@ -26,7 +27,7 @@ for name in ("cloture_d", "cloture_g"):
     for x in range(a.shape[1]):
         dy = int(round(rise * x / a.shape[1]))
         res[H - a.shape[0] - dy:H - dy, x] = a[:, x]
-    Image.fromarray(res).save(D + "hd/%s.png" % name)
+    Image.fromarray(res).save(D + "illustre/%s.png" % name)
     out[name] = {"pivot": [0, H], "point_sol": left}
     print(name, res.shape[1], "×", H, "pente", round(rise / L, 3))
-json.dump(out, open(D + "hd/clotures.json", "w"), indent=1)
+json.dump(out, open(X + "clotures.json", "w"), indent=1)

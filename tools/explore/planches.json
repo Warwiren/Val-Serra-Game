@@ -1,5 +1,5 @@
 {
- "_doc": "Découpes des planches fournies (art/source/planches_2026-11-06). boite = [x0, y0, x1, y1] dans la planche. hauteur_ecran = hauteur affichée en pixels d'écran (1280×720) ; la texture du jeu est réduite UNE fois à cette taille (pas de pixellisation, sources gardées intactes).",
+ "_doc": "Découpes des planches fournies (art/source/planches_2026-11-06). boite = [x0, y0, x1, y1] dans la planche. hauteur_ecran = hauteur affichée en pixels d'écran (1280×720) ; la texture du jeu est réduite UNE fois à cette taille (pas de pixellisation, sources gardées intactes). \"jeu\": true = texture affichée directement (art/explore_hd2d/illustre/) ; sinon intermédiaire (art/source/planches_2026-11-06/extraits/) pour compose_cloture.py et compose_piles.py.",
  "2_batiments_accessoires.webp": {
   "lanterne": {
    "boite": [
@@ -9,7 +9,8 @@
     610
    ],
    "hauteur_ecran": 110,
-   "halo_max": 75
+   "halo_max": 75,
+   "jeu": true
   },
   "barriques": {
    "boite": [
@@ -36,7 +37,8 @@
     394,
     658
    ],
-   "hauteur_ecran": 41
+   "hauteur_ecran": 41,
+   "jeu": true
   },
   "cloture_longue": {
    "boite": [
@@ -55,126 +57,9 @@
     514
    ],
    "hauteur_ecran": 44
-  },
-  "sacs": {
-   "boite": [
-    678,
-    584,
-    770,
-    656
-   ],
-   "hauteur_ecran": 34
   }
  },
  "3_sols_nature.webp": {
-  "rocher_a": {
-   "boite": [
-    552,
-    378,
-    704,
-    462
-   ],
-   "hauteur_ecran": 54
-  },
-  "rocher_b": {
-   "boite": [
-    716,
-    392,
-    824,
-    460
-   ],
-   "hauteur_ecran": 42
-  },
-  "rocher_c": {
-   "boite": [
-    832,
-    398,
-    912,
-    452
-   ],
-   "hauteur_ecran": 32
-  },
-  "rocher_d": {
-   "boite": [
-    922,
-    408,
-    988,
-    454
-   ],
-   "hauteur_ecran": 26
-  },
-  "herbe_a": {
-   "boite": [
-    556,
-    466,
-    644,
-    528
-   ],
-   "hauteur_ecran": 35
-  },
-  "herbe_b": {
-   "boite": [
-    656,
-    466,
-    766,
-    528
-   ],
-   "hauteur_ecran": 35
-  },
-  "roseaux": {
-   "boite": [
-    794,
-    458,
-    864,
-    530
-   ],
-   "hauteur_ecran": 42
-  },
-  "arbuste": {
-   "boite": [
-    890,
-    472,
-    994,
-    530
-   ],
-   "hauteur_ecran": 35
-  },
-  "fleurs_lupins": {
-   "boite": [
-    556,
-    526,
-    684,
-    614
-   ],
-   "hauteur_ecran": 48
-  },
-  "fleurs_violettes": {
-   "boite": [
-    700,
-    536,
-    816,
-    606
-   ],
-   "hauteur_ecran": 38
-  },
-  "fleurs_petites": {
-   "boite": [
-    836,
-    552,
-    900,
-    606
-   ],
-   "hauteur_ecran": 26
-  },
-  "champignons": {
-   "boite": [
-    566,
-    620,
-    636,
-    678
-   ],
-   "hauteur_ecran": 29
-  },
   "cristal_aether": {
    "boite": [
     916,
@@ -182,7 +67,8 @@
     996,
     674
    ],
-   "hauteur_ecran": 35
+   "hauteur_ecran": 35,
+   "jeu": true
   },
   "cristal_petit": {
    "boite": [
@@ -191,16 +77,8 @@
     1064,
     676
    ],
-   "hauteur_ecran": 22
-  },
-  "feuilles_mortes": {
-   "boite": [
-    774,
-    630,
-    864,
-    676
-   ],
-   "hauteur_ecran": 22
+   "hauteur_ecran": 22,
+   "jeu": true
   }
  }
 }

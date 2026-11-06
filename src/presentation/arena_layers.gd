@@ -1,18 +1,11 @@
 extends Node2D
-## ARÈNE DE COMBAT EN PLANS (pilote « Lisière de l'avant-poste », crépuscule) — présentation seulement.
-## Plans produits par tools/arena/ (Blender + passe pixel, palette commune avec l'exploration) :
-##   base (ciel + sol), loin (forêt, brume), lisière (arbres, palissade, maison, rochers), avant (cadre bas).
-## Affichage ×3 au plus proche voisin, comme les sprites de combat. Les plans proches bougent un peu plus que
-## les lointains quand la caméra tremble ou recule (parallaxe légère). Lanternes : lumières Godot aux positions
-## exactes des lanternes rendues, réutilisées pour l'éclairage du Vorgane. Aucune règle de combat ici.
-
-const PX := 3
-const PARALLAX := {"base": 0.0, "loin": 0.35, "lisiere": 0.15, "avant": -0.25}
+## ARÈNE DE COMBAT « Lisière de l'avant-poste » au crépuscule — présentation seulement (aucune règle de combat).
+## Décor définitif : l'illustration art/arena/lisiere/peint/ (hd.json : image et lanternes), affichée 1:1 sans
+## pixellisation (tools/arena/import_hd_arena.py). Lanternes Godot posées sur les lanternes peintes, réutilisées
+## pour l'éclairage du Vorgane ; lucioles discrètes.
 
 var dir := "res://art/arena/lisiere/"
-var use_painted := true                  # un plan repeint (dir/peint/<plan>.png) remplace le plan rendu
-var painted: Array = []                  # plans effectivement repeints (compte rendu, tests)
-var data: Dictionary
+var painted: Array = []
 var lights: Array = []                   # positions écran des lanternes (pour SpriteMonsterView.scene_lights)
 var _layers := {}
 var _front: Node2D
@@ -21,41 +14,12 @@ var _lamps: Array = []
 var _t := 0.0
 
 
-## `front_parent` reçoit le premier plan (dessiné au-dessus des combattants).
+## `front_parent` reçoit le premier plan (dessiné au-dessus des combattants ; vide pour une illustration unique).
 func build(front_parent: Node) -> void:
-	data = JSON.parse_string(FileAccess.open(dir + "arena.json", FileAccess.READ).get_as_text())
 	_front = Node2D.new()
 	_front.z_index = 60
 	front_parent.add_child(_front)
-	if use_painted and FileAccess.file_exists(dir + "peint/hd.json"):
-		_build_hd()
-		return
-	var origin := _origin()
-	var z := -100
-	for n in ["base", "loin", "lisiere"]:
-		var s := _sprite(n, origin)
-		s.z_index = z
-		add_child(s)
-		z += 2
-		if n == "loin":
-			_add_mist(-97, 0.16, 138.0)                          # brume entre la forêt lointaine et la lisière
-	_add_mist(-93, 0.08, 168.0)                                  # voile bas devant la lisière, derrière les combattants
-	_front.add_child(_sprite("avant", origin))
-	var cm := CanvasModulate.new()
-	cm.color = Color(0.86, 0.86, 0.95)
-	add_child(cm)
-	for p in data["lights"]:
-		var sp := origin + Vector2(p[0], p[1]) * PX
-		lights.append(sp)
-		var l := PointLight2D.new()
-		l.texture = _radial(128)
-		l.position = sp
-		l.color = Color(1.0, 0.66, 0.34)
-		l.energy = 0.7
-		l.texture_scale = 3.2
-		add_child(l)
-		_lamps.append(l)
-	_add_motes()
+	_build_hd()
 
 
 ## Illustration fournie, affichée 1:1 (pas de pixellisation). Elle contient déjà brume, lumière peinte et
@@ -89,54 +53,6 @@ func _build_hd() -> void:
 		add_child(l)
 		_lamps.append(l)
 	_add_motes()
-
-
-func _origin() -> Vector2:
-	var size := Vector2(data["native"][0], data["native"][1]) * PX
-	return ((Vector2(1280, 720) - size) / 2.0).round()
-
-
-func _sprite(n: String, origin: Vector2) -> Sprite2D:
-	var s := Sprite2D.new()
-	var p := dir + "peint/" + n + ".png"
-	if use_painted and ResourceLoader.exists(p):
-		s.texture = load(p)
-		painted.append(n)
-	else:
-		s.texture = load(dir + n + ".png")
-	s.centered = false
-	s.scale = Vector2(PX, PX)
-	s.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	s.position = origin
-	s.set_meta("origin", origin)
-	s.set_meta("parallax", PARALLAX[n])
-	_layers[n] = s
-	return s
-
-
-## Bande de brume : dégradé vertical doux (pas de flou sur les plans eux-mêmes : les pixels restent nets).
-func _add_mist(z: int, alpha: float, y_native: float) -> void:
-	var g := Gradient.new()
-	g.set_color(0, Color(0.55, 0.6, 0.85, 0.0))
-	g.add_point(0.5, Color(0.55, 0.6, 0.85, alpha))
-	g.set_color(g.get_point_count() - 1, Color(0.55, 0.6, 0.85, 0.0))
-	var t := GradientTexture2D.new()
-	t.gradient = g
-	t.fill_from = Vector2(0, 0)
-	t.fill_to = Vector2(0, 1)
-	t.width = 8
-	t.height = 64
-	var s := Sprite2D.new()
-	s.texture = t
-	s.centered = true
-	s.scale = Vector2(1400 / 8.0, 2.2)
-	s.position = Vector2(640, _origin().y + y_native * PX)
-	s.z_index = z
-	var m := CanvasItemMaterial.new()
-	m.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
-	s.material = m
-	add_child(s)
-	_mists.append(s)
 
 
 ## Quelques lucioles chaudes près des lanternes et poussières d'Aether froides, très discrètes.
@@ -183,6 +99,9 @@ func _radial(size: int) -> GradientTexture2D:
 	g.width = size
 	g.height = size
 	return g
+
+
+## Appelée chaque image avec le décalage de caméra (tremblement, recul) : parallaxe légère, au pixel près.
 
 
 ## Appelée chaque image avec le décalage de caméra (tremblement, recul) : parallaxe légère, au pixel près.

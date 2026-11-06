@@ -247,7 +247,6 @@ func _build_world_proto() -> void:
 func _show_arena(new_one: bool) -> void:
 	if new_one and arena == null:
 		arena = ArenaLayers.new()
-		arena.use_painted = GameState.arena != "lisiere-rendu"
 		add_child(arena)
 		arena.build(self)
 	for n in _old_arena:

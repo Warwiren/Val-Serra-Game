@@ -9,6 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 RAW = sys.argv[1]
 OUT = sys.argv[2] if len(sys.argv) > 2 else "docs/media/gabarits_exploration"
 D = "art/explore_hd2d/"
+RB = "art/source/gabarits/rendu_blender/"        # rendu Blender d'origine (référence de géométrie, non affiché)
 K = 2                                                      # natif -> écran
 W, H = 1408, 800
 z = json.load(open(D + "zone.json"))
@@ -58,7 +59,7 @@ def shadow_mask(with_s, base):
 
 
 shadow_mask(omb, nu).save(os.path.join(OUT, "terrain", "ombres_des_objets_calque.png"))
-Image.open(D + "fond.png").convert("RGBA").resize((W, H), Image.NEAREST).save(os.path.join(OUT, "terrain", "terrain_actuel_en_jeu_x2.png"))
+Image.open(RB + "fond.png").convert("RGBA").resize((W, H), Image.NEAREST).save(os.path.join(OUT, "terrain", "terrain_actuel_en_jeu_x2.png"))
 if os.path.exists(os.path.join(RAW, "profondeur_terrain.png")):
     tv = np.asarray(Image.open(os.path.join(RAW, "profondeur_terrain.png")).convert("L")).astype(np.float32)
     lo, hi = np.percentile(tv, 1), np.percentile(tv, 99)
@@ -153,7 +154,7 @@ def element(name, key, crop_margin=24):
     shadow_mask(load("terrain_ombre_%s.png" % key), nu).save(os.path.join(OUT, key, "ombre_au_sol_cadre_1408x800.png"))
     e = z["sprites"][name]
     cur = Image.new("RGBA", (W, H))
-    sp = Image.open(D + "el_%s.png" % name).convert("RGBA")
+    sp = Image.open(RB + "el_%s.png" % name).convert("RGBA")
     cur.alpha_composite(sp.resize((sp.width * K, sp.height * K), Image.NEAREST), (e["pos"][0] * K, e["pos"][1] * K))
     cur.crop(box).save(os.path.join(OUT, key, "%s_actuel_en_jeu.png" % key))
     rp = Image.new("RGBA", (box[2] - box[0], box[3] - box[1])); dd = ImageDraw.Draw(rp)
@@ -232,32 +233,7 @@ for name, key in (("maison", "maison"), ("arbre_g", "arbre")):
     e = z["sprites"][name]
     meta["elements"][key] = {"rectangle_ecran": box, "taille": [box[2] - box[0], box[3] - box[1]],
                              "emprise_natif": e["footprint"], "ligne_de_tri_natif": e["sort_y"], "solide": e["solid"],
-                             "sprite_actuel": {"fichier": "art/explore_hd2d/el_%s.png" % name, "pos_natif": e["pos"]}}
+                             "sprite_actuel": {"fichier": "art/source/gabarits/rendu_blender/el_%s.png" % name, "pos_natif": e["pos"]}}
 
-# ------------------------------------------------------------------------------------------------ aperçu sans personnages
-comp = Image.open(D + "fond.png").convert("RGBA").resize((W, H), Image.NEAREST)
-layers = []
-spec = json.load(open(D + "hd/decor.json")); index = json.load(open(D + "hd/index.json"))
-for name, e in z["sprites"].items():
-    r = spec["remplace"].get(name)
-    if r:
-        if r.get("sol") == "avant_gauche":
-            foot = max(e["footprint"], key=lambda p: p[1])
-        else:
-            foot = (sum(p[0] for p in e["footprint"]) / len(e["footprint"]), e["sort_y"])
-        im = Image.open(D + "hd/%s.png" % r["sprite"]).convert("RGBA")
-        pos = (round(foot[0] * K - r["pivot"][0]), round(foot[1] * K - r["pivot"][1]))
-    else:
-        sp = Image.open(D + "el_%s.png" % name).convert("RGBA")
-        im = sp.resize((sp.width * K, sp.height * K), Image.NEAREST); pos = (e["pos"][0] * K, e["pos"][1] * K)
-    layers.append((int(e["sort_y"]), im, pos))
-for dcl in spec["sol"]:
-    nm, x, y = dcl[:3]
-    im = Image.open(D + "hd/%s.png" % (dcl[3] if len(dcl) > 3 else nm)).convert("RGBA"); a = index[nm]["appui"]
-    layers.append((int(y), im, (round(x * K - a[0]), round(y * K - a[1]))))
-for _, im, pos in sorted(layers, key=lambda t: t[0]):
-    tmp = Image.new("RGBA", (W, H)); tmp.alpha_composite(im, (max(0, pos[0]), max(0, pos[1])), (max(0, -pos[0]), max(0, -pos[1])))
-    comp.alpha_composite(tmp)
-comp.convert("RGB").save(os.path.join(OUT, "apercu_composition_actuelle_sans_personnages.png"))
 json.dump(meta, open(os.path.join(OUT, "gabarits.json"), "w"), indent=1, ensure_ascii=False, default=lambda v: v.item() if hasattr(v, "item") else str(v))
 print("kit :", OUT)

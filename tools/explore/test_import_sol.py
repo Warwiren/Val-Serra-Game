@@ -27,7 +27,7 @@ def check(cond, msg):
 
 
 src = os.path.join(tmp, "art/source/sol/sol_plaque.png")
-out = os.path.join(tmp, "art/explore_hd2d/sol")
+out = os.path.join(tmp, "art/explore_hd2d/illustre/sol")
 gab = Image.open(os.path.join(ROOT, "art/source/gabarits/terrain_sans_objets.png")).convert("RGB")
 
 Image.new("RGB", (1280, 720), (40, 60, 40)).save(src)

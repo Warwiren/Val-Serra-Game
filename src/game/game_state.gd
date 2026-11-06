@@ -39,11 +39,8 @@ var autoplay: bool = false             # démonstration automatique (captures vi
 var hd2d: bool = false                 # combat HD-2D : Aren et Vorgane en sprites pixel art
 var proto: bool = false                # prototype recentré (pack visuel) : présentation unifiée, interface épurée
 var art_proto: bool = false            # prototype artistique HD (héros et monstre articulés, arène nocturne)
-var arena: String = ""                 # décor de combat : "lisiere" = pilote, "ancien" = décor du pack ; "" = pilote
+var arena: String = ""                 # décor de combat : "lisiere" = arène illustrée, "ancien" = décor du pack ; "" = arène
                                        # seulement pour un combat lancé depuis la zone HD-2D (F2 bascule en combat)
-var decor: String = ""                 # exploration : "" = décor illustré (pilote), "ancien" = décor d'origine (--decor=ancien)
-var sol: String = ""                   # exploration : "" = sol illustré s'il est importé, "ancien" = fond actuel (--sol=ancien)
-var essai: String = ""                 # essai de décor non intégré (--essai=v1 : art/explore_hd2d/essai_v1/)
 var course: String = ""                # parcours de locomotion mesuré (--course=manuel), aussi lançable depuis l'éditeur
 
 var _fade: ColorRect
@@ -52,9 +49,6 @@ var _fps: Label
 
 func _ready() -> void:
 	autoplay = OS.get_cmdline_user_args().has("--autoplay")
-	# Essai de décor lancé par F5 : réglage du projet « val_serra/essai_decor » (Projet > Paramètres du projet,
-	# vide = jeu normal). L'option --essai=… de la ligne de commande a priorité (--essai=aucun pour l'ignorer).
-	essai = str(ProjectSettings.get_setting("val_serra/essai_decor", ""))
 	for arg in OS.get_cmdline_user_args():
 		if arg == "--render=A":
 			render_mode = RENDER_2D
@@ -73,12 +67,6 @@ func _ready() -> void:
 			_start_scene.call_deferred(SCENE_BATTLE)
 		elif arg.begins_with("--arena="):
 			arena = arg.substr(8)
-		elif arg.begins_with("--essai="):
-			essai = "" if arg.substr(8) == "aucun" else arg.substr(8)
-		elif arg.begins_with("--sol="):
-			sol = arg.substr(6)
-		elif arg.begins_with("--decor="):
-			decor = arg.substr(8)
 		elif arg.begins_with("--course="):
 			course = arg.substr(9)
 		elif arg == "--start=hd2d-zone":
@@ -130,7 +118,7 @@ func _unhandled_input(event: InputEvent) -> void:
 ## Décor de combat pilote « Lisière » : demandé explicitement, ou combat venu de la zone HD-2D.
 func use_pilot_arena() -> bool:
 	if arena != "":
-		return arena.begins_with("lisiere")      # "lisiere" (plans repeints s'il y en a) ou "lisiere-rendu"
+		return arena == "lisiere"
 	return from_zone and explore_return == SCENE_EXPLORE_HD2D
 
 

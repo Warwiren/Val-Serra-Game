@@ -1,4 +1,0 @@
-CHECK ok : E à 223.1 px du garde -> dialogue fermé
-CHECK ok : E à 12.7 px du garde -> dialogue OUVERT
-CHECK ok : Échap ferme le dialogue
-CHECK RÉSULTAT : RÉUSSI
