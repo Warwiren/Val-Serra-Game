@@ -82,7 +82,7 @@ func _run() -> void:
 	await process_frame
 	await _measure("avant-poste A", "res://scenes/explore_hd2d/zone_hd2d.tscn", "A")
 	for p in ["A", "B", "C"]:
-		await _measure("zone P1 " + p, "res://scenes/explore_hd2d/zone_p1.tscn", p)
+		await _measure("exploration v2 " + p, "res://scenes/explore_hd2d/zone_exploration.tscn", p)
 	if out_path != "":
 		FileAccess.open(out_path, FileAccess.WRITE).store_string(JSON.stringify(out, "  "))
 	quit()

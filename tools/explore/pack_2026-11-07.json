@@ -1,0 +1,384 @@
+{
+ "_doc": "Boîtes (x0, y0, x1, y1) des éléments de la planche art/source/pack_2026-11-07/pack_vegetation_props.webp (1448×1086). type : objet (détourage net) ou decal (accent de sol, opacité douce, peint dans le sol). echelle : facteur appliqué (1 = taille de la planche = pixels d'écran du jeu). seuil : écart de couleur au fond (défaut 26 ; plus bas pour les feuillages sombres). trous : les zones de fond ENFERMÉES (entre les planches d'une clôture) sont aussi retirées.",
+ "arbre_heros": {
+  "boite": [
+   28,
+   110,
+   360,
+   338
+  ],
+  "type": "objet",
+  "echelle": 1.25,
+  "seuil": 14
+ },
+ "arbre_elance": {
+  "boite": [
+   362,
+   104,
+   522,
+   336
+  ],
+  "type": "objet",
+  "echelle": 1.15,
+  "seuil": 14
+ },
+ "arbre_canopee": {
+  "boite": [
+   528,
+   118,
+   784,
+   336
+  ],
+  "type": "objet",
+  "echelle": 1.15,
+  "seuil": 14
+ },
+ "jeune_arbre": {
+  "boite": [
+   814,
+   180,
+   938,
+   336
+  ],
+  "type": "objet",
+  "echelle": 1.0,
+  "seuil": 14
+ },
+ "arbre_asym": {
+  "boite": [
+   946,
+   110,
+   1190,
+   336
+  ],
+  "type": "objet",
+  "echelle": 1.15,
+  "seuil": 14
+ },
+ "buisson_dense": {
+  "boite": [
+   32,
+   446,
+   152,
+   515
+  ],
+  "type": "objet",
+  "seuil": 14
+ },
+ "buisson_arrondi": {
+  "boite": [
+   162,
+   446,
+   272,
+   515
+  ],
+  "type": "objet"
+ },
+ "buisson_ombre": {
+  "boite": [
+   282,
+   443,
+   390,
+   515
+  ],
+  "type": "objet",
+  "seuil": 14
+ },
+ "buisson_violet": {
+  "boite": [
+   397,
+   443,
+   510,
+   515
+  ],
+  "type": "objet"
+ },
+ "buisson_rose": {
+  "boite": [
+   516,
+   443,
+   630,
+   515
+  ],
+  "type": "objet"
+ },
+ "fleurs_blanches": {
+  "boite": [
+   638,
+   458,
+   732,
+   515
+  ],
+  "type": "objet"
+ },
+ "fleurs_violettes": {
+  "boite": [
+   744,
+   446,
+   840,
+   515
+  ],
+  "type": "objet"
+ },
+ "massif_mixte": {
+  "boite": [
+   851,
+   448,
+   950,
+   515
+  ],
+  "type": "objet"
+ },
+ "couvre_sol": {
+  "boite": [
+   960,
+   460,
+   1070,
+   515
+  ],
+  "type": "objet"
+ },
+ "buisson_sauvage": {
+  "boite": [
+   1080,
+   440,
+   1170,
+   515
+  ],
+  "type": "objet"
+ },
+ "pierre_petite": {
+  "boite": [
+   64,
+   624,
+   130,
+   664
+  ],
+  "type": "objet"
+ },
+ "pierre_moyenne": {
+  "boite": [
+   184,
+   606,
+   278,
+   664
+  ],
+  "type": "objet"
+ },
+ "rochers_bas": {
+  "boite": [
+   340,
+   608,
+   500,
+   668
+  ],
+  "type": "objet"
+ },
+ "rocher_moussu": {
+  "boite": [
+   545,
+   604,
+   695,
+   670
+  ],
+  "type": "objet"
+ },
+ "rochers_larges": {
+  "boite": [
+   726,
+   578,
+   915,
+   670
+  ],
+  "type": "objet"
+ },
+ "formation_rocheuse": {
+  "boite": [
+   950,
+   578,
+   1170,
+   670
+  ],
+  "type": "objet"
+ },
+ "reverbere": {
+  "boite": [
+   30,
+   772,
+   114,
+   860
+  ],
+  "type": "objet",
+  "trous": true
+ },
+ "cloture_petite": {
+  "boite": [
+   140,
+   796,
+   226,
+   852
+  ],
+  "type": "objet",
+  "trous": true
+ },
+ "cloture_longue": {
+  "boite": [
+   240,
+   790,
+   395,
+   852
+  ],
+  "type": "objet",
+  "trous": true
+ },
+ "cloture_angle": {
+  "boite": [
+   400,
+   790,
+   505,
+   854
+  ],
+  "type": "objet",
+  "trous": true
+ },
+ "banc_pack": {
+  "boite": [
+   528,
+   796,
+   615,
+   854
+  ],
+  "type": "objet",
+  "trous": true
+ },
+ "caisses_pack": {
+  "boite": [
+   640,
+   788,
+   740,
+   857
+  ],
+  "type": "objet",
+  "trous": true
+ },
+ "tonneaux_pack": {
+  "boite": [
+   757,
+   790,
+   850,
+   854
+  ],
+  "type": "objet",
+  "trous": true
+ },
+ "sacs": {
+  "boite": [
+   864,
+   804,
+   950,
+   854
+  ],
+  "type": "objet"
+ },
+ "panneau": {
+  "boite": [
+   970,
+   764,
+   1046,
+   860
+  ],
+  "type": "objet",
+  "trous": true
+ },
+ "portillon": {
+  "boite": [
+   1060,
+   790,
+   1175,
+   854
+  ],
+  "type": "objet",
+  "trous": true
+ },
+ "herbe_courte": {
+  "boite": [
+   40,
+   980,
+   136,
+   1015
+  ],
+  "type": "decal"
+ },
+ "herbe_moyenne": {
+  "boite": [
+   150,
+   972,
+   270,
+   1015
+  ],
+  "type": "decal"
+ },
+ "herbe_haute": {
+  "boite": [
+   298,
+   957,
+   390,
+   1015
+  ],
+  "type": "decal"
+ },
+ "herbe_fleurie": {
+  "boite": [
+   415,
+   962,
+   520,
+   1015
+  ],
+  "type": "decal"
+ },
+ "touffe_violette": {
+  "boite": [
+   530,
+   960,
+   615,
+   1015
+  ],
+  "type": "decal"
+ },
+ "touffe_blanche": {
+  "boite": [
+   636,
+   968,
+   740,
+   1015
+  ],
+  "type": "decal"
+ },
+ "terre_petite": {
+  "boite": [
+   750,
+   976,
+   866,
+   1020
+  ],
+  "type": "decal"
+ },
+ "terre_grande": {
+  "boite": [
+   880,
+   970,
+   1036,
+   1024
+  ],
+  "type": "decal"
+ },
+ "cailloux": {
+  "boite": [
+   1054,
+   968,
+   1166,
+   1016
+  ],
+  "type": "decal"
+ }
+}

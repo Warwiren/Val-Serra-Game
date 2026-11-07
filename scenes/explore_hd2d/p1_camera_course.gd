@@ -5,7 +5,7 @@ extends Node
 ## limites de la carte (eau, lisière droite, angle haut), puis dialogue avec le garde (E / Échap).
 ## Mesures image par image : vitesse et à-coups de la caméra, mouvements à l'arrêt, inversions de sens, position
 ## du héros à l'écran, collisions (positions interdites), écart du groupe, temps d'image, mémoire.
-##   godot --fixed-fps 60 --path . -- --start=p1-zone --course=p1 [--cam=B] [--course-out=f.json] [--course-shots=dossier]
+##   godot --fixed-fps 60 --path . -- --start=exploration --course=p1 [--cam=B] [--course-out=f.json] [--course-shots=dossier]
 ## Sans --cam : les trois configurations à la suite (changement EN JEU, sans rechargement).
 
 var zone
@@ -64,7 +64,7 @@ func _ready() -> void:
 
 func _run() -> void:
 	if not is_inside_tree():
-		return                                         # zone remplacée par --start=p1-zone avant le départ
+		return                                         # zone remplacée par --start=exploration avant le départ
 	await get_tree().create_timer(0.5).timeout
 	var list := [only] if only != "" else ["A", "B", "C"]
 	for p in list:
@@ -99,7 +99,7 @@ func _course(p: String) -> void:
 	await _goto(p, "chemin vers le hameau", Vector2(740, 528))
 	await _goto(p, "devant la 2e maison", Vector2(860, 420))
 	await _goto(p, "angle gauche maison 2", Vector2(808, 372))
-	await _goto(p, "derrière la maison 2", Vector2(860, 300))
+	await _goto(p, "derrière la maison 2", Vector2(860, 290))
 	await _shot(p, "derriere_maison2")
 	await _goto(p, "derrière la maison 2 (droite)", Vector2(950, 290))
 	await _goto(p, "côté droit maison 2", Vector2(1000, 340))

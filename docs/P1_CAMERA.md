@@ -6,11 +6,12 @@ Branche **`p1-camera-hd2d`**, partie de `main` (dernier état du décor validé)
 ## Lancer
 
 ```bash
-godot --path . -- --start=p1-zone
+godot --path . -- --start=exploration
 ```
 
-Dans l'éditeur : **F5** (scène principale de la branche `p1-camera-hd2d`), ou ouvrir
-`scenes/explore_hd2d/zone_p1.tscn` puis **F6**.
+> Depuis la branche `exploration-v2`, la zone de test P1 est **remplacée par la carte d'exploration v2**
+> (`scenes/explore_hd2d/zone_exploration.tscn`, F5 ; voir `EXPLORATION_V2.md`) : même géométrie, mêmes caméras A / B / C
+> et même parcours de comparaison. Les mesures et médias ci-dessous datent de la zone P1.
 
 En jeu : touches **1 / 2 / 3** pour choisir la caméra A / B / C, ou **C** pour passer à la suivante. Le changement
 se fait sans rechargement. La caméra choisie est conservée après un combat. `--cam=B` choisit la caméra au

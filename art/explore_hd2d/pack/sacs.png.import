@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c23s0xu3xvy1n"
-path="res://.godot/imported/sol_p1.webp-55290915e90c33b4afb80dff9a93325c.ctex"
+uid="uid://cr6xvgqyspab4"
+path="res://.godot/imported/sacs.png-e3cc731726cbd507c1138ddb2137a223.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/explore_hd2d/p1/sol_p1.webp"
-dest_files=["res://.godot/imported/sol_p1.webp-55290915e90c33b4afb80dff9a93325c.ctex"]
+source_file="res://art/explore_hd2d/pack/sacs.png"
+dest_files=["res://.godot/imported/sacs.png-e3cc731726cbd507c1138ddb2137a223.ctex"]
 
 [params]
 

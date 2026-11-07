@@ -14,12 +14,12 @@ if [ -z "${DISPLAY:-}" ]; then RUN="xvfb-run -a -s '-screen 0 1280x720x24' godot
 TMP="$(mktemp -d)"
 
 for f in 30 60 144; do  # mesures sans rendu (la fenêtre est ramenée à 1280×720 par le parcours)
-  godot --headless --fixed-fps "$f" --path . -- --start=p1-zone --course=p1 \
+  godot --headless --fixed-fps "$f" --path . -- --start=exploration --course=p1 \
     --course-out="$OUT/mesures_${f}ips.json" | grep -E "P1 (VERDICT|.*ÉCHEC)" || true
 done
 
 for p in A B C; do
-  eval "$RUN --fixed-fps 30 --write-movie '$TMP/$p.avi' --path . -- --start=p1-zone --course=p1 --course-short --cam=$p" >/dev/null 2>&1 || true
+  eval "$RUN --fixed-fps 30 --write-movie '$TMP/$p.avi' --path . -- --start=exploration --course=p1 --course-short --cam=$p" >/dev/null 2>&1 || true
   ffmpeg -loglevel error -y -i "$TMP/$p.avi" -c:v libx264 -pix_fmt yuv420p -crf 23 "$TMP/$p.mp4"
   rm -f "$TMP/$p.avi"
 done

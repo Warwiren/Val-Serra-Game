@@ -57,7 +57,7 @@ const OCC_ALPHA := 0.5
 const DIALOGUE := "res://data/dialogue/pnj_proto.json"
 const CameraRig = preload("res://src/explore/camera_hd2d.gd")
 
-## Carte jouée : l'avant-poste (par défaut) ou la zone de test agrandie P1 (scenes/explore_hd2d/zone_p1.tscn).
+## Carte jouée : l'avant-poste (valeurs par défaut) ou la carte d'exploration v2 (scenes/explore_hd2d/zone_exploration.tscn).
 @export var zone_file := DIR + "zone.json"
 @export var decor_file := DIR + "illustre/decor.json"
 
@@ -220,7 +220,9 @@ func _decor() -> void:
 		var r: Dictionary = spec["elements"][g]
 		var foot := element_foot(e, r.get("pied", ""))
 		for layer in r["calques"]:
-			var s := _tex_sprite(DECOR + "%s.png" % layer, foot - Vector2(r["pivot"][0], r["pivot"][1]) * 0.5)
+			# calque : nom d'un asset validé (illustre/) ou chemin res:// (pack, variantes générées)
+			var path: String = (layer + ".png") if String(layer).begins_with("res://") else DECOR + "%s.png" % layer
+			var s := _tex_sprite(path, foot - Vector2(r["pivot"][0], r["pivot"][1]) * 0.5)
 			s.z_index = int(e["sort_y"])
 			s.set_meta("element", g)
 			var m := ShaderMaterial.new()

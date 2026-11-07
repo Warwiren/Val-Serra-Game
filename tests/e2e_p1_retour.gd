@@ -5,7 +5,7 @@ extends SceneTree
 ## la caméra choisie est conservée, recentrée immédiatement sur le héros (pas de glissade depuis l'origine de la
 ## carte), reste dans la carte ; le groupe est sur des positions libres ; pas de nouveau combat immédiat.
 
-const ZONE := "res://scenes/explore_hd2d/zone_p1.tscn"
+const ZONE := "res://scenes/explore_hd2d/zone_exploration.tscn"
 var fails := []
 
 

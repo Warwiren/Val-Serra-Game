@@ -1,0 +1,675 @@
+{
+ "_doc": "EXPLORATION v2 — calques : nom simple = art/explore_hd2d/illustre/<nom>.png (assets validés), chemin res:// = pack du 2026-11-07 ou variantes générées. Pivot = point de la texture posé sur le pied.",
+ "sol": "res://art/explore_hd2d/v2/sol.webp",
+ "masquer": [
+  "muret"
+ ],
+ "elements": {
+  "maison": {
+   "calques": [
+    "maison"
+   ],
+   "pivot": [
+    211.37,
+    357.8
+   ]
+  },
+  "arbre_g": {
+   "calques": [
+    "arbre_tronc",
+    "arbre_feuillage"
+   ],
+   "pivot": [
+    150,
+    263
+   ]
+  },
+  "arbre_d": {
+   "calques": [
+    "arbre_d_tronc",
+    "arbre_d_feuillage"
+   ],
+   "pivot": [
+    146,
+    255
+   ]
+  },
+  "buisson_0": {
+   "calques": [
+    "buisson_0"
+   ],
+   "pivot": [
+    45,
+    43
+   ]
+  },
+  "buisson_1": {
+   "calques": [
+    "buisson_1"
+   ],
+   "pivot": [
+    53,
+    55
+   ]
+  },
+  "buisson_2": {
+   "calques": [
+    "buisson_2"
+   ],
+   "pivot": [
+    42,
+    44
+   ]
+  },
+  "buisson_3": {
+   "calques": [
+    "buisson_3"
+   ],
+   "pivot": [
+    55,
+    59
+   ]
+  },
+  "buisson_4": {
+   "calques": [
+    "buisson_4"
+   ],
+   "pivot": [
+    40,
+    52
+   ]
+  },
+  "cloture_d": {
+   "calques": [
+    "cloture_d"
+   ],
+   "pivot": [
+    0,
+    99
+   ],
+   "pied": "avant_gauche"
+  },
+  "cloture_g": {
+   "calques": [
+    "cloture_g"
+   ],
+   "pivot": [
+    0,
+    99
+   ],
+   "pied": "avant_gauche"
+  },
+  "caisses": {
+   "calques": [
+    "caisses_pile"
+   ],
+   "pivot": [
+    40,
+    81
+   ]
+  },
+  "tonneaux": {
+   "calques": [
+    "barriques_pile"
+   ],
+   "pivot": [
+    32,
+    77
+   ]
+  },
+  "banc": {
+   "calques": [
+    "banc"
+   ],
+   "pivot": [
+    38,
+    39
+   ]
+  },
+  "lanterne_0": {
+   "calques": [
+    "lanterne"
+   ],
+   "pivot": [
+    30,
+    107
+   ]
+  },
+  "lanterne_1": {
+   "calques": [
+    "lanterne"
+   ],
+   "pivot": [
+    30,
+    107
+   ]
+  },
+  "lanterne_2": {
+   "calques": [
+    "lanterne"
+   ],
+   "pivot": [
+    30,
+    107
+   ]
+  },
+  "maison_ardoise": {
+   "calques": [
+    "res://art/explore_hd2d/v2/maison_ardoise"
+   ],
+   "pivot": [
+    191.63,
+    357.8
+   ]
+  },
+  "maison_tuiles": {
+   "calques": [
+    "res://art/explore_hd2d/v2/maison_tuiles"
+   ],
+   "pivot": [
+    211.37,
+    357.8
+   ]
+  },
+  "sacs_1": {
+   "calques": [
+    "res://art/explore_hd2d/pack/sacs"
+   ],
+   "pivot": [
+    44,
+    46
+   ]
+  },
+  "caisses_3": {
+   "calques": [
+    "res://art/explore_hd2d/pack/caisses_pack"
+   ],
+   "pivot": [
+    42,
+    62
+   ]
+  },
+  "tonneaux_3": {
+   "calques": [
+    "res://art/explore_hd2d/pack/tonneaux_pack"
+   ],
+   "pivot": [
+    36,
+    53
+   ]
+  },
+  "panneau_1": {
+   "calques": [
+    "res://art/explore_hd2d/pack/panneau"
+   ],
+   "pivot": [
+    28,
+    86
+   ]
+  },
+  "reverbere_1": {
+   "calques": [
+    "res://art/explore_hd2d/pack/reverbere"
+   ],
+   "pivot": [
+    32,
+    77
+   ]
+  },
+  "reverbere_2": {
+   "calques": [
+    "res://art/explore_hd2d/pack/reverbere"
+   ],
+   "pivot": [
+    32,
+    77
+   ]
+  },
+  "banc_3": {
+   "calques": [
+    "res://art/explore_hd2d/pack/banc_pack"
+   ],
+   "pivot": [
+    42,
+    45
+   ]
+  },
+  "massif_1": {
+   "calques": [
+    "res://art/explore_hd2d/pack/massif_mixte"
+   ],
+   "pivot": [
+    52,
+    49
+   ]
+  },
+  "fleurs_1": {
+   "calques": [
+    "res://art/explore_hd2d/pack/buisson_rose"
+   ],
+   "pivot": [
+    50,
+    52
+   ]
+  },
+  "cloture_5": {
+   "calques": [
+    "res://art/explore_hd2d/pack/cloture_longue"
+   ],
+   "pivot": [
+    52,
+    45
+   ]
+  },
+  "portillon_1": {
+   "calques": [
+    "res://art/explore_hd2d/pack/portillon"
+   ],
+   "pivot": [
+    50,
+    55
+   ]
+  },
+  "tonneaux_4": {
+   "calques": [
+    "barriques_pile"
+   ],
+   "pivot": [
+    32,
+    77
+   ]
+  },
+  "reverbere_3": {
+   "calques": [
+    "res://art/explore_hd2d/pack/reverbere"
+   ],
+   "pivot": [
+    32,
+    77
+   ]
+  },
+  "fleurs_2": {
+   "calques": [
+    "res://art/explore_hd2d/pack/fleurs_violettes"
+   ],
+   "pivot": [
+    45,
+    50
+   ]
+  },
+  "fleurs_3": {
+   "calques": [
+    "res://art/explore_hd2d/pack/fleurs_blanches"
+   ],
+   "pivot": [
+    42,
+    43
+   ]
+  },
+  "cloture_6": {
+   "calques": [
+    "res://art/explore_hd2d/pack/cloture_petite"
+   ],
+   "pivot": [
+    38,
+    39
+   ]
+  },
+  "arbre_repere": {
+   "calques": [
+    "res://art/explore_hd2d/pack/arbre_heros"
+   ],
+   "pivot": [
+    185.0,
+    261
+   ]
+  },
+  "arbre_b1": {
+   "calques": [
+    "res://art/explore_hd2d/pack/arbre_canopee"
+   ],
+   "pivot": [
+    133.0,
+    219
+   ]
+  },
+  "arbre_b2": {
+   "calques": [
+    "res://art/explore_hd2d/pack/arbre_elance"
+   ],
+   "pivot": [
+    85.0,
+    244
+   ]
+  },
+  "arbre_b3": {
+   "calques": [
+    "res://art/explore_hd2d/pack/arbre_asym"
+   ],
+   "pivot": [
+    83.0,
+    219
+   ]
+  },
+  "arbre_b4": {
+   "calques": [
+    "res://art/explore_hd2d/pack/jeune_arbre"
+   ],
+   "pivot": [
+    55.0,
+    130
+   ]
+  },
+  "buisson_b1": {
+   "calques": [
+    "res://art/explore_hd2d/pack/buisson_dense"
+   ],
+   "pivot": [
+    58,
+    59
+   ]
+  },
+  "buisson_b2": {
+   "calques": [
+    "res://art/explore_hd2d/pack/buisson_ombre"
+   ],
+   "pivot": [
+    45,
+    53
+   ]
+  },
+  "buisson_b3": {
+   "calques": [
+    "res://art/explore_hd2d/pack/fleurs_violettes"
+   ],
+   "pivot": [
+    45,
+    50
+   ]
+  },
+  "buisson_b4": {
+   "calques": [
+    "res://art/explore_hd2d/pack/buisson_sauvage"
+   ],
+   "pivot": [
+    38,
+    46
+   ]
+  },
+  "rocher_b1": {
+   "calques": [
+    "res://art/explore_hd2d/pack/rocher_moussu"
+   ],
+   "pivot": [
+    64,
+    46
+   ]
+  },
+  "pierre_b1": {
+   "calques": [
+    "res://art/explore_hd2d/pack/pierre_moyenne"
+   ],
+   "pivot": [
+    40,
+    30
+   ]
+  },
+  "cloture_3": {
+   "calques": [
+    "cloture_d"
+   ],
+   "pivot": [
+    0,
+    99
+   ],
+   "pied": "avant_gauche"
+  },
+  "cloture_4": {
+   "calques": [
+    "cloture_d"
+   ],
+   "pivot": [
+    0,
+    99
+   ],
+   "pied": "avant_gauche"
+  },
+  "arbre_c1": {
+   "calques": [
+    "res://art/explore_hd2d/pack/jeune_arbre"
+   ],
+   "pivot": [
+    55.0,
+    130
+   ]
+  },
+  "arbre_c2": {
+   "calques": [
+    "res://art/explore_hd2d/pack/arbre_canopee"
+   ],
+   "pivot": [
+    133.0,
+    219
+   ]
+  },
+  "buisson_c1": {
+   "calques": [
+    "res://art/explore_hd2d/pack/buisson_violet"
+   ],
+   "pivot": [
+    46,
+    53
+   ]
+  },
+  "arbre_d_5": {
+   "calques": [
+    "arbre_d_tronc",
+    "arbre_d_feuillage"
+   ],
+   "pivot": [
+    146,
+    255
+   ]
+  },
+  "arbre_p1": {
+   "calques": [
+    "res://art/explore_hd2d/pack/arbre_elance"
+   ],
+   "pivot": [
+    85.0,
+    244
+   ]
+  },
+  "rocher_p1": {
+   "calques": [
+    "res://art/explore_hd2d/pack/rochers_larges"
+   ],
+   "pivot": [
+    97,
+    63
+   ]
+  },
+  "buisson_p1": {
+   "calques": [
+    "res://art/explore_hd2d/pack/buisson_arrondi"
+   ],
+   "pivot": [
+    46,
+    51
+   ]
+  },
+  "buisson_p2": {
+   "calques": [
+    "res://art/explore_hd2d/pack/couvre_sol"
+   ],
+   "pivot": [
+    52,
+    39
+   ]
+  },
+  "pierre_p1": {
+   "calques": [
+    "res://art/explore_hd2d/pack/pierre_moyenne"
+   ],
+   "pivot": [
+    40,
+    30
+   ]
+  },
+  "lisiere_0": {
+   "calques": [
+    "res://art/explore_hd2d/pack/arbre_asym"
+   ],
+   "pivot": [
+    83.0,
+    219
+   ]
+  },
+  "lisiere_1": {
+   "calques": [
+    "res://art/explore_hd2d/v2/arbre_canopee_miroir"
+   ],
+   "pivot": [
+    153.0,
+    219
+   ]
+  },
+  "lisiere_2": {
+   "calques": [
+    "res://art/explore_hd2d/pack/arbre_elance"
+   ],
+   "pivot": [
+    85.0,
+    244
+   ]
+  },
+  "lisiere_3": {
+   "calques": [
+    "res://art/explore_hd2d/v2/arbre_heros_miroir"
+   ],
+   "pivot": [
+    221.0,
+    261
+   ]
+  },
+  "lisiere_4": {
+   "calques": [
+    "res://art/explore_hd2d/pack/arbre_asym"
+   ],
+   "pivot": [
+    83.0,
+    219
+   ]
+  },
+  "lisiere_5": {
+   "calques": [
+    "res://art/explore_hd2d/v2/arbre_canopee_miroir"
+   ],
+   "pivot": [
+    153.0,
+    219
+   ]
+  },
+  "lisiere_6": {
+   "calques": [
+    "res://art/explore_hd2d/pack/arbre_elance"
+   ],
+   "pivot": [
+    85.0,
+    244
+   ]
+  },
+  "lisiere_d0": {
+   "calques": [
+    "res://art/explore_hd2d/pack/arbre_canopee"
+   ],
+   "pivot": [
+    133.0,
+    219
+   ]
+  },
+  "lisiere_d1": {
+   "calques": [
+    "res://art/explore_hd2d/pack/arbre_asym"
+   ],
+   "pivot": [
+    83.0,
+    219
+   ]
+  },
+  "rive_0": {
+   "calques": [
+    "res://art/explore_hd2d/v2/formation_rocheuse_miroir"
+   ],
+   "pivot": [
+    91,
+    78
+   ]
+  },
+  "rive_1": {
+   "calques": [
+    "res://art/explore_hd2d/pack/rochers_bas"
+   ],
+   "pivot": [
+    75,
+    43
+   ]
+  },
+  "rive_2": {
+   "calques": [
+    "res://art/explore_hd2d/v2/rocher_moussu_miroir"
+   ],
+   "pivot": [
+    65,
+    46
+   ]
+  },
+  "rive_3": {
+   "calques": [
+    "res://art/explore_hd2d/pack/pierre_moyenne"
+   ],
+   "pivot": [
+    40,
+    30
+   ]
+  },
+  "rive_4": {
+   "calques": [
+    "res://art/explore_hd2d/v2/rochers_larges_miroir"
+   ],
+   "pivot": [
+    78,
+    63
+   ]
+  },
+  "rive_5": {
+   "calques": [
+    "res://art/explore_hd2d/pack/rochers_bas"
+   ],
+   "pivot": [
+    75,
+    43
+   ]
+  }
+ },
+ "details": [
+  [
+   "cristal_aether",
+   128.0,
+   718.0,
+   [
+    22,
+    35
+   ]
+  ],
+  [
+   "cristal_petit",
+   172.0,
+   726.0,
+   [
+    12,
+    22
+   ]
+  ]
+ ]
+}

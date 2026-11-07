@@ -14,8 +14,8 @@ const SCENE_PROTO_ZONE := "res://scenes/proto/proto_zone.tscn"
 const SCENE_PROTO_BATTLE := "res://scenes/battle/battle_scene.tscn"
 ## Exploration HD-2D expérimentale (branche exploration-hd2d) : scène séparée, combat inchangé
 const SCENE_EXPLORE_HD2D := "res://scenes/explore_hd2d/zone_hd2d.tscn"
-## P1 : zone de TEST agrandie pour comparer les caméras (même script, autre carte)
-const SCENE_P1_ZONE := "res://scenes/explore_hd2d/zone_p1.tscn"
+## Carte d'exploration v2 (version par défaut, F5) : même script que l'avant-poste, carte agrandie et enrichie
+const SCENE_EXPLORATION := "res://scenes/explore_hd2d/zone_exploration.tscn"
 var explore_return: String = ""          # scène où revenir après un combat lancé depuis l'exploration
 
 const RENDER_2D := "A"      # Variante A : 2D illustrée simple
@@ -77,8 +77,8 @@ func _ready() -> void:
 			camera_preset = arg.substr(6).to_upper()
 		elif arg == "--cam-hud":
 			camera_hud = true
-		elif arg == "--start=p1-zone":
-			_start_scene.call_deferred(SCENE_P1_ZONE)
+		elif arg == "--start=exploration" or arg == "--start=p1-zone":     # p1-zone : ancien nom (carte P1 remplacée)
+			_start_scene.call_deferred(SCENE_EXPLORATION)
 		elif arg == "--start=hd2d-zone":
 			_start_scene.call_deferred(SCENE_EXPLORE_HD2D)
 		elif arg == "--start=proto-battle":

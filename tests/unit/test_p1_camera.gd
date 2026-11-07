@@ -3,8 +3,8 @@ extends "res://tests/test_case.gd"
 
 const Cam = preload("res://src/explore/camera_hd2d.gd")
 const Zone = preload("res://scenes/explore_hd2d/zone_hd2d.gd")
-const P1_ZONE := "res://art/explore_hd2d/p1/zone_p1.json"
-const P1_DECOR := "res://art/explore_hd2d/p1/decor_p1.json"
+const P1_ZONE := "res://art/explore_hd2d/v2/zone.json"
+const P1_DECOR := "res://art/explore_hd2d/v2/decor.json"
 
 
 func _cam(p: String) -> Node:
@@ -100,7 +100,8 @@ func test_p1_zone_is_3_to_4_times_larger_and_complete() -> void:
 			continue
 		check(d["elements"].has(g), "élément %s illustré" % g)
 		for layer in d["elements"].get(g, {"calques": []})["calques"]:
-			check(ResourceLoader.exists(Zone.DECOR + "%s.png" % layer), "calque validé réutilisé : %s" % layer)
+			var path: String = (layer + ".png") if String(layer).begins_with("res://") else Zone.DECOR + "%s.png" % layer
+			check(ResourceLoader.exists(path), "calque présent : %s" % layer)
 	for k in o["sprites"]:
 		check(z["sprites"].has(k), "élément d'origine conservé : %s" % k)
 
@@ -118,7 +119,7 @@ func test_p1_zone_key_points_are_reachable() -> void:
 	var start := Vector2(sp[0], sp[1])
 	check(z.free_at(start), "départ libre")
 	var nav: AStarGrid2D = z._nav()
-	var pts := {"garde": z.zone["spawn"]["pnj"], "Vorgane": z.zone["spawn"]["monstre"], "derrière la maison 2": [860, 300],
+	var pts := {"garde": z.zone["spawn"]["pnj"], "Vorgane": z.zone["spawn"]["monstre"], "derrière la maison 2": [860, 290],
 		"dans le couloir étroit": [1100, 476], "derrière les arbres du bosquet": [280, 380], "limite droite": [1330, 480],
 		"angle haut": [1080, 118]}
 	for k in pts:
@@ -150,3 +151,57 @@ static func _area(poly: Array) -> float:
 		var q: Array = poly[(i + 1) % poly.size()]
 		a += p[0] * q[1] - q[0] * p[1]
 	return a / 2.0
+
+
+## Carte v2 : aucune poche inaccessible (toute case libre est reliée au départ), aucun élément posé dans l'eau ou
+## hors de la carte (pas d'élément « flottant »), assets du pack réellement utilisés seulement.
+func test_v2_map_integrity() -> void:
+	var z = Zone.new()
+	z.zone = JSON.parse_string(FileAccess.open(P1_ZONE, FileAccess.READ).get_as_text())
+	for p in z.zone["walkable"]:
+		z.walkable.append(Vector2(p[0], p[1]))
+	for g in z.zone["sprites"]:
+		var e: Dictionary = z.zone["sprites"][g]
+		if e["solid"] and e["footprint"].size() >= 3:
+			z.solids.append(z._poly(e["footprint"]))
+	var nav: AStarGrid2D = z._nav()
+	var sp: Array = z.zone["spawn"]["heros"]
+	var start := Vector2i(Vector2(sp[0], sp[1]) / z.CELL)
+	var seen := {start: true}
+	var q := [start]
+	while not q.is_empty():
+		var c: Vector2i = q.pop_back()
+		for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+			var n: Vector2i = c + d
+			if nav.region.has_point(n) and not nav.is_point_solid(n) and not seen.has(n):
+				seen[n] = true
+				q.append(n)
+	var free := 0
+	for x in nav.region.size.x:
+		for y in nav.region.size.y:
+			free += int(not nav.is_point_solid(Vector2i(x, y)))
+	check(seen.size() >= free - 2, "aucune poche inaccessible : %d cases libres, %d reliées au départ" % [free, seen.size()])
+	# pieds sur le sol : dans la carte, et pas plus bas que le haut du muret (rive) : aucun élément dans l'eau
+	var w: Array = z.zone["walkable"]
+	var f0 := Vector2(w[0][0], w[0][1])
+	var f1 := Vector2(w[1][0], w[1][1])
+	var d: Dictionary = Zone.decor_spec(P1_DECOR)
+	for g in z.zone["sprites"]:
+		var e: Dictionary = z.zone["sprites"][g]
+		if d["masquer"].has(g):
+			continue
+		var foot := Zone.element_foot(e, d["elements"].get(g, {}).get("pied", ""))
+		var fy := f0.y + (foot.x - f0.x) * (f1.y - f0.y) / (f1.x - f0.x)
+		check(foot.x >= -20 and foot.x <= 1428 and foot.y >= 0 and foot.y <= 800, "%s : dans la carte" % g)
+		check(foot.y <= fy + 22.0, "%s : posé sur la terre ferme (pas dans l'eau)" % g)
+	# le jeu ne charge que des sprites du pack utilisés par la carte
+	var used := {}
+	for g in d["elements"]:
+		for layer in d["elements"][g]["calques"]:
+			used[String(layer).get_file()] = true
+	for f in DirAccess.get_files_at("res://art/explore_hd2d/pack/"):
+		if f.ends_with(".png"):
+			check(used.has(f.get_basename()), "sprite du pack inutilisé dans le jeu : %s" % f)
+	z.hero = Zone.Walker.new("aren", true)
+	z.hero.free()
+	z.free()

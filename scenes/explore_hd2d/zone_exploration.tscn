@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" path="res://scenes/explore_hd2d/zone_hd2d.gd" id="1"]
 
-[node name="ZoneP1" type="Node2D"]
+[node name="ZoneExploration" type="Node2D"]
 texture_filter = 1
 script = ExtResource("1")
-zone_file = "res://art/explore_hd2d/p1/zone_p1.json"
-decor_file = "res://art/explore_hd2d/p1/decor_p1.json"
+zone_file = "res://art/explore_hd2d/v2/zone.json"
+decor_file = "res://art/explore_hd2d/v2/decor.json"
