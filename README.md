@@ -29,8 +29,8 @@ Vidéo de démonstration : [`docs/media/decor_final/demo_zone_definitive.mp4`](d
 
 ## Lancer le jeu (Godot 4.5 à 4.7)
 
-1. Télécharger le projet (GitHub : choisir la branche **`exploration-v2`**, puis **Code → Download ZIP** ; le dossier
-   s'appelle `Val-Serra-Game-exploration-v2`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p2-environnements`**, puis **Code → Download ZIP** ; le dossier
+   s'appelle `Val-Serra-Game-p2-environnements`) et le décompresser.
 2. Récupérer **Godot 4.5 ou plus récent** (édition standard, pas « .NET ») : <https://godotengine.org/download>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier**. La première ouverture réimporte
    les images (quelques secondes).
@@ -109,6 +109,7 @@ Dans l'éditeur, les tests se lancent aussi avec `tests/test_runner.tscn` puis *
 
 | Document | Contenu |
 |---|---|
+| `docs/P2_LOT_A_GABARITS.md` | **P2, lot A** : gabarits techniques des bâtiments pilotes (habitation, remise), composition de référence ; jeu inchangé |
 | `docs/EXPLORATION_V2.md` | **carte d'exploration v2** (version par défaut) : changements visuels, vérifications |
 | `docs/P1_CAMERA.md` | **P1** : zone de test agrandie, caméras A / B / C, mesures, recommandation (en attente de validation) |
 | `docs/DECOR_EXPLORATION.md` | décor définitif, toiture, défauts connus |
