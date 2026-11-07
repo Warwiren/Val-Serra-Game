@@ -97,8 +97,12 @@ func _course(p: String) -> void:
 	await _step(p, "arrêt", [], 0.6)
 	# 2. chemin vers le hameau, passage DERRIÈRE la 2e maison
 	await _goto(p, "chemin vers le hameau", Vector2(740, 528))
+	await _goto(p, "devant la remise (porte)", Vector2(614, 330))
+	await _goto(p, "derrière la remise", Vector2(585, 246))
+	await _shot(p, "derriere_remise")
+	await _goto(p, "devant l'habitation (porte)", Vector2(887, 412))
 	await _goto(p, "devant la 2e maison", Vector2(860, 420))
-	await _goto(p, "angle gauche maison 2", Vector2(808, 372))
+	await _goto(p, "angle gauche maison 2", Vector2(766, 372))
 	await _goto(p, "derrière la maison 2", Vector2(860, 290))
 	await _shot(p, "derriere_maison2")
 	await _goto(p, "derrière la maison 2 (droite)", Vector2(950, 290))

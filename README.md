@@ -35,7 +35,8 @@ Vidéo de démonstration : [`docs/media/decor_final/demo_zone_definitive.mp4`](d
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier**. La première ouverture réimporte
    les images (quelques secondes).
 4. **F5** : la dernière version, sans aucun réglage : la **carte d'exploration v2**
-   (`scenes/explore_hd2d/zone_exploration.tscn`, voir `docs/EXPLORATION_V2.md`), caméra A par défaut (touches
+   (`scenes/explore_hd2d/zone_exploration.tscn`, voir `docs/EXPLORATION_V2.md`), avec l'habitation et la remise du
+   lot A de P2 (`docs/P2_LOT_A_INTEGRATION.md`), caméra A par défaut (touches
    1 / 2 / 3 ou C pour comparer B et C). L'avant-poste d'origine s'ouvre avec `scenes/explore_hd2d/zone_hd2d.tscn`
    puis **F6**.
 
@@ -109,6 +110,7 @@ Dans l'éditeur, les tests se lancent aussi avec `tests/test_runner.tscn` puis *
 
 | Document | Contenu |
 |---|---|
+| `docs/P2_LOT_A_INTEGRATION.md` | **P2, lot A** : habitation et remise validées intégrées à la carte V2 (F5), gabarits adaptés, vérifications |
 | `docs/P2_LOT_A_GABARITS.md` | **P2, lot A** : gabarits techniques des bâtiments pilotes (habitation, remise), composition de référence ; jeu inchangé |
 | `docs/EXPLORATION_V2.md` | **carte d'exploration v2** (version par défaut) : changements visuels, vérifications |
 | `docs/P1_CAMERA.md` | **P1** : zone de test agrandie, caméras A / B / C, mesures, recommandation (en attente de validation) |

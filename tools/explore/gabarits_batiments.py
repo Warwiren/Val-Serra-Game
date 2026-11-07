@@ -95,7 +95,8 @@ class Building:
             self.tri([(x, y0, H1), (x, y1, H1), (x, 0, H1 + RH)], wall, k)
         slope = RH / (D / 2)
         ze = H1 - ov_front * slope                              # hauteur de l'égout au bord du débord
-        X0, X1 = x0 - ov_side, x1 + ov_side
+        ovl, ovr = ov_side if isinstance(ov_side, (tuple, list)) else (ov_side, ov_side)
+        X0, X1 = x0 - ovl, x1 + ovr
         for s in (-1, 1):
             ye = s * (D / 2 + ov_front)
             self.quad([(X0, ye, ze), (X1, ye, ze), (X1, 0, H1 + RH), (X0, 0, H1 + RH)], roof, k)
@@ -253,6 +254,53 @@ def remise():
     return b
 
 
+def from_params(name, p):
+    """Bâtiment ADAPTÉ à une illustration validée (paramètres ajustés par tools/explore/batiments_p2.py, enregistrés
+    dans docs/media/gabarits_batiments/adaptation.json) : mêmes volumes que les pilotes, dimensions de l'illustration."""
+    b = Building(name)
+    W, D, BASE, bo, H1, RH = p["W"], p["D"], p["base"], p["base_ov"], p["H1"], p["RH"]
+    b.box(-W / 2 - bo, W / 2 + bo, -D / 2 - bo, D / 2 + bo, 0, BASE, "pierre")
+    b.gabled(W, D, BASE, H1, RH, p["mur"], "ardoise", ov_side=(p["ov_l"], p["ov_r"]), ov_front=p["ov_f"])
+    if p.get("cheminee"):
+        cx, cy, c, zt = p["cheminee"]
+        b.box(cx - c / 2, cx + c / 2, cy - c / 2, cy + c / 2, H1, zt, "cheminee")
+    if p.get("marche"):
+        u0, u1, dep, h = p["marche"]
+        b.box(u0, u1, -D / 2 - bo - dep, -D / 2 - bo, 0, h, "pierre")
+    for o in p["ouvertures"]:
+        b.opening(o[0], o[1], o[2], o[3], o[4], o[5], o[6], W, D)
+    if p.get("montant"):
+        b.door_split = tuple(p["montant"])
+    b.dims = {"largeur_facade_m": W, "profondeur_m": D, "soubassement_m": BASE, "hauteur_murs_m": H1,
+              "faitage_m": round(H1 + RH, 2), "debord_toit_m": {"gauche": p["ov_l"], "droite": p["ov_r"], "facade": p["ov_f"]}}
+    b.footprint = [(-W / 2 - bo, -D / 2 - bo), (W / 2 + bo, -D / 2 - bo), (W / 2 + bo, D / 2 + bo), (-W / 2 - bo, D / 2 + bo)]
+    b.door = ("porte", tuple(p["point_porte"]))
+    b.chamfer = p.get("chanfrein", 0.25)
+    return b
+
+
+def chamfer(fp, t):
+    """Remplace chaque coin de l'emprise par deux points à t mètres le long des arêtes voisines."""
+    out = []
+    n = len(fp)
+    for i in range(n):
+        c, a, b = np.array(fp[i]), np.array(fp[i - 1]), np.array(fp[(i + 1) % n])
+        out.append(tuple(c + (a - c) / np.linalg.norm(a - c) * t))
+        out.append(tuple(c + (b - c) / np.linalg.norm(b - c) * t))
+    return out
+
+
+ADAPT = os.path.join(OUT, "adaptation.json")
+
+
+def buildings():
+    """Gabarits en vigueur : adaptés aux illustrations validées s'il y en a, sinon les pilotes initiaux."""
+    if os.path.exists(ADAPT):
+        ad = json.load(open(ADAPT))["batiments"]
+        return [from_params(n, ad[n]) if n in ad else f() for n, f in (("habitation", habitation), ("remise", remise))]
+    return [habitation(), remise()]
+
+
 # ------------------------------------------------------------------------------------- sorties
 def foot_native(fp):
     """Pied du jeu (element_foot) : abscisse moyenne de l'emprise, ordonnée = bord avant (y maximal)."""
@@ -277,7 +325,7 @@ def main():
             "reference_echelle": {"maison_avant_poste_m": [6.4, 4.6, 4.6], "aren_hauteur_px_natif": 29, "aren_hauteur_m": 1.77},
             "batiments": {}}
     font = ImageFont.load_default()
-    for b in (habitation(), remise()):
+    for b in buildings():
         r = render(b)
         d = os.path.join(OUT, b.name)
         os.makedirs(d, exist_ok=True)
@@ -285,6 +333,8 @@ def main():
         Image.fromarray(r["zones"], "RGBA").save(os.path.join(d, "zones.png"))
         Image.fromarray(r["trait"], "RGBA").save(os.path.join(d, "trait.png"))
         foot, fp_nat = foot_native(b.footprint)
+        if getattr(b, "chamfer", 0):                     # collision : coins chanfreinés (pas d'angle aigu à l'écran)
+            fp_nat = np.array([native((x, y, 0)) for x, y in chamfer(b.footprint, b.chamfer)])
         to_tex = lambda q: q * SS - r["mn"]                      # natif -> px de texture
         pivot = to_tex(foot)
         rel = lambda q: [round(float(q[0] - foot[0]), 1), round(float(q[1] - foot[1]), 1)]
@@ -320,7 +370,7 @@ def main():
             "texture_px": list(r["size"]),
             "pivot_texture_px": [round(float(pivot[0]), 1), round(float(pivot[1]), 1)],
             "emprise_natif_relative_au_pied": [rel(q) for q in fp_nat],
-            "collision": "emprise des murs (soubassement compris) ; débords de toit et marche non bloquants",
+            "collision": "emprise du soubassement, coins chanfreinés (0,25 m) ; débords de toit et marche non bloquants",
             "ligne_de_tri": "bord avant de l'emprise (géré par depth_z du jeu, y compris en biais)",
             "point_interaction_porte_natif": rel(door_nat),
             "ouvertures": ops,

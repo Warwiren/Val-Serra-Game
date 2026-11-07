@@ -17,6 +17,7 @@ import colorsys
 import json
 import math
 import os
+import sys
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
@@ -482,9 +483,27 @@ def recolor_roof(img, hue, sat_k, val_k):
     return Image.fromarray((np.dstack([out, a[..., 3:4]]) * 255).astype(np.uint8), "RGBA")
 
 
+ANCIENS = "--anciens" in sys.argv          # retour arrière : maisons recolorées de la V2 (avant le lot A de P2)
 house = Image.open(os.path.join(SRC, "illustre/maison.png"))
-recolor_roof(house, 0.58, 0.55, 1.0).transpose(Image.FLIP_LEFT_RIGHT).save(os.path.join(OUT, "maison_ardoise.png"))
-recolor_roof(house, 0.03, 0.85, 0.95).save(os.path.join(OUT, "maison_tuiles.png"))
+for f in ("maison_ardoise.png", "maison_tuiles.png"):
+    if os.path.exists(os.path.join(OUT, f)):
+        os.remove(os.path.join(OUT, f))
+if ANCIENS:
+    recolor_roof(house, 0.58, 0.55, 1.0).transpose(Image.FLIP_LEFT_RIGHT).save(os.path.join(OUT, "maison_ardoise.png"))
+    recolor_roof(house, 0.03, 0.85, 0.95).save(os.path.join(OUT, "maison_tuiles.png"))
+GAB_BAT = json.load(open(os.path.join(ROOT, "docs/media/gabarits_batiments/gabarits.json")))["batiments"]
+RES_BAT = "res://art/explore_hd2d/batiments/"
+
+
+def batiment_at(name, key, foot):
+    """Bâtiment P2 (illustration validée sur son gabarit) : emprise, pivot et porte lus dans gabarits.json ; calque de
+    base + calque des vitres éclairées (« _fenetres », animé par le jeu). Renvoie le point d'interaction de la porte."""
+    g = GAB_BAT[key]
+    fp = [[round(foot[0] + q[0], 1), round(foot[1] + q[1], 1)] for q in g["emprise_natif_relative_au_pied"]]
+    elements[name] = {"sprite": {"sort_y": round(foot[1], 1), "footprint": fp, "solid": True},
+                      "decor": {"calques": [RES_BAT + key, RES_BAT + key + "_fenetres"], "pivot": g["pivot_texture_px"]},
+                      "ombre": ("maison", foot, fp)}
+    return np.array(foot) + np.array(g["point_interaction_porte_natif"])
 
 
 def house_at(name, foot, tex, mirror):
@@ -502,34 +521,38 @@ def house_at(name, foot, tex, mirror):
 
 
 # ------------------------------------------------------------------------------------- PLAN DE LA CARTE
-door2 = house_at("maison_ardoise", (900, 380), "maison_ardoise", True)      # hameau (retournée, toit d'ardoise)
-door3 = house_at("maison_tuiles", (620, 300), "maison_tuiles", False)       # maison du haut (toit de tuiles)
+if ANCIENS:
+    door2 = house_at("maison_ardoise", (900, 380), "maison_ardoise", True) + np.array([0, 20])
+    door3 = house_at("maison_tuiles", (620, 300), "maison_tuiles", False) + np.array([0, 16])
+else:
+    door2 = batiment_at("habitation", "habitation", (861, 405))     # hameau : porte au bout du chemin pavé
+    door3 = batiment_at("remise", "remise", (600, 324))             # haut : double porte au bout du sentier
 
 # chemins pavés en courbe (raccord au chemin peint d'origine) et sentiers de terre
 END = np.array([655.0, 142.0]) + OFF
-main_path = cobble_path([tuple(END - (8, -2)), (700, 534), (760, 516), (830, 494), (875, 450), (door2[0], door2[1] + 26)])
+main_path = cobble_path([tuple(END - (8, -2)), (700, 534), (760, 516), (830, 494), (875, 450), (door2[0], door2[1] + 6)])
 east_path = cobble_path([(800, 506), (880, 486), (960, 478), (1040, 487), (1110, 476), (1200, 452), (1300, 424)], width=0.85)
-trail_house3 = dirt_trail([(735, 522), (712, 470), (680, 410), (650, 352), (door3[0], door3[1] + 22)])
-trail_forest = dirt_trail([(650, 352), (560, 330), (450, 300), (330, 280), (230, 300), (150, 350)])
+trail_house3 = dirt_trail([(735, 522), (712, 470), (680, 410), (650, 352), (door3[0], door3[1] + 6)])
+trail_forest = dirt_trail([(650, 352), (560, 346), (450, 304), (330, 280), (230, 300), (150, 350)])
 trail_east = dirt_trail([(1110, 476), (1140, 400), (1120, 320), (1080, 240), (1070, 150)])
 
 # hameau : accessoires du pack autour de la maison d'ardoise
-pack("sacs_1", "sacs", (842, 384))
+pack("sacs_1", "sacs", (842, 384) if ANCIENS else (800, 430))       # lot A : sorti de l'emprise de l'habitation
 pack("caisses_3", "caisses_pack", (968, 392))
 pack("tonneaux_3", "tonneaux_pack", (1000, 366))
 pack("panneau_1", "panneau", (812, 520))
 pack("reverbere_1", "reverbere", (776, 476))
 pack("reverbere_2", "reverbere", (1012, 414))
 pack("banc_3", "banc_pack", (930, 455))
-pack("massif_1", "massif_mixte", (868, 396))
+pack("massif_1", "massif_mixte", (868, 396) if ANCIENS else (780, 404))
 pack("fleurs_1", "buisson_rose", (940, 398))
 pack("cloture_5", "cloture_longue", (1078, 380))      # 23 px libres après les tonneaux : pas de coin où se coincer
 pack("portillon_1", "portillon", (1146, 372))
 # maison de tuiles : sentier, tonneaux d'origine, réverbère, jardin fleuri
-legacy("tonneaux_4", "tonneaux", (700, 288))
+legacy("tonneaux_4", "tonneaux", (700, 288) if ANCIENS else (730, 282))   # lot A : pas de goulet contre la remise
 pack("reverbere_3", "reverbere", (668, 330))
-pack("fleurs_2", "fleurs_violettes", (560, 312))
-pack("fleurs_3", "fleurs_blanches", (590, 318))
+pack("fleurs_2", "fleurs_violettes", (560, 312) if ANCIENS else (518, 332))   # lot A : hors de l'emprise de la remise
+pack("fleurs_3", "fleurs_blanches", (590, 318) if ANCIENS else (690, 322))
 pack("cloture_6", "cloture_petite", (520, 300))
 # arbre majestueux (repère) derrière la maison de tuiles et le hameau
 pack("arbre_repere", "arbre_heros", (770, 252))

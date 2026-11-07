@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://baukst8d88uxl"
-path="res://.godot/imported/maison_tuiles.png-ad01eb9141850e9c7a9282961b7b2314.ctex"
+uid="uid://ct7netkjrjmrl"
+path="res://.godot/imported/remise.png-25677a0b2b78bd18c0943013fc043d62.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/explore_hd2d/v2/maison_tuiles.png"
-dest_files=["res://.godot/imported/maison_tuiles.png-ad01eb9141850e9c7a9282961b7b2314.ctex"]
+source_file="res://art/explore_hd2d/batiments/remise.png"
+dest_files=["res://.godot/imported/remise.png-25677a0b2b78bd18c0943013fc043d62.ctex"]
 
 [params]
 

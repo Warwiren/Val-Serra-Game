@@ -1,5 +1,8 @@
 # P2 — Lot A : gabarits techniques des bâtiments (pilotes)
 
+> **Mise à jour** : les gabarits de l'habitation et de la remise ont depuis été **adaptés aux illustrations validées**
+> (dimensions ci-dessous remplacées) et les bâtiments sont intégrés au jeu : voir `P2_LOT_A_INTEGRATION.md`.
+
 Branche **`p2-environnements`**. **Aucun bâtiment du jeu n'est modifié** : F5 lance toujours la carte V2 avec ses maisons
 actuelles, et l'avant-poste validé reste la référence.
 

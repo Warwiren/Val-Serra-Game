@@ -153,22 +153,24 @@
     107
    ]
   },
-  "maison_ardoise": {
+  "habitation": {
    "calques": [
-    "res://art/explore_hd2d/v2/maison_ardoise"
+    "res://art/explore_hd2d/batiments/habitation",
+    "res://art/explore_hd2d/batiments/habitation_fenetres"
    ],
    "pivot": [
-    191.63,
-    357.8
+    210.0,
+    410.6
    ]
   },
-  "maison_tuiles": {
+  "remise": {
    "calques": [
-    "res://art/explore_hd2d/v2/maison_tuiles"
+    "res://art/explore_hd2d/batiments/remise",
+    "res://art/explore_hd2d/batiments/remise_fenetres"
    ],
    "pivot": [
-    211.37,
-    357.8
+    192.0,
+    290.3
    ]
   },
   "sacs_1": {

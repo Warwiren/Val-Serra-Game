@@ -228,10 +228,24 @@ func _decor() -> void:
 			var m := ShaderMaterial.new()
 			m.shader = OCC_SHADER
 			s.material = m
+			if path.ends_with("_fenetres.png"):
+				_animate_windows(s)
 			occluders.append({"name": g, "sprite": s, "sort_y": float(e["sort_y"]), "rect": Rect2(s.position, s.texture.get_size() * s.scale), "mat": m, "footprint": _poly(e["footprint"])})
 	for d in spec["details"]:                                # petits éléments au sol, triés comme les personnages
 		var s := _tex_sprite(DECOR + "%s.png" % d[0], Vector2(d[1], d[2]) - Vector2(d[3][0], d[3][1]) * 0.5)
 		s.z_index = int(d[2])
+
+
+## Vitres éclairées (calque « _fenetres » des bâtiments) : très faible fluctuation lente de la lumière intérieure,
+## désynchronisée d'un bâtiment à l'autre. N'agit que sur l'opacité du calque (ni collision, ni tri).
+func _animate_windows(s: Sprite2D) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(s.texture.resource_path)
+	var tw := create_tween().set_loops()
+	tw.tween_interval(rng.randf_range(0.0, 1.5))
+	for i in 3:
+		tw.tween_property(s, "modulate:a", rng.randf_range(0.8, 0.9), rng.randf_range(1.2, 2.4)).set_trans(Tween.TRANS_SINE)
+		tw.tween_property(s, "modulate:a", 1.0, rng.randf_range(1.0, 2.0)).set_trans(Tween.TRANS_SINE)
 
 
 func _tex_sprite(path: String, pos: Vector2) -> Sprite2D:

@@ -205,3 +205,23 @@ func test_v2_map_integrity() -> void:
 	z.hero = Zone.Walker.new("aren", true)
 	z.hero.free()
 	z.free()
+
+
+## Bâtiments P2 : à l'écran, aucun angle d'emprise ne doit être aigu (le héros s'y coince en glissant contre le coin) ;
+## illustration et gabarit ont la même taille ; le point de porte est libre.
+func test_p2_buildings_footprints_and_textures() -> void:
+	var z: Dictionary = JSON.parse_string(FileAccess.open(P1_ZONE, FileAccess.READ).get_as_text())
+	var g: Dictionary = JSON.parse_string(FileAccess.open("res://docs/media/gabarits_batiments/gabarits.json", FileAccess.READ).get_as_text())
+	for key in ["habitation", "remise"]:
+		check(z["sprites"].has(key), "%s intégré à la carte" % key)
+		var fp: Array = z["sprites"][key]["footprint"]
+		var n := fp.size()
+		for i in n:
+			var a := Vector2(fp[i - 1][0], fp[i - 1][1]) - Vector2(fp[i][0], fp[i][1])
+			var b := Vector2(fp[(i + 1) % n][0], fp[(i + 1) % n][1]) - Vector2(fp[i][0], fp[i][1])
+			check(rad_to_deg(a.angle_to(b)) * signf(a.angle_to(b)) >= 90.0, "%s : angle d'emprise %d non aigu" % [key, i])
+		var tex: Texture2D = load("res://art/explore_hd2d/batiments/%s.png" % key)
+		var glow: Texture2D = load("res://art/explore_hd2d/batiments/%s_fenetres.png" % key)
+		var sz: Array = g["batiments"][key]["texture_px"]
+		check(tex.get_width() == sz[0] and tex.get_height() == sz[1], "%s : illustration au cadre du gabarit" % key)
+		check(glow.get_size() == tex.get_size(), "%s : calque des fenêtres aligné" % key)

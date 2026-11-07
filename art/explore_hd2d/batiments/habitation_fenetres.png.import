@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dwat8juyn5l"
-path="res://.godot/imported/maison_ardoise.png-ac0a275679982dd9cdf86cc13568f0b4.ctex"
+uid="uid://c35poo7sa4ox0"
+path="res://.godot/imported/habitation_fenetres.png-17f4bb3173d6b12d3109a266f3b5b395.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/explore_hd2d/v2/maison_ardoise.png"
-dest_files=["res://.godot/imported/maison_ardoise.png-ac0a275679982dd9cdf86cc13568f0b4.ctex"]
+source_file="res://art/explore_hd2d/batiments/habitation_fenetres.png"
+dest_files=["res://.godot/imported/habitation_fenetres.png-17f4bb3173d6b12d3109a266f3b5b395.ctex"]
 
 [params]
 
