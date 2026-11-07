@@ -1,0 +1,27 @@
+[
+  {
+    "batiment": "habitation",
+    "chevauche": [
+      "sacs_1 (solide)",
+      "massif_1 (traversable)"
+    ],
+    "emprise_dans_zone_praticable": true,
+    "pied": "(861.0, 405.0)",
+    "porte": "(891.2, 399.7)",
+    "porte_accessible": true,
+    "porte_libre": true,
+    "remplace": "maison_ardoise"
+  },
+  {
+    "batiment": "remise",
+    "chevauche": [
+      "fleurs_3 (traversable)"
+    ],
+    "emprise_dans_zone_praticable": true,
+    "pied": "(615.0, 318.0)",
+    "porte": "(629.1, 316.0)",
+    "porte_accessible": true,
+    "porte_libre": true,
+    "remplace": "maison_tuiles"
+  }
+]

@@ -5,7 +5,7 @@ Prototype jouable du RPG narratif au tour par tour **Val'Serra**, réalisé sous
 > Tous les personnages, monstres, illustrations et nombres de ce dépôt sont **provisoires et non canoniques**.
 > Ce dépôt est indépendant du système Foundry du JDR (`Warwiren/Val-serra`), qui n'est pas modifié.
 
-![Avant-poste de la lisière — exploration HD-2D](docs/media/decor_final/zone_complete_F5_1280.png)
+![Carte d'exploration v2 — lisière, hameau et rive](docs/media/exploration_v2/vue_ensemble.jpg)
 
 ## Ce qui est jouable
 
@@ -29,11 +29,16 @@ Vidéo de démonstration : [`docs/media/decor_final/demo_zone_definitive.mp4`](d
 
 ## Lancer le jeu (Godot 4.5 à 4.7)
 
-1. Télécharger le projet (GitHub : **Code → Download ZIP**) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p2-environnements`**, puis **Code → Download ZIP** ; le dossier
+   s'appelle `Val-Serra-Game-p2-environnements`) et le décompresser.
 2. Récupérer **Godot 4.5 ou plus récent** (édition standard, pas « .NET ») : <https://godotengine.org/download>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier**. La première ouverture réimporte
    les images (quelques secondes).
-4. **F5** : la zone d'exploration, sans aucun réglage.
+4. **F5** : la dernière version, sans aucun réglage : la **carte d'exploration v2**
+   (`scenes/explore_hd2d/zone_exploration.tscn`, voir `docs/EXPLORATION_V2.md`), avec l'habitation et la remise du
+   lot A de P2 (`docs/P2_LOT_A_INTEGRATION.md`), caméra A par défaut (touches
+   1 / 2 / 3 ou C pour comparer B et C). L'avant-poste d'origine s'ouvre avec `scenes/explore_hd2d/zone_hd2d.tscn`
+   puis **F6**.
 
 ### Commandes
 
@@ -45,11 +50,13 @@ Vidéo de démonstration : [`docs/media/decor_final/demo_zone_definitive.mp4`](d
 | En combat : clic, ↑/↓ ou 1 à 5 | choisir une action ; ←/→ ou clic sur une partie : changer de cible |
 | En combat : Tab | changer de mode (VIF / MESURÉ / CHARGÉ) ; **Entrée** : confirmer |
 | Espace (maintenu) | accélérer les animations ; **F3** : images par seconde |
+| **1 / 2 / 3** ou **C** (exploration) | caméra A (actuelle, par défaut) / B / C — essai P1, voir `docs/P1_CAMERA.md` |
 
 ### Autres scènes (ouvrir dans l'éditeur, puis **F6**)
 
 | Scène | Contenu |
 |---|---|
+| `scenes/explore_hd2d/zone_hd2d.tscn` | avant-poste d'origine (`--start=hd2d-zone`), référence des tests ; F5 lance la carte v2 |
 | `scenes/dev/essai_combat_lisiere.tscn` | combat direct sur l'arène illustrée |
 | `scenes/dev/essai_parcours_clavier.tscn` | parcours de locomotion au clavier simulé ; verdict dans le panneau « Sortie » |
 | `scenes/proto/proto_zone.tscn` | ancien avant-poste (prototype recentré, décor du pack) |
@@ -90,7 +97,8 @@ Dans l'éditeur, les tests se lancent aussi avec `tests/test_runner.tscn` puis *
 | Sujet | Fichiers |
 |---|---|
 | Zone d'exploration (code) | `scenes/explore_hd2d/zone_hd2d.gd` |
-| Décor définitif (une seule version) | `art/explore_hd2d/illustre/` + `decor.json` ; géométrie de jeu : `art/explore_hd2d/zone.json` |
+| Carte d'exploration v2 (F5) | `art/explore_hd2d/v2/` (sol, `zone.json`, `decor.json`) + sprites `art/explore_hd2d/pack/` ; générée par `tools/explore/build_exploration_v2.py` (pack découpé par `tools/explore/pack_extract_v2.py`) |
+| Avant-poste validé (base de la carte v2) | `art/explore_hd2d/illustre/` + `decor.json` ; géométrie de jeu : `art/explore_hd2d/zone.json` |
 | Arène de combat illustrée | `art/arena/lisiere/peint/`, `src/presentation/arena_layers.gd` |
 | Moteur de combat (règles, déterministe) | `src/combat/core/`, données `data/combat/` |
 | Dialogues | `data/dialogue/` |
@@ -102,6 +110,10 @@ Dans l'éditeur, les tests se lancent aussi avec `tests/test_runner.tscn` puis *
 
 | Document | Contenu |
 |---|---|
+| `docs/P2_LOT_A_INTEGRATION.md` | **P2, lot A** : habitation et remise validées intégrées à la carte V2 (F5), gabarits adaptés, vérifications |
+| `docs/P2_LOT_A_GABARITS.md` | **P2, lot A** : gabarits techniques des bâtiments pilotes (habitation, remise), composition de référence ; jeu inchangé |
+| `docs/EXPLORATION_V2.md` | **carte d'exploration v2** (version par défaut) : changements visuels, vérifications |
+| `docs/P1_CAMERA.md` | **P1** : zone de test agrandie, caméras A / B / C, mesures, recommandation (en attente de validation) |
 | `docs/DECOR_EXPLORATION.md` | décor définitif, toiture, défauts connus |
 | `docs/EXPLORATION_HD2D.md` | locomotion, suivi du groupe, collisions, dialogue, interaction avec le garde |
 | `docs/GABARITS_EXPLORATION.md`, `docs/INTEGRATION_SOL.md` | gabarits et importation des illustrations |

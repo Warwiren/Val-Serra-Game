@@ -14,6 +14,8 @@ const SCENE_PROTO_ZONE := "res://scenes/proto/proto_zone.tscn"
 const SCENE_PROTO_BATTLE := "res://scenes/battle/battle_scene.tscn"
 ## Exploration HD-2D expérimentale (branche exploration-hd2d) : scène séparée, combat inchangé
 const SCENE_EXPLORE_HD2D := "res://scenes/explore_hd2d/zone_hd2d.tscn"
+## Carte d'exploration v2 (version par défaut, F5) : même script que l'avant-poste, carte agrandie et enrichie
+const SCENE_EXPLORATION := "res://scenes/explore_hd2d/zone_exploration.tscn"
 var explore_return: String = ""          # scène où revenir après un combat lancé depuis l'exploration
 
 const RENDER_2D := "A"      # Variante A : 2D illustrée simple
@@ -41,6 +43,8 @@ var proto: bool = false                # prototype recentré (pack visuel) : pr�
 var art_proto: bool = false            # prototype artistique HD (héros et monstre articulés, arène nocturne)
 var arena: String = ""                 # décor de combat : "lisiere" = arène illustrée, "ancien" = décor du pack ; "" = arène
                                        # seulement pour un combat lancé depuis la zone HD-2D (F2 bascule en combat)
+var camera_preset: String = "A"         # P1 : caméra d'exploration A (actuelle) / B / C ; --cam=B
+var camera_hud: bool = false           # P1 : nom de la caméra affiché en permanence (captures, vidéo) ; --cam-hud
 var course: String = ""                # parcours de locomotion mesuré (--course=manuel), aussi lançable depuis l'éditeur
 
 var _fade: ColorRect
@@ -69,6 +73,12 @@ func _ready() -> void:
 			arena = arg.substr(8)
 		elif arg.begins_with("--course="):
 			course = arg.substr(9)
+		elif arg.begins_with("--cam="):
+			camera_preset = arg.substr(6).to_upper()
+		elif arg == "--cam-hud":
+			camera_hud = true
+		elif arg == "--start=exploration" or arg == "--start=p1-zone":     # p1-zone : ancien nom (carte P1 remplacée)
+			_start_scene.call_deferred(SCENE_EXPLORATION)
 		elif arg == "--start=hd2d-zone":
 			_start_scene.call_deferred(SCENE_EXPLORE_HD2D)
 		elif arg == "--start=proto-battle":
