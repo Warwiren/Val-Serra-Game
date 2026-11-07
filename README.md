@@ -56,6 +56,8 @@ Vidéo de démonstration : [`docs/media/decor_final/demo_zone_definitive.mp4`](d
 
 | Scène | Contenu |
 |---|---|
+| `scenes/explore25/scene_temoin.tscn` | **P3** : scène témoin 32 × 24 m (deux niveaux, escalier, rivière, pont, PNJ, sortie d'instance), architecture B (Camera3D orthographique) — voir `docs/P3_PROTOTYPE_25D.md` |
+| `scenes/explore25/demo_a_2d.tscn`, `demo_b_3d.tscn` | **P3** : micro-test comparatif A (Camera2D multi-hauteur) / B (Camera3D orthographique) ; `scene_temoin_2d.tscn` : la scène témoin en A (diagnostic) |
 | `scenes/explore_hd2d/zone_hd2d.tscn` | avant-poste d'origine (`--start=hd2d-zone`), référence des tests ; F5 lance la carte v2 |
 | `scenes/dev/essai_combat_lisiere.tscn` | combat direct sur l'arène illustrée |
 | `scenes/dev/essai_parcours_clavier.tscn` | parcours de locomotion au clavier simulé ; verdict dans le panneau « Sortie » |
@@ -110,6 +112,7 @@ Dans l'éditeur, les tests se lancent aussi avec `tests/test_runner.tscn` puis *
 
 | Document | Contenu |
 |---|---|
+| `docs/P3_PROTOTYPE_25D.md` | **P3** : prototype d'exploration HD-2D / 2.5D sous Godot 4.7.2 — audit, démonstrations A et B, scène témoin, tests, recommandation (branche `p3-prototype-25d`, F5 inchangé) |
 | `docs/P2_LOT_A_INTEGRATION.md` | **P2, lot A** : habitation et remise validées intégrées à la carte V2 (F5), gabarits adaptés, vérifications |
 | `docs/P2_LOT_A_GABARITS.md` | **P2, lot A** : gabarits techniques des bâtiments pilotes (habitation, remise), composition de référence ; jeu inchangé |
 | `docs/EXPLORATION_V2.md` | **carte d'exploration v2** (version par défaut) : changements visuels, vérifications |
