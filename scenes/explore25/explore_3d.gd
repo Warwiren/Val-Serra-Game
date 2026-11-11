@@ -17,6 +17,8 @@ const WATER_SH = preload("res://src/explore25/water25.gdshader")
 const GHOST_SH = preload("res://src/explore25/ghost25.gdshader")
 const BLOB_SH = preload("res://src/explore25/blob25.gdshader")
 const OVER_SH = preload("res://src/explore25/overlay25.gdshader")
+const Variantes = preload("res://src/explore25/variantes25.gd")
+const Paysage = preload("res://src/explore25/paysage25.gd")
 
 const L_FLOOR := 1                         # sols praticables (et terrasse : son dessus est un sol, ses faces des murs)
 const L_OBST := 2                          # obstacles (murs, troncs, haies, garde-corps, PNJ)
@@ -28,6 +30,9 @@ const SPRITE_TOWARD_CAM := 0.4             # m : carte décalée vers la caméra
 
 @export_enum("temoin", "micro") var mode := "temoin"
 @export var arch_label := "B — Camera3D orthographique"
+## P3-07 : variante de caméra ("" = prototype P3 inchangé) et traitement du paysage non jouable.
+@export var variante := ""                   # "", "A", "B" ou "C"
+@export_enum("aucun", "3d", "2d") var paysage := "aucun"
 
 var s                                      # Session25
 var world
@@ -51,14 +56,24 @@ var _rend_prev := Vector2.INF
 var _rend_prev_v := Vector2.ZERO
 var _rend_hero_prev := Vector2.INF
 var _rend_hero_prev_v := Vector2.ZERO
+var _env_res: Environment
+var _paysage_cfg := {}
+var _paysage_stats := {}
+var _frame_ms: Array = []
+var _hidden_ground := {}
 
 
 func _ready() -> void:
 	_cli = parse_cli()
 	if _cli.has("mode"):
 		mode = _cli["mode"]
+	if _cli.has("variante"):
+		variante = _cli["variante"]
+	if _cli.has("paysage"):
+		paysage = _cli["paysage"]
 	get_tree().physics_interpolation = true
 	s = Session25.new(self, arch_label)
+	_apply_variante()
 	s.build_hud()
 	_env()
 	cam = Camera3D.new()
@@ -66,12 +81,17 @@ func _ready() -> void:
 	cam.keep_aspect = Camera3D.KEEP_HEIGHT
 	cam.near = 0.5
 	cam.far = 400.0
-	cam.transform.basis = Basis(World25.cam_right(), World25.cam_up(), World25.cam_back())
 	add_child(cam)
+	_cam_basis()
 	cam.current = true
 	_spawn_actors()
-	_load(World25.SPEC if mode != "micro" else World25.SPEC, mode)
+	if _cli.has("instance"):
+		_load(_cli["instance"], "instance")
+	else:
+		_load(World25.SPEC if mode != "micro" else World25.SPEC, mode)
 	_apply_cli()
+	if _cli.has("vue_dessus"):
+		_top_view()
 
 
 static func parse_cli() -> Dictionary:
@@ -119,6 +139,7 @@ func _env() -> void:
 	env.ambient_light_energy = 0.75
 	env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
 	we.environment = env
+	_env_res = env
 	add_child(we)
 	var sun := DirectionalLight3D.new()
 	sun.basis = Basis.looking_at(Look.LIGHT_DIR.normalized(), Vector3.UP)
@@ -144,8 +165,22 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	_block_mats.clear()
 	_water_mats.clear()
 	world = World25.load_world(file, m)
+	_paysage_cfg = Paysage.config_for(file) if paysage != "aucun" else {}
+	if not _paysage_cfg.is_empty():
+		world.extend_view(Paysage.view_points(_paysage_cfg))
+		for e in world.elements:
+			if e["type"] in ["water", "bank"]:          # la rivière se jette dans le lac en contrebas, sort d'une gorge
+				var er: Rect2 = e["rect"]
+				e["rect"] = Rect2(er.position.x, -40.0, er.size.x, 65.0)
 	for e in world.elements:
+		if not _paysage_cfg.is_empty() and e["type"] == "floor" and e["role"] == "decor":
+			_decor_collider_only(e)                   # plaque verte remplacée par le relief (collision de bord gardée)
+			continue
 		_build(e)
+	var pb = Paysage.new()
+	pb.build(root, _paysage_cfg, world, paysage)
+	_paysage_stats = pb.stats
+	Paysage.apply_fog(_env_res, _paysage_cfg, world, paysage)
 	if not world.npc.is_empty():
 		var n: Dictionary = world.npc
 		var a := _make_actor("pnj", n["sprite"])
@@ -157,6 +192,202 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	s.set_world(world, arrive)
 	teleport(s.hero, s.companion)
 	apply_options()
+
+
+func _decor_collider_only(e: Dictionary) -> void:
+	var r: Rect2 = e["rect"]
+	var sb := _static_box(_rect_center(r, e["h"] - 0.32, e["h"] - 0.02), Vector3(r.size.x, 0.3, r.size.y), L_NOWALK)
+	sb.set_meta("plaque", true)
+
+
+# ------------------------------------------------------------------------------------------------ mesures (P3-07 §06)
+## Mesures au point courant (héros posé, caméra stabilisée), enregistrées dans les mesures du parcours.
+func analyse(id: String) -> void:
+	var v: Rect2 = s.cam.view_rect()
+	var hs := World25.screen(s.hero)
+	var ppm_y := sin(World25.pitch) * World25.PPM
+	var a := {
+		"hauteur_heros_pct": snappedf((hs.y - v.position.y) / v.size.y * 100.0, 0.1),
+		"sol_visible_devant_m": snappedf((hs.y - v.position.y) / ppm_y, 0.1),   # vers le haut de l'écran
+		"sol_visible_derriere_m": snappedf((v.end.y - hs.y) / ppm_y, 0.1),
+		"largeur_visible_m": snappedf(v.size.x / World25.PPM, 0.1),
+		"tiers_superieur": _classify_top_third(),
+		"marches_visibles": _visible_steps(),
+	}
+	if _hidden_ground.is_empty():
+		_hidden_ground = _ground_hidden()
+	s.m["analyses"] = s.m.get("analyses", {})
+	s.m["analyses"][id] = a
+	s.m["sol_praticable_masque"] = _hidden_ground
+
+
+func _ray(from: Vector3, to: Vector3, mask: int) -> Dictionary:
+	var space := get_world_3d().direct_space_state
+	var ex: Array = []
+	for i in 4:
+		var pr := PhysicsRayQueryParameters3D.create(from, to, mask, ex)
+		var hit := space.intersect_ray(pr)
+		if hit.is_empty() or not (hit["collider"] as Object).has_meta("plaque"):
+			return hit
+		ex.append(hit["rid"])
+	return {}
+
+
+## Tiers supérieur de l'écran (1280 × 720) : part de paysage non jouable, d'eau/berges, d'aire de jeu et de vide.
+func _classify_top_third() -> Dictionary:
+	var c := {"paysage": 0, "eau_berges": 0, "aire_de_jeu": 0, "vide": 0}
+	var n := 0
+	var vp: Vector2 = Session25.viewport_size(self)
+	for j in 10:
+		for i in 40:
+			var px := Vector2((i + 0.5) / 40.0 * vp.x, (j + 0.5) / 10.0 * vp.y / 3.0)
+			var o := cam.project_ray_origin(px)
+			var d := cam.project_ray_normal(px)
+			var hit := _ray(o, o + d * 400.0, L_FLOOR | L_OBST | L_NOWALK | L_OCC | Paysage.L_FOND)
+			n += 1
+			if hit.is_empty():
+				c["vide"] += 1
+			else:
+				var lay: int = (hit["collider"] as CollisionObject3D).collision_layer
+				if lay & Paysage.L_FOND:
+					c["paysage"] += 1
+				elif lay & L_NOWALK:
+					c["eau_berges"] += 1
+				else:
+					c["aire_de_jeu"] += 1
+	for k in c:
+		c[k] = snappedf(100.0 * c[k] / n, 0.1)
+	return c
+
+
+## Marches dont le dessus est à l'écran et non caché (sur 8).
+func _visible_steps() -> int:
+	var e := {}
+	for el in world.elements:
+		if el["type"] == "stairs":
+			e = el
+	if e.is_empty():
+		return -1
+	var r: Rect2 = e["rect"]
+	var yb: float = r.end.y - e["land_bottom"]
+	var yt: float = r.position.y + e["land_top"]
+	var n: int = e["risers"]
+	var tread := (yb - yt) / n
+	var view: Rect2 = s.cam.view_rect()
+	var count := 0
+	for i in n:
+		var p := Vector3(r.get_center().x, yb - tread * (i + 0.5), e["h0"] + (e["h1"] - e["h0"]) / n * (i + 1) + 0.02)
+		if not view.has_point(World25.screen(p)):
+			continue
+		var g := World25.g3(p)
+		if _ray(g, g + World25.cam_back() * 80.0, L_OBST | L_OCC | Paysage.L_FOND).is_empty():
+			count += 1
+	return count
+
+
+## Part du sol praticable cachée par le décor (grille de 0,5 m, rayon vers la caméra) — dépend de la plongée.
+func _ground_hidden() -> Dictionary:
+	var tot := 0
+	var hid := 0
+	var by := {}
+	for reg in world.regions:
+		var r: Rect2 = reg["rect"]
+		var x := r.position.x + 0.25
+		while x < r.end.x:
+			var y := r.position.y + 0.25
+			while y < r.end.y:
+				var q := Vector2(x, y)
+				var sf: Dictionary = world.surface_at(q, world.region_h(reg, q))
+				if not sf.is_empty() and sf["id"] == reg["id"]:
+					tot += 1
+					var g := World25.g3(Vector3(x, y, sf["h"] + 0.05))
+					var hh := _ray(g, g + World25.cam_back() * 80.0, L_FLOOR | L_OBST | L_OCC | Paysage.L_FOND)
+					if not hh.is_empty():
+						hid += 1
+						var key := "%s<-%s" % [reg["id"], _body_name(hh["collider"])]
+						by[key] = by.get(key, 0) + 1
+				y += 0.5
+			x += 0.5
+	return {"cellules": tot, "masquees": hid, "pct": snappedf(100.0 * hid / maxi(1, tot), 0.1), "par_cause": by}
+
+
+func _body_name(o: Object) -> String:
+	var lay: int = (o as CollisionObject3D).collision_layer
+	if lay & Paysage.L_FOND:
+		return "paysage"
+	if lay & L_OCC:
+		return "feuillage/toit"
+	if lay & L_OBST:
+		return "obstacle/mur"
+	return "sol/terrasse"
+
+
+# ------------------------------------------------------------------------------------------------ variantes (P3-07)
+func _apply_variante() -> void:
+	if variante == "":
+		World25.pitch = World25.PITCH
+		s.cam.aim_frac = 0.0
+		return
+	var v: Dictionary = Variantes.get_v(variante)
+	World25.pitch = deg_to_rad(v["pitch_deg"])
+	s.cam.aim_frac = v["aim_frac"]
+	s.arch = "Variante " + v["label"] + " · paysage " + paysage
+
+
+## Visuel d'ensemble (doc 07 §07) : vue de dessus du paysage non jouable, des zones praticables (calque F2) et des
+## limites de caméra de l'instance (rectangle écran ramené au sol, aux trois zooms : jaune = zone parcourue par le
+## centre du cadre ; blanc = tout ce que le cadre peut montrer à ×2).
+func _top_view() -> void:
+	s.options["layers"] = true
+	s.options["debug"] = false
+	_env_res.fog_enabled = false                   # la brume dépend de la visée : sans objet en vue de dessus
+	apply_options()
+	set_physics_process(false)
+	var im := ImmediateMesh.new()
+	var lines := MeshInstance3D.new()
+	lines.mesh = im
+	var lm := StandardMaterial3D.new()
+	lm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	lm.vertex_color_use_as_albedo = true
+	lm.no_depth_test = true
+	lines.material_override = lm
+	root.add_child(lines)
+	var b: Rect2 = s.cam.bounds
+	for z in [[2.0, Color(1, 1, 1)], [3.0, Color(1, 0.85, 0.2)]]:
+		var half: Vector2 = Vector2(1280, 720) / z[0] / 2.0
+		var r := b if z[0] == 2.0 else b.grow_individual(-half.x, -half.y, -half.x, -half.y)
+		im.surface_begin(Mesh.PRIMITIVE_LINE_STRIP)
+		for c in [r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y), r.position]:
+			var q := World25.screen_to_plan(c, 0.0)
+			im.surface_set_color(z[1])
+			im.surface_add_vertex(Vector3(q.x, 0.4, q.y))
+		im.surface_end()
+	var t: Dictionary = _paysage_cfg.get("terrain", {"rect": [world.decor.position.x, world.decor.position.y, world.decor.end.x, world.decor.end.y]})
+	var q: Array = t["rect"]
+	cam.basis = Basis(Vector3.RIGHT, -PI / 2.0)
+	cam.size = maxf(q[3] - q[1], (q[2] - q[0]) * 720.0 / 1280.0) * 0.82
+	cam.position = Vector3((q[0] + q[2]) / 2.0, 150.0, (q[1] + q[3]) / 2.0 - 6.0)
+	cam.far = 400.0
+	for i in 8:
+		await get_tree().process_frame
+	capture("vue_dessus")
+	get_tree().quit()
+
+
+func _cam_basis() -> void:
+	cam.transform.basis = Basis(World25.cam_right(), World25.cam_up(), World25.cam_back())
+
+
+## Changement de variante ou de paysage en jeu : même position, même zoom, instance reconstruite.
+func _reload_here() -> void:
+	var here: Vector3 = s.hero
+	var file: String = world.path
+	var m: String = world.mode
+	_apply_variante()
+	_cam_basis()
+	_load(file, m, here)
+	for k in actors:
+		_sync_sprite(actors[k])
 
 
 func _mat(role: String, c := Color(-1, 0, 0)) -> ShaderMaterial:
@@ -503,7 +734,7 @@ func _make_actor(name: String, key: String) -> Dictionary:
 	spr.sprite_frames = a.frames
 	spr.centered = false
 	spr.pixel_size = 1.0 / World25.PPM
-	spr.scale = Vector3(1, 1.0 / cos(World25.PITCH), 1)     # hauteur à l'écran = hauteur de l'image en px natifs
+	spr.scale = Vector3(1, 1.0 / cos(World25.pitch), 1)     # hauteur à l'écran = hauteur de l'image en px natifs
 	# sprites en passe transparente, SANS écriture de profondeur : le décor les cache (test de profondeur), mais un
 	# personnage ne « cache » jamais un autre personnage pour la silhouette (sinon elle s'affiche sur le compagnon)
 	spr.alpha_cut = SpriteBase3D.ALPHA_CUT_DISABLED
@@ -549,12 +780,13 @@ func _sync_sprite(d: Dictionary) -> void:
 	var w := tex.get_width()
 	var h := tex.get_height()
 	spr.offset = Vector2(-int(w / 2), 0)
+	spr.scale = Vector3(1, 1.0 / cos(World25.pitch), 1)
 	var gm: ShaderMaterial = d["ghost_mat"]
 	gm.set_shader_parameter("tex", tex)
 	gm.set_shader_parameter("flip", 1.0 if a.flip else 0.0)
 	var qm: QuadMesh = d["quad"]
 	var sw := w / World25.PPM
-	var sh := h / World25.PPM / cos(World25.PITCH)
+	var sh := h / World25.PPM / cos(World25.pitch)
 	qm.size = Vector2(sw, sh)
 	(d["ghost"] as MeshInstance3D).position = Vector3((float(-int(w / 2)) + w / 2.0) / World25.PPM, sh / 2.0, 0.001)
 
@@ -734,8 +966,21 @@ func apply_options() -> void:
 
 # ------------------------------------------------------------------------------------------------ boucle
 func _unhandled_input(e: InputEvent) -> void:
-	if not _switching:
-		s.handle_input(e)
+	if _switching:
+		return
+	if e is InputEventKey and e.pressed and not e.echo and variante != "":
+		if e.physical_keycode == KEY_V:
+			variante = Variantes.next_of(variante)
+			_reload_here()
+			s.toast("Variante " + Variantes.get_v(variante)["label"], 2.0)
+			return
+		if e.physical_keycode == KEY_L:
+			paysage = Paysage.TRAITEMENTS[(Paysage.TRAITEMENTS.find(paysage) + 1) % Paysage.TRAITEMENTS.size()]
+			_apply_variante()
+			_reload_here()
+			s.toast("Paysage : " + {"3d": "3D simplifiée + brume", "2d": "plans 2D", "aucun": "aucun (P3)"}[paysage], 2.0)
+			return
+	s.handle_input(e)
 
 
 func _physics_process(delta: float) -> void:
@@ -757,6 +1002,8 @@ func _process(delta: float) -> void:
 	var ht := body.get_global_transform_interpolated().origin
 	var hs: Vector2 = World25.screen(Vector3(ht.x, ht.z, ht.y)) * s.cam.zoom - cs
 	_render_measure(cs, hs, delta)
+	if s.m.get("frames", 0) > 0 and s._skip_measure == 0:
+		_frame_ms.append(delta * 1000.0)
 
 
 func _render_measure(cs: Vector2, hs: Vector2, delta: float) -> void:
@@ -794,15 +1041,30 @@ func capture(id: String) -> void:
 	var out: String = _cli.get("out", "user://p3_captures")
 	DirAccess.make_dir_recursive_absolute(out)
 	var img := get_viewport().get_texture().get_image()
-	img.save_png(out.path_join("B_%s.png" % id))
+	img.save_png(out.path_join("%s_%s.png" % [_prefix(), id]))
+
+
+func _prefix() -> String:
+	return "B" if variante == "" else "V%s_%s" % [variante, paysage]
 
 
 func _finish() -> void:
 	_quit_when_done = false
 	var out: String = _cli.get("out", "user://p3_captures")
 	DirAccess.make_dir_recursive_absolute(out)
-	var f := FileAccess.open(out.path_join("B_%s_mesures.json" % s.pilot_name), FileAccess.WRITE)
+	var f := FileAccess.open(out.path_join("%s_%s_mesures.json" % [_prefix(), s.pilot_name]), FileAccess.WRITE)
 	var sm: Dictionary = s.summary()
+	sm["variante"] = variante
+	sm["paysage"] = paysage
+	sm["plongee_deg"] = snappedf(rad_to_deg(World25.pitch), 0.01)
+	sm["paysage_volumes"] = _paysage_stats
+	if _frame_ms.size() > 0:
+		var fm := _frame_ms.duplicate()
+		fm.sort()
+		var tot := 0.0
+		for x in fm:
+			tot += x
+		sm["frametime_ms"] = {"moyen": snappedf(tot / fm.size(), 0.01), "p95": snappedf(fm[int(fm.size() * 0.95)], 0.01), "max": snappedf(fm[-1], 0.01), "images": fm.size()}
 	sm["renderer"] = RenderingServer.get_current_rendering_method()
 	sm["fps_cap"] = Engine.max_fps
 	f.store_string(JSON.stringify(sm, "  "))

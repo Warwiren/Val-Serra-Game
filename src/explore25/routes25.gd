@@ -64,6 +64,32 @@ static func route(name: String) -> Array:
 				{"do": "wheel", "n": 1},                     # ×2,5
 				{"do": "wait", "t": 0.8},
 			]
+		"video":
+			# P3-07 : marche continue pour les vidéos A/B/C (arbre, escalier, terrasse, derrière la maison, pont, sortie,
+			# arrivée dans l'instance fictive), zooms ×3, ×2 et ×2,5 visibles
+			return [
+				{"do": "wait", "t": 0.6},
+				_go(13, 14, "B place"),
+				_go(9.4, 16.6, "près de l'arbre"),
+				_go(14, 11.25, "pied de l'escalier", 0.25),
+				{"do": "wheel", "n": 1},
+				_go(14, 7.6, "haut de l'escalier", 0.25),
+				_go(15.4, 4.6, "ouest de la maison"),
+				_go(15.4, 2.5, "derrière la maison (entrée)", 0.3),
+				_go(19.6, 2.5, "derrière la maison (sortie)", 0.3),
+				{"do": "wheel", "n": -1}, {"do": "wait", "t": 0.4}, {"do": "wheel", "n": -1},
+				_go(15.4, 2.5, "derrière la maison (retour)", 0.3),
+				_go(14.6, 6.0, "terrasse"),
+				_go(14, 7.7, "haut de l'escalier (retour)", 0.25),
+				_go(14, 11.3, "pied de l'escalier (retour)", 0.25),
+				{"do": "wheel", "n": 1},
+				_go(20.0, 13.75, "entrée du pont"),
+				_go(28.5, 13.75, "rive est"),
+				{"do": "go", "to": Vector2(30.8, 13.75), "tol": 0.3, "id": "sortie", "exit": true},
+				{"do": "wait", "t": 1.0},
+				_go(6.0, 4.4, "instance fictive"),
+				{"do": "wait", "t": 0.8},
+			]
 		"micro":
 			# micro-test commun A/B : deux surfaces, un escalier, un occultant (doc 05 §06)
 			return [
@@ -128,9 +154,19 @@ static func route(name: String) -> Array:
 
 ## Cinq points de vue comparables (doc 05 §07, doc 06 §07) — et un sixième pour l'occultation.
 static func capture_points(mode: String) -> Array:
+	if mode == "instance":
+		return [["i1_arrivee", 1.8, 4.5, 0.0], ["i2_centre", 6.0, 4.5, 0.0], ["i3_coin_nord_est", 10.4, 1.6, 0.0],
+			["i4_coin_sud_ouest", 1.6, 7.4, 0.0]]
 	if mode == "micro":
 		return [["1_entree", 2.6, 14, 0.0], ["2_place", 13, 14, 0.0], ["3_escalier", 14, 9.6, 0.0],
 			["4_terrasse", 12.5, 5.6, 1.2], ["5_derriere_arbre", 6.6, 15.3, 0.0]]
 	return [["1_entree_A", 2.6, 14, 0.0], ["2_place_B", 13, 14, 0.0], ["3_escalier", 14, 9.6, 0.0],
 		["4_PNJ_E", 11.9, 5.6, 1.2], ["5_pont_F", 23.5, 13.75, 0.0], ["6_derriere_arbre", 6.6, 15.3, 0.0],
 		["7_derriere_maison", 18.0, 2.5, 1.2], ["8_sortie_G", 29.6, 13.75, 0.0]]
+
+
+## P3-07 (doc 07 §05) : six points d'observation de la scène témoin, identiques pour A, B et C.
+static func obs_points() -> Array:
+	return [["1_arbre", 8.6, 18.6, 0.0], ["2_pied_escalier", 14.0, 11.3, 0.0], ["3_haut_escalier", 14.0, 7.6, 1.2],
+		["4_derriere_maison", 18.0, 2.5, 1.2], ["5_entree_pont", 20.2, 13.75, 0.0], ["6_sortie", 29.6, 13.75, 0.0]]
+

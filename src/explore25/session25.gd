@@ -172,6 +172,8 @@ func build_hud() -> void:
 
 
 func toast(t: String, d := 1.6) -> void:
+	if not options["debug"] and pilot.size() > 0:
+		return                                      # captures « propres » (--nodebug) : pas de bandeau
 	_toast.text = t
 	_toast_t = d
 
@@ -403,6 +405,17 @@ func start_pilot(name: String) -> void:
 				pilot.append({"do": "wait", "t": 1.2})
 				pilot.append({"do": "snap", "id": "%s_x%s" % [c[0], ["2", "2-5", "3"][zi]]})
 		pilot.append({"do": "zoom", "i": 1, "smooth": false})
+	if name in ["obs6", "obs6_zooms"]:
+		# doc 07 §05 : six points d'observation identiques ; ×2,5 seul (comparaison A/B/C) ou les trois zooms
+		pilot = []
+		for c in Routes.obs_points():
+			pilot.append({"do": "warp", "to": Vector3(c[1], c[2], c[3])})
+			for zi in ([1] if name == "obs6" else [0, 1, 2]):
+				pilot.append({"do": "zoom", "i": zi, "smooth": false})
+				pilot.append({"do": "wait", "t": 1.3})
+				pilot.append({"do": "snap", "id": "%s_x%s" % [c[0], ["2", "2-5", "3"][zi]]})
+				pilot.append({"do": "analyse", "id": "%s_x%s" % [c[0], ["2", "2-5", "3"][zi]]})
+		pilot.append({"do": "zoom", "i": 1, "smooth": false})
 	pilot_name = name
 	pilot_i = 0
 	pilot_t = 0.0
@@ -480,6 +493,10 @@ func _pilot_dir(delta: float) -> Vector2:
 				_next_step(true)
 		"snap":
 			host.capture(s["id"])
+			_next_step(true)
+		"analyse":
+			if host.has_method("analyse"):
+				host.analyse(s["id"])
 			_next_step(true)
 		"zoom":
 			cam.set_index(s["i"], s.get("smooth", false))

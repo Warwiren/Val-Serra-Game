@@ -1,0 +1,96 @@
+{
+  "version": "p3-07-v01",
+  "statut": "BLOCKOUT DE PAYSAGE NON JOUABLE (doc 07 §04) : volumes et silhouettes temporaires pour juger le cadrage. Aucun asset définitif. Rien ici n'est praticable ni ne change les collisions du jeu.",
+  "instances": {
+    "gabarits_blockout_v01.json": {
+      "nom": "scène témoin — lisière d'un quartier en terrasses",
+      "terrain": {
+        "rect": [-56, -64, 90, 66], "pas_m": 1.0, "protection_m": 0.35,
+        "reliefs": [
+          {"type": "plateau", "rect": [3, -9, 21.4, 1.6], "h": 3.2, "motif": "1er gradin du quartier, au niveau du haut du mur de soutènement"},
+          {"type": "plateau", "rect": [1, -19, 20.6, -9], "h": 6.6},
+          {"type": "plateau", "rect": [-2, -30, 20.6, -19], "h": 10.0},
+          {"type": "colline", "c": [-14, -6], "r": 18, "h": 7.0},
+          {"type": "colline", "c": [-20, 18], "r": 16, "h": 4.5},
+          {"type": "colline", "c": [44, -4], "r": 20, "h": 8.0},
+          {"type": "colline", "c": [52, 22], "r": 18, "h": 5.0},
+          {"type": "colline", "c": [34, -26], "r": 22, "h": 12.0},
+          {"type": "pente", "axe": "y", "de": 23.5, "a": 44, "h0": 0.0, "h1": -3.0, "x": [-56, 21]},
+          {"type": "pente", "axe": "y", "de": 21, "a": 44, "h0": 0.0, "h1": -3.0, "x": [26, 90]}
+        ],
+        "creux": [
+          {"rect": [21.0, -64, 26.0, 66], "h": -0.75, "motif": "lit de la rivière prolongé : gorge au nord, vers le lac au sud"},
+          {"rect": [8, 30, 46, 66], "h": -3.4, "motif": "lac en contrebas, vers la caméra"}
+        ],
+        "chemins": [
+          {"rect": [-56, 12.6, 1.0, 15.4], "motif": "route vers l'ouest, au-delà de la porte d'entrée"},
+          {"rect": [31.0, 12.6, 90, 15.4], "motif": "route vers l'est, au-delà de la sortie"}
+        ]
+      },
+      "lacs": [{"rect": [8, 26, 46, 66], "h": -2.6}],
+      "quartiers": [
+        {"rect": [3.5, -8.5, 21.0, 0.8], "h0": 3.2, "haut": [3.5, 6.0], "rangs": 2, "graine": 3},
+        {"rect": [1.5, -18.5, 20.4, -9.6], "h0": 6.6, "haut": [4.0, 7.5], "rangs": 2, "graine": 7},
+        {"rect": [-1.5, -29.5, 20.4, -19.6], "h0": 10.0, "haut": [5.0, 10.0], "rangs": 2, "graine": 11, "tour": [12, -24, 3.2, 16]}
+      ],
+      "forets": [
+        {"rect": [-50, -40, -1.5, 11.5], "densite": 0.09, "taille": [3.0, 6.0], "graine": 21},
+        {"rect": [-50, 16.5, -1.5, 30], "densite": 0.07, "taille": [2.5, 5.0], "graine": 22},
+        {"rect": [32.5, -40, 80, 11.5], "densite": 0.08, "taille": [3.0, 6.5], "graine": 23},
+        {"rect": [32.5, 21, 80, 34], "densite": 0.05, "taille": [2.5, 5.0], "graine": 24},
+        {"rect": [21.5, -60, 60, -32], "densite": 0.06, "taille": [3.5, 7.0], "graine": 25}
+      ],
+      "montagnes": [
+        {"c": [-10, -58], "r": 26, "h": 30}, {"c": [26, -62], "r": 30, "h": 40}, {"c": [62, -52], "r": 24, "h": 28}
+      ],
+      "cartes": [
+        {"type": "ville", "a": [3, -2.5], "b": [21, -2.5], "h0": 3.2, "haut": 7.0, "graine": 3, "teinte": 0.15},
+        {"type": "ville", "a": [1, -13], "b": [20.5, -13], "h0": 6.6, "haut": 9.0, "graine": 7, "teinte": 0.3},
+        {"type": "ville", "a": [-1, -24], "b": [20.5, -24], "h0": 10.0, "haut": 13.0, "graine": 11, "teinte": 0.45},
+        {"type": "foret", "a": [-48, 5], "b": [-2, -10], "h0": 0.0, "haut": 9.0, "graine": 21, "teinte": 0.2},
+        {"type": "foret", "a": [33, 2], "b": [78, -12], "h0": 0.0, "haut": 10.0, "graine": 23, "teinte": 0.25},
+        {"type": "foret", "a": [-40, 24], "b": [-2, 24], "h0": -1.5, "haut": 7.0, "graine": 22, "teinte": 0.15},
+        {"type": "montagnes", "a": [-40, -55], "b": [85, -55], "h0": 0.0, "haut": 38.0, "graine": 31, "teinte": 0.65}
+      ],
+      "cadre": [[10, -6, 3.2], [30, -6, 3.2], [2, -6, 3.2], [16, -9, 6.6]],
+      "cadre_motif": "Le cadre peut monter jusqu'au premier gradin du quartier (6 m au nord de la zone) quand le héros est sur la terrasse : le paysage n'est visible que s'il est à portée du cadre (projection orthographique).",
+      "brume": {"debut_apres_jeu_m": 2.0, "longueur_m": 55.0, "couleur": [0.64, 0.70, 0.80], "densite": 0.85}
+    },
+    "instance_2_fictive.json": {
+      "nom": "instance fictive — placette entourée de façades",
+      "terrain": {
+        "rect": [-40, -44, 52, 40], "pas_m": 1.0, "protection_m": 0.35,
+        "reliefs": [
+          {"type": "plateau", "rect": [-4, -10, 16, 0.4], "h": 2.4},
+          {"type": "plateau", "rect": [-8, -22, 20, -10], "h": 5.6},
+          {"type": "colline", "c": [32, -12], "r": 18, "h": 9.0},
+          {"type": "colline", "c": [-24, -8], "r": 16, "h": 7.0},
+          {"type": "pente", "axe": "y", "de": 9.5, "a": 30, "h0": 0.0, "h1": -2.5, "x": [-40, 52]}
+        ],
+        "creux": [],
+        "chemins": [{"rect": [-40, 3.6, 1.0, 5.4], "motif": "rue vers la scène témoin"}]
+      },
+      "lacs": [],
+      "quartiers": [
+        {"rect": [-3.5, -9.5, 15.5, -0.4], "h0": 2.4, "haut": [4.5, 8.0], "rangs": 2, "graine": 41},
+        {"rect": [-7.5, -21.5, 19.5, -10.6], "h0": 5.6, "haut": [5.0, 9.0], "rangs": 2, "graine": 42, "tour": [6, -16, 3.0, 14]},
+        {"rect": [12.0, 0.6, 18.5, 9.0], "h0": 0.0, "haut": [3.5, 6.0], "rangs": 1, "graine": 43},
+        {"rect": [-8.5, -0.2, -0.5, 3.0], "h0": 0.0, "haut": [3.5, 5.5], "rangs": 1, "graine": 44},
+        {"rect": [-8.5, 6.0, -0.5, 9.0], "h0": 0.0, "haut": [3.0, 4.5], "rangs": 1, "graine": 45}
+      ],
+      "forets": [
+        {"rect": [-38, -40, -10, 8], "densite": 0.07, "taille": [3.0, 6.0], "graine": 46},
+        {"rect": [21, -40, 50, 10], "densite": 0.07, "taille": [3.0, 6.0], "graine": 47}
+      ],
+      "montagnes": [{"c": [6, -40], "r": 22, "h": 26}],
+      "cartes": [
+        {"type": "ville", "a": [-4, -4], "b": [16, -4], "h0": 2.4, "haut": 8.0, "graine": 41, "teinte": 0.15},
+        {"type": "ville", "a": [-8, -16], "b": [20, -16], "h0": 5.6, "haut": 10.0, "graine": 42, "teinte": 0.35},
+        {"type": "montagnes", "a": [-30, -38], "b": [44, -38], "h0": 0.0, "haut": 26.0, "graine": 48, "teinte": 0.65}
+      ],
+      "cadre": [[6, -4, 2.4], [0, -4, 2.4], [12, -4, 2.4]],
+      "cadre_motif": "Façades du premier rang au nord de la placette.",
+      "brume": {"debut_apres_jeu_m": 2.0, "longueur_m": 45.0, "couleur": [0.64, 0.70, 0.80], "densite": 0.85}
+    }
+  }
+}

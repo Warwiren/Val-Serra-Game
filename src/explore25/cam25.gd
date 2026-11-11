@@ -12,6 +12,7 @@ const ZOOM_TIME := 0.3
 const SMOOTH := 5.0
 const DEAD := Vector2(18, 10)
 const AIM := Vector2(0, -8)
+const AIM_BLEND := 3.0                    # vitesse de retour au centrage (dialogue) et de reprise du décentrage
 
 var index := DEFAULT_INDEX
 var zoom := 2.5
@@ -23,6 +24,10 @@ var bounds := Rect2()
 var viewport_px := Vector2(1280, 720)
 var snap := false                         # centre arrondi au pixel d'écran : activé avec le filtre « nearest » (évite
 										  # le scintillement des sprites), désactivé en filtrage linéaire (suivi sous-pixel)
+## P3-07, variante C : décentrage vertical en fraction de la hauteur d'écran (0,1 : avec la visée P3, héros vers 63 %).
+## Ramené à 0 pendant un dialogue (doc 07 §03 : « ne pas décentrer aveuglément… lors des dialogues »).
+var aim_frac := 0.0
+var _aim_cur := 0.0
 var ui_lock := false                      # dialogue / menu ouvert : la molette ne change pas le zoom
 var wheel_ignored := 0                    # compteur (vérification : molette bloquée pendant l'UI)
 
@@ -66,9 +71,15 @@ func clamp_center(c: Vector2, z := -1.0) -> Vector2:
 
 
 ## Recentrage immédiat (apparition, changement d'instance, retour de dialogue) : pas de glissade.
+## Visée totale (px natifs) : visée P1 + décentrage de la variante C, converti à l'échelle du zoom courant.
+func aim() -> Vector2:
+	return AIM + Vector2(0, -_aim_cur * viewport_px.y / zoom)
+
+
 func snap_to(target: Vector2) -> void:
 	focus = target
-	center = clamp_center(target + AIM)
+	_aim_cur = 0.0 if ui_lock else aim_frac
+	center = clamp_center(target + aim())
 
 
 ## target = point écran des pieds du personnage (altitude comprise : la caméra monte avec lui dans l'escalier).
@@ -81,7 +92,9 @@ func update(target: Vector2, delta: float) -> void:
 		focus.x = target.x - signf(off.x) * DEAD.x
 	if absf(off.y) > DEAD.y:
 		focus.y = target.y - signf(off.y) * DEAD.y
-	var goal := clamp_center(focus + AIM)
+	var want := 0.0 if ui_lock else aim_frac
+	_aim_cur = move_toward(_aim_cur, want, aim_frac * AIM_BLEND * delta)   # transition en ≈ 0,33 s
+	var goal := clamp_center(focus + aim())
 	center = center.lerp(goal, 1.0 - exp(-SMOOTH * delta))
 	center = clamp_center(center)
 

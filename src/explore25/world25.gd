@@ -9,7 +9,8 @@ extends RefCounted
 ## Sources : gabarits_blockout_v01.json (doc 06, inchangé) + ajustements_p3_v01.json (compléments tracés).
 
 const PPM := 20.0
-const PITCH := 0.6108652381980153        # 35°
+const PITCH := 0.6108652381980153        # 35° (référence ; la plongée courante est `pitch`, réglable par variante P3-07)
+static var pitch := PITCH
 const YAW := 0.3490658503988659          # 20°
 const EPS := 0.002
 const SPEC := "res://data/explore25/gabarits_blockout_v01.json"
@@ -38,6 +39,7 @@ var checkpoints := {}                    # id -> Vector3(x, y, h)
 var spawn := Vector3()
 var max_h := 0.0
 var notes: Array = []                    # ajustements appliqués, pour le rapport et l'overlay
+var view_extra: Array = []               # P3-07 : points (x, y, h) de paysage que le cadre a le droit de montrer
 var rails: Array = []                     # garde-corps (posés après les régions : ils ont besoin de savoir où est le tablier)
 
 
@@ -45,7 +47,7 @@ var rails: Array = []                     # garde-corps (posés après les régi
 static func screen(p: Vector3) -> Vector2:
 	var u := p.x * cos(YAW) + p.y * sin(YAW)
 	var d := -p.x * sin(YAW) + p.y * cos(YAW)
-	return Vector2(u, d * sin(PITCH) - p.z * cos(PITCH)) * PPM
+	return Vector2(u, d * sin(pitch) - p.z * cos(pitch)) * PPM
 
 
 static func depth(x: float, y: float) -> float:
@@ -81,7 +83,7 @@ static func cam_right() -> Vector3:
 
 
 static func cam_back() -> Vector3:
-	return Vector3(-sin(YAW) * cos(PITCH), sin(PITCH), cos(YAW) * cos(PITCH))
+	return Vector3(-sin(YAW) * cos(pitch), sin(pitch), cos(YAW) * cos(pitch))
 
 
 static func cam_up() -> Vector3:
@@ -495,7 +497,16 @@ func camera_bounds(margin_px := 24.0) -> Rect2:
 		for y in [extent.position.y, extent.end.y]:
 			for hh in [0.0, max_h + 1.8]:
 				r = r.expand(screen(Vector3(x, y, hh)))
+	for p in view_extra:
+		r = r.expand(screen(p))
 	return r.grow(margin_px)
+
+
+## P3-07 : élargit les limites de caméra vers un paysage non jouable (sans toucher au praticable) et agrandit le décor
+## en conséquence.
+func extend_view(pts: Array) -> void:
+	view_extra = pts
+	_cover_camera()
 
 
 ## Vérifie qu'un rectangle écran (px natifs) ne montre que du décor : ses 4 coins, ramenés au sol h = 0, sont
@@ -511,5 +522,5 @@ func view_inside_decor(view: Rect2) -> bool:
 ## Inverse de la projection pour une altitude donnée.
 static func screen_to_plan(s: Vector2, h: float) -> Vector2:
 	var u := s.x / PPM
-	var d := (s.y / PPM + h * cos(PITCH)) / sin(PITCH)
+	var d := (s.y / PPM + h * cos(pitch)) / sin(pitch)
 	return Vector2(u * cos(YAW) - d * sin(YAW), u * sin(YAW) + d * cos(YAW))
