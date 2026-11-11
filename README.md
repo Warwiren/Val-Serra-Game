@@ -27,18 +27,26 @@ Une boucle complète dans l'**avant-poste de la lisière**, au crépuscule :
 
 Vidéo de démonstration : [`docs/media/decor_final/demo_zone_definitive.mp4`](docs/media/decor_final/demo_zone_definitive.mp4)
 
-## Lancer le jeu (Godot 4.5 à 4.7)
+## Lancer le jeu (Godot 4.7.2 obligatoire)
 
-1. Télécharger le projet (GitHub : choisir la branche **`p2-environnements`**, puis **Code → Download ZIP** ; le dossier
-   s'appelle `Val-Serra-Game-p2-environnements`) et le décompresser.
-2. Récupérer **Godot 4.5 ou plus récent** (édition standard, pas « .NET ») : <https://godotengine.org/download>.
+> **Version du moteur : Godot 4.7.2, et elle seule**, pour ouvrir, tester et valider le projet (décision du
+> 7 novembre 2026). Les mentions de Godot 4.5 dans d'anciens comptes rendus décrivent des travaux passés. La ligne
+> `config/features=PackedStringArray("4.5")` de `project.godot` est un reliquat historique, laissé tel quel
+> volontairement : le projet s'importe et passe tous ses tests sous 4.7.2 (voir `docs/P3_VALIDATION_CAMERA.md`).
+
+1. Télécharger le projet (GitHub : choisir la branche **`p3-validation-camera`**, puis **Code → Download ZIP** ; le
+   dossier s'appelle `Val-Serra-Game-p3-validation-camera`) et le décompresser. La branche précédente,
+   `p3-camera-profondeur`, reste disponible telle quelle.
+2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier**. La première ouverture réimporte
    les images (quelques secondes).
-4. **F5** : la dernière version, sans aucun réglage : la **carte d'exploration v2**
+4. **F5** lance l'**exploration stable** : la carte d'exploration v2
    (`scenes/explore_hd2d/zone_exploration.tscn`, voir `docs/EXPLORATION_V2.md`), avec l'habitation et la remise du
-   lot A de P2 (`docs/P2_LOT_A_INTEGRATION.md`), caméra A par défaut (touches
-   1 / 2 / 3 ou C pour comparer B et C). L'avant-poste d'origine s'ouvre avec `scenes/explore_hd2d/zone_hd2d.tscn`
-   puis **F6**.
+   lot A de P2 (`docs/P2_LOT_A_INTEGRATION.md`), caméra A par défaut (touches 1 / 2 / 3 ou C pour comparer B et C).
+   **F5 ne change pas sans l'accord explicite du créateur.**
+5. Les **scènes expérimentales** (prototype 2.5D P3, variantes de caméra, futur pilote artistique P4) s'ouvrent dans
+   l'éditeur puis **F6** — voir le tableau « Autres scènes ». Pour valider la caméra : ouvrir
+   `scenes/explore25/camera_variante_C.tscn`, **F6**, et suivre `docs/PROTOCOLE_VALIDATION_CAMERA_GPU.md`.
 
 ### Commandes
 
@@ -91,7 +99,7 @@ godot --path . -- --start=hd2d-zone --course=pnj
 godot --path . --script res://tests/perf_probe.gd
 ```
 
-Dans l'ordre : tests automatiques (61), retour de combat (victoire et défaite), démo complète (zone, dialogue,
+Dans l'ordre : tests automatiques (90 sous Godot 4.7.2), retour de combat (victoire et défaite), démo complète (zone, dialogue,
 combat, retour), parcours de locomotion au clavier, approches du garde, mesures de performances.
 Dans l'éditeur, les tests se lancent aussi avec `tests/test_runner.tscn` puis **F6**.
 
@@ -113,6 +121,8 @@ Dans l'éditeur, les tests se lancent aussi avec `tests/test_runner.tscn` puis *
 
 | Document | Contenu |
 |---|---|
+| `docs/P3_VALIDATION_CAMERA.md` | **Validation caméra A / C** : audit de reprise, vérifications sous Godot 4.7.2, mesures de cadrage et d'occultation, rapport avant verrouillage (branche `p3-validation-camera`, F5 inchangé) |
+| `docs/PROTOCOLE_VALIDATION_CAMERA_GPU.md` | Protocole de test manuel et de mesure GPU sur PC Windows (`tools/perf/mesure_gpu.bat`) |
 | `docs/P3_CAMERA_PROFONDEUR.md` | **P3-07** : comparatif caméra A/B/C, paysage non jouable, mesures, recommandation (branche `p3-camera-profondeur`, F5 inchangé) |
 | `docs/P3_PROTOTYPE_25D.md` | **P3** : prototype d'exploration HD-2D / 2.5D sous Godot 4.7.2 — audit, démonstrations A et B, scène témoin, tests, recommandation (branche `p3-prototype-25d`, F5 inchangé) |
 | `docs/P2_LOT_A_INTEGRATION.md` | **P2, lot A** : habitation et remise validées intégrées à la carte V2 (F5), gabarits adaptés, vérifications |

@@ -1045,7 +1045,8 @@ func capture(id: String) -> void:
 
 
 func _prefix() -> String:
-	return "B" if variante == "" else "V%s_%s" % [variante, paysage]
+	var tag: String = ("_" + str(_cli["tag"])) if _cli.has("tag") else ""
+	return ("B" if variante == "" else "V%s_%s" % [variante, paysage]) + tag
 
 
 func _finish() -> void:
@@ -1066,6 +1067,17 @@ func _finish() -> void:
 			tot += x
 		sm["frametime_ms"] = {"moyen": snappedf(tot / fm.size(), 0.01), "p95": snappedf(fm[int(fm.size() * 0.95)], 0.01), "max": snappedf(fm[-1], 0.01), "images": fm.size()}
 	sm["renderer"] = RenderingServer.get_current_rendering_method()
+	# protocole de mesure sur PC (docs/PROTOCOLE_VALIDATION_CAMERA_GPU.md) : matériel et conditions de la mesure
+	sm["machine"] = {"carte_graphique": RenderingServer.get_video_adapter_name(), "fabricant": RenderingServer.get_video_adapter_vendor(),
+		"pilote": OS.get_video_adapter_driver_info(), "api": RenderingServer.get_video_adapter_api_version(),
+		"pilote_rendu": RenderingServer.get_current_rendering_driver_name(), "systeme": OS.get_distribution_name() + " " + OS.get_version(),
+		"processeur": OS.get_processor_name(), "godot": Engine.get_version_info()["string"],
+		"fenetre": [get_window().size.x, get_window().size.y], "vsync": DisplayServer.window_get_vsync_mode(),
+		"ecran_hz": 0.0}
+	var hz := DisplayServer.screen_get_refresh_rate()
+	if not is_nan(hz) and hz > 0.0:
+		sm["machine"]["ecran_hz"] = snappedf(hz, 0.1)
+	sm["zoom_depart"] = _cli.get("zoom", "1")
 	sm["fps_cap"] = Engine.max_fps
 	f.store_string(JSON.stringify(sm, "  "))
 	f.close()

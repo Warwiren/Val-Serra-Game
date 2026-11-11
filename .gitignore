@@ -4,3 +4,4 @@
 *.tmp
 export/
 build/
+mesures_gpu/

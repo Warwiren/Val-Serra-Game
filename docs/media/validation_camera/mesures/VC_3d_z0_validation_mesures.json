@@ -1,0 +1,656 @@
+{
+  "arch": "Variante C — 35°, héros vers 63 % de la hauteur · paysage 3d",
+  "blocked_frames": 73,
+  "cadrage": {
+    "heros_pres_du_bord": 0,
+    "heros_y_max_pct": 73.5,
+    "heros_y_min_pct": 49.5,
+    "heros_y_moyen_pct": 61.4,
+    "images": 3780,
+    "images_marche": 3467,
+    "par_direction": {
+      "bas": {
+        "anticipation_px_min": 191.0,
+        "anticipation_px_moy": 246.0,
+        "anticipation_s_min": 1.78,
+        "anticipation_s_moy": 2.85,
+        "images": 404
+      },
+      "bas-droite": {
+        "anticipation_px_min": 254.0,
+        "anticipation_px_moy": 452.0,
+        "anticipation_s_min": 1.98,
+        "anticipation_s_moy": 4.88,
+        "images": 258
+      },
+      "bas-gauche": {
+        "anticipation_px_min": 259.0,
+        "anticipation_px_moy": 542.0,
+        "anticipation_s_min": 2.92,
+        "anticipation_s_moy": 4.61,
+        "images": 340
+      },
+      "droite": {
+        "anticipation_px_min": 257.0,
+        "anticipation_px_moy": 603.0,
+        "anticipation_s_min": 1.79,
+        "anticipation_s_moy": 4.27,
+        "images": 763
+      },
+      "gauche": {
+        "anticipation_px_min": 502.0,
+        "anticipation_px_moy": 671.0,
+        "anticipation_s_min": 3.49,
+        "anticipation_s_moy": 4.69,
+        "images": 487
+      },
+      "haut": {
+        "anticipation_px_min": 361.0,
+        "anticipation_px_moy": 429.0,
+        "anticipation_s_min": 3.3,
+        "anticipation_s_moy": 4.97,
+        "images": 353
+      },
+      "haut-droite": {
+        "anticipation_px_min": 299.0,
+        "anticipation_px_moy": 669.0,
+        "anticipation_s_min": 2.55,
+        "anticipation_s_moy": 5.8,
+        "images": 576
+      },
+      "haut-gauche": {
+        "anticipation_px_min": 443.0,
+        "anticipation_px_moy": 665.0,
+        "anticipation_s_min": 3.49,
+        "anticipation_s_moy": 5.97,
+        "images": 286
+      }
+    },
+    "par_troncon": {
+      "8 directions": {
+        "anticipation_px_min": 236.0,
+        "anticipation_px_moy": 586.0,
+        "anticipation_s_min": 2.86,
+        "anticipation_s_moy": 5.24,
+        "images": 1053
+      },
+      "arbre": {
+        "anticipation_px_min": 228.0,
+        "anticipation_px_moy": 469.0,
+        "anticipation_s_min": 2.76,
+        "anticipation_s_moy": 4.24,
+        "images": 312
+      },
+      "escalier": {
+        "anticipation_px_min": 236.0,
+        "anticipation_px_moy": 449.0,
+        "anticipation_s_min": 1.89,
+        "anticipation_s_moy": 4.16,
+        "images": 275
+      },
+      "instance": {
+        "anticipation_px_min": 191.0,
+        "anticipation_px_moy": 568.0,
+        "anticipation_s_min": 1.79,
+        "anticipation_s_moy": 4.64,
+        "images": 674
+      },
+      "maison": {
+        "anticipation_px_min": 236.0,
+        "anticipation_px_moy": 494.0,
+        "anticipation_s_min": 1.78,
+        "anticipation_s_moy": 4.39,
+        "images": 447
+      },
+      "pont": {
+        "anticipation_px_min": 337.0,
+        "anticipation_px_moy": 586.0,
+        "anticipation_s_min": 2.34,
+        "anticipation_s_moy": 4.53,
+        "images": 670
+      },
+      "retour": {
+        "anticipation_px_min": 529.0,
+        "anticipation_px_moy": 849.0,
+        "anticipation_s_min": 4.51,
+        "anticipation_s_moy": 6.19,
+        "images": 36
+      }
+    }
+  },
+  "cam_acc_max": 1776.0,
+  "cam_jerks": 0,
+  "comp_off": 0,
+  "dh_max": 0.031,
+  "done": true,
+  "draw_calls_max": 0,
+  "dt_max": 0.0166666666666667,
+  "exits": [
+    "sortie_est",
+    "retour_ouest"
+  ],
+  "fps_avg": 142.4,
+  "fps_cap": 0,
+  "fps_min": 52.0,
+  "frames": 3780,
+  "frametime_ms": {
+    "images": 9163,
+    "max": 133.33,
+    "moyen": 6.94,
+    "p95": 6.94
+  },
+  "h_jumps": 0,
+  "interactions": [
+    "npc"
+  ],
+  "levels": [
+    0,
+    1,
+    0,
+    1,
+    0
+  ],
+  "machine": {
+    "api": "",
+    "carte_graphique": "",
+    "ecran_hz": -1.0,
+    "fabricant": "",
+    "fenetre": [
+      64,
+      64
+    ],
+    "godot": "4.7.2-stable (official)",
+    "pilote": [],
+    "pilote_rendu": "vulkan",
+    "processeur": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "systeme": "Ubuntu 24.04.5 LTS 24.04",
+    "vsync": 1
+  },
+  "occluded_frames": 385,
+  "occluded_max_s": 1.87,
+  "occlusions": [
+    {
+      "a": [
+        9.2,
+        15.9
+      ],
+      "carte": "gabarits_blockout_v01.json",
+      "de": [
+        6.0,
+        14.9
+      ],
+      "s": 1.62,
+      "zone": "8 directions"
+    },
+    {
+      "a": [
+        9.6,
+        15.1
+      ],
+      "carte": "gabarits_blockout_v01.json",
+      "de": [
+        9.6,
+        15.1
+      ],
+      "s": 0.83,
+      "zone": "8 directions"
+    },
+    {
+      "a": [
+        16.3,
+        2.3
+      ],
+      "carte": "gabarits_blockout_v01.json",
+      "de": [
+        16.2,
+        2.7
+      ],
+      "s": 1.87,
+      "zone": "maison"
+    },
+    {
+      "a": [
+        10.1,
+        14.0
+      ],
+      "carte": "gabarits_blockout_v01.json",
+      "de": [
+        6.1,
+        15.9
+      ],
+      "s": 1.57,
+      "zone": "pont"
+    }
+  ],
+  "off_model": 0,
+  "paysage": "3d",
+  "paysage_volumes": {
+    "arbres": 539,
+    "batiments": 31,
+    "cartes": 0,
+    "triangles": 0
+  },
+  "physics_ms_max": 5.76,
+  "plongee_deg": 35.0,
+  "primitives_max": 0,
+  "probes": [
+    {
+      "h": 0.00934036821126938,
+      "id": "8dir aller (1.0, 0.0)",
+      "ok": true,
+      "region": "terrain_bas",
+      "x": 14.2659673690796,
+      "y": 16.7736206054688
+    },
+    {
+      "h": 0.00934036821126938,
+      "id": "8dir retour (1.0, 0.0)",
+      "ok": true,
+      "region": "terrain_bas",
+      "x": 11.2777624130249,
+      "y": 15.685998916626
+    },
+    {
+      "h": 0.00934036821126938,
+      "id": "8dir aller (1.0, 1.0)",
+      "ok": true,
+      "region": "terrain_bas",
+      "x": 12.621696472168,
+      "y": 18.5680599212646
+    },
+    {
+      "h": 0.00934036821126938,
+      "id": "8dir retour (1.0, 1.0)",
+      "ok": true,
+      "region": "terrain_bas",
+      "x": 11.2777624130249,
+      "y": 15.685998916626
+    },
+    {
+      "h": 0.00934036821126938,
+      "id": "8dir aller (0.0, 1.0)",
+      "ok": true,
+      "region": "terrain_bas",
+      "x": 10.1901407241821,
+      "y": 18.6742038726807
+    },
+    {
+      "h": 0.00934036821126938,
+      "id": "8dir retour (0.0, 1.0)",
+      "ok": true,
+      "region": "terrain_bas",
+      "x": 11.2777624130249,
+      "y": 15.685998916626
+    },
+    {
+      "h": 0.00934036821126938,
+      "id": "8dir aller (-1.0, 1.0)",
+      "ok": true,
+      "region": "terrain_bas",
+      "x": 8.39570140838623,
+      "y": 17.0298938751221
+    },
+    {
+      "h": 0.00934036821126938,
+      "id": "8dir retour (-1.0, 1.0)",
+      "ok": true,
+      "region": "terrain_bas",
+      "x": 11.2777624130249,
+      "y": 15.6859979629517
+    },
+    {
+      "h": 0.00934036821126938,
+      "id": "8dir aller (-1.0, 0.0)",
+      "ok": true,
+      "region": "terrain_bas",
+      "x": 8.28955745697021,
+      "y": 14.5983762741089
+    },
+    {
+      "h": 0.00934036821126938,
+      "id": "8dir retour (-1.0, 0.0)",
+      "ok": true,
+      "region": "terrain_bas",
+      "x": 11.2777624130249,
+      "y": 15.6859979629517
+    },
+    {
+      "h": 0.00934036821126938,
+      "id": "8dir aller (-1.0, -1.0)",
+      "ok": true,
+      "region": "terrain_bas",
+      "x": 9.93382835388184,
+      "y": 12.803936958313
+    },
+    {
+      "h": 0.00934036821126938,
+      "id": "8dir retour (-1.0, -1.0)",
+      "ok": true,
+      "region": "terrain_bas",
+      "x": 11.2777624130249,
+      "y": 15.6859979629517
+    },
+    {
+      "h": 0.00934036821126938,
+      "id": "8dir aller (0.0, -1.0)",
+      "ok": true,
+      "region": "terrain_bas",
+      "x": 12.3653841018677,
+      "y": 12.697793006897
+    },
+    {
+      "h": 0.00934036821126938,
+      "id": "8dir retour (0.0, -1.0)",
+      "ok": true,
+      "region": "terrain_bas",
+      "x": 11.2777624130249,
+      "y": 15.6859979629517
+    },
+    {
+      "h": 0.00934036821126938,
+      "id": "8dir aller (1.0, -1.0)",
+      "ok": true,
+      "region": "terrain_bas",
+      "x": 14.1598234176636,
+      "y": 14.3420639038086
+    },
+    {
+      "h": 0.00934036821126938,
+      "id": "8dir retour (1.0, -1.0)",
+      "ok": true,
+      "region": "terrain_bas",
+      "x": 11.2777624130249,
+      "y": 15.6859979629517
+    }
+  ],
+  "process_ms_max": 367.82,
+  "reached": [
+    {
+      "h": 0.01,
+      "id": "place (départ des 8 directions)",
+      "ok": true,
+      "t": 3.9,
+      "x": 11.28,
+      "y": 15.69
+    },
+    {
+      "h": 0.01,
+      "id": "pied de l'escalier",
+      "ok": true,
+      "t": 19.8,
+      "x": 13.91,
+      "y": 11.48
+    },
+    {
+      "h": 1.21,
+      "id": "haut de l'escalier",
+      "ok": true,
+      "t": 20.93,
+      "x": 13.91,
+      "y": 7.81
+    },
+    {
+      "h": 0.01,
+      "id": "descente de l'escalier",
+      "ok": true,
+      "t": 21.95,
+      "x": 14.06,
+      "y": 11.11
+    },
+    {
+      "h": 1.21,
+      "id": "remontée de l'escalier",
+      "ok": true,
+      "t": 22.97,
+      "x": 13.93,
+      "y": 7.83
+    },
+    {
+      "h": 1.21,
+      "id": "PNJ",
+      "ok": true,
+      "t": 23.83,
+      "x": 11.93,
+      "y": 5.88
+    },
+    {
+      "h": 1.21,
+      "id": "ouest de la maison",
+      "ok": true,
+      "t": 25.95,
+      "x": 15.07,
+      "y": 4.81
+    },
+    {
+      "h": 1.21,
+      "id": "derrière la maison (entrée)",
+      "ok": true,
+      "t": 26.57,
+      "x": 15.32,
+      "y": 2.78
+    },
+    {
+      "h": 1.21,
+      "id": "derrière la maison (sortie)",
+      "ok": true,
+      "t": 27.9,
+      "x": 19.33,
+      "y": 2.63
+    },
+    {
+      "h": 1.21,
+      "id": "derrière la maison (retour)",
+      "ok": true,
+      "t": 29.02,
+      "x": 15.62,
+      "y": 2.37
+    },
+    {
+      "h": 1.21,
+      "id": "ouest de la maison (retour)",
+      "ok": true,
+      "t": 29.62,
+      "x": 15.28,
+      "y": 4.35
+    },
+    {
+      "h": 1.21,
+      "id": "haut de l'escalier (retour)",
+      "ok": true,
+      "t": 30.57,
+      "x": 14.08,
+      "y": 7.47
+    },
+    {
+      "h": 0.01,
+      "id": "pied de l'escalier (retour)",
+      "ok": true,
+      "t": 31.68,
+      "x": 14.11,
+      "y": 11.1
+    },
+    {
+      "h": 0.01,
+      "id": "arbre : est",
+      "ok": true,
+      "t": 33.68,
+      "x": 9.49,
+      "y": 15.77
+    },
+    {
+      "h": 0.01,
+      "id": "arbre : sud",
+      "ok": true,
+      "t": 34.55,
+      "x": 8.69,
+      "y": 18.64
+    },
+    {
+      "h": 0.01,
+      "id": "arbre : ouest",
+      "ok": true,
+      "t": 35.43,
+      "x": 5.76,
+      "y": 18.29
+    },
+    {
+      "h": 0.01,
+      "id": "arbre : nord-ouest",
+      "ok": true,
+      "t": 36.05,
+      "x": 5.33,
+      "y": 16.28
+    },
+    {
+      "h": 0.01,
+      "id": "derrière l'arbre",
+      "ok": true,
+      "t": 36.47,
+      "x": 6.5,
+      "y": 15.49
+    },
+    {
+      "h": 0.01,
+      "id": "arbre : nord-est",
+      "ok": true,
+      "t": 37.0,
+      "x": 8.17,
+      "y": 15.71
+    },
+    {
+      "h": 0.01,
+      "id": "retour place",
+      "ok": true,
+      "t": 37.68,
+      "x": 9.51,
+      "y": 13.98
+    },
+    {
+      "h": 0.01,
+      "id": "tête de pont",
+      "ok": true,
+      "t": 40.8,
+      "x": 19.82,
+      "y": 13.97
+    },
+    {
+      "h": 0.01,
+      "id": "rive est",
+      "ok": true,
+      "t": 43.38,
+      "x": 28.35,
+      "y": 13.95
+    },
+    {
+      "h": 0.01,
+      "id": "pont, retour vers l'ouest",
+      "ok": true,
+      "t": 45.83,
+      "x": 20.21,
+      "y": 13.55
+    },
+    {
+      "h": 0.01,
+      "id": "rive est (2)",
+      "ok": true,
+      "t": 48.27,
+      "x": 28.29,
+      "y": 13.96
+    },
+    {
+      "h": 0.01,
+      "id": "sortie est",
+      "ok": true,
+      "t": 48.88,
+      "x": 30.31,
+      "y": 13.99
+    },
+    {
+      "h": 0.0,
+      "id": "instance : coin sud-est",
+      "ok": true,
+      "t": 52.3,
+      "x": 10.03,
+      "y": 7.24
+    },
+    {
+      "h": 0.0,
+      "id": "instance : coin nord-est",
+      "ok": true,
+      "t": 53.83,
+      "x": 10.21,
+      "y": 2.17
+    },
+    {
+      "h": 0.0,
+      "id": "instance : coin nord-ouest",
+      "ok": true,
+      "t": 56.28,
+      "x": 2.07,
+      "y": 1.73
+    },
+    {
+      "h": 0.0,
+      "id": "instance : coin sud-ouest",
+      "ok": true,
+      "t": 57.9,
+      "x": 1.98,
+      "y": 7.07
+    },
+    {
+      "h": 0.0,
+      "id": "instance : centre",
+      "ok": true,
+      "t": 59.25,
+      "x": 5.88,
+      "y": 4.76
+    },
+    {
+      "h": 0.0,
+      "id": "instance : porte de retour",
+      "ok": true,
+      "t": 60.57,
+      "x": 1.45,
+      "y": 4.32
+    },
+    {
+      "h": 0.0,
+      "id": "retour scène témoin",
+      "ok": true,
+      "t": 62.17,
+      "x": 27.26,
+      "y": 13.62
+    }
+  ],
+  "regions": [
+    "terrain_bas",
+    "escalier",
+    "terrasse_haute",
+    "escalier",
+    "terrain_bas",
+    "escalier",
+    "terrasse_haute",
+    "escalier",
+    "terrain_bas",
+    "pont",
+    "terrain_est",
+    "pont",
+    "terrain_bas",
+    "pont",
+    "terrain_est",
+    "placette",
+    "terrain_est"
+  ],
+  "render_cam_jerks": 4,
+  "render_frames": 9163,
+  "renderer": "forward_plus",
+  "route": "validation",
+  "static_mem_mb": 52.3,
+  "time": 63.0,
+  "variante": "C",
+  "video_mem_mb": 0.0,
+  "view_outside": 0,
+  "wheel_ignored_in_ui": 0,
+  "zoom_depart": "0",
+  "zoom_final": 2.0
+}

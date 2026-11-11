@@ -90,6 +90,59 @@ static func route(name: String) -> Array:
 				_go(6.0, 4.4, "instance fictive"),
 				{"do": "wait", "t": 0.8},
 			]
+		"validation":
+			# Validation caméra (doc 12 §04, doc 07 §05) : marche au clavier simulé, à lancer une fois par zoom
+			# (--zoom=0|1|2). Huit directions avec demi-tours, escalier (montée ET descente), tour de la maison,
+			# tour de l'arbre, pont dans les deux sens, sortie, quatre coins de la petite instance, retour.
+			# Le couloir de 0,5 m entre la maison et le rebord n'y figure pas : il est infranchissable (voir « sondes »).
+			var out: Array = [{"do": "wait", "t": 0.5}, _go(11.5, 15.5, "place (départ des 8 directions)")]
+			for d in [Vector2(1, 0), Vector2(1, 1), Vector2(0, 1), Vector2(-1, 1), Vector2(-1, 0), Vector2(-1, -1), Vector2(0, -1), Vector2(1, -1)]:
+				out.append(_push("8dir aller %s" % str(d), d, 0.9, {}))
+				out.append(_push("8dir retour %s" % str(d), -d, 0.9, {}))
+			out.append_array([
+				{"do": "mark", "id": "escalier"},
+				_go(14, 11.25, "pied de l'escalier", 0.25),
+				_go(14, 7.6, "haut de l'escalier", 0.25),
+				_go(14, 11.3, "descente de l'escalier", 0.25),
+				_go(14, 7.6, "remontée de l'escalier", 0.25),
+				{"do": "mark", "id": "maison"},
+				_go(11.9, 5.6, "PNJ", 0.3),
+				{"do": "talk", "id": "PNJ"}, {"do": "next"}, {"do": "next"}, {"do": "next"},
+				_go(15.2, 4.6, "ouest de la maison"),
+				_go(15.4, 2.5, "derrière la maison (entrée)", 0.3),
+				_go(19.6, 2.5, "derrière la maison (sortie)", 0.3),
+				_go(15.4, 2.5, "derrière la maison (retour)", 0.3),
+				_go(15.2, 4.6, "ouest de la maison (retour)"),
+				_go(14, 7.7, "haut de l'escalier (retour)", 0.25),
+				_go(14, 11.3, "pied de l'escalier (retour)", 0.25),
+				{"do": "mark", "id": "arbre"},
+				_go(9.4, 16.0, "arbre : est"),
+				_go(8.6, 18.9, "arbre : sud"),
+				_go(5.5, 18.4, "arbre : ouest"),
+				_go(5.4, 16.0, "arbre : nord-ouest"),
+				_go(6.6, 15.3, "derrière l'arbre", 0.25),
+				_go(8.4, 15.6, "arbre : nord-est"),
+				{"do": "mark", "id": "pont"},
+				_go(9.6, 13.75, "retour place"),
+				_go(20.0, 13.75, "tête de pont"),
+				_go(28.5, 13.75, "rive est"),
+				_go(20.0, 13.75, "pont, retour vers l'ouest"),
+				_go(28.5, 13.75, "rive est (2)"),
+				{"do": "mark", "id": "instance"},
+				{"do": "go", "to": Vector2(30.8, 13.75), "tol": 0.3, "id": "sortie est", "exit": true},
+				{"do": "wait", "t": 1.0},
+				_go(10.3, 7.3, "instance : coin sud-est", 0.3),
+				_go(10.3, 1.9, "instance : coin nord-est", 0.3),
+				_go(1.9, 1.9, "instance : coin nord-ouest", 0.3),
+				_go(1.9, 7.3, "instance : coin sud-ouest", 0.3),
+				_go(6.0, 4.5, "instance : centre", 0.3),
+				{"do": "go", "to": Vector2(1.0, 4.5), "tol": 0.2, "id": "instance : porte de retour", "exit": true},
+				{"do": "wait", "t": 1.0},
+				{"do": "mark", "id": "retour"},
+				_go(27.0, 13.75, "retour scène témoin"),
+				{"do": "wait", "t": 0.8},
+			])
+			return out
 		"micro":
 			# micro-test commun A/B : deux surfaces, un escalier, un occultant (doc 05 §06)
 			return [

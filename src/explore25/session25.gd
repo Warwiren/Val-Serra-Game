@@ -41,6 +41,8 @@ var _occ_run := 0.0
 var _last_h := INF
 var _skip_measure := 0
 var _dither := 0.0
+var _zone := "8 directions"                # tronçon courant du parcours « validation » (mesures par tronçon)
+var _occ_from := Vector3()
 var hud: CanvasLayer
 var _dbg: Label
 var _help: Label
@@ -507,6 +509,9 @@ func _pilot_dir(delta: float) -> Vector2:
 		"warp":
 			warp_to(s["to"])
 			_next_step(true)
+		"mark":
+			_zone = s["id"]
+			_next_step(true)
 		_:
 			_next_step(true)
 	return Vector2.ZERO
@@ -595,17 +600,24 @@ func _measure(delta: float, before: Vector3, st: Dictionary) -> void:
 			m["regions"].append(hero_region)
 	var occ: bool = host.hero_occluded()
 	if occ:
+		if _occ_run == 0.0:
+			_occ_from = hero
 		m["occluded_frames"] += 1
 		_occ_run += delta
 		m["occluded_max_s"] = maxf(m["occluded_max_s"], _occ_run)
 	else:
+		if _occ_run >= 0.5:
+			m["occlusions"] = m.get("occlusions", []) + [{"s": snappedf(_occ_run, 0.01), "zone": _zone, "carte": world.path.get_file(),
+				"de": [snappedf(_occ_from.x, 0.1), snappedf(_occ_from.y, 0.1)], "a": [snappedf(before.x, 0.1), snappedf(before.y, 0.1)]}]
 		_occ_run = 0.0
+	_measure_cadrage(delta, before)
 	# caméra : à-coups (variation de vitesse > 100 px d'écran/s d'une image à l'autre), accélération maximale
 	var c: Vector2 = cam.render_center() * cam.zoom
 	if _prev_cam != Vector2.INF and delta > 0.0 and not cam.zooming():
 		var v := (c - _prev_cam) / delta
 		if (v - _prev_cam_v).length() > 100.0:
 			m["cam_jerks"] += 1
+			m["cam_jerk_at"] = m.get("cam_jerk_at", []) + ["%s (%.1f, %.1f) ×%s, tronçon « %s », étape %d" % [world.path.get_file(), hero.x, hero.y, str(cam.zoom), _zone, pilot_i]]
 		m["cam_acc_max"] = maxf(m["cam_acc_max"], (v - _prev_cam_v).length() / delta)
 		_prev_cam_v = v
 	elif cam.zooming():
@@ -617,8 +629,71 @@ func _measure(delta: float, before: Vector3, st: Dictionary) -> void:
 			m["view_outside_at"] = m.get("view_outside_at", []) + ["%s (%.1f, %.1f) ×%.2f" % [world.path.get_file(), hero.x, hero.y, cam.zoom]]
 
 
+## Validation caméra — CONFORT DE CADRAGE, mesuré à chaque image de marche :
+##  • place du héros dans la hauteur de l'écran (0 = haut, 1 = bas) ;
+##  • anticipation : distance d'écran entre le héros et le bord du cadre DANS LE SENS DE LA MARCHE (px d'écran) et sa
+##    traduction en secondes de marche (temps avant qu'un obstacle entrant dans le cadre n'atteigne le héros) ;
+##  • par direction d'écran (8 secteurs) et par tronçon du parcours.
+const DIR8 := ["droite", "bas-droite", "bas", "bas-gauche", "gauche", "haut-gauche", "haut", "haut-droite"]
+
+
+func _measure_cadrage(delta: float, before: Vector3) -> void:
+	var view: Rect2 = cam.view_rect()
+	var hs: Vector2 = World25.screen(hero)
+	var frac: float = (hs.y - view.position.y) / view.size.y
+	var c: Dictionary = m.get("cadrage", {})
+	if c.is_empty():
+		c = {"heros_y_min": 1.0, "heros_y_max": 0.0, "heros_y_somme": 0.0, "images": 0, "images_marche": 0,
+			"heros_pres_du_bord": 0, "par_direction": {}, "par_troncon": {}}
+		m["cadrage"] = c
+	c["images"] += 1
+	c["heros_y_min"] = minf(c["heros_y_min"], frac)
+	c["heros_y_max"] = maxf(c["heros_y_max"], frac)
+	c["heros_y_somme"] += frac
+	var fx: float = (hs.x - view.position.x) / view.size.x
+	if frac < 0.15 or frac > 0.88 or fx < 0.1 or fx > 0.9:
+		c["heros_pres_du_bord"] += 1
+	var mv: Vector2 = hs - World25.screen(before)
+	if delta <= 0.0 or mv.length() / delta < 8.0 or cam.zooming():
+		return
+	var d: Vector2 = mv.normalized()
+	var t: float = INF
+	if d.x > 0.001:
+		t = minf(t, (view.end.x - hs.x) / d.x)
+	elif d.x < -0.001:
+		t = minf(t, (view.position.x - hs.x) / d.x)
+	if d.y > 0.001:
+		t = minf(t, (view.end.y - hs.y) / d.y)
+	elif d.y < -0.001:
+		t = minf(t, (view.position.y - hs.y) / d.y)
+	var px: float = t * cam.zoom
+	var sec: float = t / (mv.length() / delta)
+	c["images_marche"] += 1
+	var k: String = DIR8[posmod(int(roundf(d.angle() / (PI / 4.0))), 8)]
+	for pair in [[c["par_direction"], k], [c["par_troncon"], _zone]]:
+		var e: Dictionary = pair[0].get(pair[1], {"n": 0, "px": 0.0, "px_min": INF, "s": 0.0, "s_min": INF})
+		e["n"] += 1
+		e["px"] += px
+		e["px_min"] = minf(e["px_min"], px)
+		e["s"] += sec
+		e["s_min"] = minf(e["s_min"], sec)
+		pair[0][pair[1]] = e
+
+
 func summary() -> Dictionary:
 	var out := m.duplicate(true)
+	if out.has("cadrage"):
+		var c: Dictionary = out["cadrage"]
+		c["heros_y_moyen_pct"] = snappedf(100.0 * c["heros_y_somme"] / maxi(1, c["images"]), 0.1)
+		c["heros_y_min_pct"] = snappedf(100.0 * c["heros_y_min"], 0.1)
+		c["heros_y_max_pct"] = snappedf(100.0 * c["heros_y_max"], 0.1)
+		for k0 in ["heros_y_somme", "heros_y_min", "heros_y_max"]:
+			c.erase(k0)
+		for grp in ["par_direction", "par_troncon"]:
+			for k in c[grp]:
+				var e: Dictionary = c[grp][k]
+				c[grp][k] = {"images": e["n"], "anticipation_px_moy": snappedf(e["px"] / e["n"], 1), "anticipation_px_min": snappedf(e["px_min"], 1),
+					"anticipation_s_moy": snappedf(e["s"] / e["n"], 0.01), "anticipation_s_min": snappedf(e["s_min"], 0.01)}
 	var fs: Array = out["fps_samples"]
 	if fs.size() > 0:
 		var s := 0.0
