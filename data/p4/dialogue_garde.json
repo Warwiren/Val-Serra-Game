@@ -1,0 +1,74 @@
+{
+  "_note": "P4 — dialogue du garde de l'avant-poste (copie adaptée de data/dialogue/pnj_proto.json, non canonique). Étapes : {who, text, expr} ou {choice: [{label, then}]}. Portraits : src/proto/portraits.gd.",
+  "speakers": {
+    "pnj": {
+      "name": "Garde de l'avant-poste"
+    },
+    "heros": {
+      "name": "{nom}"
+    }
+  },
+  "start": [
+    {
+      "who": "pnj",
+      "text": "Bonsoir, Chasseurs. Vous arrivez à point."
+    },
+    {
+      "who": "heros",
+      "text": "Que se passe-t-il, ici ? L'avant-poste est bien silencieux.",
+      "expr": "neutre"
+    },
+    {
+      "who": "pnj",
+      "text": "Un Vorgane des brumes rôde dans la plaine, de l'autre côté du pont. Personne n'ose plus sortir."
+    },
+    {
+      "choice": [
+        {
+          "label": "« On s'en occupe. Que faut-il savoir ? »",
+          "then": [
+            {
+              "who": "heros",
+              "text": "On s'en occupe. Que faut-il savoir ?",
+              "expr": "determine"
+            },
+            {
+              "who": "pnj",
+              "text": "Sa glande d'Aether s'illumine avant qu'il ne crache. Frappez-la avant, ou mettez-vous en garde."
+            }
+          ]
+        },
+        {
+          "label": "« Il est si dangereux que ça ? »",
+          "then": [
+            {
+              "who": "heros",
+              "text": "Il est si dangereux que ça ?",
+              "expr": "surpris"
+            },
+            {
+              "who": "pnj",
+              "text": "Son souffle traverse les boucliers. Mais quand sa glande se brise, il ne peut plus le cracher."
+            }
+          ]
+        }
+      ],
+      "prompt": "Que répondre au garde ?"
+    },
+    {
+      "who": "pnj",
+      "text": "Que l'Aether vous garde, Chasseurs."
+    }
+  ],
+  "after_victory": [
+    {
+      "who": "pnj",
+      "text": "Le Vorgane est tombé ? Merci, Chasseurs. L'avant-poste dormira tranquille ce soir."
+    },
+    {
+      "who": "heros",
+      "text": "Ilya et Throné ont fait le plus dur. Prenez soin de vous.",
+      "expr": "souriant"
+    }
+  ]
+}

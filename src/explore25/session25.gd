@@ -268,6 +268,8 @@ func _nearby() -> Dictionary:
 
 
 func interact() -> void:
+	if host.has_method("interact_override") and host.interact_override():
+		return
 	if dialogue_open:
 		_line_i += 1
 		if _line_i >= _lines.size():
@@ -483,7 +485,7 @@ func _pilot_dir(delta: float) -> Vector2:
 			_next_step(true)
 		"talk":
 			interact()
-			if not dialogue_open:
+			if not dialogue_open and not (host.has_method("dialogue_is_open") and host.dialogue_is_open()):
 				m["talk_failed"] = m.get("talk_failed", []) + [s.get("id", "")]
 			_next_step(true)
 		"next":

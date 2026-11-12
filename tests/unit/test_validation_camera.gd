@@ -41,4 +41,5 @@ func test_validation_route_covers_the_brief_and_stays_on_walkable_ground() -> vo
 		if not ok:
 			bad.append(s.get("id", str(p)))
 	check_eq(bad, [], "tous les points du parcours sont praticables")
-	check_eq(ProjectSettings.get_setting("application/run/main_scene"), "res://scenes/explore_hd2d/zone_exploration.tscn", "F5 inchangé")
+	check_eq(ProjectSettings.get_setting("application/run/main_scene"), "res://scenes/p4/avant_poste.tscn", "F5 : avant-poste P4 (promotion du 12 novembre 2026, brief P4)")
+	check(ResourceLoader.exists("res://scenes/explore_hd2d/zone_exploration.tscn"), "ancienne exploration stable conservée (F6)")

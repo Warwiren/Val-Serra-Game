@@ -4,6 +4,8 @@ extends RefCounted
 ## Les sprites existants sont réutilisés tels quels (proportions conservées) ; les pieds = milieu du bas de l'image.
 
 const BASE := "res://art/explore_hd2d/chars/%s/"
+## P4 : dossier de sprites imposé pour une clé (ex. "ilya" -> art/p4/chars/ilya/) ; vide = dossiers d'origine.
+static var overrides := {}
 const STRIDE_M := 0.3                      # m parcourus par image de marche (≈ 6 px natifs, comme le jeu)
 
 var key := ""
@@ -25,7 +27,7 @@ static func make(k: String) -> RefCounted:
 
 func _build(k: String) -> void:
 	key = k
-	var base := BASE % k
+	var base: String = overrides.get(k, BASE % k)
 	four = ResourceLoader.exists(base + "walk_face_0.png")
 	frames = SpriteFrames.new()
 	frames.remove_animation("default")

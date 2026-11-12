@@ -217,7 +217,8 @@ func test_micro_subset_is_two_levels_one_stair() -> void:
 
 
 func test_f5_scene_is_unchanged_and_p3_scenes_load() -> void:
-	check_eq(ProjectSettings.get_setting("application/run/main_scene"), "res://scenes/explore_hd2d/zone_exploration.tscn", "F5 inchangé")
+	check_eq(ProjectSettings.get_setting("application/run/main_scene"), "res://scenes/p4/avant_poste.tscn", "F5 : avant-poste P4 (promotion du 12 novembre 2026, brief P4)")
+	check(ResourceLoader.exists("res://scenes/explore_hd2d/zone_exploration.tscn"), "ancienne exploration stable conservée (F6)")
 	for p in ["res://scenes/explore25/demo_a_2d.tscn", "res://scenes/explore25/demo_b_3d.tscn",
 			"res://scenes/explore25/scene_temoin.tscn", "res://scenes/explore25/scene_temoin_2d.tscn"]:
 		check(load(p) is PackedScene, "%s se charge" % p.get_file())

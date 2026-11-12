@@ -128,7 +128,8 @@ func test_extended_frame_shows_landscape_but_never_void() -> void:
 
 
 func test_variant_scenes_exist_and_f5_is_unchanged() -> void:
-	check_eq(ProjectSettings.get_setting("application/run/main_scene"), "res://scenes/explore_hd2d/zone_exploration.tscn", "F5 inchangé")
+	check_eq(ProjectSettings.get_setting("application/run/main_scene"), "res://scenes/p4/avant_poste.tscn", "F5 : avant-poste P4 (promotion du 12 novembre 2026, brief P4)")
+	check(ResourceLoader.exists("res://scenes/explore_hd2d/zone_exploration.tscn"), "ancienne exploration stable conservée (F6)")
 	for v in ["A", "B", "C"]:
 		var p := "res://scenes/explore25/camera_variante_%s.tscn" % v
 		check(load(p) is PackedScene, "%s se charge" % p.get_file())
