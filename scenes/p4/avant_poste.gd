@@ -98,6 +98,10 @@ func _ready() -> void:
 	if returning:
 		GameState.last_battle_result = ""
 		GameState.from_zone = false
+		if _cli.has("route_retour"):
+			_cli["route"] = _cli["route_retour"]     # démonstration filmée : suite du parcours après le combat
+		else:
+			_cli.erase("route")
 	_load(_cli.get("instance", ZONE), "instance", arrive)
 	_apply_cli()
 	if returning:
@@ -956,6 +960,10 @@ func _unhandled_input(e: InputEvent) -> void:
 	if _dialog.is_open():
 		if e is InputEventKey and e.pressed and not e.echo:
 			_dialog.handle_key(e)
+		return
+	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_P:
+		if not _interior:
+			s.start_pilot("p4")                    # parcours automatique de l'avant-poste (depuis l'entrée)
 		return
 	s.handle_input(e)
 

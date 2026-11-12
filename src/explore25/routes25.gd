@@ -69,6 +69,65 @@ static func route(name: String) -> Array:
 				_go(37.0, 16.0, "abords du Vorgane", 0.3),
 				{"do": "wait", "t": 0.5},
 			]
+		"p4_demo":
+			# P4 — démonstration filmée (avec --autoplay : le combat se joue seul, puis « p4_retour ») ; même trajet que « p4 » : cour → garde (dialogue) → escalier → terrasse → bâtiment (entrée,
+			# examen, sortie) → descente → porte fortifiée → pont → plaine → abords du Vorgane (le combat se déclenche
+			# au contact : la boucle complète est vérifiée par tests/e2e_p4_retour.gd).
+			return [
+				{"do": "wait", "t": 0.6},
+				_go(13.0, 15.0, "cour (centre)"),
+				_go(17.3, 14.6, "B garde", 0.3),
+				{"do": "talk", "id": "garde"},
+				{"do": "wheel", "n": 1},                     # doit être IGNORÉE : dialogue ouvert
+				{"do": "wait", "t": 9.0},                    # le dialogue à portraits avance seul pendant le parcours
+				_go(12.0, 12.5, "C pied de l'escalier", 0.25),
+				_go(12.0, 10.5, "escalier (mi-hauteur)", 0.25),
+				{"do": "wheel", "n": 1},                     # ×3 en pleine montée
+				_go(12.0, 8.55, "D haut de l'escalier", 0.25),
+				_go(6.0, 8.2, "terrasse ouest"),
+				_go(6.0, 5.0, "terrasse (côté du bâtiment)"),
+				_go(6.0, 8.2, "terrasse ouest (retour)"),
+				_go(12.0, 8.0, "devant la porte", 0.25),
+				{"do": "go", "to": Vector2(12.0, 7.25), "tol": 0.2, "id": "E porte du poste", "exit": true},
+				{"do": "wait", "t": 0.8},
+				{"do": "wheel", "n": -1},
+				_go(5.0, 4.75, "intérieur : table", 0.3),
+				{"do": "talk", "id": "carte"},
+				{"do": "next"},
+				_go(7.6, 5.6, "intérieur : âtre", 0.3),
+				_go(5.0, 5.6, "intérieur : devant la porte", 0.25),
+				{"do": "go", "to": Vector2(5.0, 6.8), "tol": 0.2, "id": "intérieur : sortie", "exit": true},
+				{"do": "wait", "t": 0.8},
+				_go(12.0, 8.6, "retour sur la terrasse", 0.3),
+				_go(12.0, 12.5, "descente de l'escalier", 0.25),
+				_go(17.5, 16.0, "cour (vers la porte)"),
+				_go(20.4, 16.0, "F porte fortifiée", 0.3),
+				_go(22.0, 16.0, "rive ouest"),
+				{"do": "wheel", "n": -1},                    # ×2 sur le pont
+				_go(26.0, 16.0, "G milieu du pont", 0.3),
+				_go(30.5, 16.0, "plaine (sortie du pont)"),
+				{"do": "wheel", "n": 1},
+				_go(31.6, 14.9, "panneau de la plaine", 0.3),
+				{"do": "talk", "id": "panneau"},
+				{"do": "next"},
+				_go(34.4, 12.6, "sous l'arbre pilote (devant)"),
+				_go(34.6, 9.2, "derrière l'arbre pilote", 0.3),
+				_go(32.4, 9.6, "derrière l'arbre pilote (ouest)", 0.3),
+				_go(34.0, 16.0, "H chemin de la plaine"),
+				_go(40.4, 20.6, "plaine sud"),
+				_go(37.0, 16.0, "abords du Vorgane", 0.3),
+				{"do": "wait", "t": 0.5},
+				_go(38.3, 14.8, "contact du Vorgane", 0.2),
+				{"do": "wait", "t": 4.0},
+			]
+		"p4_retour":
+			# après le combat : retour vers le pont
+			return [
+				{"do": "wait", "t": 2.5},
+				_go(33.0, 16.0, "retour : chemin de la plaine"),
+				_go(27.0, 16.0, "retour : pont"),
+				{"do": "wait", "t": 1.5},
+			]
 		"p4_vues_int":
 			var o2: Array = []
 			for c in [["interieur", 5.0, 4.9, 0.0], ["interieur_atre", 7.6, 5.4, 0.0]]:

@@ -1,0 +1,437 @@
+{
+  "arch": "P4 — avant-poste · plongée 28°, azimut 20°",
+  "blocked_frames": 106,
+  "cadrage": {
+    "heros_pres_du_bord": 0,
+    "heros_y_max_pct": 62.6,
+    "heros_y_min_pct": 44.9,
+    "heros_y_moyen_pct": 52.2,
+    "images": 2565,
+    "images_marche": 1730,
+    "par_direction": {
+      "bas": {
+        "anticipation_px_min": 276.0,
+        "anticipation_px_moy": 313.0,
+        "anticipation_s_min": 2.04,
+        "anticipation_s_moy": 3.17,
+        "images": 97
+      },
+      "bas-droite": {
+        "anticipation_px_min": 292.0,
+        "anticipation_px_moy": 611.0,
+        "anticipation_s_min": 2.15,
+        "anticipation_s_moy": 4.54,
+        "images": 230
+      },
+      "bas-gauche": {
+        "anticipation_px_min": 321.0,
+        "anticipation_px_moy": 584.0,
+        "anticipation_s_min": 3.53,
+        "anticipation_s_moy": 6.68,
+        "images": 58
+      },
+      "droite": {
+        "anticipation_px_min": 506.0,
+        "anticipation_px_moy": 576.0,
+        "anticipation_s_min": 2.55,
+        "anticipation_s_moy": 3.53,
+        "images": 519
+      },
+      "gauche": {
+        "anticipation_px_min": 547.0,
+        "anticipation_px_moy": 612.0,
+        "anticipation_s_min": 2.53,
+        "anticipation_s_moy": 3.47,
+        "images": 271
+      },
+      "haut": {
+        "anticipation_px_min": 329.0,
+        "anticipation_px_moy": 348.0,
+        "anticipation_s_min": 1.9,
+        "anticipation_s_moy": 3.63,
+        "images": 108
+      },
+      "haut-droite": {
+        "anticipation_px_min": 370.0,
+        "anticipation_px_moy": 615.0,
+        "anticipation_s_min": 3.48,
+        "anticipation_s_moy": 5.07,
+        "images": 284
+      },
+      "haut-gauche": {
+        "anticipation_px_min": 369.0,
+        "anticipation_px_moy": 601.0,
+        "anticipation_s_min": 2.01,
+        "anticipation_s_moy": 4.39,
+        "images": 163
+      }
+    },
+    "par_troncon": {
+      "8 directions": {
+        "anticipation_px_min": 276.0,
+        "anticipation_px_moy": 567.0,
+        "anticipation_s_min": 1.9,
+        "anticipation_s_moy": 4.08,
+        "images": 1730
+      }
+    }
+  },
+  "cam_acc_max": 16700.0,
+  "cam_jerk_at": [
+    "avant_poste.json (11.8, 9.8) ×3.0, tronçon « 8 directions », étape 9",
+    "avant_poste.json (22.8, 16.4) ×2.0, tronçon « 8 directions », étape 30",
+    "avant_poste.json (31.1, 15.7) ×2.5, tronçon « 8 directions », étape 33",
+    "avant_poste.json (31.2, 15.6) ×2.5, tronçon « 8 directions », étape 33"
+  ],
+  "cam_jerks": 4,
+  "comp_off": 0,
+  "dh_max": 0.039,
+  "done": true,
+  "draw_calls_max": 411,
+  "dt_max": 0.0166666666666667,
+  "exits": [
+    "porte_poste",
+    "sortie_poste"
+  ],
+  "fps_avg": 12.4,
+  "fps_cap": 0,
+  "fps_min": 1.0,
+  "frames": 2565,
+  "frametime_ms": {
+    "images": 556,
+    "max": 141.87,
+    "moyen": 77.82,
+    "p95": 92.92
+  },
+  "h_jumps": 0,
+  "interactions": [
+    "garde",
+    "carte_lisiere",
+    "panneau_plaine"
+  ],
+  "levels": [
+    0,
+    1,
+    0,
+    1,
+    0
+  ],
+  "machine": {
+    "api": "4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4",
+    "carte_graphique": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "ecran_hz": 0.0,
+    "fabricant": "Mesa",
+    "fenetre": [
+      1280,
+      720
+    ],
+    "godot": "4.7.2-stable (official)",
+    "pilote": [],
+    "pilote_rendu": "opengl3",
+    "processeur": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "systeme": "Ubuntu 24.04.5 LTS 24.04",
+    "vsync": 0
+  },
+  "occluded_frames": 217,
+  "occluded_max_s": 0.98,
+  "occlusions": [
+    {
+      "a": [
+        8.9,
+        16.9
+      ],
+      "carte": "avant_poste.json",
+      "de": [
+        7.5,
+        17.0
+      ],
+      "s": 0.98,
+      "zone": "8 directions"
+    },
+    {
+      "a": [
+        22.0,
+        16.2
+      ],
+      "carte": "avant_poste.json",
+      "de": [
+        20.1,
+        16.1
+      ],
+      "s": 0.62,
+      "zone": "8 directions"
+    },
+    {
+      "a": [
+        32.9,
+        9.9
+      ],
+      "carte": "avant_poste.json",
+      "de": [
+        34.5,
+        10.1
+      ],
+      "s": 0.97,
+      "zone": "8 directions"
+    }
+  ],
+  "off_model": 0,
+  "paysage": "aucun",
+  "paysage_volumes": {},
+  "physics_ms_max": 16.29,
+  "plongee_deg": 28.0,
+  "primitives_max": 4296,
+  "process_ms_max": 522.77,
+  "reached": [
+    {
+      "h": 0.0,
+      "id": "cour (centre)",
+      "ok": true,
+      "t": 2.3,
+      "x": 12.89,
+      "y": 15.26
+    },
+    {
+      "h": 0.0,
+      "id": "B garde",
+      "ok": true,
+      "t": 3.63,
+      "x": 17.19,
+      "y": 14.82
+    },
+    {
+      "h": 0.0,
+      "id": "C pied de l'escalier",
+      "ok": true,
+      "t": 14.23,
+      "x": 12.14,
+      "y": 12.66
+    },
+    {
+      "h": 0.55,
+      "id": "escalier (mi-hauteur)",
+      "ok": true,
+      "t": 14.85,
+      "x": 11.9,
+      "y": 10.7
+    },
+    {
+      "h": 1.21,
+      "id": "D haut de l'escalier",
+      "ok": true,
+      "t": 15.47,
+      "x": 11.92,
+      "y": 8.77
+    },
+    {
+      "h": 1.21,
+      "id": "terrasse ouest",
+      "ok": true,
+      "t": 17.25,
+      "x": 6.18,
+      "y": 7.99
+    },
+    {
+      "h": 1.21,
+      "id": "terrasse (côté du bâtiment)",
+      "ok": true,
+      "t": 18.08,
+      "x": 5.92,
+      "y": 5.26
+    },
+    {
+      "h": 1.21,
+      "id": "terrasse ouest (retour)",
+      "ok": true,
+      "t": 18.9,
+      "x": 6.09,
+      "y": 7.93
+    },
+    {
+      "h": 1.21,
+      "id": "devant la porte",
+      "ok": true,
+      "t": 20.65,
+      "x": 11.89,
+      "y": 8.18
+    },
+    {
+      "h": 1.21,
+      "id": "E porte du poste",
+      "ok": true,
+      "t": 20.82,
+      "x": 11.9,
+      "y": 7.6
+    },
+    {
+      "h": 0.0,
+      "id": "intérieur : table",
+      "ok": true,
+      "t": 21.78,
+      "x": 4.93,
+      "y": 5.01
+    },
+    {
+      "h": 0.0,
+      "id": "intérieur : âtre",
+      "ok": true,
+      "t": 22.88,
+      "x": 7.31,
+      "y": 5.62
+    },
+    {
+      "h": 0.0,
+      "id": "intérieur : devant la porte",
+      "ok": true,
+      "t": 23.53,
+      "x": 5.15,
+      "y": 5.44
+    },
+    {
+      "h": 0.0,
+      "id": "intérieur : sortie",
+      "ok": true,
+      "t": 23.8,
+      "x": 5.12,
+      "y": 6.35
+    },
+    {
+      "h": 1.2,
+      "id": "retour sur la terrasse",
+      "ok": true,
+      "t": 24.65,
+      "x": 12.05,
+      "y": 8.33
+    },
+    {
+      "h": 0.01,
+      "id": "descente de l'escalier",
+      "ok": true,
+      "t": 25.88,
+      "x": 12.07,
+      "y": 12.32
+    },
+    {
+      "h": 0.01,
+      "id": "cour (vers la porte)",
+      "ok": true,
+      "t": 27.78,
+      "x": 17.49,
+      "y": 15.72
+    },
+    {
+      "h": 0.01,
+      "id": "F porte fortifiée",
+      "ok": true,
+      "t": 28.58,
+      "x": 20.16,
+      "y": 16.14
+    },
+    {
+      "h": 0.01,
+      "id": "rive ouest",
+      "ok": true,
+      "t": 29.08,
+      "x": 21.8,
+      "y": 16.18
+    },
+    {
+      "h": 0.01,
+      "id": "G milieu du pont",
+      "ok": true,
+      "t": 30.33,
+      "x": 25.86,
+      "y": 16.22
+    },
+    {
+      "h": 0.01,
+      "id": "plaine (sortie du pont)",
+      "ok": true,
+      "t": 31.7,
+      "x": 30.36,
+      "y": 16.22
+    },
+    {
+      "h": 0.01,
+      "id": "panneau de la plaine",
+      "ok": true,
+      "t": 32.2,
+      "x": 31.51,
+      "y": 15.12
+    },
+    {
+      "h": 0.01,
+      "id": "sous l'arbre pilote (devant)",
+      "ok": true,
+      "t": 33.67,
+      "x": 34.29,
+      "y": 12.87
+    },
+    {
+      "h": 0.01,
+      "id": "derrière l'arbre pilote",
+      "ok": true,
+      "t": 35.23,
+      "x": 34.52,
+      "y": 9.45
+    },
+    {
+      "h": 0.01,
+      "id": "derrière l'arbre pilote (ouest)",
+      "ok": true,
+      "t": 35.82,
+      "x": 32.6,
+      "y": 9.42
+    },
+    {
+      "h": 0.01,
+      "id": "H chemin de la plaine",
+      "ok": true,
+      "t": 38.2,
+      "x": 34.08,
+      "y": 15.77
+    },
+    {
+      "h": 0.01,
+      "id": "plaine sud",
+      "ok": true,
+      "t": 40.55,
+      "x": 40.43,
+      "y": 20.33
+    },
+    {
+      "h": 0.01,
+      "id": "abords du Vorgane",
+      "ok": true,
+      "t": 42.2,
+      "x": 36.93,
+      "y": 16.28
+    }
+  ],
+  "regions": [
+    "cour",
+    "escalier",
+    "terrasse",
+    "salle",
+    "terrasse",
+    "escalier",
+    "cour",
+    "passage",
+    "rive_ouest",
+    "pont",
+    "plaine"
+  ],
+  "render_cam_jerks": 8,
+  "render_frames": 556,
+  "renderer": "gl_compatibility",
+  "route": "p4",
+  "static_mem_mb": 52.0,
+  "time": 42.75,
+  "variante": "B",
+  "video_mem_mb": 69.4,
+  "view_outside": 0,
+  "wheel_ignored_in_ui": 1,
+  "zoom_changes": 4,
+  "zoom_depart": "1",
+  "zoom_final": 2.5
+}
