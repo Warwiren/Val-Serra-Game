@@ -75,6 +75,7 @@ func face_toward(sdir: Vector2) -> void:
 	if four:
 		_dir = ("right" if sdir.x > 0 else "left") if absf(sdir.x) > absf(sdir.y) else ("face" if sdir.y > 0 else "back")
 		anim = "idle_" + _dir
+		frame = 0                      # l'image de marche en cours n'existe pas dans le repos (texture nulle)
 	elif absf(sdir.x) > 0.01:
 		flip = sdir.x < 0
 

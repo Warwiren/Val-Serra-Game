@@ -5,7 +5,7 @@ Prototype jouable du RPG narratif au tour par tour **Val'Serra**, réalisé sous
 > Tous les personnages, monstres, illustrations et nombres de ce dépôt sont **provisoires et non canoniques**.
 > Ce dépôt est indépendant du système Foundry du JDR (`Warwiren/Val-serra`), qui n'est pas modifié.
 
-![Avant-poste de la lisière — cour, terrasse et bâtiment principal](docs/media/p4/captures/escalier_x2-5.jpg)
+![Avant-poste de la lisière — cour, terrasse et bâtiment principal](docs/media/p4_1/captures/escalier_x2-5.jpg)
 
 ## Ce qui est jouable
 
@@ -23,10 +23,11 @@ Une boucle complète dans l'**avant-poste de la lisière** (P4), au crépuscule,
 
 | Pont et rivière | Plaine et Vorgane |
 |---|---|
-| ![Pont](docs/media/p4/captures/pont_x2-5.jpg) | ![Plaine](docs/media/p4/captures/plaine_x2-5.jpg) |
+| ![Pont](docs/media/p4_1/captures/pont_x2-5.jpg) | ![Plaine](docs/media/p4_1/captures/plaine_x2-5.jpg) |
 
 Vidéo du parcours complet (exploration, dialogue, bâtiment, pont, combat, retour) :
-[`docs/media/p4/parcours_complet_p4.mp4`](docs/media/p4/parcours_complet_p4.mp4). Rapport : `docs/P4_AVANT_POSTE.md`.
+[`docs/media/p4_1/parcours_complet_p4_1.mp4`](docs/media/p4_1/parcours_complet_p4_1.mp4).
+Rapports : `docs/P4_1_FINITIONS.md` (finitions : netteté, caméra, reliefs, raccords) et `docs/P4_AVANT_POSTE.md`.
 
 ## Lancer le jeu (Godot 4.7.2 obligatoire)
 
@@ -34,15 +35,15 @@ Vidéo du parcours complet (exploration, dialogue, bâtiment, pont, combat, reto
 > 7 novembre 2026). La ligne `config/features=PackedStringArray("4.5")` de `project.godot` est un reliquat
 > historique, laissé tel quel volontairement : le projet s'importe et passe tous ses tests sous 4.7.2.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p4-avant-poste`**, puis **Code → Download ZIP** ; le
-   dossier s'appelle `Val-Serra-Game-p4-avant-poste`) et le décompresser. Les branches précédentes
-   (`p3-validation-camera`, etc.) restent disponibles telles quelles.
+1. Télécharger le projet (GitHub : choisir la branche **`p4-1-finitions`**, puis **Code → Download ZIP** ; le
+   dossier s'appelle `Val-Serra-Game-p4-1-finitions`) et le décompresser. Les branches précédentes
+   (`p4-avant-poste`, `p3-validation-camera`, etc.) restent disponibles telles quelles.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier**. La première ouverture réimporte
    les images (une minute environ).
-4. **F5** lance l'**avant-poste P4** (`scenes/p4/avant_poste.tscn`). Promotion décidée par le brief P4 du
-   12 novembre 2026 (« faire pointer F5 vers la nouvelle exploration P4 si elle est jouable et passe ses
-   vérifications ») ; état exact dans `docs/P4_AVANT_POSTE.md` § 8.
+4. **F5** lance la **démo de l'avant-poste, version P4.1** (`scenes/p4/avant_poste.tscn`, caméra B28 par défaut).
+   Promotion sur F5 décidée par le brief P4 du 12 novembre 2026 ; P4.1 améliore la même scène (voir
+   `docs/P4_1_FINITIONS.md` § 7).
 5. L'ancienne exploration stable, les prototypes P3 et les scènes de diagnostic s'ouvrent dans l'éditeur puis
    **F6** — voir le tableau « Autres scènes ».
 
@@ -58,6 +59,8 @@ Vidéo du parcours complet (exploration, dialogue, bâtiment, pont, combat, reto
 | Toucher le Vorgane | lancer le combat |
 | En combat : clic, ↑/↓ ou 1 à 5 | choisir une action ; ←/→ ou clic sur une partie : changer de cible |
 | En combat : Tab | changer de mode (VIF / MESURÉ / CHARGÉ) ; **Entrée** : confirmer |
+| **C** | changer de caméra pour comparer : B28 (défaut) / P30 / P38 — voir `docs/P4_1_FINITIONS.md` § 3 |
+| **T** | personnages : rendu net (P4.1) / ancien rendu bilinéaire (comparaison) |
 | **R** | revenir à l'entrée de la zone |
 | **F1** | informations de débogage (position, surface, zoom, images par seconde) ; **F2** : couches et collisions |
 | **F3** | limite d'images par seconde (aucune / 30 / 60 / 144) ; **P** : parcours automatique |
@@ -66,6 +69,7 @@ Vidéo du parcours complet (exploration, dialogue, bâtiment, pont, combat, reto
 
 | Scène | Contenu |
 |---|---|
+| `scenes/p4/comparaison_camera_P30.tscn`, `_P38.tscn` | **P4.1** : la démo avec une caméra en perspective (P30 : 30°, P38 : 38°) et flou de distance, pour comparer à B28 |
 | `scenes/explore_hd2d/zone_exploration.tscn` | **ancienne exploration stable** (carte v2, F5 jusqu'à P3) : Aren, Ilya, Throné, garde, Vorgane — voir `docs/EXPLORATION_V2.md` |
 | `scenes/explore25/camera_variante_A.tscn`, `_B`, `_C` | **P3-07** : variantes de caméra A (35°) / B (28°, retenue pour P4) / C sur le blockout, avec paysage ; V et L en jeu — `docs/P3_CAMERA_PROFONDEUR.md` |
 | `scenes/explore25/scene_temoin.tscn` | **P3** : scène témoin grise 32 × 24 m — `docs/P3_PROTOTYPE_25D.md` |
@@ -102,8 +106,8 @@ godot --path . -- --autoplay --route=p4_demo --route_retour=p4_retour
 godot --headless --path . --script res://tests/e2e_zone_retour.gd
 ```
 
-Dans l'ordre : tests automatiques (99 sous Godot 4.7.2), rencontre P4 de bout en bout (déclenchement du combat,
-victoire, défaite, entrée et sortie du bâtiment), parcours complet au clavier simulé (28 étapes), sondes de collision
+Dans l'ordre : tests automatiques (105 sous Godot 4.7.2), rencontre P4 de bout en bout (déclenchement du combat,
+victoire, défaite, entrée et sortie du bâtiment), parcours complet au clavier simulé (29 étapes ; ajouter `--camera=P30` ou `P38` pour les autres caméras), sondes de collision
 (20), démonstration filmable (le dialogue et le combat se jouent seuls), retour de combat de l'ancienne zone.
 Les résultats des parcours sont écrits dans `P4_<parcours>_mesures.json`. Dans l'éditeur, les tests se lancent aussi
 avec `tests/test_runner.tscn` puis **F6**.
@@ -112,6 +116,7 @@ avec `tests/test_runner.tscn` puis **F6**.
 
 | Sujet | Fichiers |
 |---|---|
+| **P4.1 : personnages nets, décor nettoyé** | `art/p41/` (`SOURCES.md`), outils `tools/p41/` |
 | **Avant-poste P4 (F5)** | scène et habillage : `scenes/p4/avant_poste.gd` ; données : `data/p4/` ; shaders : `src/p4/` ; ressources : `art/p4/` (`SOURCES.md`) ; outils : `tools/p4/` |
 | Socle d'exploration 2.5D (P3, réutilisé par P4) | `src/explore25/` (monde, session, caméra, acteurs, parcours), `scenes/explore25/explore_3d.gd` |
 | Ancienne zone d'exploration (code) | `scenes/explore_hd2d/zone_hd2d.gd` |
@@ -128,6 +133,7 @@ avec `tests/test_runner.tscn` puis **F6**.
 
 | Document | Contenu |
 |---|---|
+| `docs/P4_1_FINITIONS.md` | **P4.1** : origine du flou et correction, comparaison de caméras, falaises, raccords, PV de démo, tests, sprites à refaire (branche `p4-1-finitions`) |
 | `docs/P4_AVANT_POSTE.md` | **P4** : avant-poste de la lisière — audit, plan mesuré, construction, ressources provisoires, tests, limites, état de F5 (branche `p4-avant-poste`) |
 | `docs/P3_VALIDATION_CAMERA.md` | **Validation caméra A / C** : audit de reprise, vérifications sous Godot 4.7.2, mesures de cadrage et d'occultation, rapport avant verrouillage (branche `p3-validation-camera`, F5 inchangé) |
 | `docs/PROTOCOLE_VALIDATION_CAMERA_GPU.md` | Protocole de test manuel et de mesure GPU sur PC Windows (`tools/perf/mesure_gpu.bat`) |

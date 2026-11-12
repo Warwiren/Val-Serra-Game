@@ -91,6 +91,14 @@ func _ready() -> void:
 		for id in PROTO_NAMES:
 			battle.get_combatant(id).name = PROTO_NAMES[id]
 	monster_id = battle.monsters()[0].id
+	# P4.1 — rencontre de démonstration : PV maximum du monstre multipliés (0,5 dans l'avant-poste P4), pour CE combat
+	# seulement ; les données (data/combat/monster_vorgane.json) et les autres rencontres ne changent pas.
+	var hp_mult: float = GameState.flags.get("rencontre_pv_mult", 1.0)
+	GameState.flags.erase("rencontre_pv_mult")
+	if hp_mult != 1.0:
+		var mon = battle.get_combatant(monster_id)
+		mon.max_hp = maxi(1, int(round(mon.max_hp * hp_mult)))
+		mon.hp = mon.max_hp
 	if OS.get_cmdline_user_args().has("--dev-resonance"):
 		# OUTIL DE TEST UNIQUEMENT : précharge la jauge pour vérifier l'animation de la technique.
 		# Le parcours normal remplit la jauge par les attaques, gardes utiles et ruptures.

@@ -6,7 +6,7 @@ uniform sampler2D water_albedo : source_color, repeat_enable, filter_linear_mipm
 uniform sampler2D shallow_albedo : source_color, repeat_enable, filter_linear_mipmap; // EAU-02 (galets)
 uniform vec2 flow_direction = vec2(0.0, 0.06);    // UV/s
 uniform float wave_strength = 0.006;
-uniform float glint_strength = 0.09;
+uniform float glint_strength = 0.05;
 uniform float tile_m = 7.0;
 uniform float bank_x0 = 0.0;
 uniform float bank_x1 = 4.0;
@@ -29,9 +29,9 @@ void fragment() {
 	float glint = 0.5 + 0.5 * sin(uv.x * 43.0 + uv.y * 27.0 + t * 1.8);
 	base += vec3(0.25, 0.45, 0.6) * glint_strength * glint * glint * dot(base, vec3(0.5));
 	float foam = smoothstep(0.34, 0.05, edge + n * 0.6) * (0.55 + 0.45 * sin(wpos.z * 5.0 - t * 2.2 + sin(wpos.x * 9.0)));
-	base = mix(base, vec3(0.86, 0.93, 0.97), clamp(foam, 0.0, 1.0) * 0.55);
-	base = mix(base, vec3(dot(base, vec3(0.3, 0.5, 0.2))), 0.22);
-	ALBEDO = base * vec3(0.78, 0.84, 0.9);
+	base = mix(base, vec3(0.8, 0.86, 0.9), clamp(foam, 0.0, 1.0) * 0.4);
+	base = mix(base, vec3(dot(base, vec3(0.3, 0.5, 0.2))), 0.34);
+	ALBEDO = base * vec3(0.74, 0.8, 0.86);
 	EMISSION = base * 0.04;
 	ROUGHNESS = 0.4;
 }

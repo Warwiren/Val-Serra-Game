@@ -15,6 +15,7 @@ const TEST_FILES := [
 	"res://tests/unit/test_p307_camera.gd",
 	"res://tests/unit/test_validation_camera.gd",
 	"res://tests/unit/test_p4_avant_poste.gd",
+	"res://tests/unit/test_p41_finitions.gd",
 ]
 
 

@@ -1,0 +1,351 @@
+{
+  "arch": "P4.1 — avant-poste · P38 — perspective, plongée 38°, champ 22°, flou de distance",
+  "blocked_frames": 993,
+  "cadrage": {
+    "heros_pres_du_bord": 0,
+    "heros_y_max_pct": 58.9,
+    "heros_y_min_pct": 47.5,
+    "heros_y_moyen_pct": 52.9,
+    "images": 1234,
+    "images_marche": 1142,
+    "par_direction": {
+      "bas": {
+        "anticipation_px_min": 309.0,
+        "anticipation_px_moy": 324.0,
+        "anticipation_s_min": 2.79,
+        "anticipation_s_moy": 2.92,
+        "images": 35
+      },
+      "bas-droite": {
+        "anticipation_px_min": 360.0,
+        "anticipation_px_moy": 377.0,
+        "anticipation_s_min": 8.7,
+        "anticipation_s_moy": 9.11,
+        "images": 289
+      },
+      "droite": {
+        "anticipation_px_min": 404.0,
+        "anticipation_px_moy": 622.0,
+        "anticipation_s_min": 2.25,
+        "anticipation_s_moy": 8.41,
+        "images": 200
+      },
+      "gauche": {
+        "anticipation_px_min": 362.0,
+        "anticipation_px_moy": 626.0,
+        "anticipation_s_min": 2.01,
+        "anticipation_s_moy": 9.57,
+        "images": 294
+      },
+      "haut": {
+        "anticipation_px_min": 354.0,
+        "anticipation_px_moy": 374.0,
+        "anticipation_s_min": 2.03,
+        "anticipation_s_moy": 4.98,
+        "images": 86
+      },
+      "haut-droite": {
+        "anticipation_px_min": 408.0,
+        "anticipation_px_moy": 419.0,
+        "anticipation_s_min": 9.5,
+        "anticipation_s_moy": 10.23,
+        "images": 7
+      },
+      "haut-gauche": {
+        "anticipation_px_min": 392.0,
+        "anticipation_px_moy": 459.0,
+        "anticipation_s_min": 3.91,
+        "anticipation_s_moy": 8.91,
+        "images": 231
+      }
+    },
+    "par_troncon": {
+      "8 directions": {
+        "anticipation_px_min": 309.0,
+        "anticipation_px_moy": 499.0,
+        "anticipation_s_min": 2.01,
+        "anticipation_s_moy": 8.57,
+        "images": 1142
+      }
+    }
+  },
+  "cam_acc_max": 7476.0,
+  "cam_jerk_at": [
+    "avant_poste.json (39.9, 22.2) ×2.5, tronçon « 8 directions », étape 35"
+  ],
+  "cam_jerks": 1,
+  "comp_off": 0,
+  "dh_max": 0.033,
+  "done": true,
+  "draw_calls_max": 0,
+  "dt_max": 0.0166666666666667,
+  "fps_avg": 58.0,
+  "fps_cap": 60,
+  "fps_min": 20.0,
+  "frames": 1234,
+  "frametime_ms": {
+    "images": 1249,
+    "max": 133.33,
+    "moyen": 16.74,
+    "p95": 16.67
+  },
+  "h_jumps": 0,
+  "levels": [
+    1,
+    0,
+    1,
+    0
+  ],
+  "machine": {
+    "api": "",
+    "carte_graphique": "",
+    "ecran_hz": 0.0,
+    "fabricant": "",
+    "fenetre": [
+      64,
+      64
+    ],
+    "godot": "4.7.2-stable (official)",
+    "pilote": [],
+    "pilote_rendu": "vulkan",
+    "processeur": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "systeme": "Ubuntu 24.04.5 LTS 24.04",
+    "vsync": 1
+  },
+  "occluded_frames": 193,
+  "occluded_max_s": 1.18,
+  "occlusions": [
+    {
+      "a": [
+        22.1,
+        12.0
+      ],
+      "carte": "avant_poste.json",
+      "de": [
+        4.6,
+        16.9
+      ],
+      "s": 1.12,
+      "zone": "8 directions"
+    },
+    {
+      "a": [
+        34.6,
+        11.3
+      ],
+      "carte": "avant_poste.json",
+      "de": [
+        35.0,
+        6.9
+      ],
+      "s": 1.18,
+      "zone": "8 directions"
+    },
+    {
+      "a": [
+        40.0,
+        22.1
+      ],
+      "carte": "avant_poste.json",
+      "de": [
+        34.5,
+        10.4
+      ],
+      "s": 0.6,
+      "zone": "8 directions"
+    }
+  ],
+  "off_model": 0,
+  "paysage": "aucun",
+  "paysage_volumes": {},
+  "physics_ms_max": 7.12,
+  "plongee_deg": 38.0,
+  "primitives_max": 0,
+  "probes": [
+    {
+      "h": 1.20000004768372,
+      "id": "muret avant de la terrasse (vers le bas)",
+      "ok": true,
+      "region": "terrasse",
+      "x": 6.54299736022949,
+      "y": 8.39999961853027
+    },
+    {
+      "h": 1.20000004768372,
+      "id": "muraille ouest depuis la terrasse",
+      "ok": true,
+      "region": "terrasse",
+      "x": 4.32341957092285,
+      "y": 4.54299736022949
+    },
+    {
+      "h": 0.00949251092970371,
+      "id": "façade de la terrasse depuis la cour",
+      "ok": true,
+      "region": "cour",
+      "x": 7.14211797714233,
+      "y": 9.80000019073486
+    },
+    {
+      "h": 0.0,
+      "id": "côté de l'escalier depuis la cour",
+      "ok": true,
+      "region": "cour",
+      "x": 10.4819059371948,
+      "y": 11.6107482910156
+    },
+    {
+      "h": 1.18069493770599,
+      "id": "limon de l'escalier depuis les marches",
+      "ok": true,
+      "region": "escalier",
+      "x": 11.2106513977051,
+      "y": 9.32504081726074
+    },
+    {
+      "h": 1.20000004768372,
+      "id": "mur du bâtiment (hors porte)",
+      "ok": true,
+      "region": "terrasse",
+      "x": 10.0818195343018,
+      "y": 7.29714012145996
+    },
+    {
+      "h": 1.20000004768372,
+      "id": "pignon ouest du bâtiment",
+      "ok": true,
+      "region": "terrasse",
+      "x": 8.16381549835205,
+      "y": 6.61074876785278
+    },
+    {
+      "h": 0.0,
+      "id": "muraille est (hors porte)",
+      "ok": true,
+      "region": "cour",
+      "x": 19.6840057373047,
+      "y": 12.9570026397705
+    },
+    {
+      "h": 0.00934036821126938,
+      "id": "tour nord de la porte",
+      "ok": true,
+      "region": "cour",
+      "x": 19.34889793396,
+      "y": 14.514630317688
+    },
+    {
+      "h": 0.0,
+      "id": "parapet sud de la cour",
+      "ok": true,
+      "region": "cour",
+      "x": 10.5429973602295,
+      "y": 21.6765747070312
+    },
+    {
+      "h": 0.0,
+      "id": "muraille ouest de la cour",
+      "ok": true,
+      "region": "cour",
+      "x": 4.32341957092285,
+      "y": 15.5429973602295
+    },
+    {
+      "h": 0.0,
+      "id": "berge ouest / rivière",
+      "ok": true,
+      "region": "rive_ouest",
+      "x": 22.6765747070312,
+      "y": 13.4570026397705
+    },
+    {
+      "h": 0.0,
+      "id": "garde-corps sud du pont",
+      "ok": true,
+      "region": "pont",
+      "x": 24.5429973602295,
+      "y": 16.7893371582031
+    },
+    {
+      "h": 0.0,
+      "id": "garde-corps nord du pont",
+      "ok": true,
+      "region": "pont",
+      "x": 27.4570026397705,
+      "y": 15.2106628417969
+    },
+    {
+      "h": 0.0,
+      "id": "berge est / rivière",
+      "ok": true,
+      "region": "plaine",
+      "x": 29.3234252929688,
+      "y": 18.5429973602295
+    },
+    {
+      "h": 0.0,
+      "id": "plateau rocheux au nord de la plaine",
+      "ok": true,
+      "region": "plaine",
+      "x": 36.4571380615234,
+      "y": 6.32341957092285
+    },
+    {
+      "h": 0.00949251092970371,
+      "id": "tronc de l'arbre pilote",
+      "ok": true,
+      "region": "plaine",
+      "x": 33.539981842041,
+      "y": 8.66683292388916
+    },
+    {
+      "h": 0.0,
+      "id": "haie sud de la plaine",
+      "ok": true,
+      "region": "plaine",
+      "x": 38.5428619384766,
+      "y": 22.6765747070312
+    },
+    {
+      "h": 0.0,
+      "id": "haie est de la plaine",
+      "ok": true,
+      "region": "plaine",
+      "x": 45.6765747070312,
+      "y": 13.4570026397705
+    },
+    {
+      "h": 0.0,
+      "id": "tonneaux au pied de la terrasse",
+      "ok": true,
+      "region": "cour",
+      "x": 15.6104230880737,
+      "y": 10.4361877441406
+    }
+  ],
+  "process_ms_max": 0.64,
+  "regions": [
+    "terrasse",
+    "cour",
+    "escalier",
+    "terrasse",
+    "cour",
+    "rive_ouest",
+    "pont",
+    "plaine",
+    "cour"
+  ],
+  "render_cam_jerks": 38,
+  "render_frames": 1268,
+  "renderer": "forward_plus",
+  "route": "p4_sondes",
+  "static_mem_mb": 94.6,
+  "time": 20.57,
+  "variante": "B",
+  "video_mem_mb": 0.0,
+  "view_outside": 0,
+  "warps": 20,
+  "wheel_ignored_in_ui": 0,
+  "zoom_depart": "1",
+  "zoom_final": 2.5
+}

@@ -5,3 +5,4 @@
 export/
 build/
 mesures_gpu/
+__pycache__/

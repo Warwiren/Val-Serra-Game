@@ -18,7 +18,32 @@ const DialogueBox = preload("res://src/proto/dialogue_box.gd")
 const ZONE := "res://data/p4/avant_poste.json"
 const DIALOGUE := "res://data/p4/dialogue_garde.json"
 const T := "res://art/p4/"
-const MONSTER_DIR := "res://art/explore_hd2d/chars/vorgane_x/"
+const P41 := "res://art/p41/"
+const PERSO_SH = preload("res://src/p4/perso_p41.gdshader")
+const MONSTER_DIR := "res://art/p41/chars/vorgane/"
+## P4.1 — personnages nets : dossier de sprites et facteur « hauteur à l'écran (px natifs P4) / hauteur du sprite »
+## (la taille validée à l'écran est conservée : Aren 28 px natifs, Ilya 26, garde 25 ; ×2,5 par défaut).
+const CHARS := {
+	"aren": {"dir": "res://art/p41/chars/aren/", "k": 28.0 / 57.0},
+	"ilya": {"dir": "res://art/p41/chars/ilya/", "k": 26.0 / 38.0},
+	"pnj": {"dir": "res://art/p41/chars/pnj/", "k": 25.0 / 32.0},
+}
+const MONSTER_K := 54.0 / 124.0           # même longueur au sol que le Vorgane P4 (54 px natifs)
+const CHAR_TINT := Color(0.93, 0.91, 1.0)   # éclairage commun du crépuscule
+const DEMO_HP_MULT := 0.5
+const TILT_SH = preload("res://src/p4/tilt_shift_p41.gdshader")
+## P4.1 — variantes de caméra à comparer (touche C, ou --camera=). B28 reste la caméra par défaut (validée) ;
+## P30 et P38 rapprochent la vue de l'image de référence HD-2D : perspective (le lointain rapetisse), paysage
+## visible en haut, flou de distance. Même taille du héros à l'écran aux trois zooms dans toutes les variantes.
+const CAMS := {
+	"B28": {"label": "B28 — orthographique, plongée 28° (référence validée)", "pitch": 28.0, "persp": false},
+	"P30": {"label": "P30 — perspective, plongée 30°, champ 30°, flou de distance", "pitch": 30.0, "persp": true, "fov": 30.0, "tilt": true},
+	"P38": {"label": "P38 — perspective, plongée 38°, champ 22°, flou de distance", "pitch": 38.0, "persp": true, "fov": 22.0, "tilt": true},
+}
+const CAM_ORDER := ["B28", "P30", "P38"]
+const BANK_TINT := Color(0.86, 0.78, 0.86)        # berge BER-01 moins orangée (raccord avec le talus et l'eau)
+## Falaises de fond (non jouables) : [z arrière, z du pied, hauteur, teinte de perspective atmosphérique]
+const BANDS := [[-3.0, 2.0, 3.2, Color(0.8, 0.82, 0.95)], [-8.0, -3.0, 5.6, Color(0.64, 0.68, 0.9)], [-14.0, -8.0, 8.4, Color(0.52, 0.56, 0.86)]]
 
 ## rôle -> [texture, taille d'un carreau (m), teinte]
 const MATS := {
@@ -27,10 +52,10 @@ const MATS := {
 	"terre": ["mat/sol_terre.png", 5.0, Color(1, 1, 1)],
 	"decor": ["mat/sol_herbe.png", 6.0, Color(0.8, 0.86, 0.92)],
 	"roche": ["mat/roche.png", 4.0, Color(1, 1, 1)],
-	"pierre": ["batiment/pierre_taille.png", 3.2, Color(0.8, 0.78, 0.83)],
+	"pierre": ["batiment/pierre_taille.png", 2.6, Color(0.8, 0.77, 0.78)],
 	"marche": ["batiment/pierre_taille.png", 3.2, Color(1.0, 0.96, 0.98)],
-	"plancher": ["pont/planches.png", 2.0, Color(0.64, 0.6, 0.62)],
-	"bois": ["pont/planches.png", 2.0, Color(0.56, 0.47, 0.44)],
+	"plancher": ["pont/planches.png", 2.0, Color(0.6, 0.55, 0.6)],
+	"bois": ["pont/planches.png", 2.0, Color(0.52, 0.45, 0.46)],
 	"toit": ["batiment/toit_violet.png", 2.4, Color(0.84, 0.82, 0.9)],
 	"facade": ["batiment/facade_colombage.png", 4.0, Color(1, 1, 1)],
 }
@@ -60,24 +85,37 @@ var _interior := false
 var _rng := RandomNumberGenerator.new()
 var _time := 0.0
 var _auto_dialog_t := 0.0
+var _monster_frames: Array = []
+var _foot_cache := {}
+var cam_mode := "B28"
+## scènes de comparaison F6 : caméra de départ
+@export var camera_initiale := ""
+var _tilt: ColorRect
+var _monster_quad: MeshInstance3D
 
 
 func _ready() -> void:
 	_cli = parse_cli()
 	variante = "B"                         # préférence validée : plongée 28°, héros centré
+	if CAMS.has(camera_initiale):
+		cam_mode = camera_initiale
+	if CAMS.has(str(_cli.get("camera", "")).to_upper()):
+		cam_mode = str(_cli["camera"]).to_upper()
 	paysage = "aucun"                      # le paysage non jouable est construit ici (falaises, forêt), pas par P3-07
 	arch_label = "P4 — avant-poste"
-	Actor25.overrides["ilya"] = T + "chars/ilya/"
+	for k in CHARS:
+		Actor25.overrides[k] = CHARS[k]["dir"]
 	get_tree().physics_interpolation = true
 	s = Session25.new(self, arch_label)
 	s.options["debug"] = _cli.has("debug")
 	s.options["grid"] = false
 	s.options["occlusion"] = 0             # pas de silhouette bleue : masquage localisé des occultants (shader)
 	_apply_variante()
-	s.arch = "P4 — avant-poste · plongée 28°, azimut 20°"
+	s.arch = "P4.1 — avant-poste · " + CAMS[cam_mode]["label"]
 	s.build_hud()
-	s._help.text = "Flèches / ZQSD : marcher  ·  Molette : zoom ×2 / ×2,5 / ×3  ·  E : parler, examiner  ·  R : retour à l'entrée  ·  F1 : infos"
+	s._help.text = "Flèches / ZQSD : marcher  ·  Molette : zoom ×2 / ×2,5 / ×3  ·  E : parler, examiner  ·  C : caméra (comparaison)  ·  R : retour à l'entrée  ·  F1 : infos"
 	_build_ui()
+	_build_tilt()
 	_env()
 	cam = Camera3D.new()
 	cam.projection = Camera3D.PROJECTION_ORTHOGONAL
@@ -104,12 +142,15 @@ func _ready() -> void:
 			_cli.erase("route")
 	_load(_cli.get("instance", ZONE), "instance", arrive)
 	_apply_cli()
+	if _cli.has("flou"):
+		s.options["sharp"] = false
 	if returning:
 		s.toast("Le Vorgane est vaincu." if GameState.enemy_defeated else "Le groupe s'est replié dans la cour.", 3.0)
 
 
 func _exit_tree() -> void:
-	Actor25.overrides.erase("ilya")
+	for k in CHARS:
+		Actor25.overrides.erase(k)
 	get_tree().physics_interpolation = false      # le combat (2D) garde son réglage d'origine
 
 
@@ -177,6 +218,7 @@ func _surf(key: String, hole := false, uv_mesh := false) -> ShaderMaterial:
 	mm.set_shader_parameter("tint", d[2])
 	mm.set_shader_parameter("hole", 1.0 if hole else 0.0)
 	mm.set_shader_parameter("uv_mode", 1.0 if uv_mesh else 0.0)
+	mm.set_shader_parameter("antitile", 1.0 if key in ["herbe", "decor", "terre", "roche"] else 0.0)
 	_mat_cache[ck] = mm
 	return mm
 
@@ -193,11 +235,25 @@ func _tinted(key: String, tint: Color, hole := false) -> ShaderMaterial:
 	return mm
 
 
+## P4.1 : version nettoyée (sans plaque de sol peinte) si elle existe dans art/p41/decor/, sinon l'original P4.
+func _decor_path(tex_path: String) -> String:
+	if tex_path.begins_with("decor/"):
+		return P41 + tex_path
+	var cleaned := P41 + "decor/" + tex_path.get_file()
+	return cleaned if ResourceLoader.exists(cleaned) else T + tex_path
+
+
 ## Carte illustrée verticale tournée vers la caméra (azimut seul), pied posé en `foot` (repère Godot).
 func _card(tex_path: String, foot: Vector3, width_m: float, o := {}) -> MeshInstance3D:
-	var tex: Texture2D = load(T + tex_path)
+	var path := _decor_path(tex_path)
+	var tex: Texture2D = load(path)
 	var hw := width_m * float(tex.get_height()) / tex.get_width() / cos(World25.pitch)
 	var anchor: float = o.get("anchor", 0.1)
+	if path.begins_with(P41):
+		# image nettoyée : le pied est le bas réel de l'image (plus de plaque de sol peinte sous lui)
+		if not _foot_cache.has(path):
+			_foot_cache[path] = float(tex.get_height() - tex.get_image().get_used_rect().end.y) / tex.get_height()
+		anchor = _foot_cache[path] + 0.012
 	# la partie de l'image sous le pied (herbes, racines) est ramenée vers la caméra pour rester devant le sol
 	var shift: float = maxf(o.get("shift", 0.45), anchor * hw / sin(World25.pitch) + 0.06)
 	var mi := MeshInstance3D.new()
@@ -572,9 +628,9 @@ func _bank_overlay(e: Dictionary) -> void:
 		var p: Array = pts[i]
 		var q: Array = pts[i + 1]
 		if ws > 0:
-			_strip("mat/berge.png", Vector3(p[0], p[1], z1), Vector3(p[0], p[1], z0), Vector3(q[0], q[1], z1), Vector3(q[0], q[1], z0), p[2], q[2])
+			_strip("mat/berge.png", Vector3(p[0], p[1], z1), Vector3(p[0], p[1], z0), Vector3(q[0], q[1], z1), Vector3(q[0], q[1], z0), p[2], q[2], 4.0, BANK_TINT)
 		else:
-			_strip("mat/berge.png", Vector3(p[0], p[1], z0), Vector3(p[0], p[1], z1), Vector3(q[0], q[1], z0), Vector3(q[0], q[1], z1), p[2], q[2])
+			_strip("mat/berge.png", Vector3(p[0], p[1], z0), Vector3(p[0], p[1], z1), Vector3(q[0], q[1], z0), Vector3(q[0], q[1], z1), p[2], q[2], 4.0, BANK_TINT)
 
 
 func _build_tree(e: Dictionary) -> void:
@@ -590,10 +646,16 @@ func _build_tree(e: Dictionary) -> void:
 		cards.append(_card("arbre/arb01_feuillage_arriere.png", foot, px_m, o.merged({"layer": -0.12, "sway": 0.028})))
 		cards.append(_card("arbre/arb01_tronc.png", foot, px_m, o))
 		cards.append(_card("arbre/arb01_feuillage_avant.png", foot, px_m, o.merged({"layer": 0.12, "sway": 0.022})))
-		_blob(foot, w * 0.8, 0.5)
 	else:
-		cards.append(_card(cfg["sprite"], foot, w, {"anchor": cfg.get("ancrage", 0.12), "sway": 0.03, "hole": true}))
-		_blob(foot, w * 0.75, 0.5)
+		cards.append(_card(cfg["sprite"], foot, w, {"sway": 0.03, "hole": true}))
+	# raccord au terrain : ombre de contact large et douce + touffes aux couleurs du sol autour des racines
+	_blob(foot, w * 0.85, 0.5)
+	_blob(foot, w * 0.4, 0.35)
+	for k in 5:
+		var a := -PI * 0.15 + PI * 1.3 * k / 4.0 + _rng.randf_range(-0.2, 0.2)
+		var rr: float = e["r"] + _rng.randf_range(0.15, 0.45)
+		var q := Vector3(foot.x + cos(a) * rr * 1.2, foot.y, foot.z + sin(a) * rr * 0.8)
+		_card("decor/touffe_sol_%d.png" % (k % 4), q, _rng.randf_range(0.6, 0.95), {"shift": 0.05 + 0.3 * sin(a), "sway": 0.012})
 	var trunk := _obstacle_cyl(foot, e["r"], e["trunk_h"])
 	var occ := StaticBody3D.new()
 	occ.collision_layer = L_OCC
@@ -745,53 +807,40 @@ func _build_exterior(p4: Dictionary) -> void:
 			Vector3(r.position.x, y, r.position.y + 0.75), Vector3(r.end.x, y, r.position.y + 0.75), 0.3, 0.68)
 		_strip("mat/trs_herbe_terre.png", Vector3(r.end.x, y, r.end.y + 0.55), Vector3(r.position.x, y, r.end.y + 0.55),
 			Vector3(r.end.x, y, r.end.y - 0.75), Vector3(r.position.x, y, r.end.y - 0.75), 0.3, 0.68)
-	# relief non jouable : plateau rocheux au nord de la plaine (pilote REL-01, 4 m × 1,20 m), puis falaises étagées
+	# P4.1 — relief non jouable : falaises irrégulières (strates, talus de terre, roches, herbe en crête) au lieu de
+	# boîtes lisses. Les lignes données sont les PIEDS des talus : la limite praticable (plaine, y = 6) n'est pas
+	# déplacée ; aucune collision nouvelle (le plateau reste hors de la surface praticable, comme en P4).
 	var pl: Dictionary = p4.get("plateau", {})
 	if not pl.is_empty():
 		var q: Array = pl["rect"]
-		var pr := Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1])
-		_box_mesh(_rect_center(pr, 0.0, pl["h"] - 0.06), Vector3(pr.size.x, pl["h"] - 0.06, pr.size.y), _surf("roche"))
-		_box_mesh(_rect_center(pr, pl["h"] - 0.06, pl["h"]), Vector3(pr.size.x, 0.06, pr.size.y), _surf("decor"))
-		var glb: PackedScene = load(T + "relief/rel01_mur_4m_h120.glb")
-		var x := pr.position.x + 2.0
-		while x < pr.end.x:
-			var inst: Node3D = glb.instantiate()
-			inst.position = Vector3(x, 0.0, pr.end.y + 0.2)
-			root.add_child(inst)
-			x += 4.0
-	for band in [[-3.0, 2.0, 3.2, Color(0.8, 0.82, 0.95)], [-8.0, -3.0, 5.6, Color(0.62, 0.66, 0.9)], [-14.0, -8.0, 8.4, Color(0.5, 0.55, 0.86)]]:
-		for seg in [[-40.0, 22.6], [29.4, 90.0]]:              # gorge de la rivière entre les deux massifs
-			if band[1] > 2.1 and seg[0] < 21.0:
-				continue
-			var z1b: float = minf(band[1], 2.1) if seg[0] < 21.0 else band[1]
-			var br := Rect2(seg[0], band[0], seg[1] - seg[0], z1b - band[0])
-			_box_mesh(_rect_center(br, 0.0, band[2] - 0.08), Vector3(br.size.x, band[2] - 0.08, br.size.y), _tinted("roche", band[3]))
-			_box_mesh(_rect_center(br, band[2] - 0.08, band[2]), Vector3(br.size.x, 0.08, br.size.y), _tinted("decor", band[3]))
+		_cliff(PackedVector2Array([Vector2(q[0], q[1]), Vector2(q[0], q[3]), Vector2(q[2], q[3])]), 0.0, pl["h"],
+			{"depth": q[3] - q[1] - 0.2, "talus": 0.55, "seed": 3.0, "rocks": 1.0})
+	for band in BANDS:
+		var tint: Color = band[3]
+		var zf: float = band[1]
+		_cliff(PackedVector2Array([Vector2(-60.0, zf), Vector2(22.6, zf), Vector2(22.6, band[0])]), 0.0, band[2],
+			{"depth": zf - band[0], "talus": 0.9, "seed": band[2] * 7.0, "tint": tint, "rocks": 0.6})
+		_cliff(PackedVector2Array([Vector2(29.4, band[0]), Vector2(29.4, zf), Vector2(110.0, zf)]), 0.0, band[2],
+			{"depth": zf - band[0], "talus": 0.9, "seed": band[2] * 11.0, "tint": tint, "rocks": 0.6})
 	# forêt et végétation de décor (non jouable), tirage déterministe
 	var trees := ["vegetation/arb02_rond.png", "vegetation/arb03_foret.png", "vegetation/arb02_rond.png", "vegetation/arb05_fleuri.png"]
-	for i in 120:
-		var p := Vector2(_rng.randf_range(-18.0, 66.0), _rng.randf_range(-13.0, 5.4))
-		if p.x > 22.4 and p.x < 29.6:
+	for i in 150:
+		var p := Vector2(_rng.randf_range(-24.0, 70.0), _rng.randf_range(-13.6, 5.0))
+		if p.x > 21.8 and p.x < 30.2:
 			continue
-		if p.x > 2.0 and p.x < 21.6 and p.y > 0.8:
-			continue                                   # pas d'arbre dans les murailles
-		var h := 0.0
+		var h := -1.0
 		var tint := Color(0.94, 0.94, 1.0)
-		if p.y < -8.0:
-			h = 8.4
-			tint = Color(0.5, 0.56, 0.86)
-		elif p.y < -3.0:
-			h = 5.6
-			tint = Color(0.64, 0.68, 0.9)
-		elif p.y < 2.0 and (p.x > 29.4 or p.y < 2.0 and p.x < 22.6):
-			h = 3.2
-			tint = Color(0.8, 0.82, 0.95)
-		elif p.x > 29.5 and p.y > 3.4 and p.y < 6.0:
-			h = 1.2
-			p.y = minf(p.y, 5.0)
-		elif p.y >= 2.0:
-			continue
-		_card(trees[i % trees.size()], Vector3(p.x, h, p.y), _rng.randf_range(3.6, 5.2), {"anchor": 0.12, "sway": 0.03, "tint": tint})
+		for band in BANDS:
+			if p.y > band[0] + 0.3 and p.y < band[1] - 1.1:
+				h = band[2]
+				tint = band[3]
+		var q: Array = pl.get("rect", [0, 0, 0, 0])
+		if h < 0.0 and p.x > q[0] + 1.0 and p.y > q[1] + 0.3 and p.y < q[3] - 1.1:
+			h = pl["h"]
+		if h < 0.0 or (p.x > 2.0 and p.x < 21.6 and h < 3.0):
+			continue                                   # pas d'arbre dans les murailles ni dans le vide
+		_card(trees[i % trees.size()], Vector3(p.x, h, p.y), _rng.randf_range(3.6, 5.2), {"anchor": 0.03, "sway": 0.03, "tint": tint})
+		_blob(Vector3(p.x, h, p.y), 2.6, 0.42)
 	var low := ["vegetation/buis01_violet.png", "vegetation/buis02_dense.png", "vegetation/buis05_pourpre.png", "vegetation/herb02_touffe.png",
 		"vegetation/fleur04_lavande.png", "vegetation/fleur01_marguerites.png", "vegetation/herb02_touffe.png", "vegetation/roc01_rocher.png"]
 	var wd := [1.6, 1.6, 1.4, 1.0, 0.8, 0.8, 1.0, 1.4]
@@ -808,6 +857,15 @@ func _build_exterior(p4: Dictionary) -> void:
 			if world.surface_at(p, 0.0).is_empty() or not world.stand(p, 0.0):
 				continue
 		_card(low[k], Vector3(p.x, 0.0, p.y), wd[k] * _rng.randf_range(0.85, 1.15), {"anchor": 0.13, "sway": 0.012 if k != 7 else 0.0})
+	# P4.1 — berges : galets et roches au pied de la pente (zone non praticable), plus de transition franche sol / eau
+	for i in 70:
+		var z := _rng.randf_range(-6.0, 40.0)
+		if z > 13.9 and z < 18.1:
+			continue                                         # dégagement du pont
+		var west := i % 2 == 0
+		var x := _rng.randf_range(23.2, 23.85) if west else _rng.randf_range(28.15, 28.8)
+		var rr := _rng.randf_range(0.1, 0.28)
+		_rock(Vector3(x, -0.35 + rr * 0.3 + (0.25 if (west and x < 23.5) or (not west and x > 28.5) else 0.0), z), rr, Color(0.85, 0.85, 0.9))
 	# roseaux le long des berges
 	for i in 26:
 		var z := _rng.randf_range(-2.0, 38.0)
@@ -815,6 +873,164 @@ func _build_exterior(p4: Dictionary) -> void:
 			continue
 		var west := i % 2 == 0
 		_card("vegetation/rose01_massette.png", Vector3(23.75 if west else 28.25, -0.3, z), _rng.randf_range(1.1, 1.5), {"anchor": 0.1, "sway": 0.03})
+
+
+# ------------------------------------------------------------------------------------------------ falaises
+static func _hash(n: float) -> float:
+	return fposmod(sin(n * 127.1 + 311.7) * 43758.5453, 1.0)
+
+
+static func _vnoise(x: float, sd: float) -> float:
+	var i := floorf(x)
+	var f := x - i
+	var u := f * f * (3.0 - 2.0 * f)
+	return lerpf(_hash(i + sd * 17.0), _hash(i + 1.0 + sd * 17.0), u)
+
+
+## Falaise procédurale le long d'une ligne de PIEDS de talus (plan x, z). La paroi est en retrait côté roche (gauche
+## de la ligne) : talus de terre, paroi rocheuse à strates et corniches, lèvre d'herbe, dessus herbeux sur `depth`.
+func _cliff(toe: PackedVector2Array, h0: float, h1: float, o: Dictionary) -> void:
+	var sd: float = o.get("seed", 1.0)
+	var tint: Color = o.get("tint", Color(1, 1, 1))
+	var talus: float = o.get("talus", 0.6)
+	var depth: float = o.get("depth", 3.0)
+	var hh := h1 - h0
+	# échantillons le long de la ligne : position, normale (vers le côté praticable), abscisse curviligne
+	var smp: Array = []
+	var s_acc := 0.0
+	for k in toe.size() - 1:
+		var a := toe[k]
+		var b := toe[k + 1]
+		var d := (b - a).normalized()
+		var n := Vector2(-d.y, d.x)
+		var steps := maxi(1, int(a.distance_to(b) / 0.5))
+		for i in steps + (1 if k == toe.size() - 2 else 0):
+			var f := float(i) / steps
+			var nn := n
+			if i == 0 and k > 0:
+				var dp := (toe[k] - toe[k - 1]).normalized()
+				nn = (n + Vector2(-dp.y, dp.x)).normalized()
+			smp.append([a.lerp(b, f), nn, s_acc + a.distance_to(b) * f])
+		s_acc += a.distance_to(b)
+	var R := maxi(4, int(hh / 0.45))
+	var cols: Array = []                                      # par échantillon : points de la paroi, de bas en haut
+	for sm in smp:
+		var p: Vector2 = sm[0]
+		var n: Vector2 = sm[1]
+		var s: float = sm[2]
+		var tw := talus * (0.65 + 0.7 * _vnoise(s * 0.45, sd + 3.0))
+		var col: Array = []
+		for k in R + 1:
+			var v := float(k) / R
+			var strata := floorf(v * 3.0 + _vnoise(s * 0.2, sd + 5.0) * 0.8)
+			var r := tw + 0.06 + 0.5 * _vnoise(s * 0.45 + strata * 3.1, sd) + 0.18 * _vnoise(s * 1.9 + k * 0.7, sd + 1.0) + v * hh * 0.1
+			if k == R:
+				r -= 0.08                                     # la lèvre d'herbe déborde un peu
+			var y := h0 + hh * v + (_vnoise(s * 1.3, sd + 2.0) - 0.5) * 0.12 * float(k > 0 and k < R)
+			if k == R:
+				# crête irrégulière : blocs plus ou moins hauts (silhouette naturelle, pas une arête droite)
+				y += (_vnoise(s * 0.7, sd + 4.0) - 0.45) * minf(0.6, hh * 0.22) + (_vnoise(s * 2.6, sd + 8.0) - 0.5) * minf(0.2, hh * 0.08)
+			var q := p - n * r
+			col.append(Vector3(q.x, y, q.y))
+		cols.append([col, p, n, s, tw])
+	var face: Array = []
+	var top: Array = []
+	var tal: Array = []
+	var out_n: Array = []
+	for i in cols.size() - 1:
+		var c0: Array = cols[i][0]
+		var c1: Array = cols[i + 1][0]
+		var s0: float = cols[i][3]
+		var s1: float = cols[i + 1][3]
+		for k in R:
+			face.append([c0[k], c1[k], c1[k + 1], c0[k + 1], Vector2(s0, c0[k].y), Vector2(s1, c1[k].y), Vector2(s1, c1[k + 1].y), Vector2(s0, c0[k + 1].y)])
+		# dessus herbeux
+		var n0: Vector2 = cols[i][2]
+		var n1: Vector2 = cols[i + 1][2]
+		var b0: Vector3 = c0[R] - Vector3(n0.x, 0, n0.y) * depth
+		var b1: Vector3 = c1[R] - Vector3(n1.x, 0, n1.y) * depth
+		top.append([c0[R], c1[R], b1, b0])
+		# talus : du pied de la paroi au pied du talus (bombé)
+		var p0: Vector2 = cols[i][1]
+		var p1: Vector2 = cols[i + 1][1]
+		var m0: Vector3 = (c0[0] + Vector3(p0.x, h0, p0.y)) / 2.0 + Vector3(0, 0.12 + 0.1 * _vnoise(s0, sd + 9.0), 0)
+		var m1: Vector3 = (c1[0] + Vector3(p1.x, h0, p1.y)) / 2.0 + Vector3(0, 0.12 + 0.1 * _vnoise(s1, sd + 9.0), 0)
+		tal.append([c0[0] + Vector3(0, 0.22, 0), c1[0] + Vector3(0, 0.22, 0), m1, m0])
+		tal.append([m0, m1, Vector3(p1.x, h0 + 0.015, p1.y), Vector3(p0.x, h0 + 0.015, p0.y)])
+	var rock := _tinted("roche", tint)
+	rock.set_shader_parameter("uv_mode", 1.0)
+	rock.set_shader_parameter("tile_m", 1.0)
+	_mesh_quads(face, rock, true, 1.0 / 3.0)
+	_mesh_quads(top, _tinted("decor", tint), false)
+	_mesh_quads(tal, _tinted("terre", tint * Color(0.62, 0.58, 0.62)), false)
+	# lèvre d'herbe, touffes en crête et au pied, roches éboulées sur le talus
+	var rocks_k: float = o.get("rocks", 1.0)
+	var i := 0
+	while i < cols.size():
+		var col: Array = cols[i][0]
+		var p: Vector2 = cols[i][1]
+		var n: Vector2 = cols[i][2]
+		var s: float = cols[i][3]
+		var tw: float = cols[i][4]
+		var tp: Vector3 = col[col.size() - 1]
+		if _hash(s * 3.7 + sd) < 0.75:
+			_card("decor/touffe_sol_%d.png" % (int(_hash(s + sd) * 4.0) % 4), tp - Vector3(n.x, 0, n.y) * 0.25, _rng.randf_range(0.8, 1.3), {"anchor": 0.0, "shift": 0.05, "sway": 0.015, "tint": tint})
+		if _hash(s * 5.1 + sd) < 0.7:
+			_card("decor/touffe_sol_%d.png" % (int(_hash(s * 2.0 + sd) * 4.0) % 4), Vector3(p.x, h0, p.y) - Vector3(n.x, 0, n.y) * 0.12, _rng.randf_range(0.7, 1.1), {"anchor": 0.0, "shift": 0.05, "sway": 0.012, "tint": tint})
+		if _hash(s * 1.3 + sd * 2.0) < 0.33 * rocks_k:
+			var rr := _rng.randf_range(0.14, minf(0.42, tw * 0.45))
+			var c := p - n * (tw * 0.55)
+			_rock(Vector3(c.x, h0 + rr * 0.35, c.y), rr, tint)
+		i += 1
+
+
+func _mesh_quads(quads: Array, mat: Material, explicit_uv: bool, uv_scale := 1.0) -> void:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for q in quads:
+		var pts := [q[0], q[1], q[2], q[3]]
+		var uvs := [Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO]
+		if explicit_uv:
+			uvs = [Vector2(q[4].x, -q[4].y) * uv_scale, Vector2(q[5].x, -q[5].y) * uv_scale, Vector2(q[6].x, -q[6].y) * uv_scale, Vector2(q[7].x, -q[7].y) * uv_scale]
+		for tri in [[0, 1, 2], [0, 2, 3]]:
+			var a: Vector3 = pts[tri[0]]
+			var b: Vector3 = pts[tri[1]]
+			var c: Vector3 = pts[tri[2]]
+			# Godot : faces avant dans le sens horaire vu de la caméra -> (b - a) × (c - a) doit s'éloigner d'elle
+			var nrm := (b - a).cross(c - a).normalized()
+			var order: Array = tri
+			if nrm.dot(_view_ref(a)) > 0.0:
+				order = [tri[0], tri[2], tri[1]]
+			else:
+				nrm = -nrm
+			for k in order:
+				st.set_normal(nrm)
+				st.set_uv(uvs[k])
+				st.add_vertex(pts[k])
+	var mi := MeshInstance3D.new()
+	mi.mesh = st.commit()
+	mi.material_override = mat
+	root.add_child(mi)
+
+
+## Orientation des faces générées : vers la caméra (les falaises ne sont vues que de ce côté).
+func _view_ref(_p: Vector3) -> Vector3:
+	return World25.cam_back()
+
+
+func _rock(c: Vector3, r: float, tint: Color) -> void:
+	var mi := MeshInstance3D.new()
+	var sm := SphereMesh.new()
+	sm.radius = r
+	sm.height = r * 1.6
+	sm.radial_segments = 7
+	sm.rings = 3
+	mi.mesh = sm
+	mi.material_override = _tinted("roche", tint * Color(1.05, 1.05, 1.08))
+	mi.rotation = Vector3(_rng.randf_range(-0.3, 0.3), _rng.randf_range(0.0, TAU), _rng.randf_range(-0.3, 0.3))
+	mi.scale = Vector3(_rng.randf_range(1.0, 1.5), _rng.randf_range(0.7, 1.0), _rng.randf_range(0.9, 1.3))
+	mi.position = c
+	root.add_child(mi)
 
 
 # ------------------------------------------------------------------------------------------------ intérieur
@@ -865,6 +1081,112 @@ func _build_furniture(e: Dictionary) -> void:
 				_box_mesh(Vector3(r.get_center().x, hh, r.end.y + 0.01), Vector3(r.size.x, 0.05, 0.04), _surf("plancher"))
 
 
+# ------------------------------------------------------------------------------------------------ caméra (P4.1)
+func _apply_variante() -> void:
+	World25.pitch = deg_to_rad(CAMS[cam_mode]["pitch"])
+	s.cam.aim_frac = 0.0
+	RenderingServer.global_shader_parameter_set("p4_persp", 1.0 if CAMS[cam_mode]["persp"] else 0.0)
+	if _tilt != null:
+		_tilt.visible = CAMS[cam_mode].get("tilt", false) and not _cli.has("notilt")
+
+
+func _build_tilt() -> void:
+	var layer := CanvasLayer.new()
+	layer.layer = 5                                     # sous l'interface (50) : le texte reste net
+	add_child(layer)
+	_tilt = ColorRect.new()
+	_tilt.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_tilt.size = Vector2(4000, 4000)
+	_tilt.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var mm := ShaderMaterial.new()
+	mm.shader = TILT_SH
+	_tilt.material = mm
+	_tilt.visible = CAMS[cam_mode].get("tilt", false) and not _cli.has("notilt")
+	layer.add_child(_tilt)
+
+
+func apply_camera(center: Vector2, zoom: float) -> void:
+	var c: Dictionary = CAMS[cam_mode]
+	if not c["persp"]:
+		cam.projection = Camera3D.PROJECTION_ORTHOGONAL
+		super.apply_camera(center, zoom)
+		return
+	# même cadrage que l'orthographique (le héros au même point de l'écran, à la même taille) : la caméra est placée
+	# sur le rayon central, à la distance où la hauteur visible au niveau du héros égale celle de la vue ortho
+	var vp: Vector2 = Session25.viewport_size(self)
+	var h_view := vp.y / (World25.PPM * zoom)
+	cam.projection = Camera3D.PROJECTION_PERSPECTIVE
+	cam.fov = c["fov"]
+	var axis := World25.cam_right() * (center.x / World25.PPM) + World25.cam_up() * (-center.y / World25.PPM)
+	var depth := body.global_position.dot(World25.cam_back()) if body != null else 0.0
+	cam.position = axis + World25.cam_back() * (depth + h_view * 0.5 / tan(deg_to_rad(c["fov"]) * 0.5))
+
+
+## Occultation : rayons du héros vers la caméra réelle (en perspective, la direction dépend de la position).
+func hero_occluded() -> bool:
+	if not CAMS[cam_mode]["persp"]:
+		return super.hero_occluded()
+	var space := get_world_3d().direct_space_state
+	var base := body.global_position
+	var hit_any := false
+	for hh in [0.9, 1.5]:
+		var from := base + Vector3(0, hh, 0)
+		var dir := (cam.global_position - from).normalized()
+		from += dir * (SPRITE_TOWARD_CAM + 0.05)
+		var pr := PhysicsRayQueryParameters3D.create(from, from + dir * 60.0, L_FLOOR | L_OBST | L_OCC)
+		if not space.intersect_ray(pr).is_empty():
+			hit_any = true
+	_occluded = hit_any
+	return hit_any
+
+
+func _cycle_camera() -> void:
+	cam_mode = CAM_ORDER[(CAM_ORDER.find(cam_mode) + 1) % CAM_ORDER.size()]
+	s.arch = "P4.1 — avant-poste · " + CAMS[cam_mode]["label"]
+	_reload_here()
+	s.toast("Caméra " + CAMS[cam_mode]["label"], 2.5)
+
+
+# ------------------------------------------------------------------------------------------------ personnages
+func _perso_quad(parent: Node3D) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	mi.mesh = QuadMesh.new()
+	var mm := ShaderMaterial.new()
+	mm.shader = PERSO_SH
+	mm.set_shader_parameter("tint", CHAR_TINT)
+	mm.render_priority = 1
+	mi.material_override = mm
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(mi)
+	return mi
+
+
+func _make_actor(name: String, key: String) -> Dictionary:
+	var d: Dictionary = super._make_actor(name, key)
+	(d["spr"] as AnimatedSprite3D).visible = false          # remplacé par une carte « pixel net »
+	d["k"] = CHARS.get(key, {"k": 1.0})["k"]
+	d["main"] = _perso_quad(d["spr"].get_parent())
+	_sync_sprite(d)
+	return d
+
+
+func _sync_sprite(d: Dictionary) -> void:
+	super._sync_sprite(d)
+	if not d.has("main"):
+		return
+	var tex: Texture2D = d["actor"].texture()
+	var k: float = d["k"]
+	var w := tex.get_width() * k / World25.PPM
+	var h := tex.get_height() * k / World25.PPM / cos(World25.pitch)
+	var mi: MeshInstance3D = d["main"]
+	(mi.mesh as QuadMesh).size = Vector2(w, h)
+	mi.position = Vector3(0, h / 2.0, 0)
+	var mm: ShaderMaterial = mi.material_override
+	mm.set_shader_parameter("tex", tex)
+	mm.set_shader_parameter("flip", 1.0 if d["actor"].flip else 0.0)
+	mm.set_shader_parameter("sharp", 1.0 if s == null or s.options.get("sharp", true) else 0.0)
+
+
 # ------------------------------------------------------------------------------------------------ rencontre
 func _spawn_monster() -> void:
 	var c: Array = _monster_cfg["xy"]
@@ -876,28 +1198,20 @@ func _spawn_monster() -> void:
 	holder.basis = Basis(Vector3.UP, -World25.YAW)
 	holder.position = World25.cam_back() * (SPRITE_TOWARD_CAM + 0.5)
 	_monster.add_child(holder)
-	var sf := SpriteFrames.new()
-	sf.set_animation_speed("default", 6.0)
-	sf.set_animation_loop("default", true)
+	_monster_frames.clear()
 	for i in 8:
-		sf.add_frame("default", load(MONSTER_DIR + "idle_%d.png" % i))
-	var anc: Dictionary = JSON.parse_string(FileAccess.open(MONSTER_DIR + "anchor.json", FileAccess.READ).get_as_text())
-	var spr := AnimatedSprite3D.new()
-	spr.sprite_frames = sf
-	spr.centered = false
-	spr.pixel_size = 1.0 / World25.PPM
-	spr.scale = Vector3(1, 1.0 / cos(World25.pitch), 1)
-	spr.offset = Vector2(-anc["feet"][0], -(anc["native"][1] - anc["feet"][1]))
-	spr.alpha_cut = SpriteBase3D.ALPHA_CUT_DISABLED
-	spr.transparent = true
-	spr.shaded = false
-	spr.double_sided = true
-	spr.flip_h = true                              # tourné vers le pont, d'où vient le groupe
-	spr.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR
-	spr.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	spr.play("default")
-	holder.add_child(spr)
+		_monster_frames.append(load(MONSTER_DIR + "idle_%d.png" % i))
+	var mi := _perso_quad(holder)
+	var t0: Texture2D = _monster_frames[0]
+	var w := t0.get_width() * MONSTER_K / World25.PPM
+	var h := t0.get_height() * MONSTER_K / World25.PPM / cos(World25.pitch)
+	(mi.mesh as QuadMesh).size = Vector2(w, h)
+	mi.position = Vector3(0, h / 2.0, 0)
+	(mi.material_override as ShaderMaterial).set_shader_parameter("tex", t0)
+	(mi.material_override as ShaderMaterial).set_shader_parameter("tint", Color(1.12, 1.08, 1.2))   # images « nuit » du combat
+	_monster_quad = mi
 	root.add_child(_monster)
+	_blob(foot, 2.6, 0.45)
 	_obstacle_cyl(foot, _monster_cfg["r"], 1.6)
 	world.solids.append({"id": "vorgane", "kind": "circle", "c": Vector2(c[0], c[1]), "r": _monster_cfg["r"], "h0": 0.0, "h1": 1.6})
 
@@ -916,6 +1230,7 @@ func _engage() -> void:
 	GameState.from_zone = true
 	GameState.proto = true
 	GameState.arena = "lisiere"                    # arène illustrée du combat, comme l'exploration précédente
+	GameState.flags["rencontre_pv_mult"] = DEMO_HP_MULT   # démo : PV du Vorgane divisés par deux (ce combat seulement)
 	GameState.flags["p4_pos"] = s.hero - Vector3(2.4, 0, 0)       # au retour : un peu en retrait, côté pont
 	GameState.explore_return = scene_file_path
 	GameState.goto(GameState.SCENE_PROTO_BATTLE, 0.35)
@@ -961,6 +1276,15 @@ func _unhandled_input(e: InputEvent) -> void:
 		if e is InputEventKey and e.pressed and not e.echo:
 			_dialog.handle_key(e)
 		return
+	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_C:
+		_cycle_camera()
+		return
+	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_T:
+		s.options["sharp"] = not s.options.get("sharp", true)
+		s.toast("Sprites : " + ("pixel net (P4.1)" if s.options["sharp"] else "bilinéaire (P4)"))
+		for k in actors:
+			_sync_sprite(actors[k])
+		return
 	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_P:
 		if not _interior:
 			s.start_pilot("p4")                    # parcours automatique de l'avant-poste (depuis l'entrée)
@@ -997,6 +1321,8 @@ func _process(delta: float) -> void:
 	_hole = move_toward(_hole, 1.0 if _occluded else 0.0, delta * 6.0)
 	RenderingServer.global_shader_parameter_set("p4_hero", body.get_global_transform_interpolated().origin + Vector3(0, 0.9, 0))
 	RenderingServer.global_shader_parameter_set("p4_hole", _hole)
+	if monster_present() and _monster_quad != null:
+		(_monster_quad.material_override as ShaderMaterial).set_shader_parameter("tex", _monster_frames[int(_time * 6.0) % _monster_frames.size()])
 	for l in _lights:
 		(l[0] as OmniLight3D).light_energy = l[1] * (0.9 + 0.07 * sin(_time * 7.3 + l[2]) + 0.04 * sin(_time * 13.1 + l[2] * 2.0))
 	var hint: String = s.interact_hint if not dialogue_is_open() else ""

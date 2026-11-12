@@ -16,6 +16,11 @@ var poses := false                   # Aren en combat : vraies poses (art/proto/
 const POSE_DIR := "res://art/proto/aren_combat/"
 ## Aren d'après ses planches de référence (art/proto/aren2, tools/art/aren_sheets.py) : vraies images d'animation.
 const AREN2 := "res://art/proto/aren2/"
+## P4.1 : poses de combat réextraites à la résolution des planches (Aren 60 px, Ilya ≈ 57 px), affichées ×2 au
+## lieu de ×3 (même taille à l'écran, deux fois plus de détail). Absentes -> anciennes poses (×3).
+const P41_COMBAT := "res://art/p41/combat/"
+const P41_PX := 2
+var tex_px := PX
 const AREN2_COMBAT := {   # animation du jeu -> (images de la planche, nombre, images/s, boucle)
 	"idle": ["repos", 4, 6.0, true], "prep": ["preparation", 5, 12.0, false], "avance": ["avance", 6, 18.0, false],
 	"strike": ["attaque", 6, 16.0, false], "follow": ["impact", 4, 12.0, false], "retour": ["retour", 5, 12.0, false],
@@ -48,6 +53,14 @@ func setup(id: String, hunter_def: Dictionary, feet: Vector2, _scale_factor := 0
 	var t0: Texture2D = load(DIR + key + ".png")
 	var aren2 := key == "aren" and ResourceLoader.exists(AREN2 + "repos_0.png")
 	var pose_dir := POSE_DIR if key == "aren" else DIR + key + "_combat/"     # poses de combat par personnage
+	var aren_dir := AREN2
+	if def.get("combat", false):
+		if key == "aren" and ResourceLoader.exists(P41_COMBAT + "aren/repos_0.png"):
+			aren_dir = P41_COMBAT + "aren/"
+			tex_px = P41_PX
+		elif key != "aren" and ResourceLoader.exists(P41_COMBAT + key + "/" + key + "_idle.png"):
+			pose_dir = P41_COMBAT + key + "/"
+			tex_px = P41_PX
 	poses = def.get("combat", false) and (aren2 or ResourceLoader.exists(pose_dir + key + "_idle.png"))
 	var fr0: Texture2D = t0
 	if aren2 and poses:
@@ -58,7 +71,7 @@ func setup(id: String, hunter_def: Dictionary, feet: Vector2, _scale_factor := 0
 			frames.set_animation_speed(anim, a[2])
 			frames.set_animation_loop(anim, a[3])
 			for i in range(a[1]):
-				frames.add_frame(anim, load(AREN2 + "%s_%d.png" % [a[0], i]))
+				frames.add_frame(anim, load(aren_dir + "%s_%d.png" % [a[0], i]))
 		fr0 = frames.get_frame_texture("idle", 0)
 	elif aren2:
 		dir_sprites = true
@@ -97,7 +110,7 @@ func setup(id: String, hunter_def: Dictionary, feet: Vector2, _scale_factor := 0
 	spr.sprite_frames = frames
 	spr.centered = false
 	spr.offset = Vector2(-fr0.get_width() / 2, -fr0.get_height())
-	spr.scale = Vector2.ONE * PX
+	spr.scale = Vector2.ONE * tex_px
 	spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	var mat := ShaderMaterial.new()
 	mat.shader = preload("res://src/presentation/rim_light.gdshader")

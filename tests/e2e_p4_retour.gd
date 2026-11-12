@@ -56,6 +56,10 @@ func _run() -> void:
 	_check(current_scene != null and current_scene.scene_file_path == BATTLE, "la scène de combat est chargée")
 	_check(gs.from_zone and gs.explore_return == ZONE, "le combat sait revenir à l'avant-poste P4")
 	_check(gs.use_pilot_arena(), "le combat utilise l'arène illustrée")
+	var bs = current_scene
+	var mon = bs.battle.get_combatant(bs.monster_id)
+	_check(mon.max_hp == 475 and mon.hp == 475, "démo : PV du Vorgane divisés par deux (%d / 950)" % mon.max_hp)
+	_check(not gs.flags.has("rencontre_pv_mult"), "multiplicateur consommé : les autres combats gardent 950 PV")
 	for i in 10:
 		await process_frame
 	# 2a. victoire (écritures de battle_scene._show_result), puis retour

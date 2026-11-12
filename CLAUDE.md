@@ -10,11 +10,16 @@
   le signaler.
 - **Organisation** : la zone P4 est décrite par des données (`data/p4/*.json`, mètres, niveaux, collisions) lues
   par le socle `src/explore25/` ; l'habillage est dans `scenes/p4/avant_poste.gd`, les shaders dans `src/p4/`, les
-  ressources dans `art/p4/` (provenance et statut dans `art/p4/SOURCES.md`). Ajouter une zone = un fichier de
+  ressources dans `art/p4/` et `art/p41/` (provenance et statut dans leurs `SOURCES.md`). Ajouter une zone = un fichier de
   données + ses ressources, pas un nouveau moteur. Les prototypes P3 (`scenes/explore25/`) et l'ancienne
   exploration (`scenes/explore_hd2d/`) sont conservés tels quels.
-- **Caméra d'exploration** : Camera3D orthographique, plongée 28°, azimut 20° (variante B de P3-07), rotation
-  fixe, zooms ×2 / ×2,5 / ×3 (×2,5 par défaut). Ne pas confondre avec « l'architecture B » des rapports P3.
+- **Caméra d'exploration** : Camera3D orthographique, plongée 28°, azimut 20° (variante B de P3-07, « B28 »),
+  rotation fixe, zooms ×2 / ×2,5 / ×3 (×2,5 par défaut). Ne pas confondre avec « l'architecture B » des rapports P3.
+  Les variantes en perspective P30 / P38 (P4.1) sont des **comparaisons** : ne pas en faire le défaut sans
+  validation visuelle du créateur.
+- **Personnages** : sprites à la résolution des planches (`art/p41/`), réduits à l'écran avec le shader « pixel
+  net » ; ne jamais agrandir une image réduite avec un filtre bilinéaire. Une même apparence en exploration, en
+  combat et en portrait.
 - **Ressources graphiques** : une planche conceptuelle n'est pas un asset. Ne rien déclarer « final » sans revue
   du créateur ; signaler tout élément provisoire dans `art/p4/SOURCES.md` et dans le rapport de l'étape.
   Ilya : cheveux courts argentés, yeux verts, tenue bleu nuit et cuir — jamais un personnage ressemblant à Aren.

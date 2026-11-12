@@ -5,13 +5,19 @@ extends RefCounted
 ## les autres personnages n'ont qu'un portrait neutre pour l'instant (repli automatique sur « neutre »).
 
 const DIR := "res://art/proto/"
+const P41 := "res://art/p41/portraits/ilya/"
 const PORTRAITS := {
 	"heros": {
 		"neutre": DIR + "aren2/portrait_neutre.png", "determine": DIR + "aren2/portrait_determine.png",
 		"souriant": DIR + "aren2/portrait_souriant.png", "surpris": DIR + "aren2/portrait_surpris.png",
 		"blesse": DIR + "aren2/portrait_blesse.png", "concentre": DIR + "aren2/portrait_concentre.png",
 	},
-	"compagnon_vif": {"neutre": DIR + "portrait_ilya.png"},
+	# P4.1 : Ilya canonique (Drive Art/Ilya/Ilya-1.png : cheveux courts argentés, yeux verts, bleu nuit et cuir)
+	"compagnon_vif": {
+		"neutre": P41 + "portrait_neutre.png", "determine": P41 + "portrait_determine.png",
+		"souriant": P41 + "portrait_sereine.png", "surpris": P41 + "portrait_surpris.png",
+		"blesse": P41 + "portrait_inquiete.png", "concentre": P41 + "portrait_resolue.png",
+	},
 	"compagnon_lourd": {"neutre": DIR + "portrait_throne.png"},
 	"pnj": {"neutre": DIR + "portrait_pnj.png"},
 }
