@@ -1,4 +1,7 @@
-# art/p41 — ressources P4.1 (netteté des personnages, raccords du décor)
+# art/p41 — ressources P4.1 (raccords du décor ; garde et Vorgane d'exploration)
+
+> **P4.4** : Aren, Ilya, leurs poses de combat et portraits P4.1 ont été remplacés par `art/p44/` et retirés
+> (historique Git, branche `p4-1-finitions`). Restent ici le garde, le Vorgane d'exploration et le décor nettoyé.
 
 Régénérables :
 `python3 tools/p41/build_chars_p41.py <planches Drive>` (personnages) et `python3 tools/p41/decor_p41.py` (décor).

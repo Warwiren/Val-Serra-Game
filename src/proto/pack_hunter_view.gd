@@ -13,14 +13,26 @@ var _guarding := false
 var _walk_phase := 0.0
 var _height := 111.0
 var poses := false                   # Aren en combat : vraies poses (art/proto/aren_combat, tools/art/aren_poses.py)
-const POSE_DIR := "res://art/proto/aren_combat/"
+const POSE_DIR := "res://art/p44/combat/aren/"      # P4.4 (anciennes poses retirées)
 ## Aren d'après ses planches de référence (art/proto/aren2, tools/art/aren_sheets.py) : vraies images d'animation.
-const AREN2 := "res://art/proto/aren2/"
-## P4.1 : poses de combat réextraites à la résolution des planches (Aren 60 px, Ilya ≈ 57 px), affichées ×2 au
-## lieu de ×3 (même taille à l'écran, deux fois plus de détail). Absentes -> anciennes poses (×3).
-const P41_COMBAT := "res://art/p41/combat/"
+const AREN2 := "res://art/p44/combat/aren/"         # P4.4 : Aren gris (anciennes planches retirées)
+## P4.1+ : poses de combat à la résolution des planches, affichées ×2 au lieu de ×3 (même taille, plus de détail).
+const P41_COMBAT := "res://art/p44/combat/"          # poses par personnage (Throné : absent -> pack ×3)
 const P41_PX := 2
 var tex_px := PX
+## P4.4 : Aren gris (pack P4_2) et Ilya au pistolet d'Aether (pack P4_4, 7 séquences), mêmes noms d'images, ×2.
+const P44_COMBAT := "res://art/p44/combat/"
+## Ilya : animation du jeu -> (séquence du pack, images utilisées, images/s, boucle). fire_3 est écartée : son
+## corps change brusquement de posture (jambes écartées) au milieu du tir et produit un saut visible en jeu.
+const ILYA44 := {
+	"idle": ["idle", [0, 1, 2, 3], 5.0, true], "prep": ["draw", [0, 1, 2, 3, 4], 12.0, false],
+	"strike": ["fire", [0, 1, 2, 4, 5, 6], 12.0, false], "guard": ["guard", [0, 1, 2, 3], 6.0, true],
+	"hurt": ["hit", [0, 1, 2, 3], 10.0, false], "ko": ["ko", [0, 1, 2, 3, 4, 5], 9.0, false],
+	"aether_prep": ["charged_shot", [0, 1, 2, 3, 4], 9.0, false], "aether_strike": ["charged_shot", [5, 6, 7], 10.0, false],
+}
+const MUZZLE := Vector2(40, -58)      # bout du pistolet d'Ilya (pose de visée), en pixels d'écran, sprite vers la droite
+const AETHER_GREEN := Color(0.45, 1.0, 0.62)
+var ranged := false                   # Ilya : tir à distance (pas de pas en avant, projectile d'Aether)
 const AREN2_COMBAT := {   # animation du jeu -> (images de la planche, nombre, images/s, boucle)
 	"idle": ["repos", 4, 6.0, true], "prep": ["preparation", 5, 12.0, false], "avance": ["avance", 6, 18.0, false],
 	"strike": ["attaque", 6, 16.0, false], "follow": ["impact", 4, 12.0, false], "retour": ["retour", 5, 12.0, false],
@@ -50,20 +62,35 @@ func setup(id: String, hunter_def: Dictionary, feet: Vector2, _scale_factor := 0
 	frames.add_animation("idle")
 	frames.set_animation_speed("idle", 2.5)
 	frames.set_animation_loop("idle", true)
-	var t0: Texture2D = load(DIR + key + ".png")
-	var aren2 := key == "aren" and ResourceLoader.exists(AREN2 + "repos_0.png")
-	var pose_dir := POSE_DIR if key == "aren" else DIR + key + "_combat/"     # poses de combat par personnage
+	var t0: Texture2D = load(DIR + key + ".png") if ResourceLoader.exists(DIR + key + ".png") else null
 	var aren_dir := AREN2
+	var pose_dir := POSE_DIR if key == "aren" else DIR + key + "_combat/"     # poses de combat par personnage
+	var ilya44 := false
 	if def.get("combat", false):
-		if key == "aren" and ResourceLoader.exists(P41_COMBAT + "aren/repos_0.png"):
-			aren_dir = P41_COMBAT + "aren/"
+		if key == "aren" and ResourceLoader.exists(P44_COMBAT + "aren/repos_0.png"):
+			aren_dir = P44_COMBAT + "aren/"
+			tex_px = P41_PX
+		elif key == "ilya" and ResourceLoader.exists(P44_COMBAT + "ilya/idle_0.png"):
+			ilya44 = true
+			ranged = true
 			tex_px = P41_PX
 		elif key != "aren" and ResourceLoader.exists(P41_COMBAT + key + "/" + key + "_idle.png"):
 			pose_dir = P41_COMBAT + key + "/"
 			tex_px = P41_PX
-	poses = def.get("combat", false) and (aren2 or ResourceLoader.exists(pose_dir + key + "_idle.png"))
+	var aren2 := key == "aren" and ResourceLoader.exists(aren_dir + "repos_0.png")
+	poses = def.get("combat", false) and (aren2 or ilya44 or ResourceLoader.exists(pose_dir + key + "_idle.png"))
 	var fr0: Texture2D = t0
-	if aren2 and poses:
+	if ilya44:
+		frames.remove_animation("idle")
+		for anim in ILYA44:
+			var a: Array = ILYA44[anim]
+			frames.add_animation(anim)
+			frames.set_animation_speed(anim, a[2])
+			frames.set_animation_loop(anim, a[3])
+			for i in a[1]:
+				frames.add_frame(anim, load(P44_COMBAT + "ilya/%s_%d.png" % [a[0], i]))
+		fr0 = frames.get_frame_texture("idle", 0)
+	elif aren2 and poses:
 		frames.remove_animation("idle")
 		for anim in AREN2_COMBAT:
 			var a: Array = AREN2_COMBAT[anim]
@@ -119,7 +146,7 @@ func setup(id: String, hunter_def: Dictionary, feet: Vector2, _scale_factor := 0
 	rig.add_child(spr)
 	spr.play("idle")
 	spr.frame = int(hash(id)) % 2
-	_height = (40 if aren2 else t0.get_height()) * PX
+	_height = 40.0 * PX if (aren2 or ilya44) else float(fr0.get_height() * tex_px)
 	var fxf := SpriteFrames.new()
 	fxf.remove_animation("default")
 	for anim in [["slash", 4, 18.0], ["guard", 3, 10.0]]:
@@ -259,6 +286,9 @@ func prepare(mode: String, is_serum := false) -> void:
 ## cible, sur la couche d'effets ; le personnage ne quitte pas son couloir (pas de traversée des compagnons).
 func attack(target_global: Vector2, heavy: bool) -> void:
 	_guarding = false
+	if ranged:
+		await _shoot(target_global, heavy)
+		return
 	_pose("prep")
 	var t := create_tween()
 	t.tween_property(rig, "position", Vector2(-PX * 3, 0), 0.1)
@@ -286,6 +316,42 @@ func attack(target_global: Vector2, heavy: bool) -> void:
 	back.tween_callback(_rest)
 
 
+## Ilya (P4.4) : dégainer -> viser -> tir. Le projectile d'Aether est un effet séparé du sprite (trait vert qui
+## part du canon et file jusqu'à la cible), l'éclair de bouche est dans les images de tir du pack.
+func _shoot(target_global: Vector2, heavy: bool) -> void:
+	_pose("prep")
+	await get_tree().create_timer(5.0 / 12.0).timeout
+	_pose("strike")
+	await get_tree().create_timer(2.0 / 12.0).timeout          # image 2 : éclair de bouche
+	var from := global_position + rig.position * Vector2(scale.x, 1.0) + MUZZLE * Vector2(scale.x, 1.0)
+	if vfx:
+		await _bolt(from, target_global, 3.0 if not heavy else 4.5, 0.12)
+		Fx.ring(get_parent(), target_global, AETHER_GREEN, 46.0 if not heavy else 64.0, 0.22, 3.0)
+	release_aura()
+	await get_tree().create_timer(0.25).timeout
+	_rest()
+
+
+## Trait d'Aether qui avance du canon vers la cible (tête lumineuse + traîne qui s'efface).
+func _bolt(from: Vector2, to: Vector2, width: float, dur: float) -> void:
+	var line := Line2D.new()
+	line.width = width
+	line.default_color = Color(AETHER_GREEN, 0.95)
+	line.z_index = 46
+	var add := CanvasItemMaterial.new()
+	add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	line.material = add
+	line.points = PackedVector2Array([from, from])
+	get_parent().add_child(line)
+	var tw := create_tween()
+	tw.tween_method(func(k: float):
+		var head := from.lerp(to, k)
+		line.points = PackedVector2Array([from.lerp(to, maxf(0.0, k - 0.35)), head]), 0.0, 1.0, dur)
+	tw.tween_property(line, "modulate:a", 0.0, 0.12)
+	tw.tween_callback(line.queue_free)
+	await get_tree().create_timer(dur).timeout
+
+
 ## Lueur d'Aether LIMITÉE à la lame (petite, sans halo sur le corps) pendant la préparation de la technique.
 var _blade_glow: Sprite2D
 
@@ -302,6 +368,20 @@ func _blade_charge(on: bool) -> void:
 ## partie visée -> impact. Une seule trajectoire, pas de pluie de particules ; renvoie au moment de l'impact.
 func resonance_strike(target_global: Vector2) -> void:
 	_guarding = false
+	if ranged:
+		# tir chargé : charge (anneaux d'Aether du pack) -> décharge -> rayon vert jusqu'à la partie visée
+		_pose("aether_prep")
+		await get_tree().create_timer(5.0 / 9.0).timeout
+		_pose("aether_strike")
+		release_aura()
+		if vfx:
+			var from := global_position + MUZZLE * Vector2(scale.x, 1.0)
+			await _bolt(from, target_global, 7.0, 0.1)
+			Fx.ring(get_parent(), target_global, AETHER_GREEN, 84.0, 0.3, 4.0)
+		var bk := create_tween()
+		bk.tween_interval(0.3)
+		bk.tween_callback(_rest)
+		return
 	_pose("aether_prep")
 	_blade_charge(true)
 	var t := create_tween()
@@ -416,6 +496,10 @@ func knock_out() -> void:
 	_ko = true
 	_active = false
 	release_aura()
+	if poses and spr.sprite_frames.has_animation("ko"):
+		spr.play("ko")                      # vraie chute (Ilya P4.4) : l'animation se termine sur la dernière image
+		create_tween().tween_property(spr, "modulate", Color(0.55, 0.55, 0.65, 0.9), 0.8)
+		return
 	if poses:
 		spr.play("hurt")
 	var t := create_tween()

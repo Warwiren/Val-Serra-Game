@@ -3,7 +3,7 @@ extends RefCounted
 ## règles (4 directions pour Aren, profil retourné pour les autres ; marche pilotée par la distance parcourue).
 ## Les sprites existants sont réutilisés tels quels (proportions conservées) ; les pieds = milieu du bas de l'image.
 
-const BASE := "res://art/explore_hd2d/chars/%s/"
+const BASE := "res://art/p44/chars/%s/"           # P4.4 (anciens dossiers retirés)
 ## P4 : dossier de sprites imposé pour une clé (ex. "ilya" -> art/p4/chars/ilya/) ; vide = dossiers d'origine.
 static var overrides := {}
 const STRIDE_M := 0.3                      # m parcourus par image de marche (≈ 6 px natifs, comme le jeu)

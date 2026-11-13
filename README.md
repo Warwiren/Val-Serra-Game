@@ -1,51 +1,45 @@
-# Val'Serra : Les Larmes d'Aether — prototype MVP
+# Val'Serra : Les Larmes d'Aether — démo jouable
 
-Prototype jouable du RPG narratif au tour par tour **Val'Serra**, réalisé sous **Godot 4**.
+Démo jouable du RPG narratif au tour par tour **Val'Serra**, réalisée sous **Godot 4.7.2**.
 
 > Tous les personnages, monstres, illustrations et nombres de ce dépôt sont **provisoires et non canoniques**.
 > Ce dépôt est indépendant du système Foundry du JDR (`Warwiren/Val-serra`), qui n'est pas modifié.
 
-![Avant-poste de la lisière — cour, terrasse et bâtiment principal](docs/media/p4_1/captures/escalier_x2-5.jpg)
+![Avant-poste de la lisière — cour, terrasse et bâtiment principal (caméra P30)](docs/media/p4_4/captures/cour_x2-5.jpg)
 
 ## Ce qui est jouable
 
-Une boucle complète dans l'**avant-poste de la lisière** (P4), au crépuscule, en **HD-2D / 2.5D** :
+Une boucle complète dans l'**avant-poste de la lisière**, au crépuscule, en **HD-2D / 2.5D** :
 
-1. **Exploration** en vue trois-quarts (Camera3D orthographique, plongée 28°, azimut 20°, rotation fixe, zooms
-   ×2 / ×2,5 / ×3 à la molette) : Aren et sa compagne Ilya dans la **cour** pavée d'un petit avant-poste fortifié,
-   l'**escalier** de pierre et la **terrasse**, le **bâtiment principal** dans lequel on entre, la **porte
-   fortifiée**, le **pont** de bois sur une rivière animée, puis la **plaine** (herbe, chemin, arbres, rochers, relief).
-2. **Dialogue** à portraits et à choix avec le garde ; panneaux à examiner.
-3. **Combat au tour par tour** contre le Vorgane, qui rôde dans la plaine : initiative dynamique, modes
-   VIF / MESURÉ / CHARGÉ, parties destructibles, Résonance et Pulsation d'Aether, sur l'arène illustrée.
-4. **Retour** dans la zone : après une victoire, le Vorgane a disparu et le garde change de répliques ; après une
-   défaite, le groupe revient dans la cour.
+1. **Exploration** en vue trois-quarts (caméra **P30** : perspective, plongée 30°, azimut 20°, rotation fixe, zooms
+   ×2 / ×2,5 / ×3 à la molette) : **Aren** (cheveux bruns, armure et cape grises) et sa compagne **Ilya** (cheveux
+   courts argentés, cape verte, pistolet d'Aether) dans la **cour** fortifiée, l'**escalier** et la **terrasse**, le
+   **bâtiment principal** dans lequel on entre, la **porte fortifiée**, le **pont** sur une rivière animée, la
+   **plaine** et ses falaises.
+2. **Dialogue** à portraits et à choix avec le **garde** ; panneaux à examiner.
+3. **Combat au tour par tour** contre le **Vorgane** (475 PV dans cette rencontre de démonstration) : Aren à la lame,
+   Ilya au **pistolet d'Aether** (tir, tir chargé), Throné au marteau ; initiative dynamique, modes
+   VIF / MESURÉ / CHARGÉ, parties destructibles, Résonance.
+4. **Retour** : après une victoire, le Vorgane a disparu et le garde change de répliques ; après une défaite, le
+   groupe revient dans la cour.
 
-| Pont et rivière | Plaine et Vorgane |
+| Combat | Plaine |
 |---|---|
-| ![Pont](docs/media/p4_1/captures/pont_x2-5.jpg) | ![Plaine](docs/media/p4_1/captures/plaine_x2-5.jpg) |
+| ![Combat](docs/media/p4_4/combat.jpg) | ![Plaine](docs/media/p4_4/captures/plaine_x2-5.jpg) |
 
-Vidéo du parcours complet (exploration, dialogue, bâtiment, pont, combat, retour) :
-[`docs/media/p4_1/parcours_complet_p4_1.mp4`](docs/media/p4_1/parcours_complet_p4_1.mp4).
-Rapports : `docs/P4_1_FINITIONS.md` (finitions : netteté, caméra, reliefs, raccords) et `docs/P4_AVANT_POSTE.md`.
+Vidéo du parcours complet : [`docs/media/p4_4/parcours_complet_p4_4.mp4`](docs/media/p4_4/parcours_complet_p4_4.mp4).
+Rapport de l'étape : [`docs/P4_4_PERSONNAGES.md`](docs/P4_4_PERSONNAGES.md).
 
 ## Lancer le jeu (Godot 4.7.2 obligatoire)
 
-> **Version du moteur : Godot 4.7.2, et elle seule**, pour ouvrir, tester et valider le projet (décision du
-> 7 novembre 2026). La ligne `config/features=PackedStringArray("4.5")` de `project.godot` est un reliquat
-> historique, laissé tel quel volontairement : le projet s'importe et passe tous ses tests sous 4.7.2.
+> **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
+> `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p4-1-finitions`**, puis **Code → Download ZIP** ; le
-   dossier s'appelle `Val-Serra-Game-p4-1-finitions`) et le décompresser. Les branches précédentes
-   (`p4-avant-poste`, `p3-validation-camera`, etc.) restent disponibles telles quelles.
+1. Télécharger le projet (GitHub : choisir la branche **`p4-4-personnages`**, puis **Code → Download ZIP** ; le
+   dossier s'appelle `Val-Serra-Game-p4-4-personnages`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
-3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier**. La première ouverture réimporte
-   les images (une minute environ).
-4. **F5** lance la **démo de l'avant-poste, version P4.1** (`scenes/p4/avant_poste.tscn`, caméra B28 par défaut).
-   Promotion sur F5 décidée par le brief P4 du 12 novembre 2026 ; P4.1 améliore la même scène (voir
-   `docs/P4_1_FINITIONS.md` § 7).
-5. L'ancienne exploration stable, les prototypes P3 et les scènes de diagnostic s'ouvrent dans l'éditeur puis
-   **F6** — voir le tableau « Autres scènes ».
+3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
+4. **F5** lance la **démo P4.4** (`scenes/p4/avant_poste.tscn`, caméra P30).
 
 ### Commandes
 
@@ -53,31 +47,22 @@ Rapports : `docs/P4_1_FINITIONS.md` (finitions : netteté, caméra, reliefs, rac
 |---|---|
 | Flèches / ZQSD | se déplacer (8 directions) |
 | **Molette** (ou PgPréc / PgSuiv) | zoom ×2 / ×2,5 (défaut) / ×3 |
-| **E** / Entrée / Espace | parler au garde, examiner un panneau ; faire avancer le dialogue |
+| **E** / Entrée / Espace | parler au garde, examiner ; faire avancer le dialogue |
 | ↑ / ↓ puis Entrée (dialogue) | choisir une réponse ; **Échap** : fermer |
 | Marcher sur le seuil de la porte | entrer dans le bâtiment ; le seuil sud de la salle en fait ressortir |
 | Toucher le Vorgane | lancer le combat |
 | En combat : clic, ↑/↓ ou 1 à 5 | choisir une action ; ←/→ ou clic sur une partie : changer de cible |
 | En combat : Tab | changer de mode (VIF / MESURÉ / CHARGÉ) ; **Entrée** : confirmer |
-| **C** | changer de caméra pour comparer : B28 (défaut) / P30 / P38 — voir `docs/P4_1_FINITIONS.md` § 3 |
-| **T** | personnages : rendu net (P4.1) / ancien rendu bilinéaire (comparaison) |
-| **R** | revenir à l'entrée de la zone |
-| **F1** | informations de débogage (position, surface, zoom, images par seconde) ; **F2** : couches et collisions |
-| **F3** | limite d'images par seconde (aucune / 30 / 60 / 144) ; **P** : parcours automatique |
+| **C** | caméra de comparaison : P30 (défaut) / B28 (orthographique 28°) / P38 |
+| **T** | personnages : rendu net / ancien rendu bilinéaire (comparaison) |
+| **R** | revenir à l'entrée de la zone ; **F1** : informations ; **F2** : couches et collisions |
 
 ### Autres scènes (ouvrir dans l'éditeur, puis **F6**)
 
 | Scène | Contenu |
 |---|---|
-| `scenes/p4/comparaison_camera_P30.tscn`, `_P38.tscn` | **P4.1** : la démo avec une caméra en perspective (P30 : 30°, P38 : 38°) et flou de distance, pour comparer à B28 |
-| `scenes/explore_hd2d/zone_exploration.tscn` | **ancienne exploration stable** (carte v2, F5 jusqu'à P3) : Aren, Ilya, Throné, garde, Vorgane — voir `docs/EXPLORATION_V2.md` |
-| `scenes/explore25/camera_variante_A.tscn`, `_B`, `_C` | **P3-07** : variantes de caméra A (35°) / B (28°, retenue pour P4) / C sur le blockout, avec paysage ; V et L en jeu — `docs/P3_CAMERA_PROFONDEUR.md` |
-| `scenes/explore25/scene_temoin.tscn` | **P3** : scène témoin grise 32 × 24 m — `docs/P3_PROTOTYPE_25D.md` |
-| `scenes/explore25/demo_a_2d.tscn`, `demo_b_3d.tscn`, `scene_temoin_2d.tscn` | **P3** : micro-test comparatif Camera2D / Camera3D (diagnostic) |
-| `scenes/explore_hd2d/zone_hd2d.tscn` | avant-poste d'origine (`--start=hd2d-zone`), référence des anciens tests |
-| `scenes/dev/essai_combat_lisiere.tscn` | combat direct sur l'arène illustrée |
-| `scenes/dev/essai_parcours_clavier.tscn` | parcours de locomotion au clavier simulé (ancienne zone) |
-| `scenes/proto/proto_zone.tscn`, `scenes/explore/hero_select.tscn` | prototypes historiques |
+| `scenes/p4/comparaison_camera_B28.tscn` | la même démo avec l'ancienne caméra orthographique 28° (B28), pour comparer |
+| `scenes/battle/battle_scene.tscn` | combat seul (avec `--start=proto-battle --arena=lisiere` en ligne de commande) |
 | `tests/test_runner.tscn` | tests automatiques dans l'éditeur |
 
 ## Vérifications
@@ -102,61 +87,27 @@ godot --headless --path . res://scenes/p4/avant_poste.tscn -- --route=p4_sondes 
 godot --path . -- --autoplay --route=p4_demo --route_retour=p4_retour
 ```
 
-```bash
-godot --headless --path . --script res://tests/e2e_zone_retour.gd
-```
-
-Dans l'ordre : tests automatiques (105 sous Godot 4.7.2), rencontre P4 de bout en bout (déclenchement du combat,
-victoire, défaite, entrée et sortie du bâtiment), parcours complet au clavier simulé (29 étapes ; ajouter `--camera=P30` ou `P38` pour les autres caméras), sondes de collision
-(20), démonstration filmable (le dialogue et le combat se jouent seuls), retour de combat de l'ancienne zone.
-Les résultats des parcours sont écrits dans `P4_<parcours>_mesures.json`. Dans l'éditeur, les tests se lancent aussi
-avec `tests/test_runner.tscn` puis **F6**.
+Dans l'ordre : tests automatiques (63), rencontre de bout en bout (déclenchement, PV de démo, victoire, défaite,
+bâtiment), parcours complet au clavier simulé (29 étapes ; `--camera=B28` ou `P38` pour comparer), sondes de
+collision (20), démonstration automatique (dialogue et combat joués seuls).
 
 ## Où trouver quoi
 
 | Sujet | Fichiers |
 |---|---|
-| **P4.1 : personnages nets, décor nettoyé** | `art/p41/` (`SOURCES.md`), outils `tools/p41/` |
-| **Avant-poste P4 (F5)** | scène et habillage : `scenes/p4/avant_poste.gd` ; données : `data/p4/` ; shaders : `src/p4/` ; ressources : `art/p4/` (`SOURCES.md`) ; outils : `tools/p4/` |
-| Socle d'exploration 2.5D (P3, réutilisé par P4) | `src/explore25/` (monde, session, caméra, acteurs, parcours), `scenes/explore25/explore_3d.gd` |
-| Ancienne zone d'exploration (code) | `scenes/explore_hd2d/zone_hd2d.gd` |
-| Carte d'exploration v2 (ancien F5) | `art/explore_hd2d/v2/` (sol, `zone.json`, `decor.json`) + sprites `art/explore_hd2d/pack/` ; générée par `tools/explore/build_exploration_v2.py` (pack découpé par `tools/explore/pack_extract_v2.py`) |
-| Avant-poste validé (base de la carte v2) | `art/explore_hd2d/illustre/` + `decor.json` ; géométrie de jeu : `art/explore_hd2d/zone.json` |
-| Arène de combat illustrée | `art/arena/lisiere/peint/`, `src/presentation/arena_layers.gd` |
-| Moteur de combat (règles, déterministe) | `src/combat/core/`, données `data/combat/` |
-| Dialogues | `data/dialogue/` |
-| Sources graphiques et gabarits | `art/source/`, `docs/media/gabarits_exploration/` |
-| Outils de production (Blender, découpe, sol, maison) | `tools/explore/`, `tools/arena/` |
+| Démo (F5) : scène et habillage | `scenes/p4/avant_poste.gd` ; données `data/p4/` ; shaders `src/p4/` |
+| Socle d'exploration 2.5D | `src/explore25/` (monde, session, caméra, acteurs, parcours), `scenes/explore25/explore_3d.gd` |
+| Personnages (exploration, combat, portraits) | `art/p44/` (`SOURCES.md`), outil `tools/p44/build_chars_p44.py` ; garde et Vorgane d'exploration `art/p41/chars/` |
+| Décor de la zone | `art/p4/` (`SOURCES.md`), décor nettoyé `art/p41/decor/` ; outils `tools/p4/`, `tools/p41/` |
+| Combat | `scenes/battle/`, règles `src/combat/`, données `data/combat/`, présentation `src/presentation/`, `src/proto/` |
+| Arène de combat | `art/arena/lisiere/`, `src/presentation/arena_layers.gd`, outils `tools/arena/` |
+| Dialogues | `data/p4/dialogue_garde.json`, `data/dialogue/` ; portraits : `src/proto/portraits.gd` |
 | Tests | `tests/` |
 
 ## Documentation
 
 | Document | Contenu |
 |---|---|
-| `docs/P4_1_FINITIONS.md` | **P4.1** : origine du flou et correction, comparaison de caméras, falaises, raccords, PV de démo, tests, sprites à refaire (branche `p4-1-finitions`) |
-| `docs/P4_AVANT_POSTE.md` | **P4** : avant-poste de la lisière — audit, plan mesuré, construction, ressources provisoires, tests, limites, état de F5 (branche `p4-avant-poste`) |
-| `docs/P3_VALIDATION_CAMERA.md` | **Validation caméra A / C** : audit de reprise, vérifications sous Godot 4.7.2, mesures de cadrage et d'occultation, rapport avant verrouillage (branche `p3-validation-camera`, F5 inchangé) |
-| `docs/PROTOCOLE_VALIDATION_CAMERA_GPU.md` | Protocole de test manuel et de mesure GPU sur PC Windows (`tools/perf/mesure_gpu.bat`) |
-| `docs/P3_CAMERA_PROFONDEUR.md` | **P3-07** : comparatif caméra A/B/C, paysage non jouable, mesures, recommandation (branche `p3-camera-profondeur`, F5 inchangé) |
-| `docs/P3_PROTOTYPE_25D.md` | **P3** : prototype d'exploration HD-2D / 2.5D sous Godot 4.7.2 — audit, démonstrations A et B, scène témoin, tests, recommandation (branche `p3-prototype-25d`, F5 inchangé) |
-| `docs/P2_LOT_A_INTEGRATION.md` | **P2, lot A** : habitation et remise validées intégrées à la carte V2 (F5), gabarits adaptés, vérifications |
-| `docs/P2_LOT_A_GABARITS.md` | **P2, lot A** : gabarits techniques des bâtiments pilotes (habitation, remise), composition de référence ; jeu inchangé |
-| `docs/EXPLORATION_V2.md` | **carte d'exploration v2** (version par défaut) : changements visuels, vérifications |
-| `docs/P1_CAMERA.md` | **P1** : zone de test agrandie, caméras A / B / C, mesures, recommandation (en attente de validation) |
-| `docs/DECOR_EXPLORATION.md` | décor définitif, toiture, défauts connus |
-| `docs/EXPLORATION_HD2D.md` | locomotion, suivi du groupe, collisions, dialogue, interaction avec le garde |
-| `docs/GABARITS_EXPLORATION.md`, `docs/INTEGRATION_SOL.md` | gabarits et importation des illustrations |
-| `docs/ARENE_COMBAT.md` | arène de combat |
-| `docs/PERFORMANCES.md` | mesures, poids du projet, points à surveiller |
-| `docs/INVENTAIRE_PURGE.md` | purge du 7 novembre 2026 et bilan de poids |
+| `docs/P4_4_PERSONNAGES.md` | **P4.4** : personnages, combat d'Ilya au pistolet, caméra P30, nettoyage, tailles, tests, réserves |
+| `docs/HISTORIQUE.md` | où retrouver les rapports et médias des étapes précédentes (branches Git) |
 | `docs/ASSETS.md` | registre des ressources et de leurs conditions d'usage |
-| `docs/PLAN_MVP.md`, `docs/LOT_A.md`, `docs/LOT_B.md`, `docs/RECENTRAGE.md`, `docs/CORRECTIFS_HUD.md`, `docs/P1_SUITE.md`, `docs/PROTO_ARTISTIQUE.md` | historique des lots précédents |
-
-Les vidéos et captures des lots précédents ont été retirées de la branche active pour alléger le projet ; elles
-restent disponibles dans la branche **`sauvegarde-avant-purge`** (certains anciens comptes rendus y renvoient).
-
-## Ligne de commande (facultatif)
-
-Options après `--` : `--start=hd2d-zone` (zone d'exploration), `--start=proto-battle` (combat du prototype),
-`--arena=lisiere` ou `--arena=ancien` (décor de combat), `--autoplay` (démo automatique) ; anciens lots :
-`--start=battle`, `--start=zone`, `--start=hd2d`, `--start=artproto`, `--start=rigviewer`, `--render=A|B`, `--hero=f`.

@@ -90,6 +90,8 @@ func _ready() -> void:
 	if GameState.proto:
 		for id in PROTO_NAMES:
 			battle.get_combatant(id).name = PROTO_NAMES[id]
+		# P4.4 : Ilya combat au pistolet d'Aether (affichage seulement ; règles et dégâts « perforant » inchangés)
+		battle.get_combatant("compagnon_vif").weapon_name = "Pistolet d'Aether"
 	monster_id = battle.monsters()[0].id
 	# P4.1 — rencontre de démonstration : PV maximum du monstre multipliés (0,5 dans l'avant-poste P4), pour CE combat
 	# seulement ; les données (data/combat/monster_vorgane.json) et les autres rencontres ne changent pas.

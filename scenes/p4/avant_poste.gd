@@ -24,8 +24,8 @@ const MONSTER_DIR := "res://art/p41/chars/vorgane/"
 ## P4.1 — personnages nets : dossier de sprites et facteur « hauteur à l'écran (px natifs P4) / hauteur du sprite »
 ## (la taille validée à l'écran est conservée : Aren 28 px natifs, Ilya 26, garde 25 ; ×2,5 par défaut).
 const CHARS := {
-	"aren": {"dir": "res://art/p41/chars/aren/", "k": 28.0 / 57.0},
-	"ilya": {"dir": "res://art/p41/chars/ilya/", "k": 26.0 / 38.0},
+	"aren": {"dir": "res://art/p44/chars/aren/", "k": 28.0 / 56.0},
+	"ilya": {"dir": "res://art/p44/chars/ilya/", "k": 26.0 / 52.0},
 	"pnj": {"dir": "res://art/p41/chars/pnj/", "k": 25.0 / 32.0},
 }
 const MONSTER_K := 54.0 / 124.0           # même longueur au sol que le Vorgane P4 (54 px natifs)
@@ -36,11 +36,11 @@ const TILT_SH = preload("res://src/p4/tilt_shift_p41.gdshader")
 ## P30 et P38 rapprochent la vue de l'image de référence HD-2D : perspective (le lointain rapetisse), paysage
 ## visible en haut, flou de distance. Même taille du héros à l'écran aux trois zooms dans toutes les variantes.
 const CAMS := {
-	"B28": {"label": "B28 — orthographique, plongée 28° (référence validée)", "pitch": 28.0, "persp": false},
-	"P30": {"label": "P30 — perspective, plongée 30°, champ 30°, flou de distance", "pitch": 30.0, "persp": true, "fov": 30.0, "tilt": true},
-	"P38": {"label": "P38 — perspective, plongée 38°, champ 22°, flou de distance", "pitch": 38.0, "persp": true, "fov": 22.0, "tilt": true},
+	"P30": {"label": "P30 — perspective, plongée 30°, champ 30°, flou de distance léger (défaut P4.4)", "pitch": 30.0, "persp": true, "fov": 30.0, "tilt": 0.3},
+	"B28": {"label": "B28 — orthographique, plongée 28° (référence P4 / P4.1)", "pitch": 28.0, "persp": false},
+	"P38": {"label": "P38 — perspective, plongée 38°, champ 22°, flou de distance léger", "pitch": 38.0, "persp": true, "fov": 22.0, "tilt": 0.3},
 }
-const CAM_ORDER := ["B28", "P30", "P38"]
+const CAM_ORDER := ["P30", "B28", "P38"]
 const BANK_TINT := Color(0.86, 0.78, 0.86)        # berge BER-01 moins orangée (raccord avec le talus et l'eau)
 ## Falaises de fond (non jouables) : [z arrière, z du pied, hauteur, teinte de perspective atmosphérique]
 const BANDS := [[-3.0, 2.0, 3.2, Color(0.8, 0.82, 0.95)], [-8.0, -3.0, 5.6, Color(0.64, 0.68, 0.9)], [-14.0, -8.0, 8.4, Color(0.52, 0.56, 0.86)]]
@@ -87,7 +87,7 @@ var _time := 0.0
 var _auto_dialog_t := 0.0
 var _monster_frames: Array = []
 var _foot_cache := {}
-var cam_mode := "B28"
+var cam_mode := "P30"
 ## scènes de comparaison F6 : caméra de départ
 @export var camera_initiale := ""
 var _tilt: ColorRect
@@ -1087,7 +1087,7 @@ func _apply_variante() -> void:
 	s.cam.aim_frac = 0.0
 	RenderingServer.global_shader_parameter_set("p4_persp", 1.0 if CAMS[cam_mode]["persp"] else 0.0)
 	if _tilt != null:
-		_tilt.visible = CAMS[cam_mode].get("tilt", false) and not _cli.has("notilt")
+		_apply_tilt()
 
 
 func _build_tilt() -> void:
@@ -1101,8 +1101,20 @@ func _build_tilt() -> void:
 	var mm := ShaderMaterial.new()
 	mm.shader = TILT_SH
 	_tilt.material = mm
-	_tilt.visible = CAMS[cam_mode].get("tilt", false) and not _cli.has("notilt")
 	layer.add_child(_tilt)
+	_apply_tilt()
+
+
+## Flou de distance : réduit en P4.4 (rayon 1,6 px, haut de l'écran seulement), jamais sur le bas ni sur l'interface
+## (calque 5, sous l'interface 50) ; --notilt le coupe.
+func _apply_tilt() -> void:
+	var k: float = CAMS[cam_mode].get("tilt", 0.0)
+	_tilt.visible = k > 0.0 and not _cli.has("notilt")
+	var mm: ShaderMaterial = _tilt.material
+	mm.set_shader_parameter("strength", k)
+	mm.set_shader_parameter("radius_px", 2.4)
+	mm.set_shader_parameter("top_end", 0.2)
+	mm.set_shader_parameter("bottom_start", 2.0)
 
 
 func apply_camera(center: Vector2, zoom: float) -> void:

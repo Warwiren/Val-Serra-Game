@@ -49,3 +49,10 @@ Les chemins et points d'ancrage sont centralisés dans `src/presentation/art.gd`
 le corps du héros par une illustration finale : exporter un PNG/SVG au même cadrage (pieds en bas au centre,
 tourné vers la droite), l'enregistrer sous le même nom, ou changer le chemin dans `art.gd`, et ajuster
 `hand` (position de la main qui tient l'arme) si nécessaire.
+
+## Mise à jour P4.4 (13 novembre 2026)
+
+Les ressources actives de la démo sont décrites, avec leur provenance et leur statut, dans `art/p4/SOURCES.md`,
+`art/p41/SOURCES.md` et `art/p44/SOURCES.md`. Les lignes ci-dessus qui citent `art/explore_hd2d/`, `art/source/`,
+`art/proto/aren*`, `art/proto/ilya*`, `art/proto/vorgane*` (sauf `vorgane_nuit_p1`), `art/3d/` ou `art/zone/`
+décrivent des fichiers retirés du projet actif (historique Git, voir `docs/HISTORIQUE.md`).

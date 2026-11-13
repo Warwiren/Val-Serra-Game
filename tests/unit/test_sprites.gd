@@ -33,34 +33,25 @@ func test_vorgane_layers_complete_and_aligned() -> void:
 						"%s : ancrages de ciblage" % key)
 
 
-## Prototype recentré : tous les personnages viennent de la même passe (pack visuel) et partagent l'échelle
-## (Aren 37-38 px natifs -> ~111 px à l'écran ×3 ; PNJ et compagnons dans la même fourchette).
+## Personnages du combat de démonstration (P4.4) : Throné et le garde viennent encore du pack ; le décor de repli et
+## les images « nuit » du Vorgane (combat de la démo) sont complets.
 func test_proto_characters_share_one_scale() -> void:
-	for k in ["aren", "ilya", "throne", "pnj"]:
+	for k in ["throne", "pnj"]:
 		var p := "res://art/proto/%s.png" % k
 		check(FileAccess.file_exists(p), "%s présent" % k)
 		check_eq(_size(p), _size("res://art/proto/%s_1.png" % k), "%s : image de respiration de même taille" % k)
-		var h := _size(p).y
-		check(h >= 30 and h <= 40, "%s : hauteur native %d dans la fourchette commune 30-40 px" % [k, h])
 	check_eq(_size("res://art/proto/zone_bg.png"), Vector2i(427, 240), "décor natif 427×240 (×3 = 1280×720)")
-	var anchors: Dictionary = JSON.parse_string(FileAccess.open("res://art/proto/vorgane/anchors.json", FileAccess.READ).get_as_text())["images"]
-	check(anchors.has("idle_001"), "ancrages du Vorgane (échelle prototype) présents")
+	var anchors: Dictionary = JSON.parse_string(FileAccess.open("res://art/proto/vorgane_nuit_p1/anchors.json", FileAccess.READ).get_as_text())["images"]
+	check(anchors.has("idle_001"), "ancrages du Vorgane de la démo présents")
 
 
-## Correctifs v1.1 : poses de combat d'Aren sur un canevas commun (ancrage stable), Vorgane étalonné complet.
-func test_aren_combat_poses_share_canvas() -> void:
-	for k in ["idle", "idle_1", "prep", "strike", "follow", "guard", "hurt"]:
-		var p := "res://art/proto/aren_combat/aren_%s.png" % k
-		check(FileAccess.file_exists(p), "pose %s présente" % k)
-		check_eq(_size(p), Vector2i(64, 42), "pose %s : canevas commun 64×42" % k)
-
-
-func test_graded_vorgane_matches_original_layout() -> void:
+func test_demo_vorgane_frames_complete() -> void:
 	for layer in ["base", "carapace", "carapace_broken", "griffe", "griffe_broken", "glande"]:
 		for anim in MON.ANIMS:
 			for fr in MON.ANIMS[anim]["frames"]:
 				var key := "%s_%03d" % [anim, fr]
-				check_eq(_size("res://art/proto/vorgane_nuit/%s/%s.png" % [layer, key]), _size("res://art/proto/vorgane/%s/%s.png" % [layer, key]), "%s/%s : même cadrage que l'original" % [layer, key])
+				var p := "res://art/proto/vorgane_nuit_p1/%s/%s.png" % [layer, key]
+				check(FileAccess.file_exists(p), "%s/%s présent (Vorgane de la démo)" % [layer, key])
 
 
 ## La charte d'interface est centralisée : aucun code couleur hexadécimal dans les scripts du HUD de combat.

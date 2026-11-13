@@ -4,7 +4,6 @@ extends "res://tests/test_case.gd"
 ## par les commandes de docs/P4_AVANT_POSTE.md (routes p4 / p4_sondes, tests/e2e_p4_retour.gd).
 
 const World25 = preload("res://src/explore25/world25.gd")
-const Variantes = preload("res://src/explore25/variantes25.gd")
 const ZONE := "res://data/p4/avant_poste.json"
 const INTERIEUR := "res://data/p4/interieur_poste.json"
 const SCENE := "res://scenes/p4/avant_poste.tscn"
@@ -138,43 +137,23 @@ func test_encounter_npc_and_points_of_interest_are_placed_on_walkable_ground() -
 	check(d.has("start") and d.has("after_victory") and d.has("speakers"), "dialogue : avant et après victoire")
 
 
-func test_camera_is_variant_b_28_degrees_with_three_zooms() -> void:
-	check_eq(Variantes.get_v("B")["pitch_deg"], 28.0, "variante B : plongée 28°")
-	check_eq(Variantes.get_v("B")["aim_frac"], 0.0, "variante B : héros centré")
+func test_camera_zooms_and_azimuth() -> void:
 	check_eq(rad_to_deg(World25.YAW), 20.0, "azimut 20°")
 	var Cam25 = load("res://src/explore25/cam25.gd")
 	check_eq(Cam25.ZOOMS, [2.0, 2.5, 3.0], "zooms ×2 / ×2,5 / ×3")
 	check_eq(Cam25.ZOOMS[Cam25.DEFAULT_INDEX], 2.5, "×2,5 par défaut")
-	var src: String = FileAccess.open("res://scenes/p4/avant_poste.gd", FileAccess.READ).get_as_text()
-	check(src.contains("variante = \"B\""), "la scène P4 impose la variante B")
 
 
-func test_p4_resources_exist_and_ilya_is_not_aren() -> void:
+func test_p4_resources_exist() -> void:
 	for f in ["mat/sol_herbe.png", "mat/sol_terre.png", "mat/sol_paves.png", "mat/roche.png", "mat/eau_courante.png", "mat/eau_galets.png",
 		"mat/trs_herbe_terre.png", "mat/berge.png", "arbre/arb01_tronc.png", "arbre/arb01_feuillage_avant.png", "arbre/arb01_feuillage_arriere.png",
-		"relief/rel01_mur_4m_h120.glb", "batiment/toit_violet.png", "batiment/facade_colombage.png", "pont/planches.png", "chars/ilya/idle.png"]:
+		"relief/rel01_mur_4m_h120.glb", "batiment/toit_violet.png", "batiment/facade_colombage.png", "pont/planches.png"]:
 		check(ResourceLoader.exists("res://art/p4/" + f), "ressource art/p4/%s importée" % f)
-	var ilya: Image = (load("res://art/p4/chars/ilya/idle.png") as Texture2D).get_image()
-	var aren: Image = (load("res://art/explore_hd2d/chars/aren/idle_face.png") as Texture2D).get_image()
-	check(ilya.get_size() != aren.get_size(), "Ilya n'est pas un sprite d'Aren")
-	# cheveux argentés (clairs, peu saturés) et tenue bleu nuit : comptage grossier des teintes
-	var silver := 0
-	var blue := 0
-	for y in ilya.get_height():
-		for x in ilya.get_width():
-			var c := ilya.get_pixel(x, y)
-			if c.a < 0.5:
-				continue
-			if c.s < 0.22 and c.v > 0.55:
-				silver += 1
-			if c.b > c.r * 1.4 and c.b > c.g * 1.15:
-				blue += 1
-	check(silver >= 20, "Ilya : cheveux argentés présents (%d px)" % silver)
-	check(blue >= 15, "Ilya : tenue bleu nuit présente (%d px)" % blue)
 
 
-func test_f5_launches_the_p4_outpost_and_older_scenes_remain() -> void:
-	check_eq(ProjectSettings.get_setting("application/run/main_scene"), SCENE, "F5 lance l'avant-poste P4")
-	for f in [SCENE, "res://scenes/explore_hd2d/zone_exploration.tscn", "res://scenes/explore25/scene_temoin.tscn",
-		"res://scenes/explore25/camera_variante_B.tscn", "res://scenes/battle/battle_scene.tscn"]:
-		check(ResourceLoader.exists(f), "scène conservée : " + f)
+func test_f5_launches_the_p4_demo_and_no_experimental_scene() -> void:
+	check_eq(ProjectSettings.get_setting("application/run/main_scene"), SCENE, "F5 lance la démo de l'avant-poste")
+	for f in [SCENE, "res://scenes/battle/battle_scene.tscn", "res://scenes/p4/comparaison_camera_B28.tscn"]:
+		check(ResourceLoader.exists(f), "scène présente : " + f)
+	var main: String = ProjectSettings.get_setting("application/run/main_scene")
+	check(not main.contains("comparaison") and not main.contains("test") and not main.contains("explore25"), "F5 n'est pas une scène d'essai")

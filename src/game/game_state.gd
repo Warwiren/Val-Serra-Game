@@ -4,18 +4,20 @@ extends Node
 
 signal render_mode_changed(mode: String)
 
-const SCENE_HERO_SELECT := "res://scenes/explore/hero_select.tscn"
-const SCENE_ZONE := "res://scenes/explore/zone.tscn"
+## P4.4 : les anciennes scènes (menu, zones P1/P2, visionneuses) ont été retirées du projet (historique Git :
+## branche p4-1-finitions). Toutes les entrées d'exploration mènent désormais à la démo P4.
+const SCENE_HERO_SELECT := "res://scenes/p4/avant_poste.tscn"
+const SCENE_ZONE := "res://scenes/p4/avant_poste.tscn"
 const SCENE_BATTLE := "res://scenes/battle/battle_scene.tscn"
-const SCENE_DEBUG := "res://scenes/debug/combat_debug.tscn"
-const SCENE_RIG_VIEWER := "res://scenes/art/rig_viewer.tscn"
+const SCENE_DEBUG := "res://scenes/p4/avant_poste.tscn"
+const SCENE_RIG_VIEWER := "res://scenes/p4/avant_poste.tscn"
 ## Prototype recentré (scène principale) : zone de l'avant-poste -> combat dans la même clairière
-const SCENE_PROTO_ZONE := "res://scenes/proto/proto_zone.tscn"
+const SCENE_PROTO_ZONE := "res://scenes/p4/avant_poste.tscn"
 const SCENE_PROTO_BATTLE := "res://scenes/battle/battle_scene.tscn"
 ## Exploration HD-2D expérimentale (branche exploration-hd2d) : scène séparée, combat inchangé
-const SCENE_EXPLORE_HD2D := "res://scenes/explore_hd2d/zone_hd2d.tscn"
+const SCENE_EXPLORE_HD2D := "res://scenes/p4/avant_poste.tscn"
 ## Carte d'exploration v2 (version par défaut, F5) : même script que l'avant-poste, carte agrandie et enrichie
-const SCENE_EXPLORATION := "res://scenes/explore_hd2d/zone_exploration.tscn"
+const SCENE_EXPLORATION := "res://scenes/p4/avant_poste.tscn"
 var explore_return: String = ""          # scène où revenir après un combat lancé depuis l'exploration
 
 const RENDER_2D := "A"      # Variante A : 2D illustrée simple

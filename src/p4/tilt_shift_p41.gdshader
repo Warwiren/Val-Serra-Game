@@ -4,6 +4,7 @@
 shader_type canvas_item;
 uniform sampler2D screen : hint_screen_texture, filter_linear;
 uniform float top_end = 0.30;      // flou maximal en haut, nul à partir de cette hauteur d'écran
+uniform float strength = 1.0;      // P4.4 : intensité globale (0 = aucun flou)
 uniform float bottom_start = 0.9;
 uniform float radius_px = 3.2;
 const vec2 TAPS[12] = vec2[](vec2(-0.326, -0.406), vec2(-0.840, -0.074), vec2(-0.696, 0.457), vec2(-0.203, 0.621),
@@ -11,9 +12,9 @@ const vec2 TAPS[12] = vec2[](vec2(-0.326, -0.406), vec2(-0.840, -0.074), vec2(-0
 	vec2(0.896, 0.412), vec2(-0.322, -0.933), vec2(-0.792, -0.598));
 void fragment() {
 	float y = SCREEN_UV.y;
-	float b = max(smoothstep(top_end, 0.0, y), smoothstep(bottom_start, 1.0, y) * 0.6);
+	float b = strength * max(smoothstep(top_end, 0.0, y), smoothstep(bottom_start, 1.0, y) * 0.6);
 	vec4 c = texture(screen, SCREEN_UV);
-	if (b > 0.01) {
+	if (b > 0.03) {
 		vec4 acc = c;
 		for (int i = 0; i < 12; i++) {
 			acc += texture(screen, SCREEN_UV + TAPS[i] * radius_px * b * SCREEN_PIXEL_SIZE * 2.0);

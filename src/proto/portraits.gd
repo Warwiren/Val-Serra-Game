@@ -5,21 +5,19 @@ extends RefCounted
 ## les autres personnages n'ont qu'un portrait neutre pour l'instant (repli automatique sur « neutre »).
 
 const DIR := "res://art/proto/"
-const P41 := "res://art/p41/portraits/ilya/"
+## P4.4 : portraits du pack P4_2_COMBAT_PORTRAITS_v01 (Aren gris, Ilya verte, garde en armure).
+const P44 := "res://art/p44/portraits/"
 const PORTRAITS := {
 	"heros": {
-		"neutre": DIR + "aren2/portrait_neutre.png", "determine": DIR + "aren2/portrait_determine.png",
-		"souriant": DIR + "aren2/portrait_souriant.png", "surpris": DIR + "aren2/portrait_surpris.png",
-		"blesse": DIR + "aren2/portrait_blesse.png", "concentre": DIR + "aren2/portrait_concentre.png",
+		"neutre": P44 + "aren/neutre.png", "determine": P44 + "aren/determine.png", "souriant": P44 + "aren/souriant.png",
+		"surpris": P44 + "aren/surpris.png", "blesse": P44 + "aren/blesse.png", "concentre": P44 + "aren/concentre.png",
 	},
-	# P4.1 : Ilya canonique (Drive Art/Ilya/Ilya-1.png : cheveux courts argentés, yeux verts, bleu nuit et cuir)
 	"compagnon_vif": {
-		"neutre": P41 + "portrait_neutre.png", "determine": P41 + "portrait_determine.png",
-		"souriant": P41 + "portrait_sereine.png", "surpris": P41 + "portrait_surpris.png",
-		"blesse": P41 + "portrait_inquiete.png", "concentre": P41 + "portrait_resolue.png",
+		"neutre": P44 + "ilya/neutre.png", "determine": P44 + "ilya/determine.png", "souriant": P44 + "ilya/souriant.png",
+		"surpris": P44 + "ilya/surpris.png", "blesse": P44 + "ilya/inquiete.png", "concentre": P44 + "ilya/resolue.png",
 	},
 	"compagnon_lourd": {"neutre": DIR + "portrait_throne.png"},
-	"pnj": {"neutre": DIR + "portrait_pnj.png"},
+	"pnj": {"neutre": P44 + "garde/neutre.png"},
 }
 
 
