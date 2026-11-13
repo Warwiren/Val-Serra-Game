@@ -13,20 +13,21 @@ var _guarding := false
 var _walk_phase := 0.0
 var _height := 111.0
 var poses := false                   # Aren en combat : vraies poses (art/proto/aren_combat, tools/art/aren_poses.py)
-const POSE_DIR := "res://art/p44/combat/aren/"      # P4.4 (anciennes poses retirées)
+const POSE_DIR := "res://art/p45/combat/aren/"      # P4.5
 ## Aren d'après ses planches de référence (art/proto/aren2, tools/art/aren_sheets.py) : vraies images d'animation.
-const AREN2 := "res://art/p44/combat/aren/"         # P4.4 : Aren gris (anciennes planches retirées)
+const AREN2 := "res://art/p45/combat/aren/"         # P4.5 : Aren gris
 ## P4.1+ : poses de combat à la résolution des planches, affichées ×2 au lieu de ×3 (même taille, plus de détail).
-const P41_COMBAT := "res://art/p44/combat/"          # poses par personnage (Throné : absent -> pack ×3)
+const P41_COMBAT := "res://art/p45/combat/"          # poses par personnage (Throné : absent -> pack ×3)
 const P41_PX := 2
 var tex_px := PX
 ## P4.4 : Aren gris (pack P4_2) et Ilya au pistolet d'Aether (pack P4_4, 7 séquences), mêmes noms d'images, ×2.
-const P44_COMBAT := "res://art/p44/combat/"
-## Ilya : animation du jeu -> (séquence du pack, images utilisées, images/s, boucle). fire_3 est écartée : son
-## corps change brusquement de posture (jambes écartées) au milieu du tir et produit un saut visible en jeu.
+const P44_COMBAT := "res://art/p45/combat/"         # P4.5 : Aren redécoupé (rien de coupé), Ilya attente / recul retravaillés
+## Ilya : animation du jeu -> (séquence, images, images/s, boucle). P4.5 : attente de 8 images (respiration et buste
+## qui balance), tir de 7 images dont 2 de recul (bras et arme reculent, buste suit) à la place de fire_3 (saut de
+## posture du pack), K.O. reposé au sol à chaque image.
 const ILYA44 := {
-	"idle": ["idle", [0, 1, 2, 3], 5.0, true], "prep": ["draw", [0, 1, 2, 3, 4], 12.0, false],
-	"strike": ["fire", [0, 1, 2, 4, 5, 6], 12.0, false], "guard": ["guard", [0, 1, 2, 3], 6.0, true],
+	"idle": ["idle", [0, 1, 2, 3, 4, 5, 6, 7], 6.0, true], "prep": ["draw", [0, 1, 2, 3, 4], 12.0, false],
+	"strike": ["fire", [0, 1, 2, 3, 4, 5, 6], 13.0, false], "guard": ["guard", [0, 1, 2, 3], 6.0, true],
 	"hurt": ["hit", [0, 1, 2, 3], 10.0, false], "ko": ["ko", [0, 1, 2, 3, 4, 5], 9.0, false],
 	"aether_prep": ["charged_shot", [0, 1, 2, 3, 4], 9.0, false], "aether_strike": ["charged_shot", [5, 6, 7], 10.0, false],
 }

@@ -23,10 +23,12 @@ const PERSO_SH = preload("res://src/p4/perso_p41.gdshader")
 const MONSTER_DIR := "res://art/p41/chars/vorgane/"
 ## P4.1 — personnages nets : dossier de sprites et facteur « hauteur à l'écran (px natifs P4) / hauteur du sprite »
 ## (la taille validée à l'écran est conservée : Aren 28 px natifs, Ilya 26, garde 25 ; ×2,5 par défaut).
+## P4.5 : sprites à 1 pixel = 1 pixel d'écran au zoom ×2,5 (k = hauteur à l'écran en px natifs / hauteur du sprite) ;
+## mêmes tailles à l'écran que P4.4 pour Aren (28) et Ilya (26) ; garde en armure un peu plus grand (30).
 const CHARS := {
-	"aren": {"dir": "res://art/p44/chars/aren/", "k": 28.0 / 56.0},
-	"ilya": {"dir": "res://art/p44/chars/ilya/", "k": 26.0 / 52.0},
-	"pnj": {"dir": "res://art/p41/chars/pnj/", "k": 25.0 / 32.0},
+	"aren": {"dir": "res://art/p45/chars/aren/", "k": 28.0 / 70.0},
+	"ilya": {"dir": "res://art/p45/chars/ilya/", "k": 26.0 / 65.0},
+	"pnj": {"dir": "res://art/p45/chars/garde/", "k": 30.0 / 75.0},
 }
 const MONSTER_K := 54.0 / 124.0           # même longueur au sol que le Vorgane P4 (54 px natifs)
 const CHAR_TINT := Color(0.93, 0.91, 1.0)   # éclairage commun du crépuscule
@@ -87,6 +89,14 @@ var _time := 0.0
 var _auto_dialog_t := 0.0
 var _monster_frames: Array = []
 var _foot_cache := {}
+## P4.5 — garde : courte ronde (carré de 1 m autour de son poste, 4 directions), pauses d'attente animée ; quand le
+## héros approche (4 m) ou parle, il regagne son poste et se tourne vers lui. Collision et point de dialogue suivent.
+const GUARD_ROUND := [Vector2(-0.5, -0.35), Vector2(0.45, -0.35), Vector2(0.45, 0.4), Vector2(-0.5, 0.4)]
+const GUARD_SPEED := 1.1
+var _guard_body: StaticBody3D
+var _guard_post := Vector3.INF
+var _guard_i := 0
+var _guard_wait := 0.0
 var cam_mode := "P30"
 ## scènes de comparaison F6 : caméra de départ
 @export var camera_initiale := ""
@@ -396,7 +406,10 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 		root.add_child(a["node"])
 		a["node"].position = World25.g3(n["p"])
 		a["actor"].face_toward(Vector2(-1, 0.4))
-		_obstacle_cyl(World25.g3(n["p"]), n["r"], 1.8)
+		_guard_body = _obstacle_cyl(World25.g3(n["p"]), n["r"], 1.8)
+		_guard_post = n["p"]
+		_guard_i = 0
+		_guard_wait = 1.5
 	_monster_cfg = p4.get("monstre", {})
 	if not _monster_cfg.is_empty() and not GameState.enemy_defeated:
 		_spawn_monster()
@@ -1319,10 +1332,47 @@ func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
 	if _switching or world == null:
 		return
+	_guard_step(delta)
 	if monster_present() and not s.dialogue_open:
 		var c: Array = _monster_cfg["xy"]
 		if Vector2(s.hero.x, s.hero.y).distance_to(Vector2(c[0], c[1])) < _monster_cfg["declenchement_m"] and absf(s.hero.z - _monster_cfg["h"]) < 0.5:
 			_engage()
+
+
+func _guard_step(delta: float) -> void:
+	if world.npc.is_empty() or _guard_post == Vector3.INF or not actors.has("pnj"):
+		return
+	var d: Dictionary = actors["pnj"]
+	var p: Vector3 = world.npc["p"]
+	var hp := Vector2(s.hero.x, s.hero.y)
+	var near: bool = hp.distance_to(Vector2(_guard_post.x, _guard_post.y)) < 4.0 or s.dialogue_open
+	var goal: Vector2 = Vector2(_guard_post.x, _guard_post.y) + (Vector2.ZERO if near else GUARD_ROUND[_guard_i])
+	var cur := Vector2(p.x, p.y)
+	var moved := 0.0
+	var sdir := Vector2.ZERO
+	if cur.distance_to(goal) > 0.02 and (near or _guard_wait <= 0.0):
+		var stp := (goal - cur).limit_length(GUARD_SPEED * delta)
+		moved = stp.length()
+		sdir = World25.plan_to_screen_dir(stp.normalized())
+		cur += stp
+	elif not near:
+		_guard_wait -= delta
+		if _guard_wait <= 0.0 and cur.distance_to(goal) <= 0.02:
+			_guard_i = (_guard_i + 1) % GUARD_ROUND.size()
+			_guard_wait = 1.6
+	if near and moved == 0.0:
+		d["actor"].face_toward(World25.plan_to_screen_dir(hp - cur))
+	elif moved == 0.0 and _guard_wait > 0.0 and d["actor"].anim.begins_with("walk"):
+		pass
+	d["actor"].step(moved, sdir, delta)
+	if moved > 0.0:
+		world.npc["p"] = Vector3(cur.x, cur.y, p.z)
+		for so in world.solids:
+			if so["id"] == world.npc["id"]:
+				so["c"] = cur
+		d["node"].position = World25.g3(world.npc["p"])
+		_guard_body.position = World25.g3(world.npc["p"])
+	_sync_sprite(d)
 
 
 func _process(delta: float) -> void:

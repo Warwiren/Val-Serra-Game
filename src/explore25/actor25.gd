@@ -3,10 +3,13 @@ extends RefCounted
 ## règles (4 directions pour Aren, profil retourné pour les autres ; marche pilotée par la distance parcourue).
 ## Les sprites existants sont réutilisés tels quels (proportions conservées) ; les pieds = milieu du bas de l'image.
 
-const BASE := "res://art/p44/chars/%s/"           # P4.4 (anciens dossiers retirés)
+const BASE := "res://art/p45/chars/%s/"           # P4.5 (anciens dossiers retirés)
 ## P4 : dossier de sprites imposé pour une clé (ex. "ilya" -> art/p4/chars/ilya/) ; vide = dossiers d'origine.
 static var overrides := {}
-const STRIDE_M := 0.3                      # m parcourus par image de marche (≈ 6 px natifs, comme le jeu)
+## P4.5 : 0,42 m par image de marche -> un cycle (2 pas, 4 images) tous les 1,7 m, soit ~2 cycles/s à 3,6 m/s ; la
+## cadence suit la vitesse RÉELLE (distance parcourue), donc pas de glissement des pieds aux vitesses plus lentes.
+const STRIDE_M := 0.42
+const IDLE_FPS := 4.0                      # attente : 8 images à 4 i/s (cycle de 2 s : respiration, poids, mèche)
 
 var key := ""
 var four := false
@@ -35,6 +38,10 @@ func _build(k: String) -> void:
 		for d in ["face", "back", "left", "right"]:
 			frames.add_animation("idle_" + d)
 			frames.add_frame("idle_" + d, load(base + "idle_%s.png" % d))
+			var n := 1
+			while ResourceLoader.exists(base + "idle_%s_%d.png" % [d, n]):    # P4.5 : attente animée (8 images)
+				frames.add_frame("idle_" + d, load(base + "idle_%s_%d.png" % [d, n]))
+				n += 1
 			frames.add_animation("walk_" + d)
 			for i in 4:
 				frames.add_frame("walk_" + d, load(base + "walk_%s_%d.png" % [d, i]))
@@ -62,20 +69,26 @@ func step(moved_m: float, sdir: Vector2, delta: float) -> void:
 			_dir = ("right" if sdir.x > 0 else "left") if absf(sdir.x) > absf(sdir.y) * 1.1 else ("face" if sdir.y > 0 else "back")
 		elif absf(sdir.x) > 0.2:
 			flip = sdir.x < 0
+		var was_idle := not anim.begins_with("walk")
 		anim = ("walk_" + _dir) if four else "walk_right"
+		if was_idle:
+			_dist = STRIDE_M * 0.5              # premier pas : jambe avant levée tout de suite (pas de glissement)
 		frame = int(_dist / STRIDE_M) % frames.get_frame_count(anim)
 	else:
 		_still += delta
 		if _still > 0.1:
 			anim = ("idle_" + _dir) if four else "idle_right"
-			frame = 0
+			# attente : repart de la pose neutre à l'arrêt, puis respire (les pieds ne bougent jamais)
+			frame = int((_still - 0.1) * IDLE_FPS) % frames.get_frame_count(anim)
 
 
 func face_toward(sdir: Vector2) -> void:
 	if four:
 		_dir = ("right" if sdir.x > 0 else "left") if absf(sdir.x) > absf(sdir.y) else ("face" if sdir.y > 0 else "back")
-		anim = "idle_" + _dir
-		frame = 0                      # l'image de marche en cours n'existe pas dans le repos (texture nulle)
+		if anim != "idle_" + _dir:
+			anim = "idle_" + _dir
+			frame = 0                  # l'image de marche en cours n'existe pas dans le repos (texture nulle)
+			_still = 0.1               # l'attente animée reprend de la pose neutre
 	elif absf(sdir.x) > 0.01:
 		flip = sdir.x < 0
 

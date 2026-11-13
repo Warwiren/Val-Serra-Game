@@ -1,0 +1,23 @@
+{
+ "idle": {
+  "count": 8
+ },
+ "fire": {
+  "count": 7
+ },
+ "draw": {
+  "count": 5
+ },
+ "charged_shot": {
+  "count": 8
+ },
+ "guard": {
+  "count": 4
+ },
+ "hit": {
+  "count": 4
+ },
+ "ko": {
+  "count": 6
+ }
+}

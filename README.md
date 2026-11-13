@@ -5,7 +5,7 @@ Démo jouable du RPG narratif au tour par tour **Val'Serra**, réalisée sous **
 > Tous les personnages, monstres, illustrations et nombres de ce dépôt sont **provisoires et non canoniques**.
 > Ce dépôt est indépendant du système Foundry du JDR (`Warwiren/Val-serra`), qui n'est pas modifié.
 
-![Avant-poste de la lisière — cour, terrasse et bâtiment principal (caméra P30)](docs/media/p4_4/captures/cour_x2-5.jpg)
+![Avant-poste de la lisière — cour, terrasse et bâtiment principal (caméra P30)](docs/media/p4_5/captures/cour_x2-5.jpg)
 
 ## Ce qui est jouable
 
@@ -16,7 +16,8 @@ Une boucle complète dans l'**avant-poste de la lisière**, au crépuscule, en *
    courts argentés, cape verte, pistolet d'Aether) dans la **cour** fortifiée, l'**escalier** et la **terrasse**, le
    **bâtiment principal** dans lequel on entre, la **porte fortifiée**, le **pont** sur une rivière animée, la
    **plaine** et ses falaises.
-2. **Dialogue** à portraits et à choix avec le **garde** ; panneaux à examiner.
+2. **Dialogue** à portraits et à choix avec le **garde** en armure (bouclier et masse), qui fait sa ronde dans la cour ;
+   panneaux à examiner. Les personnages respirent à l'arrêt et marchent dans les quatre directions.
 3. **Combat au tour par tour** contre le **Vorgane** (475 PV dans cette rencontre de démonstration) : Aren à la lame,
    Ilya au **pistolet d'Aether** (tir, tir chargé), Throné au marteau ; initiative dynamique, modes
    VIF / MESURÉ / CHARGÉ, parties destructibles, Résonance.
@@ -25,21 +26,22 @@ Une boucle complète dans l'**avant-poste de la lisière**, au crépuscule, en *
 
 | Combat | Plaine |
 |---|---|
-| ![Combat](docs/media/p4_4/combat.jpg) | ![Plaine](docs/media/p4_4/captures/plaine_x2-5.jpg) |
+| ![Combat](docs/media/p4_5/combat.jpg) | ![Plaine](docs/media/p4_5/captures/plaine_x2-5.jpg) |
 
-Vidéo du parcours complet : [`docs/media/p4_4/parcours_complet_p4_4.mp4`](docs/media/p4_4/parcours_complet_p4_4.mp4).
-Rapport de l'étape : [`docs/P4_4_PERSONNAGES.md`](docs/P4_4_PERSONNAGES.md).
+Vidéos : [parcours complet](docs/media/p4_5/videos/parcours_complet_p4_5.mp4), [marche et attente à ×3](docs/media/p4_5/videos/exploration_marche_attente_gros_plan.mp4),
+[ronde du garde](docs/media/p4_5/videos/garde_ronde_attente.mp4), [actions de combat](docs/media/p4_5/videos/combat_actions_aren_ilya.mp4).
+Rapport de l'étape : [`docs/P4_5_ANIMATIONS.md`](docs/P4_5_ANIMATIONS.md).
 
 ## Lancer le jeu (Godot 4.7.2 obligatoire)
 
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p4-4-personnages`**, puis **Code → Download ZIP** ; le
-   dossier s'appelle `Val-Serra-Game-p4-4-personnages`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p4-5-animations`**, puis **Code → Download ZIP** ; le
+   dossier s'appelle `Val-Serra-Game-p4-5-animations`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
-4. **F5** lance la **démo P4.4** (`scenes/p4/avant_poste.tscn`, caméra P30).
+4. **F5** lance la **démo P4.5** (`scenes/p4/avant_poste.tscn`, caméra P30).
 
 ### Commandes
 
@@ -97,7 +99,7 @@ collision (20), démonstration automatique (dialogue et combat joués seuls).
 |---|---|
 | Démo (F5) : scène et habillage | `scenes/p4/avant_poste.gd` ; données `data/p4/` ; shaders `src/p4/` |
 | Socle d'exploration 2.5D | `src/explore25/` (monde, session, caméra, acteurs, parcours), `scenes/explore25/explore_3d.gd` |
-| Personnages (exploration, combat, portraits) | `art/p44/` (`SOURCES.md`), outil `tools/p44/build_chars_p44.py` ; garde et Vorgane d'exploration `art/p41/chars/` |
+| Personnages (exploration, combat, portraits) | `art/p45/` (`SOURCES.md`), outil `tools/p45/build_p45.py` ; Vorgane d'exploration `art/p41/chars/vorgane/` |
 | Décor de la zone | `art/p4/` (`SOURCES.md`), décor nettoyé `art/p41/decor/` ; outils `tools/p4/`, `tools/p41/` |
 | Combat | `scenes/battle/`, règles `src/combat/`, données `data/combat/`, présentation `src/presentation/`, `src/proto/` |
 | Arène de combat | `art/arena/lisiere/`, `src/presentation/arena_layers.gd`, outils `tools/arena/` |
@@ -108,6 +110,6 @@ collision (20), démonstration automatique (dialogue et combat joués seuls).
 
 | Document | Contenu |
 |---|---|
-| `docs/P4_4_PERSONNAGES.md` | **P4.4** : personnages, combat d'Ilya au pistolet, caméra P30, nettoyage, tailles, tests, réserves |
+| `docs/P4_5_ANIMATIONS.md` | **P4.5** : garde en armure, attente et marche, combat d'Aren non rogné, attente et tir d'Ilya, netteté, tests, réserves |
 | `docs/HISTORIQUE.md` | où retrouver les rapports et médias des étapes précédentes (branches Git) |
 | `docs/ASSETS.md` | registre des ressources et de leurs conditions d'usage |

@@ -130,6 +130,22 @@ static func route(name: String) -> Array:
 				_go(27.0, 16.0, "retour : pont"),
 				{"do": "wait", "t": 1.5},
 			]
+		"p4_anim":
+			# P4.5 — démonstration des animations (vidéo) : marche puis attente dans les 4 directions à ×3, près du
+			# garde qui fait sa ronde (à plus de 4 m : il ne revient pas à son poste).
+			var dirs := [[Vector2(1, 0), "droite"], [Vector2(-1, 0), "gauche"], [Vector2(0, -1), "haut"], [Vector2(0, 1), "bas"]]
+			var oa: Array = [_warp(12.6, 16.6, 0.0), {"do": "zoom", "i": 2, "smooth": false}, {"do": "wait", "t": 2.5}]
+			for dd in dirs:
+				oa.append({"do": "push", "id": "marche " + dd[1], "dir": dd[0], "t": 1.4, "expect": {}})
+				oa.append({"do": "wait", "t": 2.4})
+			oa.append({"do": "zoom", "i": 1, "smooth": false})
+			oa.append({"do": "wait", "t": 1.0})
+			return oa
+		"p4_garde":
+			# P4.5 — vidéo du garde : ronde en 4 directions et attente (héros à 4,7 m), puis le héros approche : le
+			# garde regagne son poste et se tourne vers lui ; dialogue.
+			return [_warp(14.0, 15.5, 0.0), {"do": "zoom", "i": 2, "smooth": false}, {"do": "wait", "t": 13.0},
+				_go(16.6, 14.6, "approche du garde", 0.3), {"do": "wait", "t": 1.5}, {"do": "talk", "id": "garde"}, {"do": "wait", "t": 4.0}]
 		"p4_vues_int":
 			var o2: Array = []
 			for c in [["interieur", 5.0, 4.9, 0.0], ["interieur_atre", 7.6, 5.4, 0.0]]:

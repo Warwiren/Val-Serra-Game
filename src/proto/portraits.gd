@@ -6,7 +6,7 @@ extends RefCounted
 
 const DIR := "res://art/proto/"
 ## P4.4 : portraits du pack P4_2_COMBAT_PORTRAITS_v01 (Aren gris, Ilya verte, garde en armure).
-const P44 := "res://art/p44/portraits/"
+const P44 := "res://art/p45/portraits/"            # P4.5 (garde du pack léger)
 const PORTRAITS := {
 	"heros": {
 		"neutre": P44 + "aren/neutre.png", "determine": P44 + "aren/determine.png", "souriant": P44 + "aren/souriant.png",

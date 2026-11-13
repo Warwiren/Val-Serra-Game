@@ -33,10 +33,10 @@ func test_vorgane_layers_complete_and_aligned() -> void:
 						"%s : ancrages de ciblage" % key)
 
 
-## Personnages du combat de démonstration (P4.4) : Throné et le garde viennent encore du pack ; le décor de repli et
+## Personnages du combat de démonstration : Throné vient encore du pack ; le décor de repli et
 ## les images « nuit » du Vorgane (combat de la démo) sont complets.
 func test_proto_characters_share_one_scale() -> void:
-	for k in ["throne", "pnj"]:
+	for k in ["throne"]:
 		var p := "res://art/proto/%s.png" % k
 		check(FileAccess.file_exists(p), "%s présent" % k)
 		check_eq(_size(p), _size("res://art/proto/%s_1.png" % k), "%s : image de respiration de même taille" % k)
