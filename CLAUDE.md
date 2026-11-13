@@ -2,8 +2,9 @@
 
 - **Moteur : Godot 4.7.2, strictement.** Toute scène, tout script et tout test se valident sous cette version.
   Ne pas modifier `config/features` dans `project.godot` sans décision explicite.
-- **F5 lance la démo P4.5** (`run/main_scene = res://scenes/p4/avant_poste.tscn`, caméra P30), configurée par les
-  briefs P4.4 et P4.5 du 13 novembre 2026 après vérifications (voir `docs/P4_5_ANIMATIONS.md`).
+- **F5 lance la démo de l'avant-poste** (`run/main_scene = res://scenes/p4/avant_poste.tscn`, caméra P30), configurée
+  par les briefs P4.4 et P4.5 du 13 novembre 2026 après vérifications ; corrections P4.6 dans la même scène (voir
+  `docs/P4_6_CORRECTIONS.md`, rapport P4.5 dans `docs/HISTORIQUE.md`).
   **Ne pas modifier `run/main_scene` sans l'accord explicite du créateur.** Une nouvelle branche ou une nouvelle
   étape ne suffit pas à « promouvoir » une scène sur F5 : la promotion est une décision du créateur, datée et
   consignée dans le compte rendu de l'étape. Si une étape casse la scène F5, revenir à l'état stable précédent et

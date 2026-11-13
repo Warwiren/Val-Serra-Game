@@ -5,7 +5,7 @@ Démo jouable du RPG narratif au tour par tour **Val'Serra**, réalisée sous **
 > Tous les personnages, monstres, illustrations et nombres de ce dépôt sont **provisoires et non canoniques**.
 > Ce dépôt est indépendant du système Foundry du JDR (`Warwiren/Val-serra`), qui n'est pas modifié.
 
-![Avant-poste de la lisière — cour, terrasse et bâtiment principal (caméra P30)](docs/media/p4_5/captures/cour_x2-5.jpg)
+![Avant-poste de la lisière — cour, terrasse et bâtiment principal (caméra P30)](docs/media/p4_6/captures/cour_x2-5.jpg)
 
 ## Ce qui est jouable
 
@@ -26,22 +26,23 @@ Une boucle complète dans l'**avant-poste de la lisière**, au crépuscule, en *
 
 | Combat | Plaine |
 |---|---|
-| ![Combat](docs/media/p4_5/combat.jpg) | ![Plaine](docs/media/p4_5/captures/plaine_x2-5.jpg) |
+| ![Combat](docs/media/p4_6/combat.jpg) | ![Plaine](docs/media/p4_6/captures/plaine_x2-5.jpg) |
 
-Vidéos : [parcours complet](docs/media/p4_5/videos/parcours_complet_p4_5.mp4), [marche et attente à ×3](docs/media/p4_5/videos/exploration_marche_attente_gros_plan.mp4),
-[ronde du garde](docs/media/p4_5/videos/garde_ronde_attente.mp4), [actions de combat](docs/media/p4_5/videos/combat_actions_aren_ilya.mp4).
-Rapport de l'étape : [`docs/P4_5_ANIMATIONS.md`](docs/P4_5_ANIMATIONS.md).
+Vidéos : [marche et arrêt à ×3, taille constante](docs/media/p4_6/videos/marche_arret_taille_constante_x3.mp4),
+[actions de combat, Ilya de face](docs/media/p4_6/videos/combat_ilya_de_face.mp4).
+Rapport de l'étape : [`docs/P4_6_CORRECTIONS.md`](docs/P4_6_CORRECTIONS.md) (étapes précédentes : `docs/HISTORIQUE.md`).
 
 ## Lancer le jeu (Godot 4.7.2 obligatoire)
 
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p4-5-animations`**, puis **Code → Download ZIP** ; le
-   dossier s'appelle `Val-Serra-Game-p4-5-animations`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p4-6-corrections`**, puis **Code → Download ZIP** ; le
+   dossier s'appelle `Val-Serra-Game-p4-6-corrections`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
-4. **F5** lance la **démo P4.5** (`scenes/p4/avant_poste.tscn`, caméra P30).
+4. **F5** lance la **démo de l'avant-poste** (`scenes/p4/avant_poste.tscn`, caméra P30) avec les corrections P4.6 :
+   taille des personnages constante à l'arrêt et en marche, Ilya de face en combat.
 
 ### Commandes
 
@@ -89,7 +90,7 @@ godot --headless --path . res://scenes/p4/avant_poste.tscn -- --route=p4_sondes 
 godot --path . -- --autoplay --route=p4_demo --route_retour=p4_retour
 ```
 
-Dans l'ordre : tests automatiques (63), rencontre de bout en bout (déclenchement, PV de démo, victoire, défaite,
+Dans l'ordre : tests automatiques (65), rencontre de bout en bout (déclenchement, PV de démo, victoire, défaite,
 bâtiment), parcours complet au clavier simulé (29 étapes ; `--camera=B28` ou `P38` pour comparer), sondes de
 collision (20), démonstration automatique (dialogue et combat joués seuls).
 
@@ -110,6 +111,6 @@ collision (20), démonstration automatique (dialogue et combat joués seuls).
 
 | Document | Contenu |
 |---|---|
-| `docs/P4_5_ANIMATIONS.md` | **P4.5** : garde en armure, attente et marche, combat d'Aren non rogné, attente et tir d'Ilya, netteté, tests, réserves |
+| `docs/P4_6_CORRECTIONS.md` | **P4.6** : taille constante entre l'arrêt et la marche, Ilya de face en combat, tests, éléments provisoires |
 | `docs/HISTORIQUE.md` | où retrouver les rapports et médias des étapes précédentes (branches Git) |
 | `docs/ASSETS.md` | registre des ressources et de leurs conditions d'usage |

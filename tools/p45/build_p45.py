@@ -107,6 +107,60 @@ def torso_x(img):
     return (cols.min() + cols.max()) / 2.0, bot
 
 
+def height(a):
+    ys = np.where((a[..., 3] > 110).any(1))[0]
+    return ys.max() - ys.min() + 1
+
+
+def head_w(a):
+    """Largeur de la tête (15 % supérieurs de la silhouette) : repère d'échelle stable d'une image de marche à l'autre."""
+    m = a[..., 3] > 110
+    ys = np.where(m.any(1))[0]
+    t, h = ys.min(), ys.max() - ys.min() + 1
+    return max(np.ptp(np.where(m[y])[0]) + 1 for y in range(t, t + max(2, int(h * 0.15))))
+
+
+def reduce2(rgba, fy, fx):
+    """Comme reduce(), avec des facteurs vertical et horizontal distincts (toujours une réduction)."""
+    H, W = rgba.shape[:2]
+    nh, nw = int(np.ceil(H / fy)), int(np.ceil(W / fx))
+    out = np.zeros((nh, nw, 4), np.uint8)
+    a = rgba[..., 3] > 110
+    for y in range(nh):
+        y0, y1 = int(round(y * fy)), min(H, int(round((y + 1) * fy)))
+        for x in range(nw):
+            x0, x1 = int(round(x * fx)), min(W, int(round((x + 1) * fx)))
+            m = a[y0:y1, x0:x1]
+            if m.size and m.mean() >= 0.45:
+                out[y, x, :3] = np.median(rgba[y0:y1, x0:x1, :3][m], axis=0)
+                out[y, x, 3] = 255
+    return out
+
+
+def idle_to_walk_scale(idle, walks, f, name="", d=""):
+    """P4.6 — taille constante entre l'attente et la marche. Dans le pack P4.3 d'Aren, la pose de repos est dessinée
+    plus petite que les pas (tête et épaules ~18 % plus petites, jambes plus longues) : le personnage « grandissait »
+    en démarrant. Si l'écart de tête dépasse 6 %, le haut du corps (tête, épaules, buste jusqu'à la taille) est réduit
+    à l'échelle des pas, et les jambes sont tassées verticalement pour que la hauteur totale égale celle des pas.
+    Toujours une réduction (aucun agrandissement)."""
+    s = np.median([head_w(w) for w in walks]) / head_w(idle)
+    if abs(s - 1) <= 0.06:
+        return reduce(idle, f)
+    ys = np.where((idle[..., 3] > 110).any(1))[0]
+    t, b = ys.min(), ys.max()
+    cut = t + int((b - t) * 0.45)                     # taille (ceinture)
+    fu = f / s
+    up = reduce2(idle[:cut], fu, fu)[:int(round(cut / fu))]
+    rest = np.median([height(w) for w in walks]) / f - (cut - t) / fu
+    lo = reduce2(idle[cut:], (b + 1 - cut) / rest, fu)
+    w = max(up.shape[1], lo.shape[1])
+    out = np.zeros((up.shape[0] + lo.shape[0], w, 4), np.uint8)
+    out[:up.shape[0], :up.shape[1]] = up
+    out[up.shape[0]:, :lo.shape[1]] = lo
+    print("   %s %s : repos remis à l'échelle des pas (tête ×%.2f, jambes tassées)" % (name, d, s))
+    return out
+
+
 def place(img, ax, ay, canvas=CANVAS):
     W, H = canvas
     out = np.zeros((H, W, 4), np.uint8)
@@ -158,12 +212,12 @@ def idle_cycle(base, sway_sign=1):
 def exploration(name, frames, target, edge=(0.6, 90), sway_sign=1):
     """frames : {direction: [repos, marche0..3]} (sources RGBA). Hauteur de marche ramenée à `target` px."""
     cleaned = {d: [clean_source(f) for f in fs] for d, fs in frames.items()}
-    walk_h = np.median([np.ptp(np.where(f[..., 3] > 110)[0]) + 1 for fs in cleaned.values() for f in fs[1:]])
+    walk_h = np.median([height(f) for fs in cleaned.values() for f in fs[1:]])
     f = walk_h / target
     out, lost = {}, 0
     for d, fs in cleaned.items():
         for i, src in enumerate(fs):
-            r = reduce(src, f)
+            r = reduce(src, f) if i else idle_to_walk_scale(src, fs[1:], f, name, d)
             ax, ay = torso_x(r)
             img, l = place(r, ax, ay)
             lost += l
@@ -325,22 +379,119 @@ def aren_combat(target=56):
 
 
 # ------------------------------------------------------------------------------------------------ combat d'Ilya
+# P4.6 — Ilya de face en combat, comme Aren. Le pack P4.4 est un profil strict (montage procédural d'une base verte
+# + pistolet peint, d'après son manifeste). Même principe ici avec la base verte DE FACE du pack P4.3 (pose de repos
+# face, 251 px) : le corps est de face ; le bras armé, le pistolet et les effets d'Aether (éclair, charge, bouclier,
+# entailles) viennent des images P4.4 correspondantes. En visée, le bras droit pendant est effacé (cape peinte
+# derrière) et le bras tendu part de l'épaule droite. Montage, pas dessin : à redessiner pour une version finale.
+def _green(px):
+    return (px[..., 1].astype(int) > px[..., 0].astype(int) + 8) & (px[..., 1].astype(int) > px[..., 2].astype(int))
+
+
+def _effect(px):
+    """Pixels d'effet ou de pistolet lumineux : vert dominant clair, ou presque blanc."""
+    return (_green(px) & (px[..., 1].astype(int) > 110)) | (px[..., :3].min(-1) > 200)
+
+
+def _paste(base, layer, dx, dy):
+    out = base.copy()
+    ys, xs = np.where(layer[..., 3] > 0)
+    ty, tx = ys + dy, xs + dx
+    ok = (ty >= 0) & (ty < out.shape[0]) & (tx >= 0) & (tx < out.shape[1])
+    out[ty[ok], tx[ok]] = layer[ys[ok], xs[ok]]
+    return out
+
+
+def _erase_right_arm(B):
+    """Bras droit (à droite de l'écran) pendant retiré ; la cape verte qu'il cachait est peinte à sa place."""
+    o = B.copy()
+    for y in range(66, 83):
+        row = o[y]
+        g = _green(row) & (row[:, 3] > 0)
+        for x in range(85, 94):
+            if row[x, 3] > 0 and not g[x]:
+                row[x] = 0
+        gx = [x for x in range(85, 96) if row[x, 3] > 0]
+        edge = max(max(gx) if gx else 86, 86 if y < 75 else 88)
+        for x in range(85, edge + 1):
+            if row[x, 3] == 0:
+                row[x] = (46, 60, 40, 255)
+        row[edge] = (28, 36, 25, 255)
+    return o
+
+
+def _front_frame(B, P, seq):
+    """P : image P4.4 (profil) réduite et placée ; B : base de face placée sur le même canevas."""
+    bright = _green(P) & (P[..., 3] > 0) & (P[..., 1] > 140)
+    bright[:, :86] = False
+    gys = np.where(bright.any(1))[0]
+    gy = int(np.median(gys)) if len(gys) else 99
+    ys, xs = np.where(P[..., 3] > 0)
+    eff = _effect(P)[ys, xs]
+    layer = np.zeros_like(P)
+    if seq == "guard" or gy < 77:                                   # visée : bras tendu depuis l'épaule
+        band = (gy - 4, gy + 3) if seq != "guard" else (57, 84)
+        keep = ((xs >= 84) & (ys >= band[0]) & (ys <= band[1])) | ((xs >= 91) & eff)
+        layer[ys[keep], xs[keep]] = P[ys[keep], xs[keep]]
+        out = _paste(_erase_right_arm(B), layer, 4, -5)
+    else:                                                           # pistolet tenu bas, dans la main droite
+        keep = (xs >= 91) & ((ys >= 70) | eff)
+        layer[ys[keep], xs[keep]] = P[ys[keep], xs[keep]]
+        out = _paste(B, layer, 1, -3)
+    if seq == "hit":                                                # entailles rouges (côté gauche) et buste rejeté
+        red = (P[..., 0].astype(int) > P[..., 1].astype(int) + 50) & (P[..., 3] > 0)
+        red[:, 72:] = False
+        lay = np.where(red[..., None], P, 0).astype(np.uint8)
+        top = np.where(out[..., 3].any(1))[0].min()
+        out = shift_rows(out, 0, top + 30, -1, 0)
+        out = _paste(out, lay, -3, 0)
+    return out
+
+
+def _front_ko(armed, body, gun):
+    """K.O. de face : le corps bascule en arrière (loin de l'ennemi), reposé au sol à chaque image ; le pistolet
+    échappe à la main et repose au sol dès la troisième image. Rotation au plus proche à la résolution du sprite (pas
+    d'agrandissement)."""
+    frames = []
+    for k, ang in enumerate([0, 12, 35, 62, 84, 90]):
+        im = Image.fromarray(armed if k < 2 else body)
+        r = np.asarray(im.rotate(ang, resample=Image.NEAREST, expand=True))
+        ys, xs = np.where(r[..., 3] > 0)
+        crop = r[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+        img, _ = place(crop, crop.shape[1] / 2.0 + ang / 90.0 * 6, crop.shape[0] - 1, (160, 100))
+        if ang == 0:
+            img = shift_rows(img, 0, 70, -1, 1)
+        if k >= 2:
+            gy, gx = np.where(gun[..., 3] > 0)
+            img = _paste(img, gun, 96 - gx.min(), 98 - gy.max())
+        frames.append(img)
+    return frames
+
+
 def ilya_combat(target=54):
     man = json.load(open(os.path.join(SRC, "p44", "manifest.json")))
     ax, ay = man["anchor_pixels"]
     f = 143.0 / target
+    front_src = clean_source(np.asarray(Image.open(os.path.join(P43, "ilya", "frames", "down_idle.png")).convert("RGBA")))
+    rf = reduce(front_src, height(front_src) / (target + 1.0))
+    hx, hy = torso_x(rf)
+    B, _ = place(rf, hx, hy + 1, (160, 100))                        # pieds sur la même ligne que le pack (y = 98)
     raw = {}
     for s, d in man["sequences"].items():
+        if s == "ko":
+            continue
         im = np.asarray(Image.open(os.path.join(SRC, "p44", "atlases", "ilya_%s_strip_192.png" % s)).convert("RGBA"))
         for i in range(d["count"]):
             r = reduce(im[:, i * 192:(i + 1) * 192], f)
-            if s == "ko":
-                # K.O. : chaque image reposée au sol (le pack fait flotter le corps pendant la chute)
-                yy = np.where(r[..., 3].any(1))[0]
-                img, _ = place(r, ax / f, yy.max(), (160, 100))
-            else:
-                img, _ = place(r, ax / f, ay / f, (160, 100))
-            raw["%s_%d" % (s, i)] = img
+            P, _ = place(r, ax / f, ay / f, (160, 100))
+            raw["%s_%d" % (s, i)] = _front_frame(B, P, s)
+    # pistolet seul, à l'horizontale (image « dégainer » 4 du pack, au-delà de la main)
+    im = np.asarray(Image.open(os.path.join(SRC, "p44", "atlases", "ilya_draw_strip_192.png")).convert("RGBA"))
+    P, _ = place(reduce(im[:, 4 * 192:5 * 192], f), ax / f, ay / f, (160, 100))
+    gun = P.copy()
+    gun[:, :93] = 0
+    for i, img in enumerate(_front_ko(raw["idle_0"], B, gun)):
+        raw["ko_%d" % i] = img
     pal = palette(list(raw.values()), 112, 5)
     q = {k: quantize(v, pal) for k, v in raw.items()}
     # attente : les 4 images du pack + respiration et léger balancement du buste (8 images)
