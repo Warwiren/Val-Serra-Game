@@ -141,6 +141,17 @@ static func route(name: String) -> Array:
 			oa.append({"do": "zoom", "i": 1, "smooth": false})
 			oa.append({"do": "wait", "t": 1.0})
 			return oa
+		"p4_marche":
+			# P4.8 — vidéo de la marche : à ×3 dans la cour, marche dans les 4 directions avec arrêts, puis course (Maj).
+			var om: Array = [_warp(12.6, 16.6, 0.0), {"do": "zoom", "i": 2, "smooth": false}, {"do": "wait", "t": 1.5}]
+			for dd in [[Vector2(1, 0), "droite"], [Vector2(-1, 0), "gauche"], [Vector2(0, -1), "haut"], [Vector2(0, 1), "bas"]]:
+				om.append({"do": "push", "id": "marche " + dd[1], "dir": dd[0], "t": 2.2, "expect": {}})
+				om.append({"do": "wait", "t": 1.2})
+			om.append({"do": "push", "id": "course droite", "dir": Vector2(1, 0), "t": 1.4, "expect": {}, "run": true})
+			om.append({"do": "wait", "t": 1.0})
+			om.append({"do": "push", "id": "course gauche", "dir": Vector2(-1, 0), "t": 1.4, "expect": {}, "run": true})
+			om.append({"do": "wait", "t": 1.2})
+			return om
 		"p4_vorgane":
 			# P4.7 — le Vorgane dans la plaine : captures aux 3 zooms, puis le héros tourne autour (vidéo).
 			var ov: Array = [_warp(35.6, 15.2, 0.0)]

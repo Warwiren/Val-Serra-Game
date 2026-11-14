@@ -25,6 +25,7 @@ var adj: Dictionary = {}
 var step_h := 0.25
 var actor_r := 0.28
 var speed := 3.6
+var run_speed := 3.6                        # P4.8 : course (Maj maintenue)
 var follow_gap := 1.0
 var stair_assist := 0.3
 var extent := Rect2()                    # aire de la carte (plan, m)
@@ -110,6 +111,7 @@ func _load(file: String, m: String) -> void:
 	step_h = par.get("pas_franchissable_m", step_h)
 	actor_r = par.get("rayon_personnage_m", actor_r)
 	speed = par.get("vitesse_m_s", speed)
+	run_speed = par.get("vitesse_course_m_s", maxf(run_speed, speed))
 	follow_gap = par.get("ecart_compagnon_m", follow_gap)
 	stair_assist = par.get("assistance_escalier", stair_assist)
 	var ex: Array = spec["world"]["extent_m"]

@@ -3,8 +3,8 @@
 - **Moteur : Godot 4.7.2, strictement.** Toute scène, tout script et tout test se valident sous cette version.
   Ne pas modifier `config/features` dans `project.godot` sans décision explicite.
 - **F5 lance la démo de l'avant-poste** (`run/main_scene = res://scenes/p4/avant_poste.tscn`, caméra P30), configurée
-  par les briefs P4.4 et P4.5 du 13 novembre 2026 après vérifications ; corrections P4.6 et P4.7 dans la même scène
-  (voir `docs/P4_7_CORRECTIONS.md`, rapports précédents dans `docs/HISTORIQUE.md`).
+  par les briefs P4.4 et P4.5 du 13 novembre 2026 après vérifications ; corrections P4.6 à P4.8 dans la même scène
+  (voir `docs/P4_8_MARCHE.md`, rapports précédents dans `docs/HISTORIQUE.md`).
   **Ne pas modifier `run/main_scene` sans l'accord explicite du créateur.** Une nouvelle branche ou une nouvelle
   étape ne suffit pas à « promouvoir » une scène sur F5 : la promotion est une décision du créateur, datée et
   consignée dans le compte rendu de l'étape. Si une étape casse la scène F5, revenir à l'état stable précédent et
@@ -25,8 +25,9 @@
   bilinéaire. Une même apparence en exploration, en combat et en portrait. Aren : cheveux bruns, tenue grise/noire.
   Ilya : cheveux courts argentés, yeux verts, tenue verte et cuir, **pistolet d'Aether** (jamais d'épée ni d'arc).
   Garde : armure sombre, bouclier, masse ; PNJ sans combat (courte ronde dans la cour).
-- **Animations** : attente animée (8 images, pieds immobiles) et marche (4 images, cadence liée à la distance) dans les
-  4 directions. Une animation dérivée par décalages d'un pixel reste « procédurale » : ne pas la présenter comme
+- **Animations** : attente animée (8 images, pieds immobiles) et marche dans les 4 directions, cadence liée à la
+  distance (P4.8 : 8 images pour Aren et Ilya, cadence calée sur le pas dessiné, marche 2,2 m/s, course Maj 3,6 m/s ;
+  4 images pour le garde). Une animation dérivée par décalages d'un pixel reste « procédurale » : ne pas la présenter comme
   dessinée. Toute animation se vérifie en mouvement (vidéo), pas sur une capture fixe.
 - **Ressources graphiques** : une planche conceptuelle n'est pas un asset. Ne rien déclarer « final » sans revue
   du créateur ; signaler tout élément provisoire dans `art/p4/SOURCES.md` et dans le rapport de l'étape.

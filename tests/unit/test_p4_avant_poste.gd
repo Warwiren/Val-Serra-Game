@@ -52,7 +52,8 @@ func test_zone_has_the_five_areas_of_the_brief() -> void:
 	check_eq(w.max_h, 1.2, "terrasse à +1,20 m")
 	check(w.elements.any(func(e): return e["type"] == "water"), "rivière présente")
 	check(w.elements.any(func(e): return e["type"] == "house"), "bâtiment principal présent")
-	check_eq(w.speed, 3.6, "vitesse de marche P3 conservée")
+	check_eq(w.run_speed, 3.6, "vitesse P3 conservée pour la course (Maj)")
+	check_eq(w.speed, 2.2, "P4.8 : marche à 2,2 m/s (pas dessiné de 0,48 m, ~4,6 pas/s, pieds sans glissement)")
 	check_eq(w.actor_r, 0.28, "rayon du personnage P3 conservé")
 
 

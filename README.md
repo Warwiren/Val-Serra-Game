@@ -5,7 +5,7 @@ Démo jouable du RPG narratif au tour par tour **Val'Serra**, réalisée sous **
 > Tous les personnages, monstres, illustrations et nombres de ce dépôt sont **provisoires et non canoniques**.
 > Ce dépôt est indépendant du système Foundry du JDR (`Warwiren/Val-serra`), qui n'est pas modifié.
 
-![Avant-poste de la lisière — cour, terrasse et bâtiment principal (caméra P30)](docs/media/p4_7/captures/cour_x2-5.jpg)
+![Avant-poste de la lisière — cour, terrasse et bâtiment principal (caméra P30)](docs/media/p4_8/captures/cour_x2-5.jpg)
 
 ## Ce qui est jouable
 
@@ -17,7 +17,7 @@ Une boucle complète dans l'**avant-poste de la lisière**, au crépuscule, en *
    **bâtiment principal** dans lequel on entre, la **porte fortifiée**, le **pont** sur une rivière animée, la
    **plaine** et ses falaises.
 2. **Dialogue** à portraits et à choix avec le **garde** en armure (bouclier et masse), qui fait sa ronde dans la cour ;
-   panneaux à examiner. Les personnages respirent à l'arrêt et marchent dans les quatre directions.
+   panneaux à examiner. Les personnages respirent à l'arrêt, marchent (cycle à 8 images, pieds posés) et courent avec Maj.
 3. **Combat au tour par tour** contre le **Vorgane** (475 PV dans cette rencontre de démonstration) : Aren à la lame,
    Ilya au **pistolet d'Aether** (tir, tir chargé), Throné au marteau ; initiative dynamique, modes
    VIF / MESURÉ / CHARGÉ, parties destructibles, Résonance.
@@ -26,30 +26,30 @@ Une boucle complète dans l'**avant-poste de la lisière**, au crépuscule, en *
 
 | Combat | Plaine |
 |---|---|
-| ![Combat](docs/media/p4_7/combat.jpg) | ![Plaine](docs/media/p4_7/captures/plaine_vorgane_x2-5.jpg) |
+| ![Combat](docs/media/p4_8/combat.jpg) | ![Plaine](docs/media/p4_8/captures/plaine_vorgane_x2-5.jpg) |
 
-Vidéos : [Aren et Ilya, marche et attente à ×3](docs/media/p4_7/videos/aren_ilya_marche_attente_x3.mp4),
-[actions de combat d'Ilya](docs/media/p4_7/videos/combat_ilya_planche_p47.mp4), [le Vorgane dans la plaine](docs/media/p4_7/videos/vorgane_plaine.mp4).
-Rapport de l'étape : [`docs/P4_7_CORRECTIONS.md`](docs/P4_7_CORRECTIONS.md) (étapes précédentes : `docs/HISTORIQUE.md`).
+Vidéos : [marche et course à ×3](docs/media/p4_8/videos/marche_course_x3.mp4),
+[avant / après, marche de profil](docs/media/p4_8/videos/avant_apres_marche_profil.mp4).
+Rapport de l'étape : [`docs/P4_8_MARCHE.md`](docs/P4_8_MARCHE.md) (étapes précédentes : `docs/HISTORIQUE.md`).
 
 ## Lancer le jeu (Godot 4.7.2 obligatoire)
 
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p4-7-corrections`**, puis **Code → Download ZIP** ; le
-   dossier s'appelle `Val-Serra-Game-p4-7-corrections`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p4-8-marche`**, puis **Code → Download ZIP** ; le
+   dossier s'appelle `Val-Serra-Game-p4-8-marche`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
-4. **F5** lance la **démo de l'avant-poste** (`scenes/p4/avant_poste.tscn`, caméra P30) avec les corrections P4.7 :
-   Aren à la taille d'Ilya, attente et marche d'Ilya, Ilya en combat d'après la planche (trois-quarts comme Aren,
-   pistolet d'Aether), Vorgane posé au sol et tourné vers le héros.
+4. **F5** lance la **démo de l'avant-poste** (`scenes/p4/avant_poste.tscn`, caméra P30), avec la nouvelle marche
+   d'Aren et d'Ilya (P4.8 : 8 images, haut du corps stable, pieds posés, **Maj** pour courir) et les corrections P4.7
+   (tailles, combat d'Ilya, Vorgane au sol).
 
 ### Commandes
 
 | Touche | Action |
 |---|---|
-| Flèches / ZQSD | se déplacer (8 directions) |
+| Flèches / ZQSD | se déplacer (8 directions) ; **Maj** maintenue : courir |
 | **Molette** (ou PgPréc / PgSuiv) | zoom ×2 / ×2,5 (défaut) / ×3 |
 | **E** / Entrée / Espace | parler au garde, examiner ; faire avancer le dialogue |
 | ↑ / ↓ puis Entrée (dialogue) | choisir une réponse ; **Échap** : fermer |
@@ -91,7 +91,7 @@ godot --headless --path . res://scenes/p4/avant_poste.tscn -- --route=p4_sondes 
 godot --path . -- --autoplay --route=p4_demo --route_retour=p4_retour
 ```
 
-Dans l'ordre : tests automatiques (68), rencontre de bout en bout (déclenchement, PV de démo, victoire, défaite,
+Dans l'ordre : tests automatiques (71), rencontre de bout en bout (déclenchement, PV de démo, victoire, défaite,
 bâtiment), parcours complet au clavier simulé (29 étapes ; `--camera=B28` ou `P38` pour comparer), sondes de
 collision (20), démonstration automatique (dialogue et combat joués seuls).
 
@@ -112,6 +112,6 @@ collision (20), démonstration automatique (dialogue et combat joués seuls).
 
 | Document | Contenu |
 |---|---|
-| `docs/P4_7_CORRECTIONS.md` | **P4.7** : taille d'Aren, attente et marche d'Ilya, combat d'Ilya depuis la planche, Vorgane au sol, tests, éléments provisoires |
+| `docs/P4_8_MARCHE.md` | **P4.8** : marche d'Aren et d'Ilya (recherche HD-2D, diagnostic, cycle à 8 images, cadence, course), tests, limites |
 | `docs/HISTORIQUE.md` | où retrouver les rapports et médias des étapes précédentes (branches Git) |
 | `docs/ASSETS.md` | registre des ressources et de leurs conditions d'usage |

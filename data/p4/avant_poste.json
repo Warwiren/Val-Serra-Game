@@ -369,7 +369,8 @@
   "parametres": {
    "pas_franchissable_m": 0.25,
    "rayon_personnage_m": 0.28,
-   "vitesse_m_s": 3.6,
+   "vitesse_m_s": 2.2,
+   "vitesse_course_m_s": 3.6,
    "ecart_compagnon_m": 1.0,
    "assistance_escalier": 0.3
   },

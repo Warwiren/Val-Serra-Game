@@ -124,7 +124,7 @@ func _ready() -> void:
 	_apply_variante()
 	s.arch = "P4.1 — avant-poste · " + CAMS[cam_mode]["label"]
 	s.build_hud()
-	s._help.text = "Flèches / ZQSD : marcher  ·  Molette : zoom ×2 / ×2,5 / ×3  ·  E : parler, examiner  ·  C : caméra (comparaison)  ·  R : retour à l'entrée  ·  F1 : infos"
+	s._help.text = "Flèches / ZQSD : marcher  ·  Maj : courir  ·  Molette : zoom ×2 / ×2,5 / ×3  ·  E : parler, examiner  ·  C : caméra (comparaison)  ·  R : retour à l'entrée  ·  F1 : infos"
 	_build_ui()
 	_build_tilt()
 	_env()
@@ -1191,6 +1191,7 @@ func _make_actor(name: String, key: String) -> Dictionary:
 	var d: Dictionary = super._make_actor(name, key)
 	(d["spr"] as AnimatedSprite3D).visible = false          # remplacé par une carte « pixel net »
 	d["k"] = CHARS.get(key, {"k": 1.0})["k"]
+	d["actor"].set_scale_k(d["k"])                       # P4.8 : cadence de marche = pas dessiné (pieds sans glissement)
 	d["main"] = _perso_quad(d["spr"].get_parent())
 	_sync_sprite(d)
 	return d

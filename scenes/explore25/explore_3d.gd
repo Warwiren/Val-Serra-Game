@@ -26,6 +26,7 @@ const L_NOWALK := 4                        # sols NON praticables (décor, eau, 
 const L_OCC := 16                          # volumes d'occultation sans collision (feuillage, toit)
 const L_ACTOR := 32
 const SPRITE_TOWARD_CAM := 0.4             # m : carte décalée vers la caméra (invisible en orthographique) pour
+var force_run := false                      # P4.8 : course imposée par un parcours de démonstration
 										   # qu'elle ne s'enfonce pas dans un mur voisin
 
 @export_enum("temoin", "micro") var mode := "temoin"
@@ -868,7 +869,8 @@ func step_hero(dir: Vector2, delta: float) -> Dictionary:
 	var gp := body.global_position
 	var p := Vector2(gp.x, gp.z)
 	var h := gp.y
-	var v: Vector2 = dir * world.speed
+	var run := force_run or Input.is_physical_key_pressed(KEY_SHIFT)       # P4.8 : Maj = course (vitesse de P4.7)
+	var v: Vector2 = dir * (world.run_speed if run else world.speed)
 	var blocked := false
 	# même règle de glissement que A : direction complète, sinon ses composantes x puis y (rebords par rayons,
 	# obstacles par test_move depuis une position relevée d'un pas, pour ne pas confondre rampe et mur)

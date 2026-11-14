@@ -1,6 +1,6 @@
 # Historique des étapes (documents et médias retirés du projet actif en P4.4)
 
-Le nettoyage P4.4 (puis P4.5 à P4.7) a retiré du dossier de travail (`git rm`, sans réécrire l'historique) les comptes rendus, captures
+Le nettoyage P4.4 (puis P4.5 à P4.8) a retiré du dossier de travail (`git rm`, sans réécrire l'historique) les comptes rendus, captures
 et vidéos des étapes précédentes. Ils restent intacts dans Git, sur les branches de chaque étape :
 
 | Étape | Branche | Documents (dans `docs/` de la branche) |
@@ -14,6 +14,7 @@ et vidéos des étapes précédentes. Ils restent intacts dans Git, sur les bran
 | P4.4 personnages, nettoyage | `p4-4-personnages` | `P4_4_PERSONNAGES.md` (+ `docs/media/p4_4/`) ; sprites `art/p44/` |
 | P4.5 garde, animations | `p4-5-animations` | `P4_5_ANIMATIONS.md` (+ `docs/media/p4_5/` : vidéos de marche, ronde du garde, combat, parcours complet) |
 | P4.6 taille à l'arrêt, Ilya de face (montage) | `p4-6-corrections` | `P4_6_CORRECTIONS.md` (+ `docs/media/p4_6/`) |
+| P4.7 taille d'Aren, combat d'Ilya (planche), Vorgane au sol | `p4-7-corrections` | `P4_7_CORRECTIONS.md` (+ `docs/media/p4_7/`) |
 
 Exemple : `git show p4-1-finitions:docs/P4_1_FINITIONS.md`, ou `git checkout p4-1-finitions -- docs/media/p4_1`.
 Les planches sources (concepts, packs) sont sur le Drive du projet (`Art/`, `Art/Assets/`).

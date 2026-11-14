@@ -473,6 +473,8 @@ func _pilot_dir(delta: float) -> Vector2:
 				sd = Vector2(roundf(sd.x), roundf(sd.y))
 			return sd
 		"push":
+			if "force_run" in host:                     # P4.8 : un parcours peut courir (comme Maj maintenue)
+				host.force_run = bool(s.get("run", false)) and pilot_t < s["t"]
 			if pilot_t >= s["t"]:
 				var r := {"id": s["id"], "x": hero.x, "y": hero.y, "h": hero.z, "region": hero_region}
 				r["ok"] = _probe_ok(s)

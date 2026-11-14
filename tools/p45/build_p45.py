@@ -268,8 +268,70 @@ def walk_bob(frames):
     return out
 
 
+def _shift_upper(im, cut, dy):
+    """Haut du corps (rangées < cut) décalé de dy ; si le haut monte, la rangée laissée vide est recopiée (pas de fente)."""
+    out = shift_rows(im, 0, cut, 0, dy)
+    if dy < 0:
+        hole = (out[cut - 1, :, 3] == 0) & (im[cut - 1, :, 3] > 0)
+        out[cut - 1, hole] = im[cut - 1, hole]
+    return out
+
+
+def _feet_step_px(im):
+    """Écart entre les centres des deux pieds (4 rangées du bas) : longueur du pas dessinée, en pixels."""
+    ys = np.where(im[..., 3].any(1))[0]
+    band = im[ys.max() - 3: ys.max() + 1, :, 3].any(0)
+    runs, x = [], 0
+    xs = np.where(band)[0]
+    if len(xs) == 0:
+        return 0.0
+    start = prev = xs[0]
+    for x in xs[1:]:
+        if x > prev + 1:
+            runs.append((start, prev))
+            start = x
+        prev = x
+    runs.append((start, prev))
+    if len(runs) < 2:
+        return 0.0
+    a, b = runs[0], runs[-1]
+    return (b[0] + b[1]) / 2.0 - (a[0] + a[1]) / 2.0
+
+
+def walk_cycle8(frames):
+    """P4.8 — cycle de marche à 8 images à partir des 4 images du pack :
+    - haut du corps STABILISÉ : tête, buste, bras et haut de la cape viennent d'une seule image de référence (celle
+      dont le haut ressemble le plus aux autres) ; seules les jambes et le bas de la cape changent. Les images du pack,
+      issues d'illustrations générées, redessinaient armure, mains et cape à chaque pas (effet de « bouillonnement ») ;
+    - rythme contact / bas / passage / haut (structure classique d'un cycle de marche en pixel art) : après chaque
+      contact (pieds écartés) le corps descend d'1 px, après chaque passage il remonte d'1 px. Procédural."""
+    ys = np.where(frames[0][..., 3].any(1))[0]
+    top, bot = ys.min(), ys.max()
+    cut = top + int((bot - top) * 0.50)                                 # hanches
+    up = lambda a: a[top:cut, :, 3] > 0
+    score = [sum(int((up(a) != up(b)).sum()) for b in frames) for a in frames]
+    ref = frames[int(np.argmin(score))]
+    comp = []
+    for a in frames:
+        c = a.copy()
+        c[:cut] = ref[:cut]
+        comp.append(c)
+    spread = []
+    for im in comp:
+        yy = np.where(im[..., 3].any(1))[0]
+        xs = np.where(im[yy.max() - 6: yy.max() + 1, :, 3].any(0))[0]
+        spread.append(np.ptp(xs) if len(xs) else 0)
+    contact = set(np.argsort(spread)[-2:])
+    body = top + int((bot - top) * 0.55)
+    out = []
+    for i, c in enumerate(comp):
+        out += [c, _shift_upper(c, body, 1 if i in contact else -1)]
+    steps = [_feet_step_px(comp[i]) for i in contact]
+    return out, float(np.mean(steps)) if steps else 0.0
+
+
 # ------------------------------------------------------------------------------------------------ exploration
-def exploration(name, frames, target, edge=(0.6, 90), sway_sign=1, cape=False, bob=False):
+def exploration(name, frames, target, edge=(0.6, 90), sway_sign=1, cape=False, bob=False, walk8=False):
     """frames : {direction: [repos, marche0..3]} (sources RGBA). Hauteur de marche ramenée à `target` px."""
     cleaned = {d: [clean_source(f) for f in fs] for d, fs in frames.items()}
     walk_h = np.median([height(f) for fs in cleaned.values() for f in fs[1:]])
@@ -284,10 +346,21 @@ def exploration(name, frames, target, edge=(0.6, 90), sway_sign=1, cape=False, b
             out["idle_%s" % d if i == 0 else "walk_%s_%d" % (d, i - 1)] = img
     pal = palette(list(out.values()), 112)
     q = {k: quantize(v, pal, *edge) for k, v in out.items()}
-    if bob:
+    if bob and not walk8:
         for d in DIRS:
             for i, im in enumerate(walk_bob([q["walk_%s_%d" % (d, i)] for i in range(4)])):
                 q["walk_%s_%d" % (d, i)] = im
+    if walk8:
+        steps = {}
+        for d in DIRS:
+            cyc, steps[d] = walk_cycle8([q["walk_%s_%d" % (d, i)] for i in range(4)])
+            for i, im in enumerate(cyc):
+                q["walk_%s_%d" % (d, i)] = im
+        # longueur du pas DESSINÉE (profils), en pixels de sprite : le moteur en tire la cadence (pieds sans glissement)
+        step_px = (steps["left"] + steps["right"]) / 2.0
+        os.makedirs(os.path.join(OUT, "chars", name), exist_ok=True)
+        json.dump({"walk_frames": 8, "step_px": round(step_px, 1)}, open(os.path.join(OUT, "chars", name, "marche.json"), "w"), indent=1)
+        print("   %s : marche à 8 images, pas dessiné %.1f px (profil)" % (name, step_px))
     for k, v in q.items():
         save(v, "chars", name, k + ".png")
     for d in DIRS:
@@ -648,8 +721,9 @@ def portraits():
 P43 = os.path.join(SRC, "p43", "ValSerra_P43_ANIMATIONS_QA_v01_A_TESTER")
 # P4.7 : Aren ramené à 63 px (à 70 px, sa silhouette dépassait celle d'Ilya de 28 % : tête, épaules, cheveux) ;
 # Ilya : attente avec cape, marche avec appui.
-exploration("aren", grid(os.path.join(P43, "aren_gray_corrige_4dir_5frames.png"), 180, 168), 63)
-exploration("ilya", grid(os.path.join(P43, "ilya", "ilya_exploration_4dir_5frames_RGBA.png"), 256, 288), 65, (0.42, 40), cape=True, bob=True)
+# P4.8 : marche à 8 images (haut du corps stabilisé, rythme contact / bas / passage / haut) pour Aren et Ilya.
+exploration("aren", grid(os.path.join(P43, "aren_gray_corrige_4dir_5frames.png"), 180, 168), 63, walk8=True)
+exploration("ilya", grid(os.path.join(P43, "ilya", "ilya_exploration_4dir_5frames_RGBA.png"), 256, 288), 65, (0.42, 40), cape=True, walk8=True)
 G = os.path.join(SRC, "garde", "garde", "combat", "frames")
 exploration("garde", {d: [np.asarray(Image.open(os.path.join(G, "%s_%d.png" % (s, i))).convert("RGBA")) for i in range(5)]
                       for d, s in zip(DIRS, ["down", "up", "left", "right"])}, 75)
