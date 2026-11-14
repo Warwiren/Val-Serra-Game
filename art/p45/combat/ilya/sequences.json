@@ -2,11 +2,11 @@
  "idle": {
   "count": 8
  },
- "fire": {
-  "count": 7
- },
  "draw": {
   "count": 5
+ },
+ "fire": {
+  "count": 7
  },
  "charged_shot": {
   "count": 8
@@ -19,5 +19,9 @@
  },
  "ko": {
   "count": 6
- }
+ },
+ "muzzle_px": [
+  108,
+  61
+ ]
 }

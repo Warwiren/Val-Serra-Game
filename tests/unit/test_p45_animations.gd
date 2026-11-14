@@ -62,7 +62,7 @@ func test_idle_is_a_real_cycle_not_identical_frames() -> void:
 
 func test_one_sprite_pixel_per_screen_pixel_at_default_zoom() -> void:
 	var src: String = FileAccess.open("res://scenes/p4/avant_poste.gd", FileAccess.READ).get_as_text()
-	for pair in [["aren", 70, "28.0 / 70.0"], ["ilya", 65, "26.0 / 65.0"], ["garde", 75, "30.0 / 75.0"]]:
+	for pair in [["aren", 63, "25.2 / 63.0"], ["ilya", 65, "26.0 / 65.0"], ["garde", 75, "30.0 / 75.0"]]:
 		var h := _rect(P45 + "chars/%s/walk_face_1.png" % pair[0]).size.y
 		check(absi(h - int(pair[1])) <= 3, "%s : %d px de haut (cible %d)" % [pair[0], h, pair[1]])
 		check(src.contains(pair[2]), "%s : k = %s (1 px = 1 px d'écran à ×2,5)" % [pair[0], pair[2]])

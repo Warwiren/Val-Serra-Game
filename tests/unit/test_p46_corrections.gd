@@ -1,5 +1,5 @@
 extends "res://tests/test_case.gd"
-## P4.6 — taille constante entre l'attente et la marche ; Ilya de face en combat, comme Aren.
+## P4.6 — taille constante entre l'attente et la marche (Ilya en combat : voir test_p47_corrections.gd).
 
 const P45 := "res://art/p45/"
 
@@ -63,16 +63,3 @@ func test_size_is_the_same_standing_and_walking() -> void:
 			var mw: float = (ws[1] + ws[2]) / 2.0
 			check(absf(_height(idle) - mh) <= 3.0, "%s %s : même hauteur à l'arrêt (%d) qu'en marche (%.1f)" % [who, d, _height(idle), mh])
 			check(absf(_head_w(idle) - mw) <= 3.0, "%s %s : même taille de tête à l'arrêt (%d) qu'en marche (%.1f)" % [who, d, _head_w(idle), mw])
-
-
-func test_ilya_faces_front_in_combat_like_aren() -> void:
-	for f in ["idle_0", "idle_4", "draw_0", "hit_0", "fire_1", "fire_2", "charged_shot_5"]:
-		var s := _symmetry(_img(P45 + "combat/ilya/%s.png" % f))
-		check(s >= 0.92, "Ilya %s : corps de face (symétrie %.2f ; profil P4.5 : 0,82)" % [f, s])
-	check(_symmetry(_img(P45 + "combat/aren/repos_0.png")) >= 0.92, "Aren : corps de face (référence)")
-	var v: String = FileAccess.open("res://src/proto/pack_hunter_view.gd", FileAccess.READ).get_as_text()
-	check(v.contains("const MUZZLE := Vector2(48, -68)"), "trait d'Aether : départ au bout du pistolet tendu de face")
-	var bottoms := {}
-	for i in 6:
-		bottoms[_img(P45 + "combat/ilya/ko_%d.png" % i).get_used_rect().end.y] = true
-	check_eq(bottoms.size(), 1, "Ilya : K.O. de face reposé au sol")

@@ -7,6 +7,7 @@
       <src>/aren/Aren_sprites_combat.png      (planche de combat d'origine, Drive Art/Aren)
       <src>/p44/manifest.json, <src>/p44/atlases/ilya_<séquence>_strip_192.png   (pack P4_4_ILYA_AETHER_COMBAT_v01)
       <src>/p42/{aren,ilya}_portraits/*.png    (pack P4_2_COMBAT_PORTRAITS_v01)
+      <src>/p47/{ilya_combat,vorgane}_planche_p47.png   (planches de 8 poses fournies par le créateur, P4.7)
 
 Principes (mêmes que P4.1 / P4.4) : réduction par couleur médiane, jamais d'agrandissement ; palette commune par
 personnage ; ancrage fixe. Nouveautés P4.5 :
@@ -208,8 +209,67 @@ def idle_cycle(base, sway_sign=1):
     return [base, base, breath, breath, base, sway, sway_b, flick]
 
 
+def cape_px(px):
+    """Pixels de cape verte (Ilya) : vert dominant."""
+    return (px[..., 1].astype(int) > px[..., 0].astype(int) + 8) & (px[..., 1].astype(int) > px[..., 2].astype(int)) & (px[..., 3] > 0)
+
+
+def cape_wave(img, dx, frac=0.42):
+    """P4.7 — balancement du bas de la cape : sur les rangées basses de la cape, le bord extérieur avance d'un pixel du
+    côté `dx` et recule de l'autre (cape poussée par l'air). Pieds et corps inchangés."""
+    out = img.copy()
+    ys = np.where(img[..., 3].any(1))[0]
+    top, bot = ys.min(), ys.max()
+    cp = cape_px(img)
+    for y in range(int(top + (bot - top) * (1 - frac)), bot - 2):
+        xs = np.where(img[y, :, 3] > 0)[0]
+        if len(xs) < 6:
+            continue
+        lo, hi = xs.min(), xs.max()
+        lead, trail = (hi, lo) if dx > 0 else (lo, hi)
+        inward = -1 if dx > 0 else 1                                    # le contour est assombri : on teste aussi
+        if (cp[y, lead] or cp[y, lead + inward] or cp[y, lead + 2 * inward]) and 0 < lead + dx < img.shape[1]:
+            out[y, lead + dx] = img[y, lead]                            # le pixel juste à l'intérieur
+        if cp[y, trail] or cp[y, trail - inward] or cp[y, trail - 2 * inward]:
+            out[y, trail] = 0
+            out[y, trail - inward] = img[y, trail]                      # le contour recule avec la cape
+    return out
+
+
+def idle_cycle_cape(base, sway_sign=1):
+    """P4.7 — attente d'Ilya : respiration + balancement de la cape (aller et retour) + mèche. Procédural."""
+    ys = np.where(base[..., 3].any(1))[0]
+    top, bot = ys.min(), ys.max()
+    chest = top + int((bot - top) * 0.58)
+    hair = top + int((bot - top) * 0.16)
+    br = lambda im: shift_rows(im, 0, chest, 0, 1)
+    wr, wl = cape_wave(base, sway_sign), cape_wave(base, -sway_sign)
+    flick = shift_rows(br(wr), 0, hair, sway_sign, 0)
+    return [base, wr, br(wr), br(base), base, wl, br(wl), flick]
+
+
+def walk_bob(frames):
+    """P4.7 — poids de la marche : aux deux images où les pieds sont le plus écartés (appui), le haut du corps
+    s'abaisse d'1 px. Les pieds restent sur la même ligne."""
+    spread = []
+    for im in frames:
+        ys = np.where(im[..., 3].any(1))[0]
+        band = im[ys.max() - 6: ys.max() + 1, :, 3].any(0)
+        xs = np.where(band)[0]
+        spread.append(np.ptp(xs) if len(xs) else 0)
+    contact = set(np.argsort(spread)[-2:])
+    out = []
+    for i, im in enumerate(frames):
+        if i in contact:
+            ys = np.where(im[..., 3].any(1))[0]
+            out.append(shift_rows(im, 0, ys.min() + int((ys.max() - ys.min()) * 0.55), 0, 1))
+        else:
+            out.append(im)
+    return out
+
+
 # ------------------------------------------------------------------------------------------------ exploration
-def exploration(name, frames, target, edge=(0.6, 90), sway_sign=1):
+def exploration(name, frames, target, edge=(0.6, 90), sway_sign=1, cape=False, bob=False):
     """frames : {direction: [repos, marche0..3]} (sources RGBA). Hauteur de marche ramenée à `target` px."""
     cleaned = {d: [clean_source(f) for f in fs] for d, fs in frames.items()}
     walk_h = np.median([height(f) for fs in cleaned.values() for f in fs[1:]])
@@ -224,10 +284,14 @@ def exploration(name, frames, target, edge=(0.6, 90), sway_sign=1):
             out["idle_%s" % d if i == 0 else "walk_%s_%d" % (d, i - 1)] = img
     pal = palette(list(out.values()), 112)
     q = {k: quantize(v, pal, *edge) for k, v in out.items()}
+    if bob:
+        for d in DIRS:
+            for i, im in enumerate(walk_bob([q["walk_%s_%d" % (d, i)] for i in range(4)])):
+                q["walk_%s_%d" % (d, i)] = im
     for k, v in q.items():
         save(v, "chars", name, k + ".png")
     for d in DIRS:
-        cyc = idle_cycle(q["idle_%s" % d], sway_sign if d != "left" else -sway_sign)
+        cyc = (idle_cycle_cape if cape else idle_cycle)(q["idle_%s" % d], sway_sign if d != "left" else -sway_sign)
         for i, img in enumerate(cyc[1:], 1):
             save(img, "chars", name, "idle_%s_%d.png" % (d, i))
     print("%-6s exploration : réduction ×1/%.2f -> %d px, %d images, rognage %d px" % (name, f, target, len(q) + 28, lost))
@@ -379,155 +443,188 @@ def aren_combat(target=56):
 
 
 # ------------------------------------------------------------------------------------------------ combat d'Ilya
-# P4.6 — Ilya de face en combat, comme Aren. Le pack P4.4 est un profil strict (montage procédural d'une base verte
-# + pistolet peint, d'après son manifeste). Même principe ici avec la base verte DE FACE du pack P4.3 (pose de repos
-# face, 251 px) : le corps est de face ; le bras armé, le pistolet et les effets d'Aether (éclair, charge, bouclier,
-# entailles) viennent des images P4.4 correspondantes. En visée, le bras droit pendant est effacé (cape peinte
-# derrière) et le bras tendu part de l'épaule droite. Montage, pas dessin : à redessiner pour une version finale.
-def _green(px):
-    return (px[..., 1].astype(int) > px[..., 0].astype(int) + 8) & (px[..., 1].astype(int) > px[..., 2].astype(int))
+# P4.7 — Ilya en combat depuis la planche de 8 poses fournie par le créateur (Ilya trois-quarts, pistolet d'Aether,
+# même orientation qu'Aren) : attente A et B, préparation, visée, tir, tir chargé, touchée, K.O. La planche regarde à
+# gauche : elle est retournée pour regarder à droite comme Aren (le jeu retourne ensuite tout le groupe).
+P47 = os.path.join(SRC, "p47")
+ILYA_POSES = ["idle_a", "idle_b", "prep", "aim", "fire", "charged", "hit", "ko"]
 
 
-def _effect(px):
-    """Pixels d'effet ou de pistolet lumineux : vert dominant clair, ou presque blanc."""
-    return (_green(px) & (px[..., 1].astype(int) > 110)) | (px[..., :3].min(-1) > 200)
+def planche_cells(path, cols=4, rows=2):
+    """Poses d'une planche 4 × 2 (fond transparent, voile d'ombre très léger retiré)."""
+    im = np.asarray(Image.open(path).convert("RGBA")).copy()
+    im[im[..., 3] < 110] = 0
+    H, W = im.shape[:2]
+    cells = []
+    for r in range(rows):
+        for c in range(cols):
+            cell = im[r * H // rows:(r + 1) * H // rows, c * W // cols:(c + 1) * W // cols]
+            ys, xs = np.where(cell[..., 3] > 0)
+            cells.append(cell[ys.min():ys.max() + 1, xs.min():xs.max() + 1])
+    return cells
 
 
-def _paste(base, layer, dx, dy):
-    out = base.copy()
-    ys, xs = np.where(layer[..., 3] > 0)
-    ty, tx = ys + dy, xs + dx
-    ok = (ty >= 0) & (ty < out.shape[0]) & (tx >= 0) & (tx < out.shape[1])
-    out[ty[ok], tx[ok]] = layer[ys[ok], xs[ok]]
-    return out
+def _cyan(px):
+    """Lumière d'Aether (tir, anneau, charge) : cyan clair."""
+    r, g, b = (px[..., i].astype(int) for i in range(3))
+    return (b > 150) & (g > 150) & (r < g - 30) & (px[..., 3] > 0)
 
 
-def _erase_right_arm(B):
-    """Bras droit (à droite de l'écran) pendant retiré ; la cape verte qu'il cachait est peinte à sa place."""
-    o = B.copy()
-    for y in range(66, 83):
-        row = o[y]
-        g = _green(row) & (row[:, 3] > 0)
-        for x in range(85, 94):
-            if row[x, 3] > 0 and not g[x]:
-                row[x] = 0
-        gx = [x for x in range(85, 96) if row[x, 3] > 0]
-        edge = max(max(gx) if gx else 86, 86 if y < 75 else 88)
-        for x in range(85, edge + 1):
-            if row[x, 3] == 0:
-                row[x] = (46, 60, 40, 255)
-        row[edge] = (28, 36, 25, 255)
-    return o
+def _head_anchor(img):
+    ys, xs = np.where(img[..., 3] > 0)
+    top, bot = ys.min(), ys.max()
+    band = img[top: top + max(3, int((bot - top) * 0.16)) + 1, :, 3] > 0
+    cols = np.where(band.any(0))[0]
+    return (cols.min() + cols.max()) / 2.0, bot
 
 
-def _front_frame(B, P, seq):
-    """P : image P4.4 (profil) réduite et placée ; B : base de face placée sur le même canevas."""
-    bright = _green(P) & (P[..., 3] > 0) & (P[..., 1] > 140)
-    bright[:, :86] = False
-    gys = np.where(bright.any(1))[0]
-    gy = int(np.median(gys)) if len(gys) else 99
-    ys, xs = np.where(P[..., 3] > 0)
-    eff = _effect(P)[ys, xs]
-    layer = np.zeros_like(P)
-    if seq == "guard" or gy < 77:                                   # visée : bras tendu depuis l'épaule
-        band = (gy - 4, gy + 3) if seq != "guard" else (57, 84)
-        keep = ((xs >= 84) & (ys >= band[0]) & (ys <= band[1])) | ((xs >= 91) & eff)
-        layer[ys[keep], xs[keep]] = P[ys[keep], xs[keep]]
-        out = _paste(_erase_right_arm(B), layer, 4, -5)
-    else:                                                           # pistolet tenu bas, dans la main droite
-        keep = (xs >= 91) & ((ys >= 70) | eff)
-        layer[ys[keep], xs[keep]] = P[ys[keep], xs[keep]]
-        out = _paste(B, layer, 1, -3)
-    if seq == "hit":                                                # entailles rouges (côté gauche) et buste rejeté
-        red = (P[..., 0].astype(int) > P[..., 1].astype(int) + 50) & (P[..., 3] > 0)
-        red[:, 72:] = False
-        lay = np.where(red[..., None], P, 0).astype(np.uint8)
-        top = np.where(out[..., 3].any(1))[0].min()
-        out = shift_rows(out, 0, top + 30, -1, 0)
-        out = _paste(out, lay, -3, 0)
-    return out
+def drop_specks(r, min_px):
+    """Retire les points isolés (traits « ! » de la planche devenus des grains à la réduction)."""
+    lab, n = ndimage.label(r[..., 3] > 0, structure=np.ones((3, 3)))
+    if n > 1:
+        sz = ndimage.sum(np.ones_like(lab), lab, range(1, n + 1))
+        r = r.copy()
+        r[np.isin(lab, [i + 1 for i in range(n) if sz[i] < min_px])] = 0
+    return r
 
 
-def _front_ko(armed, body, gun):
-    """K.O. de face : le corps bascule en arrière (loin de l'ennemi), reposé au sol à chaque image ; le pistolet
-    échappe à la main et repose au sol dès la troisième image. Rotation au plus proche à la résolution du sprite (pas
-    d'agrandissement)."""
-    frames = []
-    for k, ang in enumerate([0, 12, 35, 62, 84, 90]):
-        im = Image.fromarray(armed if k < 2 else body)
-        r = np.asarray(im.rotate(ang, resample=Image.NEAREST, expand=True))
-        ys, xs = np.where(r[..., 3] > 0)
-        crop = r[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
-        img, _ = place(crop, crop.shape[1] / 2.0 + ang / 90.0 * 6, crop.shape[0] - 1, (160, 100))
-        if ang == 0:
-            img = shift_rows(img, 0, 70, -1, 1)
-        if k >= 2:
-            gy, gx = np.where(gun[..., 3] > 0)
-            img = _paste(img, gun, 96 - gx.min(), 98 - gy.max())
-        frames.append(img)
-    return frames
-
-
-def ilya_combat(target=54):
-    man = json.load(open(os.path.join(SRC, "p44", "manifest.json")))
-    ax, ay = man["anchor_pixels"]
-    f = 143.0 / target
-    front_src = clean_source(np.asarray(Image.open(os.path.join(P43, "ilya", "frames", "down_idle.png")).convert("RGBA")))
-    rf = reduce(front_src, height(front_src) / (target + 1.0))
-    hx, hy = torso_x(rf)
-    B, _ = place(rf, hx, hy + 1, (160, 100))                        # pieds sur la même ligne que le pack (y = 98)
+def ilya_combat(target=55):
+    cells = dict(zip(ILYA_POSES, planche_cells(os.path.join(P47, "ilya_combat_planche_p47.png"))))
+    cells = {k: v[:, ::-1].copy() for k, v in cells.items()}           # regard vers la droite, comme Aren
+    f = height(cells["idle_a"]) / float(target)
+    red = {k: drop_specks(reduce(v, f), 12) for k, v in cells.items()}
+    ax0, _ = _head_anchor(red["idle_a"])
     raw = {}
-    for s, d in man["sequences"].items():
-        if s == "ko":
-            continue
-        im = np.asarray(Image.open(os.path.join(SRC, "p44", "atlases", "ilya_%s_strip_192.png" % s)).convert("RGBA"))
-        for i in range(d["count"]):
-            r = reduce(im[:, i * 192:(i + 1) * 192], f)
-            P, _ = place(r, ax / f, ay / f, (160, 100))
-            raw["%s_%d" % (s, i)] = _front_frame(B, P, s)
-    # pistolet seul, à l'horizontale (image « dégainer » 4 du pack, au-delà de la main)
-    im = np.asarray(Image.open(os.path.join(SRC, "p44", "atlases", "ilya_draw_strip_192.png")).convert("RGBA"))
-    P, _ = place(reduce(im[:, 4 * 192:5 * 192], f), ax / f, ay / f, (160, 100))
-    gun = P.copy()
-    gun[:, :93] = 0
-    for i, img in enumerate(_front_ko(raw["idle_0"], B, gun)):
-        raw["ko_%d" % i] = img
+    for k, r in red.items():
+        ys, xs = np.where(r[..., 3] > 0)
+        if k == "ko":                                                   # couchée : centrée, au sol
+            img, _ = place(r, (xs.min() + xs.max()) / 2.0 - 4, ys.max(), (160, 100))
+        elif k in ("fire", "charged"):                                  # même tête que la visée (l'éclair déborde)
+            hx, _ = _head_anchor(r)
+            img, _ = place(r, hx + 2, ys.max(), (160, 100))
+        else:
+            hx, _ = _head_anchor(r)
+            img, _ = place(r, hx + 2, ys.max(), (160, 100))
+        raw[k] = img
     pal = palette(list(raw.values()), 112, 5)
     q = {k: quantize(v, pal) for k, v in raw.items()}
-    # attente : les 4 images du pack + respiration et léger balancement du buste (8 images)
-    base = [q["idle_%d" % i] for i in range(4)]
-    ys = np.where(base[0][..., 3].any(1))[0]
-    chest = ys.min() + int((ys.max() - ys.min()) * 0.58)
-    idle = []
-    for i, (b, dy, dx) in enumerate(zip([0, 1, 2, 3, 0, 1, 2, 3], [0, 0, 1, 1, 1, 0, 0, 0], [0, 0, 0, 0, 1, 1, 0, 0])):
-        idle.append(shift_rows(base[b], 0, chest, dx, dy))
-    # tir : 0, 1, 2 (éclair), recul fort (bras et arme reculent de 2 px, buste d'1 px), recul faible, 5, 6.
-    # fire_3 (changement de posture brusque) n'est pas utilisée.
-    def recoil(img, arm_dx, body_dx):
-        g = (img[..., 1].astype(int) > 150) & (img[..., 1].astype(int) > img[..., 0].astype(int) + 40) & (img[..., 3] > 0)
-        gy = np.where(g)[0]
-        gy = int(np.median(gy)) if len(gy) else img.shape[0] // 2
-        cx = img.shape[1] // 2
-        out = shift_rows(img, 0, chest, body_dx, 0)
-        arm = out.copy()
-        sel = np.zeros(img.shape[:2], bool)
-        sel[max(0, gy - 6):gy + 6, cx + 5:] = True
-        part = np.where(sel[..., None], out, 0).astype(np.uint8)
-        out[sel] = 0
-        ys2, xs2 = np.where(part[..., 3] > 0)
-        out[ys2, np.clip(xs2 + arm_dx, 0, img.shape[1] - 1)] = part[ys2, xs2]
-        return out
-    fire = [q["fire_0"], q["fire_1"], q["fire_2"], recoil(q["fire_4"], -2, -1), recoil(q["fire_5"], -1, 0), q["fire_5"], q["fire_6"]]
-    final = {"idle": idle, "fire": fire}
-    for s in ["draw", "charged_shot", "guard", "hit", "ko"]:
-        final[s] = [q["%s_%d" % (s, i)] for i in range(man["sequences"][s]["count"])]
+    ys = np.where(q["idle_a"][..., 3].any(1))[0]
+    chest = ys.min() + int((ys.max() - ys.min()) * 0.55)
+    br = lambda im, dy=1, dx=0: shift_rows(im, 0, chest, dx, dy)
+    A, B = q["idle_a"], q["idle_b"]
+    # attente : deux poses DESSINÉES (A, B : la cape bouge) + respiration et bas de cape qui ondule — 8 images
+    idle = [A, br(A), br(cape_wave(A, 1)), cape_wave(A, 1), B, br(B), br(cape_wave(B, -1)), cape_wave(B, -1)]
+    # bout du pistolet en visée (point de départ du trait d'Aether)
+    aim = q["aim"]
+    gy, gx = np.where(aim[..., 3] > 0)
+    arm_rows = gy < ys.min() + int((ys.max() - ys.min()) * 0.45)
+    tip = (int(gx[arm_rows].max()), int(np.median(gy[arm_rows][gx[arm_rows] >= gx[arm_rows].max() - 2])))
+
+    def no_flash(im):
+        o = im.copy()
+        c = _cyan(o)
+        c[:, :tip[0] + 2] = False
+        o[c] = 0
+        return o
+
+    def recoil(im, d):                                                  # bras et arme reculent, buste suit
+        o = no_flash(im)
+        y0, y1 = max(0, tip[1] - 7), tip[1] + 6
+        part = o[y0:y1].copy()
+        sel = np.zeros(part.shape[:2], bool)
+        sel[:, 80 + 4:] = True
+        sel &= part[..., 3] > 0
+        o[y0:y1][sel] = 0
+        yy, xx = np.where(sel)
+        o[yy + y0, np.clip(xx - d, 0, o.shape[1] - 1)] = part[yy, xx]
+        return shift_rows(o, 0, chest, -1 if d > 1 else 0, 0)
+
+    def glow(im, r):                                                    # charge d'Aether qui grossit au bout du pistolet
+        o = im.copy()
+        cy, cx = tip[1], tip[0] + 2
+        for y in range(cy - r, cy + r + 1):
+            for x in range(cx - r, cx + r + 1):
+                d2 = (y - cy) ** 2 + (x - cx) ** 2
+                if d2 <= r * r and 0 <= x < o.shape[1]:
+                    o[y, x] = (235, 255, 255, 255) if d2 <= (r - 1) ** 2 else (90, 220, 235, 255)
+        return o
+
+    P, F, C, H, K = q["prep"], q["fire"], q["charged"], q["hit"], q["ko"]
+    final = {
+        "idle": idle,
+        "draw": [A, P, P, aim, aim],
+        "fire": [aim, aim, F, recoil(F, 2), recoil(aim, 1), aim, aim],
+        "charged_shot": [P, aim, glow(aim, 1), glow(aim, 2), glow(aim, 3), C, C, aim],
+        "guard": [P, P, br(P), br(P)],
+        "hit": [H, H, br(H, 0, -1), A],
+        # K.O. : chancelle (pose touchée), genoux qui plient (buste abaissé), puis à terre (pose dessinée)
+        "ko": [H, br(H, 2), br(H, 4), K, K, K],
+    }
     meta = {}
     for s, imgs in final.items():
         for i, img in enumerate(imgs):
             save(img, "combat", "ilya", "%s_%d.png" % (s, i))
         meta[s] = {"count": len(imgs)}
+    meta["muzzle_px"] = [tip[0] + 2, tip[1]]
     json.dump(meta, open(os.path.join(OUT, "combat", "ilya", "sequences.json"), "w"), indent=1)
-    print("Ilya combat : %d images (attente 8, tir 7 dont 2 de recul)" % sum(len(v) for v in final.values()))
+    print("Ilya combat (planche P4.7) : %d images, réduction ×1/%.2f, bout du pistolet %s" % (sum(len(v) for v in final.values()), f, tip))
+
+
+# ------------------------------------------------------------------------------------------------ Vorgane (exploration)
+VORGANE_POSES = ["idle", "roar", "crouch", "roar2", "leap", "hurt", "sniff", "ko"]
+
+
+def strip_ground_shadow(cell, band=0.12):
+    """Ombre peinte sous les pattes (gris neutre opaque, ≈ 60,57,60) retirée : sinon elle forme une « plaque » sous le
+    monstre. Seule la bande basse est traitée ; pelage violet et griffes claires sont conservés. La scène pose sa
+    propre ombre de contact au sol."""
+    out = cell.copy()
+    ys = np.where(out[..., 3].any(1))[0]
+    y0 = ys.max() - int((ys.max() - ys.min()) * band)
+    part = out[y0:].astype(int)
+    r, g, b = part[..., 0], part[..., 1], part[..., 2]
+    grey = (abs(r - g) < 12) & (abs(b - g) < 12) & ((r + g + b) / 3 < 105) & (part[..., 3] > 0)
+    out[y0:][grey] = 0
+    lab, n = ndimage.label(out[..., 3] > 0)                              # grains restés au sol
+    if n > 1:
+        sz = ndimage.sum(np.ones_like(lab), lab, range(1, n + 1))
+        out[np.isin(lab, [i + 1 for i in range(n) if sz[i] < 40])] = 0
+    ys = np.where(out[..., 3].any(1))[0]
+    return out[:ys.max() + 1]
+
+
+def vorgane_exploration(length=150):
+    """P4.7 — Vorgane d'exploration depuis la planche de 8 poses fournie (trois-quarts, pattes au sol) : il regarde à
+    gauche (vers le héros qui arrive du pont). Boucle de 24 images : attente avec respiration (le dos se soulève
+    d'1 px), il baisse la tête pour flairer, puis se redresse. Ombre de contact posée au sol par la scène."""
+    cells = dict(zip(VORGANE_POSES, planche_cells(os.path.join(P47, "vorgane_planche_p47.png"))))
+    cells = {k: strip_ground_shadow(v)[:, ::-1].copy() for k, v in cells.items()}
+    # la fumée violette au-dessus du dos est un voile : on ne garde que le corps (composante principale + épines)
+    f = cells["idle"].shape[1] / float(length)
+    red = {}
+    for k in ("idle", "sniff"):
+        r = reduce(cells[k], f)
+        m = r[..., 3] > 0
+        lab, n = ndimage.label(m)
+        if n > 1:
+            sz = ndimage.sum(np.ones_like(lab), lab, range(1, n + 1))
+            r[~np.isin(lab, [i + 1 for i in range(n) if sz[i] >= 0.02 * sz.max()])] = 0
+        ys, xs = np.where(r[..., 3] > 0)
+        img, _ = place(r, (xs.min() + xs.max()) / 2.0, ys.max(), (176, 96))
+        red[k] = img
+    pal = palette(list(red.values()), 96, 11)
+    q = {k: quantize(v, pal) for k, v in red.items()}
+    out = []
+    for base in [q["idle"]] * 2 + [q["sniff"]] + [q["idle"]]:
+        ys = np.where(base[..., 3].any(1))[0]
+        back = ys.min() + int((ys.max() - ys.min()) * 0.62)
+        up = shift_rows(base, 0, back, 0, -1)
+        hole = (up[back - 1, :, 3] == 0) & (base[back - 1, :, 3] > 0)   # pas de fente sous la partie soulevée
+        up[back - 1, hole] = base[back - 1, hole]
+        out += [base, base, up, up, base, base]
+    for i, img in enumerate(out):
+        save(img, "chars", "vorgane", "idle_%d.png" % i)
+    print("Vorgane exploration : %d images, %d px de long" % (len(out), length))
 
 
 # ------------------------------------------------------------------------------------------------ portraits
@@ -549,12 +646,15 @@ def portraits():
 
 
 P43 = os.path.join(SRC, "p43", "ValSerra_P43_ANIMATIONS_QA_v01_A_TESTER")
-exploration("aren", grid(os.path.join(P43, "aren_gray_corrige_4dir_5frames.png"), 180, 168), 70)
-exploration("ilya", grid(os.path.join(P43, "ilya", "ilya_exploration_4dir_5frames_RGBA.png"), 256, 288), 65, (0.42, 40))
+# P4.7 : Aren ramené à 63 px (à 70 px, sa silhouette dépassait celle d'Ilya de 28 % : tête, épaules, cheveux) ;
+# Ilya : attente avec cape, marche avec appui.
+exploration("aren", grid(os.path.join(P43, "aren_gray_corrige_4dir_5frames.png"), 180, 168), 63)
+exploration("ilya", grid(os.path.join(P43, "ilya", "ilya_exploration_4dir_5frames_RGBA.png"), 256, 288), 65, (0.42, 40), cape=True, bob=True)
 G = os.path.join(SRC, "garde", "garde", "combat", "frames")
 exploration("garde", {d: [np.asarray(Image.open(os.path.join(G, "%s_%d.png" % (s, i))).convert("RGBA")) for i in range(5)]
                       for d, s in zip(DIRS, ["down", "up", "left", "right"])}, 75)
 aren_combat()
 ilya_combat()
+vorgane_exploration()
 portraits()
 print("art/p45 :", sum(len(fs) for _, _, fs in os.walk(OUT)), "fichiers")

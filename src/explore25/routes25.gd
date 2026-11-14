@@ -141,6 +141,19 @@ static func route(name: String) -> Array:
 			oa.append({"do": "zoom", "i": 1, "smooth": false})
 			oa.append({"do": "wait", "t": 1.0})
 			return oa
+		"p4_vorgane":
+			# P4.7 — le Vorgane dans la plaine : captures aux 3 zooms, puis le héros tourne autour (vidéo).
+			var ov: Array = [_warp(35.6, 15.2, 0.0)]
+			for zi in 3:
+				ov.append({"do": "zoom", "i": zi, "smooth": false})
+				ov.append({"do": "wait", "t": 1.0})
+				ov.append({"do": "snap", "id": "vorgane_x%s" % ["2", "2-5", "3"][zi]})
+			ov.append({"do": "zoom", "i": 1, "smooth": false})
+			ov.append({"do": "push", "id": "vers le nord", "dir": Vector2(0.3, -1), "t": 1.6, "expect": {}})
+			ov.append({"do": "push", "id": "vers l'est", "dir": Vector2(1, 0), "t": 1.2, "expect": {}})
+			ov.append({"do": "wait", "t": 1.5})
+			ov.append({"do": "snap", "id": "vorgane_nord"})
+			return ov
 		"p4_garde":
 			# P4.5 — vidéo du garde : ronde en 4 directions et attente (héros à 4,7 m), puis le héros approche : le
 			# garde regagne son poste et se tourne vers lui ; dialogue.

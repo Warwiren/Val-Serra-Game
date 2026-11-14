@@ -24,14 +24,14 @@ var tex_px := PX
 const P44_COMBAT := "res://art/p45/combat/"         # P4.5 : Aren redécoupé (rien de coupé), Ilya attente / recul retravaillés
 ## Ilya : animation du jeu -> (séquence, images, images/s, boucle). P4.5 : attente de 8 images (respiration et buste
 ## qui balance), tir de 7 images dont 2 de recul (bras et arme reculent, buste suit) à la place de fire_3 (saut de
-## posture du pack), K.O. reposé au sol à chaque image. P4.6 : corps de face (comme Aren), bras armé tendu vers la droite.
+## posture du pack), K.O. reposé au sol à chaque image. P4.7 : poses dessinées (planche du créateur), trois-quarts comme Aren.
 const ILYA44 := {
 	"idle": ["idle", [0, 1, 2, 3, 4, 5, 6, 7], 6.0, true], "prep": ["draw", [0, 1, 2, 3, 4], 12.0, false],
 	"strike": ["fire", [0, 1, 2, 3, 4, 5, 6], 13.0, false], "guard": ["guard", [0, 1, 2, 3], 6.0, true],
 	"hurt": ["hit", [0, 1, 2, 3], 10.0, false], "ko": ["ko", [0, 1, 2, 3, 4, 5], 9.0, false],
 	"aether_prep": ["charged_shot", [0, 1, 2, 3, 4], 9.0, false], "aether_strike": ["charged_shot", [5, 6, 7], 10.0, false],
 }
-const MUZZLE := Vector2(48, -68)      # bout du pistolet d'Ilya (pose de visée, de face depuis P4.6 : bras tendu depuis l'épaule), en pixels d'écran
+const MUZZLE := Vector2(42, -76)      # bout du pistolet d'Ilya (pose de visée de la planche P4.7, trois-quarts comme Aren), en pixels d'écran
 const AETHER_GREEN := Color(0.45, 1.0, 0.62)
 var ranged := false                   # Ilya : tir à distance (pas de pas en avant, projectile d'Aether)
 const AREN2_COMBAT := {   # animation du jeu -> (images de la planche, nombre, images/s, boucle)

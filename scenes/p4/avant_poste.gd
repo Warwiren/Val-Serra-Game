@@ -20,17 +20,18 @@ const DIALOGUE := "res://data/p4/dialogue_garde.json"
 const T := "res://art/p4/"
 const P41 := "res://art/p41/"
 const PERSO_SH = preload("res://src/p4/perso_p41.gdshader")
-const MONSTER_DIR := "res://art/p41/chars/vorgane/"
+const MONSTER_DIR := "res://art/p45/chars/vorgane/"   # P4.7 : trois-quarts, pattes au sol (planche du créateur)
 ## P4.1 — personnages nets : dossier de sprites et facteur « hauteur à l'écran (px natifs P4) / hauteur du sprite »
 ## (la taille validée à l'écran est conservée : Aren 28 px natifs, Ilya 26, garde 25 ; ×2,5 par défaut).
 ## P4.5 : sprites à 1 pixel = 1 pixel d'écran au zoom ×2,5 (k = hauteur à l'écran en px natifs / hauteur du sprite) ;
 ## mêmes tailles à l'écran que P4.4 pour Aren (28) et Ilya (26) ; garde en armure un peu plus grand (30).
 const CHARS := {
-	"aren": {"dir": "res://art/p45/chars/aren/", "k": 28.0 / 70.0},
+	"aren": {"dir": "res://art/p45/chars/aren/", "k": 25.2 / 63.0},     # P4.7 : 63 px, silhouette comparable à Ilya
 	"ilya": {"dir": "res://art/p45/chars/ilya/", "k": 26.0 / 65.0},
 	"pnj": {"dir": "res://art/p45/chars/garde/", "k": 30.0 / 75.0},
 }
-const MONSTER_K := 54.0 / 124.0           # même longueur au sol que le Vorgane P4 (54 px natifs)
+const MONSTER_K := 0.4                     # P4.7 : 1 px de sprite = 1 px d'écran à ×2,5, comme les personnages
+const MONSTER_FRAMES := 24                 # attente, respiration, il flaire le sol, se redresse
 const CHAR_TINT := Color(0.93, 0.91, 1.0)   # éclairage commun du crépuscule
 const DEMO_HP_MULT := 0.5
 const TILT_SH = preload("res://src/p4/tilt_shift_p41.gdshader")
@@ -1224,7 +1225,7 @@ func _spawn_monster() -> void:
 	holder.position = World25.cam_back() * (SPRITE_TOWARD_CAM + 0.5)
 	_monster.add_child(holder)
 	_monster_frames.clear()
-	for i in 8:
+	for i in MONSTER_FRAMES:
 		_monster_frames.append(load(MONSTER_DIR + "idle_%d.png" % i))
 	var mi := _perso_quad(holder)
 	var t0: Texture2D = _monster_frames[0]
@@ -1233,10 +1234,9 @@ func _spawn_monster() -> void:
 	(mi.mesh as QuadMesh).size = Vector2(w, h)
 	mi.position = Vector3(0, h / 2.0, 0)
 	(mi.material_override as ShaderMaterial).set_shader_parameter("tex", t0)
-	(mi.material_override as ShaderMaterial).set_shader_parameter("tint", Color(1.12, 1.08, 1.2))   # images « nuit » du combat
 	_monster_quad = mi
 	root.add_child(_monster)
-	_blob(foot, 2.6, 0.45)
+	_blob(foot, w * 1.15, 0.6)                  # ombre de contact large et douce sous les pattes : il ne flotte plus
 	_obstacle_cyl(foot, _monster_cfg["r"], 1.6)
 	world.solids.append({"id": "vorgane", "kind": "circle", "c": Vector2(c[0], c[1]), "r": _monster_cfg["r"], "h0": 0.0, "h1": 1.6})
 
