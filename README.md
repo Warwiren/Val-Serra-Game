@@ -29,7 +29,8 @@ Une boucle complète dans l'**avant-poste de la lisière**, au crépuscule, en *
 | ![Combat](docs/media/p4_9/demo/combat.jpg) | ![Plaine](docs/media/p4_9/demo/plaine_vorgane_x2-5.jpg) |
 
 Étape en cours : **P4.9, banc d'essai de la forêt V07B** (scène F6, la démo F5 est inchangée depuis P4.8) —
-rapport [`docs/P4_9_V07B.md`](docs/P4_9_V07B.md), [vidéo du banc](docs/media/p4_9/videos/v07b_foret_forwardplus.mp4).
+rapport [`docs/P4_9_V07B.md`](docs/P4_9_V07B.md), [vidéo du banc](docs/media/p4_9/videos/v07b_foret_forwardplus.mp4),
+[comparatif des inclinaisons 30° / 27° / 24° et occlusion](docs/media/p4_9/cameras_occlusion/comparatif_6_captures_forwardplus.jpg).
 Étapes précédentes (dont la marche P4.8) : `docs/HISTORIQUE.md`.
 
 ## Lancer le jeu (Godot 4.7.2 obligatoire)
@@ -68,7 +69,7 @@ rapport [`docs/P4_9_V07B.md`](docs/P4_9_V07B.md), [vidéo du banc](docs/media/p4
 | Scène | Contenu |
 |---|---|
 | `scenes/p4/comparaison_camera_B28.tscn` | la même démo avec l'ancienne caméra orthographique 28° (B28), pour comparer |
-| `ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn` | **banc d'essai V07B** (P4.9) : forêt stylisée Quaternius 36 × 28 m, ruisseau, Aren et Ilya (ZQSD, Maj, 1/2/3, M, N, V, F, H, R) — test technique, pas une démo |
+| `ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn` | **banc d'essai V07B** (P4.9) : forêt stylisée Quaternius 36 × 28 m, ruisseau, Aren et Ilya ; **4/5/6 : inclinaison 30° / 27° / 24°**, **O : occlusion dynamique** ; ZQSD, Maj, 1/2/3, M, N, V, F, H, R — test technique, pas une démo |
 | `scenes/battle/battle_scene.tscn` | combat seul (avec `--start=proto-battle --arena=lisiere` en ligne de commande) |
 | `tests/test_runner.tscn` | tests automatiques dans l'éditeur |
 

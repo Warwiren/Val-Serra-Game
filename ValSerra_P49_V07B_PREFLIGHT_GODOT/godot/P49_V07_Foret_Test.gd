@@ -4,6 +4,7 @@ extends Node3D
 ## Les GLB sont des candidats de lookdev et ne préjugent pas de la DA finale.
 
 const Actor25 = preload("res://src/explore25/actor25.gd")
+const Occlusion = preload("res://src/occlusion/occlusion_dynamique.gd")
 const ROOT := "res://ValSerra_P49_V07B_PREFLIGHT_GODOT/"
 const MANIFEST := ROOT + "docs/V07_WORLD.json"
 const WALK_M_S := 2.2
@@ -12,6 +13,8 @@ const BOUNDS_X := Vector2(-17.65, 17.65)
 const BOUNDS_Z := Vector2(-13.65, 13.65)
 const YAW := 20.0
 const PITCH := 30.0
+## P4.9 : inclinaisons comparées (touches 4 / 5 / 6), mesurées depuis l'horizontale ; azimut, champ et zooms inchangés.
+const PITCHES := {KEY_4: 30.0, KEY_5: 27.0, KEY_6: 24.0}
 
 var _hero: CharacterBody3D
 var _ilya: CharacterBody3D
@@ -29,6 +32,8 @@ var _moved_accum: float = 0.0
 var _last_dir: Vector3 = Vector3(1, 0, 0)
 var _show_hud := true
 var _data: Dictionary
+var _pitch := PITCH
+var _occ: RefCounted
 
 func _ready() -> void:
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(MANIFEST))
@@ -43,6 +48,7 @@ func _ready() -> void:
 	_load_set_dressing()
 	# IMPORTANT: aucun des anciens arbres de blocage V06.1 ne charge en V07.
 	_make_characters()
+	_make_occlusion()
 	_make_route_markers()
 	_make_hud()
 	_reset_positions()
@@ -367,6 +373,19 @@ func _make_characters() -> void:
 	_hero_sprite.texture = _hero_anim.texture()
 	_ilya_sprite.texture = _ilya_anim.texture()
 
+## P4.9 — occlusion dynamique : arbres, buissons et rochers de la forêt ; Aren et Ilya suivis séparément.
+func _make_occlusion() -> void:
+	_occ = Occlusion.new()
+	_occ.setup(self, _camera)
+	for child in _forest_root.get_children():
+		if child is MultiMeshInstance3D:
+			_occ.ajouter_multimesh(child)
+		elif child is Node3D and not (child is StaticBody3D):
+			_occ.ajouter_noeud(child)
+	_occ.ajouter_personnage(_hero, _hero_sprite, 1.26, 0.5)
+	_occ.ajouter_personnage(_ilya, _ilya_sprite, 1.30, 0.5)
+	print("P4.9 occlusion : %d obstacles suivis" % _occ.nombre_obstacles())
+
 func _reset_positions() -> void:
 	if _hero == null:
 		return
@@ -485,13 +504,15 @@ func _process(delta: float) -> void:
 	if _hero == null:
 		return
 	_update_camera(delta)
+	if _occ != null:
+		_occ.update(delta)
 	if _hud != null and _show_hud:
 		var p := _hero.global_position
-		_hud.text = "P4.9 V07 — 36×28 m / FORET STYLISEE (TEST)\nZQSD / flèches : marcher · Maj : courir · R : départ\n1/2/3 : zoom ×2 / ×2,5 / ×3 · M : repères · F : brume · V : eau mobile · N : végétation · H : interface\nZoom ×%.1f · vitesse %s · parcouru %.1f m · FPS %d\nPosition locale (%.1f, %.1f) · monde de référence (%.1f, %.1f)" % [_zoom, "course" if _is_running else "marche", _moved_accum, Engine.get_frames_per_second(), p.x, p.z, p.x+42.0, p.z+15.0]
+		_hud.text = "P4.9 V07 — 36×28 m / FORET STYLISEE (TEST)\nZQSD / flèches : marcher · Maj : courir · R : départ\n1/2/3 : zoom ×2 / ×2,5 / ×3 · 4/5/6 : inclinaison 30° / 27° / 24° · O : occlusion · M : repères · F : brume · V : eau mobile · N : végétation · H : interface\nInclinaison %d° · Zoom ×%.1f · Occlusion %s · obstacles atténués %d · silhouettes %d\nVitesse %s · parcouru %.1f m · FPS %d\nPosition locale (%.1f, %.1f) · monde de référence (%.1f, %.1f)" % [int(_pitch), _zoom, "ACTIVE" if _occ.enabled else "coupée", _occ.nombre_attenues(), _occ.silhouettes_actives(), "course" if _is_running else "marche", _moved_accum, Engine.get_frames_per_second(), p.x, p.z, p.x+42.0, p.z+15.0]
 
 func _update_camera(delta: float) -> void:
 	var yaw := deg_to_rad(YAW)
-	var pitch := deg_to_rad(PITCH)
+	var pitch := deg_to_rad(_pitch)
 	# P4.9 : même P30 que la démo (World25.cam_back) : la caméra est à -X (V07 la plaçait à +X, azimut inversé), et
 	# à la distance où 1 px de sprite (0,02 m) = 1 px d'écran au zoom ×2,5 (26,9 m en 720p ; V07 : 25 m fixes).
 	var view_h := get_viewport().get_visible_rect().size.y / (20.0 * _zoom)
@@ -511,6 +532,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		KEY_1: _zoom = 2.0
 		KEY_2: _zoom = 2.5
 		KEY_3: _zoom = 3.0
+		KEY_4, KEY_5, KEY_6:
+			_pitch = PITCHES[event.physical_keycode]
+			_update_camera(1.0)
+		KEY_O: _occ.enabled = not _occ.enabled
 		KEY_R: _reset_positions()
 		KEY_M: _markers.visible = not _markers.visible
 		KEY_F:
