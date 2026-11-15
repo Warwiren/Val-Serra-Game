@@ -5,6 +5,7 @@ extends Node3D
 
 const Actor25 = preload("res://src/explore25/actor25.gd")
 const Occlusion = preload("res://src/occlusion/occlusion_dynamique.gd")
+const DiagCollisions = preload("res://src/diag/diagnostic_collisions.gd")
 const ROOT := "res://ValSerra_P49_V07B_PREFLIGHT_GODOT/"
 const MANIFEST := ROOT + "docs/V07_WORLD.json"
 const WALK_M_S := 2.2
@@ -34,6 +35,8 @@ var _show_hud := true
 var _data: Dictionary
 var _pitch := PITCH
 var _occ: RefCounted
+var _diag: Node3D                          # V08A : diagnostic des collisions (touche C), construit à la demande
+var _terrain_mi: MeshInstance3D
 
 func _ready() -> void:
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(MANIFEST))
@@ -126,6 +129,7 @@ func _load_terrain() -> void:
 		if mesh_inst == null or mesh_inst.mesh == null:
 			push_error("P49 terrain: no MeshInstance3D in " + String(tile))
 			continue
+		_terrain_mi = mesh_inst
 		var body := StaticBody3D.new()
 		body.name = "Terrain_Collision_Exact_TriangleMesh"
 		mesh_inst.add_child(body)
@@ -303,7 +307,10 @@ func _load_set_dressing() -> void:
 				obj.scale = Vector3.ONE * sc
 				_tint_tree(obj, tint)
 				if bool(p.get("blocking", false)):
-					_add_set_collider(obj.position, sc, "rock" if String(p["role"]) == "rock" else "tree")
+					if String(p["role"]) == "rock":
+						_add_rock_collider(obj)
+					else:
+						_add_set_collider(obj.position, sc, "tree")
 				total += 1
 		test.free()
 	print("V07: placed %d styled Quaternius instances in %d groups" % [total, grouped.size()])
@@ -322,6 +329,29 @@ func _add_set_collider(pos: Vector3, scale_factor: float, kind: String) -> void:
 	_forest_root.add_child(body)
 	_set_colliders.append(body)
 
+## V08A — rocher : collision = enveloppe convexe de SON modèle (position, rotation, échelle comprises). Le cylindre de
+## V07 (rayon 1,25 × échelle) était plus petit que la masse visible (1,8 à 2,5 m) : les personnages entraient dans la
+## pierre. Les arbres gardent leur cylindre, mesuré à ±0,07 m de leur tronc.
+func _add_rock_collider(obj: Node3D) -> void:
+	var mi := _first_mesh(obj)
+	if mi == null or mi.mesh == null:
+		_add_set_collider(obj.position, obj.scale.x, "rock")
+		return
+	var hull := mi.mesh.create_convex_shape(true, true) as ConvexPolygonShape3D
+	var xf := obj.global_transform.affine_inverse() * mi.global_transform     # maillage -> repère du rocher
+	var pts := PackedVector3Array()
+	for v in hull.points:
+		pts.append(obj.basis * (xf * v))                                       # rotation et échelle intégrées
+	hull.points = pts
+	var body := StaticBody3D.new()
+	body.name = "Obstacle_rock"
+	body.position = obj.position
+	var collision := CollisionShape3D.new()
+	collision.shape = hull
+	body.add_child(collision)
+	_forest_root.add_child(body)
+	_set_colliders.append(body)
+
 func _set_forest_visible(enabled: bool) -> void:
 	_forest_root.visible = enabled
 	# StaticBody3D is not disabled by its parent's visible property.
@@ -334,7 +364,9 @@ func _make_actor(key: String, name: String) -> CharacterBody3D:
 	body.name = name
 	body.floor_snap_length = .25
 	body.floor_constant_speed = true
-	body.safe_margin = .02
+	# V08A : marge de sécurité de Godot par défaut (0,001). À 0,02 (V07), le personnage prenait des pentes de 27° à
+	# 38° pour des murs et s'arrêtait net, alors que sa pente maximale est de 45° (mesuré, `tools/p49/traversees_v08.gd`).
+	body.safe_margin = 0.001
 	# P4.9 : les personnages sont sur la couche 2 et ne heurtent que le décor (couche 1). Sans cela, au demi-tour,
 	# Aren butait sur Ilya qui le suit, et les deux restaient bloqués (Ilya poussant vers son point de suivi).
 	body.collision_layer = 2
@@ -385,6 +417,13 @@ func _make_occlusion() -> void:
 	_occ.ajouter_personnage(_hero, _hero_sprite, 1.26, 0.5)
 	_occ.ajouter_personnage(_ilya, _ilya_sprite, 1.30, 0.5)
 	print("P4.9 occlusion : %d obstacles suivis" % _occ.nombre_obstacles())
+
+## V08A — diagnostic des collisions : colliders réels, barrières d'eau, bords et pentes du terrain (touche C).
+func _toggle_diag() -> void:
+	if _diag == null:
+		_diag = DiagCollisions.construire(self, _terrain_mi, rad_to_deg(_hero.floor_max_angle))
+		add_child(_diag)
+	_diag.visible = not _diag.visible
 
 func _reset_positions() -> void:
 	if _hero == null:
@@ -508,7 +547,7 @@ func _process(delta: float) -> void:
 		_occ.update(delta)
 	if _hud != null and _show_hud:
 		var p := _hero.global_position
-		_hud.text = "P4.9 V07 — 36×28 m / FORET STYLISEE (TEST)\nZQSD / flèches : marcher · Maj : courir · R : départ\n1/2/3 : zoom ×2 / ×2,5 / ×3 · 4/5/6 : inclinaison 30° / 27° / 24° · O : occlusion · M : repères · F : brume · V : eau mobile · N : végétation · H : interface\nInclinaison %d° · Zoom ×%.1f · Occlusion %s · obstacles atténués %d · silhouettes %d\nVitesse %s · parcouru %.1f m · FPS %d\nPosition locale (%.1f, %.1f) · monde de référence (%.1f, %.1f)" % [int(_pitch), _zoom, "ACTIVE" if _occ.enabled else "coupée", _occ.nombre_attenues(), _occ.silhouettes_actives(), "course" if _is_running else "marche", _moved_accum, Engine.get_frames_per_second(), p.x, p.z, p.x+42.0, p.z+15.0]
+		_hud.text = "P4.9 V07 — 36×28 m / FORET STYLISEE (TEST)\nZQSD / flèches : marcher · Maj : courir · R : départ\n1/2/3 : zoom ×2 / ×2,5 / ×3 · 4/5/6 : inclinaison 30° / 27° / 24° · O : occlusion · C : collisions · M : repères · F : brume · V : eau mobile · N : végétation · H : interface\nInclinaison %d° · Zoom ×%.1f · Occlusion %s · obstacles atténués %d · silhouettes %d\nVitesse %s · parcouru %.1f m · FPS %d\nPosition locale (%.1f, %.1f) · monde de référence (%.1f, %.1f)" % [int(_pitch), _zoom, "ACTIVE" if _occ.enabled else "coupée", _occ.nombre_attenues(), _occ.silhouettes_actives(), "course" if _is_running else "marche", _moved_accum, Engine.get_frames_per_second(), p.x, p.z, p.x+42.0, p.z+15.0]
 
 func _update_camera(delta: float) -> void:
 	var yaw := deg_to_rad(YAW)
@@ -536,6 +575,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 			_pitch = PITCHES[event.physical_keycode]
 			_update_camera(1.0)
 		KEY_O: _occ.enabled = not _occ.enabled
+		KEY_C: _toggle_diag()
 		KEY_R: _reset_positions()
 		KEY_M: _markers.visible = not _markers.visible
 		KEY_F:

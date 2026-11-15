@@ -7,7 +7,7 @@ config_version=5
 
 config/name="Val'Serra — MVP"
 config/description="Prototype jouable : exploration HD-2D / 2.5D de l'avant-poste (P4), dialogue et combat au tour par tour."
-run/main_scene="res://scenes/p4/avant_poste.tscn"
+run/main_scene="res://ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn"
 config/features=PackedStringArray("4.5")
 
 [display]

@@ -2,9 +2,10 @@
 
 - **Moteur : Godot 4.7.2, strictement.** Toute scène, tout script et tout test se valident sous cette version.
   Ne pas modifier `config/features` dans `project.godot` sans décision explicite.
-- **F5 lance la démo de l'avant-poste** (`run/main_scene = res://scenes/p4/avant_poste.tscn`, caméra P30), configurée
-  par les briefs P4.4 et P4.5 du 13 novembre 2026 après vérifications ; corrections P4.6 à P4.8 dans la même scène
-  (rapport P4.8 dans `docs/HISTORIQUE.md`). P4.9 n'y touche pas : banc d'essai V07B en F6 (`docs/P4_9_V07B.md`).
+- **F5 lance la forêt V07B** (`run/main_scene = res://ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`,
+  caméra P30 à trois inclinaisons, occlusion, navigation libre V08A) : **décision du créateur du 15 novembre 2026**,
+  consignée dans `docs/P4_9_V07B.md` (§ V08A). La démo de l'avant-poste (`scenes/p4/avant_poste.tscn`, F5 jusqu'en
+  P4.8) reste jouable en F6 et garde ses tests (rencontre de bout en bout, parcours `p4` et `p4_sondes`).
   **Ne pas modifier `run/main_scene` sans l'accord explicite du créateur.** Une nouvelle branche ou une nouvelle
   étape ne suffit pas à « promouvoir » une scène sur F5 : la promotion est une décision du créateur, datée et
   consignée dans le compte rendu de l'étape. Si une étape casse la scène F5, revenir à l'état stable précédent et

@@ -113,7 +113,8 @@ func test_camera_p30_hp_and_f5() -> void:
 	check(src.contains("const DEMO_HP_MULT := 0.5"), "démo : PV du Vorgane ÷ 2")
 	var data: Dictionary = JSON.parse_string(FileAccess.open("res://data/combat/monster_vorgane.json", FileAccess.READ).get_as_text())
 	check_eq(int(data["hp"]), 950, "données du Vorgane inchangées")
-	check_eq(ProjectSettings.get_setting("application/run/main_scene"), "res://scenes/p4/avant_poste.tscn", "F5 : démo de l'avant-poste")
+	check_eq(ProjectSettings.get_setting("application/run/main_scene"), "res://ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn", "F5 : forêt V07B (décision du créateur, 15/11/2026)")
+	check(ResourceLoader.exists("res://scenes/p4/avant_poste.tscn"), "démo de l'avant-poste toujours présente (F6)")
 	for d in ["res://art/p44", "res://art/p41/chars/pnj"]:
 		check(not DirAccess.dir_exists_absolute(d), "remplacé et retiré : " + d)
 	var w = World25.load_world("res://data/p4/avant_poste.json", "instance")

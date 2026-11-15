@@ -153,8 +153,9 @@ func test_p4_resources_exist() -> void:
 
 
 func test_f5_launches_the_p4_demo_and_no_experimental_scene() -> void:
-	check_eq(ProjectSettings.get_setting("application/run/main_scene"), SCENE, "F5 lance la démo de l'avant-poste")
+	# 15/11/2026 (P4.9 V08A) : le créateur promeut la forêt V07B sur F5 ; l'avant-poste reste jouable en F6.
+	check_eq(ProjectSettings.get_setting("application/run/main_scene"), "res://ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn", "F5 lance la forêt V07B (décision du créateur, 15/11/2026)")
 	for f in [SCENE, "res://scenes/battle/battle_scene.tscn", "res://scenes/p4/comparaison_camera_B28.tscn"]:
 		check(ResourceLoader.exists(f), "scène présente : " + f)
 	var main: String = ProjectSettings.get_setting("application/run/main_scene")
-	check(not main.contains("comparaison") and not main.contains("test") and not main.contains("explore25"), "F5 n'est pas une scène d'essai")
+	check(not main.contains("comparaison") and not main.contains("explore25"), "F5 n'est pas une scène de comparaison")
