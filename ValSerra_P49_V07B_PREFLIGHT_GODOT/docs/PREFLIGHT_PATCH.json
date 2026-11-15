@@ -1,0 +1,27 @@
+{
+  "edition": "V07B",
+  "root": "ValSerra_P49_V07B_PREFLIGHT_GODOT",
+  "original_asset_count": 92,
+  "scene": "godot/P49_V07_Foret_Test.gd",
+  "spawns": {
+    "aren": 0.1938,
+    "ilya": 0.1837
+  },
+  "routes": {
+    "main": 9,
+    "boucle_nord": 7,
+    "boucle_sud": 7
+  },
+  "terrain_bounds_m": [
+    [
+      -18.0,
+      0.0008945036097429693,
+      -14.0
+    ],
+    [
+      18.0,
+      2.107675790786743,
+      14.0
+    ]
+  ]
+}

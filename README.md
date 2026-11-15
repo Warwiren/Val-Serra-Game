@@ -5,7 +5,7 @@ Démo jouable du RPG narratif au tour par tour **Val'Serra**, réalisée sous **
 > Tous les personnages, monstres, illustrations et nombres de ce dépôt sont **provisoires et non canoniques**.
 > Ce dépôt est indépendant du système Foundry du JDR (`Warwiren/Val-serra`), qui n'est pas modifié.
 
-![Avant-poste de la lisière — cour, terrasse et bâtiment principal (caméra P30)](docs/media/p4_8/captures/cour_x2-5.jpg)
+![Avant-poste de la lisière — cour, terrasse et bâtiment principal (caméra P30)](docs/media/p4_9/demo/cour_x2-5.jpg)
 
 ## Ce qui est jouable
 
@@ -26,24 +26,26 @@ Une boucle complète dans l'**avant-poste de la lisière**, au crépuscule, en *
 
 | Combat | Plaine |
 |---|---|
-| ![Combat](docs/media/p4_8/combat.jpg) | ![Plaine](docs/media/p4_8/captures/plaine_vorgane_x2-5.jpg) |
+| ![Combat](docs/media/p4_9/demo/combat.jpg) | ![Plaine](docs/media/p4_9/demo/plaine_vorgane_x2-5.jpg) |
 
-Vidéos : [marche et course à ×3](docs/media/p4_8/videos/marche_course_x3.mp4),
-[avant / après, marche de profil](docs/media/p4_8/videos/avant_apres_marche_profil.mp4).
-Rapport de l'étape : [`docs/P4_8_MARCHE.md`](docs/P4_8_MARCHE.md) (étapes précédentes : `docs/HISTORIQUE.md`).
+Étape en cours : **P4.9, banc d'essai de la forêt V07B** (scène F6, la démo F5 est inchangée depuis P4.8) —
+rapport [`docs/P4_9_V07B.md`](docs/P4_9_V07B.md), [vidéo du banc](docs/media/p4_9/videos/v07b_foret_forwardplus.mp4).
+Étapes précédentes (dont la marche P4.8) : `docs/HISTORIQUE.md`.
 
 ## Lancer le jeu (Godot 4.7.2 obligatoire)
 
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p4-8-marche`**, puis **Code → Download ZIP** ; le
-   dossier s'appelle `Val-Serra-Game-p4-8-marche`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p4-9-v07-test`**, puis **Code → Download ZIP** ; le
+   dossier s'appelle `Val-Serra-Game-p4-9-v07-test`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **démo de l'avant-poste** (`scenes/p4/avant_poste.tscn`, caméra P30), avec la nouvelle marche
    d'Aren et d'Ilya (P4.8 : 8 images, haut du corps stable, pieds posés, **Maj** pour courir) et les corrections P4.7
-   (tailles, combat d'Ilya, Vorgane au sol).
+   (tailles, combat d'Ilya, Vorgane au sol). **Inchangé en P4.9.**
+5. **Banc d'essai V07B (P4.9)** : ouvrir `ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`, puis **F6**
+   (voir « Autres scènes »).
 
 ### Commandes
 
@@ -66,6 +68,7 @@ Rapport de l'étape : [`docs/P4_8_MARCHE.md`](docs/P4_8_MARCHE.md) (étapes pré
 | Scène | Contenu |
 |---|---|
 | `scenes/p4/comparaison_camera_B28.tscn` | la même démo avec l'ancienne caméra orthographique 28° (B28), pour comparer |
+| `ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn` | **banc d'essai V07B** (P4.9) : forêt stylisée Quaternius 36 × 28 m, ruisseau, Aren et Ilya (ZQSD, Maj, 1/2/3, M, N, V, F, H, R) — test technique, pas une démo |
 | `scenes/battle/battle_scene.tscn` | combat seul (avec `--start=proto-battle --arena=lisiere` en ligne de commande) |
 | `tests/test_runner.tscn` | tests automatiques dans l'éditeur |
 
@@ -112,6 +115,6 @@ collision (20), démonstration automatique (dialogue et combat joués seuls).
 
 | Document | Contenu |
 |---|---|
-| `docs/P4_8_MARCHE.md` | **P4.8** : marche d'Aren et d'Ilya (recherche HD-2D, diagnostic, cycle à 8 images, cadence, course), tests, limites |
+| `docs/P4_9_V07B.md` | **P4.9** : intégration et validation technique de la forêt V07B (corrections, mesures, Forward+, captures, réserves) |
 | `docs/HISTORIQUE.md` | où retrouver les rapports et médias des étapes précédentes (branches Git) |
 | `docs/ASSETS.md` | registre des ressources et de leurs conditions d'usage |

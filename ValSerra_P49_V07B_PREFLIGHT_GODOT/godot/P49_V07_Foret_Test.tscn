@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.gd" id="1_script"]
+
+[node name="P49_V07_Foret_Test_ISOLE" type="Node3D"]
+script = ExtResource("1_script")

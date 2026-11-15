@@ -6,3 +6,7 @@ export/
 build/
 mesures_gpu/
 __pycache__/
+
+# P4.9 : textures extraites des GLB par l import Godot (régénérées automatiquement)
+ValSerra_P49_V07B_PREFLIGHT_GODOT/assets/geometry/*_0.png
+ValSerra_P49_V07B_PREFLIGHT_GODOT/assets/geometry/*_0.png.import

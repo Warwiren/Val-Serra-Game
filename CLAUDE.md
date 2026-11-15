@@ -4,7 +4,7 @@
   Ne pas modifier `config/features` dans `project.godot` sans décision explicite.
 - **F5 lance la démo de l'avant-poste** (`run/main_scene = res://scenes/p4/avant_poste.tscn`, caméra P30), configurée
   par les briefs P4.4 et P4.5 du 13 novembre 2026 après vérifications ; corrections P4.6 à P4.8 dans la même scène
-  (voir `docs/P4_8_MARCHE.md`, rapports précédents dans `docs/HISTORIQUE.md`).
+  (rapport P4.8 dans `docs/HISTORIQUE.md`). P4.9 n'y touche pas : banc d'essai V07B en F6 (`docs/P4_9_V07B.md`).
   **Ne pas modifier `run/main_scene` sans l'accord explicite du créateur.** Une nouvelle branche ou une nouvelle
   étape ne suffit pas à « promouvoir » une scène sur F5 : la promotion est une décision du créateur, datée et
   consignée dans le compte rendu de l'étape. Si une étape casse la scène F5, revenir à l'état stable précédent et
