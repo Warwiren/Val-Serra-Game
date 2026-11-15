@@ -30,7 +30,8 @@ reste jouable en **F6** (`scenes/p4/avant_poste.tscn`, voir « Autres scènes »
 |---|---|
 | ![Combat](docs/media/p4_9/demo/combat.jpg) | ![Plaine](docs/media/p4_9/demo/plaine_vorgane_x2-5.jpg) |
 
-Étape en cours : **P4.9** — forêt V07B, inclinaisons et occlusion, navigation libre (V08A). Rapport
+Étape en cours : **P4.9** — forêt V07B, inclinaisons et occlusion, navigation libre (V08A), locomotion V09A en essai
+([comparaison V08 / V09A](docs/media/p4_9/v09a/comparaison_v08_v09a.mp4)). Rapport
 [`docs/P4_9_V07B.md`](docs/P4_9_V07B.md) ; vidéos : [exploration libre](docs/media/p4_9/v08a/exploration_libre_forwardplus.mp4),
 [inclinaisons et occlusion](docs/media/p4_9/cameras_occlusion/videos/angles_et_occlusion_forwardplus.mp4) ;
 [comparatif 30° / 27° / 24°](docs/media/p4_9/cameras_occlusion/comparatif_6_captures_forwardplus.jpg),
@@ -47,7 +48,7 @@ reste jouable en **F6** (`scenes/p4/avant_poste.tscn`, voir « Autres scènes »
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
-   corrections de navigation V08A. La **démo de l'avant-poste** s'ouvre en **F6** depuis `scenes/p4/avant_poste.tscn`.
+   corrections de navigation V08A et la locomotion V09A en essai (touche L pour revenir à V08). La **démo de l'avant-poste** s'ouvre en **F6** depuis `scenes/p4/avant_poste.tscn`.
 
 ### Commandes — forêt V07B (F5)
 
@@ -57,6 +58,7 @@ reste jouable en **F6** (`scenes/p4/avant_poste.tscn`, voir « Autres scènes »
 | **1 / 2 / 3** | zoom ×2 / ×2,5 (défaut) / ×3 |
 | **4 / 5 / 6** | inclinaison de la caméra : 30° (défaut) / 27° / 24° |
 | **O** | occlusion dynamique : active (défaut) / coupée |
+| **L** | locomotion : V09A, essai **non validé** (inertie légère, Ilya suit la trace d'Aren ; défaut) / V08 (déplacement précédent) |
 | **C** | diagnostic des collisions : obstacles (orange), eau (turquoise), bords (violet), pentes 35°–45° (jaune), > 45° (rouge) |
 | **N** | masquer la végétation (et ses collisions) ; **M** : repères des parcours |
 | **V** | eau animée (shader candidat) ; **F** : brume ; **H** : interface ; **R** : retour au départ |
@@ -113,13 +115,17 @@ godot --headless --path . --fixed-fps 60 --script res://tools/p49/occlusion_v07.
 ```
 
 ```bash
+godot --headless --path . --script res://tests/v09_locomotion_smoke.gd
+```
+
+```bash
 godot --path . res://scenes/p4/avant_poste.tscn -- --autoplay --route=p4_demo --route_retour=p4_retour
 ```
 
 Dans l'ordre : tests automatiques (71), rencontre de bout en bout de l'avant-poste (déclenchement, PV de démo,
 victoire, défaite, bâtiment), parcours complet au clavier simulé (29 étapes ; `--camera=B28` ou `P38` pour
 comparer), sondes de collision (20), forêt V07B : 18 traversées hors des chemins (marche et course) et 12 scénarios
-d'occlusion, démonstration automatique de l'avant-poste (dialogue et combat joués seuls).
+d'occlusion, test de locomotion V09A, démonstration automatique de l'avant-poste (dialogue et combat joués seuls).
 
 ## Où trouver quoi
 

@@ -10,6 +10,8 @@ const XS_NORD := [-12, -9, -6, -3, 0, 3, 6, 9, 12]
 const XS_SUD := [-12, -9, -6, -3, 0, 3, 6, 9, 12]
 var lignes: Array = []
 var variante := {}                          # --variante=cle:valeur,... (essai de réglages du personnage)
+var decalage := 0.0                         # --decalage=m : départ décalé en X (sensibilité des lignes limites)
+var mode_v08 := false                       # --mode=V08 : locomotion V08 (touche L) au lieu de V09A
 
 
 func _run() -> void:
@@ -18,6 +20,10 @@ func _run() -> void:
 	sc = current_scene
 	var hero := _hero()
 	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--decalage="):
+			decalage = float(a.substr(11))
+		if a == "--mode=V08":
+			mode_v08 = true
 		if a.begins_with("--variante="):
 			for kv in a.substr(11).split(","):
 				var p := kv.split(":")
@@ -25,12 +31,15 @@ func _run() -> void:
 	for b in [hero, sc.get("_ilya")]:
 		for k in variante:
 			(b as Object).set(k, variante[k])
+	if "_v09_enabled" in sc and bool(sc.get("_v09_enabled")) == mode_v08:
+		await _tap(KEY_L)                          # même scène, locomotion choisie par la touche L
 	var floor_deg := rad_to_deg(hero.floor_max_angle)
-	res = {"floor_max_angle_deg": snappedf(floor_deg, 0.1), "variante": variante, "traversees": []}
+	res = {"floor_max_angle_deg": snappedf(floor_deg, 0.1), "variante": variante, "decalage_m": decalage,
+		"locomotion": "V09A" if ("_v09_enabled" in sc and bool(sc.get("_v09_enabled"))) else "V08", "traversees": []}
 	for dirz in [-1, 1]:
 		for x in (XS_NORD if dirz < 0 else XS_SUD):
 			for run in [false, true]:
-				res["traversees"].append(await _traverse(float(x), float(dirz) * 8.0, run))
+				res["traversees"].append(await _traverse(float(x) + decalage, float(dirz) * 8.0, run))
 	res["ecarts_obstacles"] = await _ecarts()
 	var f := FileAccess.open(out.path_join("traversees_v08.json"), FileAccess.WRITE)
 	f.store_string(JSON.stringify(res, " "))

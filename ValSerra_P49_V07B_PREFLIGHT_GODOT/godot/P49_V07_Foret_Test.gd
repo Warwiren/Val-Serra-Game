@@ -4,6 +4,7 @@ extends Node3D
 ## Les GLB sont des candidats de lookdev et ne préjugent pas de la DA finale.
 
 const Actor25 = preload("res://src/explore25/actor25.gd")
+const LocomotionV09 = preload("res://src/explore25/locomotion_v09.gd")
 const Occlusion = preload("res://src/occlusion/occlusion_dynamique.gd")
 const DiagCollisions = preload("res://src/diag/diagnostic_collisions.gd")
 const ROOT := "res://ValSerra_P49_V07B_PREFLIGHT_GODOT/"
@@ -31,6 +32,8 @@ var _zoom: float = 2.5
 var _is_running: bool = false
 var _moved_accum: float = 0.0
 var _last_dir: Vector3 = Vector3(1, 0, 0)
+var _v09_trail := LocomotionV09.new()
+var _v09_enabled := true
 var _show_hud := true
 var _data: Dictionary
 var _pitch := PITCH
@@ -436,6 +439,7 @@ func _reset_positions() -> void:
 	_ilya.velocity = Vector3.ZERO
 	_moved_accum = 0.0
 	_last_dir = Vector3(1, 0, 0)
+	_v09_trail.reset(_hero.global_position, _ilya.global_position)
 	_update_camera(1.0)
 
 func _route_mesh(color: Color, radius: float) -> MeshInstance3D:
@@ -510,8 +514,11 @@ func _physics_process(delta: float) -> void:
 	var start := _hero.global_position
 	_is_running = Input.is_key_pressed(KEY_SHIFT)
 	var speed := RUN_M_S if _is_running else WALK_M_S
-	_hero.velocity.x = direction.x * speed
-	_hero.velocity.z = direction.z * speed
+	# V09A : inertie légère, cadence des sprites pilotée par le déplacement EFFECTIF plus bas.
+	var want_hero := direction * speed
+	var hero_v := LocomotionV09.approach_velocity(_hero.velocity, want_hero, delta, 19.0, 22.0) if _v09_enabled else want_hero
+	_hero.velocity.x = hero_v.x
+	_hero.velocity.z = hero_v.z
 	_hero.velocity.y -= 20.0 * delta
 	_hero.move_and_slide()
 	var step: Vector3 = _hero.global_position - start
@@ -523,14 +530,19 @@ func _physics_process(delta: float) -> void:
 	var face_dir := Vector2(step.dot(right), -step.dot(_camera.global_transform.basis.y))
 	_hero_anim.step(moved, face_dir.normalized() if moved > .0001 else Vector2.ZERO, delta)
 	_hero_sprite.texture = _hero_anim.texture()
+	if _v09_enabled:
+		_v09_trail.record(_hero.global_position)
 	# Companion pursues a follow point, independent of screen FPS, with floor collision.
 	var goal := _hero.global_position - _last_dir * 1.15 + right * .12
+	if _v09_enabled:
+		goal = _v09_trail.follow_target(1.28)
 	var chase := goal - _ilya.global_position
 	chase.y = 0
 	var follow_dir := chase.normalized() if chase.length() > .38 else Vector3.ZERO
 	var p0 := _ilya.global_position
-	_ilya.velocity.x = follow_dir.x * minf(speed, 2.8)
-	_ilya.velocity.z = follow_dir.z * minf(speed, 2.8)
+	var want_ilya := LocomotionV09.follower_velocity(_ilya.velocity, chase, delta, 4.25) if _v09_enabled else follow_dir * minf(speed, 2.8)
+	_ilya.velocity.x = want_ilya.x
+	_ilya.velocity.z = want_ilya.z
 	_ilya.velocity.y -= 20.0 * delta
 	_ilya.move_and_slide()
 	var step2 := _ilya.global_position - p0
@@ -548,6 +560,8 @@ func _process(delta: float) -> void:
 	if _hud != null and _show_hud:
 		var p := _hero.global_position
 		_hud.text = "P4.9 V07 — 36×28 m / FORET STYLISEE (TEST)\nZQSD / flèches : marcher · Maj : courir · R : départ\n1/2/3 : zoom ×2 / ×2,5 / ×3 · 4/5/6 : inclinaison 30° / 27° / 24° · O : occlusion · C : collisions · M : repères · F : brume · V : eau mobile · N : végétation · H : interface\nInclinaison %d° · Zoom ×%.1f · Occlusion %s · obstacles atténués %d · silhouettes %d\nVitesse %s · parcouru %.1f m · FPS %d\nPosition locale (%.1f, %.1f) · monde de référence (%.1f, %.1f)" % [int(_pitch), _zoom, "ACTIVE" if _occ.enabled else "coupée", _occ.nombre_attenues(), _occ.silhouettes_actives(), "course" if _is_running else "marche", _moved_accum, Engine.get_frames_per_second(), p.x, p.z, p.x+42.0, p.z+15.0]
+
+		_hud.text += "\nL : locomotion %s · suivi %d points (V09A est un essai)" % ["V09A" if _v09_enabled else "V08", _v09_trail.sampled_points_count()]
 
 func _update_camera(delta: float) -> void:
 	var yaw := deg_to_rad(YAW)
@@ -576,6 +590,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 			_update_camera(1.0)
 		KEY_O: _occ.enabled = not _occ.enabled
 		KEY_C: _toggle_diag()
+		KEY_L:
+			_v09_enabled = not _v09_enabled
+			_v09_trail.reset(_hero.global_position, _ilya.global_position)
 		KEY_R: _reset_positions()
 		KEY_M: _markers.visible = not _markers.visible
 		KEY_F:
