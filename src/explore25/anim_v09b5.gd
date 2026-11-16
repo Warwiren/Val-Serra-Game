@@ -7,9 +7,15 @@ extends RefCounted
 
 const DIR := "res://art/tests/v09b5_aren/"
 const FORMATS := ["96x112", "64x72"]
+## V09B.6 : formats au gabarit P4.8 (128 × 96, sol en bas, 64 px de haut). « calque_64 » = poses V09B.5 RÉDUITES
+## automatiquement (calque d'échelle, non dessiné) ; « dessin_64 » = emplacement des poses redessinées, chargé s'il
+## existe. Mesures dans cadence_v09b6.json (tools/p49/v09b6_gabarit.py).
+const DIR_B6 := "res://art/tests/v09b6_aren/"
 const N := 8
 
 var format := "96x112"
+var formats: Array = []              # formats disponibles (FORMATS + formats V09B.6 présents)
+var _dirs := {}                      # format -> dossier
 var active := false                  # true : l'image affichée vient de V09B.5
 var cycle := "walk"
 var frame := 0
@@ -29,10 +35,22 @@ func _build() -> void:
 	_cad = JSON.parse_string(FileAccess.get_file_as_string(DIR + "cadence_v09b5.json"))
 	_pixel_m = float(_cad["pixel_m"])
 	for f in FORMATS:
+		formats.append(f)
+		for c in ["walk", "run"]:
+			_dirs[c + "_" + f] = DIR + "%s_%s/" % [c, f]
+	if FileAccess.file_exists(DIR_B6 + "cadence_v09b6.json"):
+		var b6: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(DIR_B6 + "cadence_v09b6.json"))
+		for f in b6["formats"]:
+			if ResourceLoader.exists(DIR_B6 + "%s/walk_right_0.png" % f):
+				formats.append(f)
+				_cad["formats"][f] = b6["formats"][f]
+				for c in ["walk", "run"]:
+					_dirs[c + "_" + f] = DIR_B6 + f + "/"
+	for f in formats:
 		for c in ["walk", "run"]:
 			var arr: Array[Texture2D] = []
 			for i in N:
-				arr.append(load(DIR + "%s_%s/%s_right_%d.png" % [c, f, c, i]))
+				arr.append(load(_dirs[c + "_" + f] + "%s_right_%d.png" % [c, i]))
 			_tex[c + "_" + f] = arr
 
 
@@ -40,6 +58,11 @@ func _build() -> void:
 func stride_m(c: String = "") -> float:
 	var k := cycle if c == "" else c
 	return float(_cad["formats"][format][k]["foulee_px"]) * _pixel_m
+
+
+## recul dessiné du pied d'appui après l'image i (px), ou null (pas d'appui commun)
+func recul_px(c: String, i: int) -> Variant:
+	return _cad["formats"][format][c]["recul_pied_appui_px_par_image"][i]
 
 
 ## décalage vertical (pixels, +y vers le haut) qui pose la ligne de sol du format sur l'origine du corps, pour un
@@ -55,7 +78,7 @@ func height_m() -> float:
 
 
 func toggle_format() -> void:
-	format = FORMATS[(FORMATS.find(format) + 1) % FORMATS.size()]
+	format = formats[(formats.find(format) + 1) % formats.size()]
 
 
 ## base : l'Actor25 d'Aren, DÉJÀ avancé pour cette image ; moved_m : distance parcourue ; running : Maj tenue.

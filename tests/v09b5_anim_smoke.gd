@@ -68,6 +68,25 @@ func _run() -> void:
 	a.step(base, 0.0, false)
 	_test(not a.active and base.anim.begins_with("idle"), "attente : P4.8 conservée")
 
+	# V09B.6 : calque d'échelle au gabarit P4.8 (128 × 96, sol en bas, 61 à 67 px de haut à la marche)
+	_test("calque_64" in a.formats, "V09B.6 : calque 64 px disponible (touche T)")
+	if "calque_64" in a.formats:
+		a.format = "calque_64"
+		var hmin := 999
+		var hmax := 0
+		for i in 8:
+			var img: Image = (a._tex["walk_calque_64"][i] as Texture2D).get_image()
+			var used := img.get_used_rect()
+			hmin = mini(hmin, used.size.y)
+			hmax = maxi(hmax, used.size.y)
+			if img.get_size() != Vector2i(128, 96) or used.end.y != 96:
+				hmin = -1                          # canevas ou ligne de sol hors gabarit : échec ci-dessous
+		_test(hmin >= 61 and hmin <= 67, "calque marche : canevas 128×96, pieds sur la dernière rangée, hauteur %d–%d px (64 ± 5 %%)" % [hmin, hmax])
+		_test(a.offset_px(0.96, a._tex["walk_calque_64"][0]) == Vector2.ZERO, "calque : même ancrage que P4.8 (décalage nul)")
+		var ref: Image = (load("res://art/p45/chars/aren/idle_right.png") as Texture2D).get_image()
+		_test(absi(ref.get_used_rect().size.y - hmin) <= 3, "calque vs Aren P4.8 : %d / %d px" % [hmin, ref.get_used_rect().size.y])
+		a.format = "96x112"
+
 	# scène F5 : état par défaut inchangé
 	change_scene_to_file(SCENE)
 	for i in 10:

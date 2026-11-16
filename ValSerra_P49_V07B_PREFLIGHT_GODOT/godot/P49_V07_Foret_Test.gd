@@ -611,7 +611,7 @@ func _process(delta: float) -> void:
 		var spd: Array = SPEED_PROFILES[_speed_profile]
 		var anim_txt := "P4.8 (actuelles)"
 		if _v09b5_on:
-			anim_txt = "V09B.5 CANDIDAT %s, profil droit seul — %s" % [_anim_v09b5.format, ("%s image %d · foulée %.2f m" % ["course" if _anim_v09b5.cycle == "run" else "marche", _anim_v09b5.frame, _anim_v09b5.stride_m()]) if _anim_v09b5.active else "autres directions et attente : P4.8"]
+			anim_txt = "V09B.5 CANDIDAT %s, profil droit seul — %s" % [("CALQUE 64 px (réduction, non dessiné)" if _anim_v09b5.format == "calque_64" else _anim_v09b5.format), ("%s image %d · foulée %.2f m" % ["course" if _anim_v09b5.cycle == "run" else "marche", _anim_v09b5.frame, _anim_v09b5.stride_m()]) if _anim_v09b5.active else "autres directions et attente : P4.8"]
 		_hud.text += "\nB : animations d'Aren %s · T : format · P : vitesses %s (marche %.1f / course %.1f m/s) · vitesse mesurée %.2f m/s" % [anim_txt, _speed_profile.to_upper(), spd[0], spd[1], Vector2(_hero.get_real_velocity().x, _hero.get_real_velocity().z).length()]
 		_hud.text += "\nL : locomotion %s · suivi %d points (V09A est un essai)" % ["V09A" if _v09_enabled else "V08", _v09_trail.sampled_points_count()]
 

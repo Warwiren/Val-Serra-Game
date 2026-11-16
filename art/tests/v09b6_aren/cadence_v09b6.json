@@ -1,0 +1,362 @@
+{
+ "statut": "V09B.6 — mesures ; calque_64 = RÉDUCTION AUTOMATIQUE (calque d'échelle, non dessiné, non adoptable)",
+ "pixel_m": 0.02,
+ "gabarit": {
+  "canevas": [
+   128,
+   96
+  ],
+  "sol_rangee": 96,
+  "torse_x": 60,
+  "hauteur_px": 64,
+  "tolerance_pc": 5
+ },
+ "roles_v09b5": {
+  "walk": [
+   "contact A (talon avant)",
+   "descente A (pied d'appui déjà sous le bassin)",
+   "passage A (pied d'appui déjà derrière)",
+   "contact B",
+   "contact B bis (doublon, pied avant à plat)",
+   "appui B (pied libre derrière)",
+   "passage B (genou haut)",
+   "contact A bis (doublon de 0)"
+  ],
+  "run": [
+   "contact A",
+   "appui A",
+   "poussée A",
+   "envol",
+   "envol bis (doublon de 3)",
+   "contact B",
+   "appui B",
+   "poussée B"
+  ]
+ },
+ "plan_v09b6": {
+  "walk": {
+   "foulee_px": 64,
+   "poses": [
+    {
+     "role": "contact A",
+     "talon": 12,
+     "source": 0,
+     "bassin_dy": 0
+    },
+    {
+     "role": "descente A (bassin −1 px)",
+     "talon": 4,
+     "source": 1,
+     "bassin_dy": -1
+    },
+    {
+     "role": "passage A",
+     "talon": -4,
+     "source": 2,
+     "bassin_dy": 0
+    },
+    {
+     "role": "montée A (bassin +1 px)",
+     "talon": -12,
+     "source": null,
+     "bassin_dy": 1
+    },
+    {
+     "role": "contact B",
+     "talon": 12,
+     "source": 3,
+     "bassin_dy": 0
+    },
+    {
+     "role": "descente B (bassin −1 px)",
+     "talon": 4,
+     "source": 4,
+     "bassin_dy": -1
+    },
+    {
+     "role": "passage B",
+     "talon": -4,
+     "source": 6,
+     "bassin_dy": 0
+    },
+    {
+     "role": "montée B (bassin +1 px)",
+     "talon": -12,
+     "source": 5,
+     "bassin_dy": 1
+    }
+   ]
+  },
+  "run": {
+   "foulee_px": 128,
+   "poses": [
+    {
+     "role": "contact A",
+     "talon": 12,
+     "source": 0,
+     "bassin_dy": 0
+    },
+    {
+     "role": "appui A (bassin −1 px)",
+     "talon": -4,
+     "source": 1,
+     "bassin_dy": -1
+    },
+    {
+     "role": "poussée A",
+     "talon": -20,
+     "source": 2,
+     "bassin_dy": 0
+    },
+    {
+     "role": "envol A→B (pieds +2 à +3 px)",
+     "talon": null,
+     "source": 3,
+     "bassin_dy": 1
+    },
+    {
+     "role": "contact B",
+     "talon": 12,
+     "source": 5,
+     "bassin_dy": 0
+    },
+    {
+     "role": "appui B (bassin −1 px)",
+     "talon": -4,
+     "source": 6,
+     "bassin_dy": -1
+    },
+    {
+     "role": "poussée B",
+     "talon": -20,
+     "source": 7,
+     "bassin_dy": 0
+    },
+    {
+     "role": "envol B→A (pieds +2 à +3 px)",
+     "talon": null,
+     "source": null,
+     "bassin_dy": 1
+    }
+   ]
+  }
+ },
+ "formats": {
+  "calque_64": {
+   "ligne_sol_px": 96,
+   "hauteur_perso_px": 64,
+   "walk": {
+    "foulee_px": 65,
+    "recul_pied_appui_px_par_image": [
+     17,
+     4,
+     16,
+     -1,
+     18,
+     -4,
+     17,
+     -2
+    ],
+    "mesures": {
+     "sol_px": 96,
+     "hauteur_px": [
+      62,
+      61,
+      62,
+      64,
+      63,
+      62,
+      62,
+      63
+     ],
+     "hauteur_min_max": [
+      61,
+      64
+     ],
+     "recul_pied_appui_px": [
+      17,
+      4,
+      16,
+      -1,
+      18,
+      -4,
+      17,
+      -2
+     ],
+     "foulee_px": 65,
+     "irregularite_px": 9.1,
+     "ecart_max_au_pas_moyen_px": 12.1
+    }
+   },
+   "run": {
+    "foulee_px": 130,
+    "recul_pied_appui_px_par_image": [
+     22,
+     10,
+     null,
+     null,
+     null,
+     24,
+     9,
+     null
+    ],
+    "mesures": {
+     "sol_px": 96,
+     "hauteur_px": [
+      62,
+      61,
+      61,
+      58,
+      57,
+      62,
+      61,
+      61
+     ],
+     "hauteur_min_max": [
+      57,
+      62
+     ],
+     "recul_pied_appui_px": [
+      22,
+      10,
+      null,
+      null,
+      null,
+      24,
+      9,
+      null
+     ],
+     "foulee_px": 130,
+     "irregularite_px": 6.8,
+     "ecart_max_au_pas_moyen_px": 7.8
+    }
+   }
+  }
+ },
+ "reference": {
+  "aren_p48_walk": {
+   "sol_px": 96,
+   "hauteur_px": [
+    64,
+    65,
+    64,
+    63,
+    64,
+    65,
+    64,
+    63
+   ],
+   "hauteur_min_max": [
+    63,
+    65
+   ],
+   "recul_pied_appui_px": [
+    0,
+    24,
+    0,
+    2,
+    0,
+    1,
+    0,
+    -4
+   ],
+   "foulee_px": 23,
+   "irregularite_px": 8.1,
+   "ecart_max_au_pas_moyen_px": 21.1
+  },
+  "ilya_p48_walk": {
+   "sol_px": 96,
+   "hauteur_px": [
+    64,
+    63,
+    64,
+    65,
+    64,
+    63,
+    64,
+    65
+   ],
+   "hauteur_min_max": [
+    63,
+    65
+   ],
+   "recul_pied_appui_px": [
+    0,
+    4,
+    0,
+    -2,
+    0,
+    -2,
+    0,
+    -1
+   ],
+   "foulee_px": -1,
+   "irregularite_px": 1.8,
+   "ecart_max_au_pas_moyen_px": 4.1
+  },
+  "aren_p48_marche_json_step_px": 24.0
+ },
+ "v09b5_96x112": {
+  "walk": {
+   "sol_px": 101,
+   "hauteur_px": [
+    88,
+    88,
+    89,
+    91,
+    89,
+    88,
+    88,
+    89
+   ],
+   "hauteur_min_max": [
+    88,
+    91
+   ],
+   "recul_pied_appui_px": [
+    18,
+    10,
+    25,
+    -2,
+    24,
+    -5,
+    25,
+    -2
+   ],
+   "foulee_px": 93,
+   "irregularite_px": 12.3,
+   "ecart_max_au_pas_moyen_px": 16.6
+  },
+  "run": {
+   "sol_px": 101,
+   "hauteur_px": [
+    88,
+    87,
+    86,
+    83,
+    82,
+    89,
+    87,
+    86
+   ],
+   "hauteur_min_max": [
+    82,
+    89
+   ],
+   "recul_pied_appui_px": [
+    31,
+    15,
+    null,
+    null,
+    null,
+    31,
+    14,
+    null
+   ],
+   "foulee_px": 182,
+   "irregularite_px": 8.3,
+   "ecart_max_au_pas_moyen_px": 8.8
+  }
+ },
+ "image_de_depart": 1
+}

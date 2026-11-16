@@ -3,7 +3,7 @@ extends "res://tools/p49/locomotion_ab_v09.gd"
 ## vitesses actuelles (2,2 / 3,6 m/s) et candidates (2,8 / 4,5 m/s). Mêmes commandes clavier pour chaque réglage.
 ##   godot --headless --path . --fixed-fps 60 --script res://tools/p49/animations_v09b5.gd -- --out=<dossier>
 ##   godot --path . --rendering-method forward_plus --write-movie v.avi --fixed-fps 30 \
-##       --script res://tools/p49/animations_v09b5.gd -- --film=P48:actuel|V09B5:actuel|V09B5:candidat [--format=64x72]
+##       --script res://tools/p49/animations_v09b5.gd -- --film=P48:actuel|V09B5:actuel|V09B5:candidat [--format=64x72|calque_64]
 ##   godot --path . --rendering-method forward_plus --script res://tools/p49/animations_v09b5.gd -- --out=<d> --captures
 ## Mesures : vitesse réelle, cadence (images/s, cycles/s), glissement résiduel du pied d'appui image par image
 ## (distance parcourue pendant l'image − recul dessiné du pied d'appui), départ, arrêt, demi-tour, virage brusque,
@@ -38,7 +38,7 @@ func _run() -> void:
 		return
 	res = {}
 	for c in [["P48", "96x112", false], ["P48", "96x112", true], ["V09B5", "96x112", false], ["V09B5", "96x112", true],
-			["V09B5", "64x72", false], ["V09B5", "64x72", true]]:
+			["V09B5", "64x72", false], ["V09B5", "64x72", true], ["V09B5", "calque_64", false], ["V09B5", "calque_64", true]]:
 		await _config(c[0] == "V09B5", c[1], c[2])
 		var nom := "%s_%s_%s" % [c[0], c[1] if c[0] == "V09B5" else "", "candidat" if c[2] else "actuel"]
 		res[nom.replace("__", "_")] = await _serie()
@@ -54,7 +54,9 @@ func _config(v09b5: bool, fmt: String, candidat: bool) -> void:
 	if bool(sc.get("_v09b5_on")) != v09b5:
 		await _tap(KEY_B)
 	var a: RefCounted = sc.get("_anim_v09b5")
-	if String(a.get("format")) != fmt:
+	for k in (a.get("formats") as Array).size():
+		if String(a.get("format")) == fmt:
+			break
 		await _tap(KEY_T)
 	if (String(sc.get("_speed_profile")) == "candidat") != candidat:
 		await _tap(KEY_P)
@@ -124,7 +126,7 @@ func _ligne(run: bool) -> Dictionary:
 		if tex != tex_prec and tex_prec != null:
 			changements += 1
 			if bool(a5.get("active")) and img_prec >= 0:
-				var rec: Variant = cad["formats"][String(a5.get("format"))][rec_key]["recul_pied_appui_px_par_image"][img_prec]
+				var rec: Variant = a5.call("recul_px", rec_key, img_prec)
 				if rec != null:
 					glis.append({"image": img_prec, "parcouru_m": snappedf(d_img, 0.001), "recul_dessine_m": snappedf(float(rec) * 0.02, 0.001),
 						"glissement_m": snappedf(d_img - float(rec) * 0.02, 0.001)})

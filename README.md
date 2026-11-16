@@ -32,7 +32,8 @@ reste jouable en **F6** (`scenes/p4/avant_poste.tscn`, voir « Autres scènes »
 
 Étape en cours : **P4.9** — forêt V07B, inclinaisons et occlusion, navigation libre (V08A), locomotion V09A en essai
 ([comparaison V08 / V09A](docs/media/p4_9/v09a/comparaison_v08_v09a.mp4)), **V09B.5 : nouvelles marche et course
-d'Aren en comparaison** (touches B / T / P, [vidéo comparative](docs/media/p4_9/v09b5/comparaison_p48_v09b5.mp4)). Rapport
+d'Aren en comparaison** (touches B / T / P, [vidéo comparative](docs/media/p4_9/v09b5/comparaison_p48_v09b5.mp4)),
+**V09B.6 : gabarit 64 px et plan de redessin pose par pose** ([fiches et vidéo](docs/media/p4_9/v09b6/)). Rapport
 [`docs/P4_9_V07B.md`](docs/P4_9_V07B.md) ; vidéos : [exploration libre](docs/media/p4_9/v08a/exploration_libre_forwardplus.mp4),
 [inclinaisons et occlusion](docs/media/p4_9/cameras_occlusion/videos/angles_et_occlusion_forwardplus.mp4) ;
 [comparatif 30° / 27° / 24°](docs/media/p4_9/cameras_occlusion/comparatif_6_captures_forwardplus.jpg),
@@ -61,7 +62,7 @@ d'Aren en comparaison** (touches B / T / P, [vidéo comparative](docs/media/p4_9
 | **4 / 5 / 6** | inclinaison de la caméra : 30° (défaut) / 27° / 24° |
 | **O** | occlusion dynamique : active (défaut) / coupée |
 | **B** | animations d'Aren : **P4.8** (défaut) / **V09B.5 candidates** (marche et course distinctes, **profil droit seulement** ; autres directions et attente restent P4.8) — essai **non validé** |
-| **T** | format des cycles V09B.5 : 96×112 (défaut) / 64×72 (réductions du pack, sans retouche) |
+| **T** | format des cycles : 96×112 (défaut) / 64×72 (réductions du pack) / **calque 64 px** (V09B.6 : poses V09B.5 à l'échelle P4.8, réduction automatique, **non dessinée**) / `dessin_64` (poses redessinées, quand elles existeront) |
 | **P** | vitesses : **actuelles** 2,2 / 3,6 m/s (défaut) / **candidates** 2,8 / 4,5 m/s (marche / course) |
 | **L** | locomotion : V09A, essai **non validé** (inertie légère, Ilya suit la trace d'Aren ; défaut) / V08 (déplacement précédent) |
 | **C** | diagnostic des collisions : obstacles (orange), eau (turquoise), bords (violet), pentes 35°–45° (jaune), > 45° (rouge) |
@@ -129,6 +130,10 @@ godot --headless --path . --script res://tests/v09b5_anim_smoke.gd
 
 ```bash
 godot --headless --path . --fixed-fps 60 --script res://tools/p49/animations_v09b5.gd -- --out=/tmp/v09b5
+```
+
+```bash
+python3 tools/p49/v09b6_gabarit.py <dossier du pack V09B.5 décompressé>/ValSerra_V09B5_Aren_Marche_Course_Revue/
 ```
 
 ```bash
