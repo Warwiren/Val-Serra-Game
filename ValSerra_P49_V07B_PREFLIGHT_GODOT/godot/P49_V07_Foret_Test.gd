@@ -5,12 +5,16 @@ extends Node3D
 
 const Actor25 = preload("res://src/explore25/actor25.gd")
 const LocomotionV09 = preload("res://src/explore25/locomotion_v09.gd")
+const AnimV09B5 = preload("res://src/explore25/anim_v09b5.gd")
 const Occlusion = preload("res://src/occlusion/occlusion_dynamique.gd")
 const DiagCollisions = preload("res://src/diag/diagnostic_collisions.gd")
 const ROOT := "res://ValSerra_P49_V07B_PREFLIGHT_GODOT/"
 const MANIFEST := ROOT + "docs/V07_WORLD.json"
 const WALK_M_S := 2.2
 const RUN_M_S := 3.6
+## V09B.5 — profils de vitesse comparés (touche P) : actuel (P4.8 / V09A) et candidat. Accélération et freinage inchangés ;
+## seul le plafond de rattrapage d'Ilya suit la course du profil (voir _physics_process).
+const SPEED_PROFILES := {"actuel": [WALK_M_S, RUN_M_S], "candidat": [2.8, 4.5]}
 const BOUNDS_X := Vector2(-17.65, 17.65)
 const BOUNDS_Z := Vector2(-13.65, 13.65)
 const YAW := 20.0
@@ -40,6 +44,13 @@ var _pitch := PITCH
 var _occ: RefCounted
 var _diag: Node3D                          # V08A : diagnostic des collisions (touche C), construit à la demande
 var _terrain_mi: MeshInstance3D
+## V09B.5 — essai réversible des nouveaux cycles d'Aren (touche B), format (T), profil de vitesse (P). Défaut : P4.8,
+## vitesses actuelles, c'est-à-dire exactement le comportement d'avant V09B.5.
+var _anim_v09b5: RefCounted
+var _v09b5_on := false
+var _speed_profile := "actuel"
+var _hero_ghost: Sprite3D
+const HERO_OCC_H := 1.26
 
 func _ready() -> void:
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(MANIFEST))
@@ -407,6 +418,7 @@ func _make_characters() -> void:
 	_ilya_sprite = _ilya.get_node("Pixel_Sprite_ilya") as Sprite3D
 	_hero_sprite.texture = _hero_anim.texture()
 	_ilya_sprite.texture = _ilya_anim.texture()
+	_anim_v09b5 = AnimV09B5.make()
 
 ## P4.9 — occlusion dynamique : arbres, buissons et rochers de la forêt ; Aren et Ilya suivis séparément.
 func _make_occlusion() -> void:
@@ -417,7 +429,10 @@ func _make_occlusion() -> void:
 			_occ.ajouter_multimesh(child)
 		elif child is Node3D and not (child is StaticBody3D):
 			_occ.ajouter_noeud(child)
-	_occ.ajouter_personnage(_hero, _hero_sprite, 1.26, 0.5)
+	_occ.ajouter_personnage(_hero, _hero_sprite, HERO_OCC_H, 0.5)
+	for c in _hero.get_children():
+		if c is Sprite3D and c != _hero_sprite:
+			_hero_ghost = c                    # silhouette d'occlusion d'Aren (créée par le module, non modifié)
 	_occ.ajouter_personnage(_ilya, _ilya_sprite, 1.30, 0.5)
 	print("P4.9 occlusion : %d obstacles suivis" % _occ.nombre_obstacles())
 
@@ -513,7 +528,8 @@ func _physics_process(delta: float) -> void:
 	var direction := (right * inp.x - fwd * inp.y).normalized() if inp.length() > .01 else Vector3.ZERO
 	var start := _hero.global_position
 	_is_running = Input.is_key_pressed(KEY_SHIFT)
-	var speed := RUN_M_S if _is_running else WALK_M_S
+	var speeds: Array = SPEED_PROFILES[_speed_profile]
+	var speed: float = speeds[1] if _is_running else speeds[0]
 	# V09A : inertie légère, cadence des sprites pilotée par le déplacement EFFECTIF plus bas.
 	var want_hero := direction * speed
 	var hero_v := LocomotionV09.approach_velocity(_hero.velocity, want_hero, delta, 19.0, 22.0) if _v09_enabled else want_hero
@@ -529,7 +545,7 @@ func _physics_process(delta: float) -> void:
 		_moved_accum += moved
 	var face_dir := Vector2(step.dot(right), -step.dot(_camera.global_transform.basis.y))
 	_hero_anim.step(moved, face_dir.normalized() if moved > .0001 else Vector2.ZERO, delta)
-	_hero_sprite.texture = _hero_anim.texture()
+	_apply_hero_sprite(moved)
 	if _v09_enabled:
 		_v09_trail.record(_hero.global_position)
 	# Companion pursues a follow point, independent of screen FPS, with floor collision.
@@ -540,7 +556,9 @@ func _physics_process(delta: float) -> void:
 	chase.y = 0
 	var follow_dir := chase.normalized() if chase.length() > .38 else Vector3.ZERO
 	var p0 := _ilya.global_position
-	var want_ilya := LocomotionV09.follower_velocity(_ilya.velocity, chase, delta, 4.25) if _v09_enabled else follow_dir * minf(speed, 2.8)
+	# V09B.5 : plafond de rattrapage d'Ilya proportionnel à la course du profil (4,25 m/s inchangé au profil actuel ;
+	# 5,31 m/s au profil candidat, sans quoi elle perd 0,25 m/s sur Aren à 4,5 m/s — mesuré, animations_v09b5.gd)
+	var want_ilya := LocomotionV09.follower_velocity(_ilya.velocity, chase, delta, 4.25 * speeds[1] / RUN_M_S) if _v09_enabled else follow_dir * minf(speed, 2.8)
 	_ilya.velocity.x = want_ilya.x
 	_ilya.velocity.z = want_ilya.z
 	_ilya.velocity.y -= 20.0 * delta
@@ -550,6 +568,35 @@ func _physics_process(delta: float) -> void:
 	var dir2 := Vector2(step2.dot(right), -step2.dot(_camera.global_transform.basis.y))
 	_ilya_anim.step(step2.length(), dir2.normalized() if step2.length() > .0001 else Vector2.ZERO, delta)
 	_ilya_sprite.texture = _ilya_anim.texture()
+
+## V09B.5 : vitesses [marche, course] du profil actif (touche P)
+func current_speeds() -> Array:
+	return SPEED_PROFILES[_speed_profile]
+
+## V09B.5 : image d'Aren (P4.8, ou cycle candidat sur le seul profil droit en marche/course). Les pieds du cycle
+## candidat sont posés sur l'origine du corps par un décalage vertical du sprite ; la silhouette d'occlusion suit la
+## même image et le même décalage, et la hauteur testée par l'occlusion suit la taille du sprite affiché.
+func _apply_hero_sprite(moved: float) -> void:
+	var tex: Texture2D = _hero_anim.texture()
+	var ofs := Vector2.ZERO
+	var occ_h := HERO_OCC_H
+	if _v09b5_on:
+		_anim_v09b5.step(_hero_anim, moved, _is_running)
+		if _anim_v09b5.active:
+			tex = _anim_v09b5.texture()
+			ofs = _anim_v09b5.offset_px(_hero_sprite.position.y, tex)
+			occ_h = _anim_v09b5.height_m() - 0.02
+	else:
+		_anim_v09b5.active = false
+	_hero_sprite.texture = tex
+	_hero_sprite.offset = ofs
+	if _hero_ghost != null:
+		_hero_ghost.texture = tex
+		_hero_ghost.offset = ofs
+	if _occ != null:
+		var persos: Array = _occ.get("_persos")
+		if not persos.is_empty():
+			persos[0]["h"] = occ_h
 
 func _process(delta: float) -> void:
 	if _hero == null:
@@ -561,6 +608,11 @@ func _process(delta: float) -> void:
 		var p := _hero.global_position
 		_hud.text = "P4.9 V07 — 36×28 m / FORET STYLISEE (TEST)\nZQSD / flèches : marcher · Maj : courir · R : départ\n1/2/3 : zoom ×2 / ×2,5 / ×3 · 4/5/6 : inclinaison 30° / 27° / 24° · O : occlusion · C : collisions · M : repères · F : brume · V : eau mobile · N : végétation · H : interface\nInclinaison %d° · Zoom ×%.1f · Occlusion %s · obstacles atténués %d · silhouettes %d\nVitesse %s · parcouru %.1f m · FPS %d\nPosition locale (%.1f, %.1f) · monde de référence (%.1f, %.1f)" % [int(_pitch), _zoom, "ACTIVE" if _occ.enabled else "coupée", _occ.nombre_attenues(), _occ.silhouettes_actives(), "course" if _is_running else "marche", _moved_accum, Engine.get_frames_per_second(), p.x, p.z, p.x+42.0, p.z+15.0]
 
+		var spd: Array = SPEED_PROFILES[_speed_profile]
+		var anim_txt := "P4.8 (actuelles)"
+		if _v09b5_on:
+			anim_txt = "V09B.5 CANDIDAT %s, profil droit seul — %s" % [_anim_v09b5.format, ("%s image %d · foulée %.2f m" % ["course" if _anim_v09b5.cycle == "run" else "marche", _anim_v09b5.frame, _anim_v09b5.stride_m()]) if _anim_v09b5.active else "autres directions et attente : P4.8"]
+		_hud.text += "\nB : animations d'Aren %s · T : format · P : vitesses %s (marche %.1f / course %.1f m/s) · vitesse mesurée %.2f m/s" % [anim_txt, _speed_profile.to_upper(), spd[0], spd[1], Vector2(_hero.get_real_velocity().x, _hero.get_real_velocity().z).length()]
 		_hud.text += "\nL : locomotion %s · suivi %d points (V09A est un essai)" % ["V09A" if _v09_enabled else "V08", _v09_trail.sampled_points_count()]
 
 func _update_camera(delta: float) -> void:
@@ -594,6 +646,9 @@ func _unhandled_key_input(event: InputEvent) -> void:
 			_v09_enabled = not _v09_enabled
 			_v09_trail.reset(_hero.global_position, _ilya.global_position)
 		KEY_R: _reset_positions()
+		KEY_B: _v09b5_on = not _v09b5_on
+		KEY_T: _anim_v09b5.toggle_format()
+		KEY_P: _speed_profile = "candidat" if _speed_profile == "actuel" else "actuel"
 		KEY_M: _markers.visible = not _markers.visible
 		KEY_F:
 			var fog_active := not _world_env.fog_enabled

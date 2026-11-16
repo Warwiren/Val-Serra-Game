@@ -12,6 +12,8 @@ var lignes: Array = []
 var variante := {}                          # --variante=cle:valeur,... (essai de réglages du personnage)
 var decalage := 0.0                         # --decalage=m : départ décalé en X (sensibilité des lignes limites)
 var mode_v08 := false                       # --mode=V08 : locomotion V08 (touche L) au lieu de V09A
+var vitesses_candidat := false              # V09B.5 --vitesses=candidat : marche 2,8 / course 4,5 m/s (touche P)
+var anim_v09b5 := false                     # V09B.5 --anim=V09B5 : cycles candidats d'Aren (touche B)
 
 
 func _run() -> void:
@@ -24,6 +26,8 @@ func _run() -> void:
 			decalage = float(a.substr(11))
 		if a == "--mode=V08":
 			mode_v08 = true
+		vitesses_candidat = vitesses_candidat or a == "--vitesses=candidat"
+		anim_v09b5 = anim_v09b5 or a == "--anim=V09B5"
 		if a.begins_with("--variante="):
 			for kv in a.substr(11).split(","):
 				var p := kv.split(":")
@@ -33,9 +37,14 @@ func _run() -> void:
 			(b as Object).set(k, variante[k])
 	if "_v09_enabled" in sc and bool(sc.get("_v09_enabled")) == mode_v08:
 		await _tap(KEY_L)                          # même scène, locomotion choisie par la touche L
+	if vitesses_candidat:
+		await _tap(KEY_P)
+	if anim_v09b5:
+		await _tap(KEY_B)
 	var floor_deg := rad_to_deg(hero.floor_max_angle)
 	res = {"floor_max_angle_deg": snappedf(floor_deg, 0.1), "variante": variante, "decalage_m": decalage,
-		"locomotion": "V09A" if ("_v09_enabled" in sc and bool(sc.get("_v09_enabled"))) else "V08", "traversees": []}
+		"locomotion": "V09A" if ("_v09_enabled" in sc and bool(sc.get("_v09_enabled"))) else "V08", "traversees": [],
+		"vitesses": "candidat" if vitesses_candidat else "actuel", "anim": "V09B5" if anim_v09b5 else "P4.8"}
 	for dirz in [-1, 1]:
 		for x in (XS_NORD if dirz < 0 else XS_SUD):
 			for run in [false, true]:
@@ -78,7 +87,8 @@ func _traverse(x: float, zgoal: float, run: bool) -> Dictionary:
 		_key(KEY_SHIFT, true)
 	var goal := Vector3(start.x, 0, zgoal)
 	var dist0 := absf(zgoal - start.z)
-	var speed := 3.6 if run else 2.2
+	var spd: Array = sc.call("current_speeds") if sc.has_method("current_speeds") else [2.2, 3.6]
+	var speed: float = spd[1] if run else spd[0]
 	var limit := int((dist0 / speed * 1.8 + 1.5) * 60)
 	var r := {"x": snappedf(start.x, 0.01), "sens": "nord" if zgoal < 0 else "sud", "allure": "course" if run else "marche",
 		"ok": false, "s": 0.0, "ecart_max_m": 0.0, "pente_sol_max_deg": _profil(start.x, start.z, zgoal)}

@@ -14,6 +14,7 @@ finale** : les packs Drive sont « À TESTER », les textures générées ici so
 | `pont/` | `planches` | **généré** | **PROVISOIRE** — style d'après `BRI-REF-01/02` (référence, non découpée) |
 | `fx/` | `halo` | généré | utilitaire |
 | `chars/ilya/` | 6 images (repos, marche) | **dérivées** de `art/explore_hd2d/chars/ilya/` : tenue recolorée en bleu nuit, cuir conservé, mèches longues retirées | **PROVISOIRE** — voir docs/P4_AVANT_POSTE.md § Ilya |
+| `art/tests/v09b5_aren/` (hors `art/p4/`) | **V09B.5** : marche et course candidates d'Aren, profil droit, 8 images, 96×112 et 64×72 | pack Drive `ValSerra_V09B5_Aren_Marche_Course_ANIMATIONS.zip`, copié sans retouche | **CANDIDAT NON VALIDÉ** — essai réversible (touche B de la forêt F5), voir `docs/P4_9_V07B.md` § V09B.5 |
 
 Non repris (et pourquoi) : les planches `BAT-REF-*` et `BRI-REF-*` (concepts sur fond peint, vues non concordantes),
 les modules `relief/` et `eau/` de P4_ENV (non calibrés, non bouclables), l'atlas `Ilya_exploration_walk_4dir` de
