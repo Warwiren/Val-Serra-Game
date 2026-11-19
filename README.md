@@ -64,6 +64,7 @@ d'Aren en comparaison** (touches B / T / P, [vidéo comparative](docs/media/p4_9
 | **B** | animations d'Aren : **P4.8** (défaut) / **V09B.5 candidates** (marche et course distinctes, **profil droit seulement** ; autres directions et attente restent P4.8) — essai **non validé** |
 | **T** | format des cycles : 96×112 (défaut, 88–91 px) / **96×112 — hauteur 64 px** (mêmes PNG, affichés à ×0,719 : taille d'Aren P4.8) / 64×72 (réductions du pack) / **calque 64 px** (V09B.6 : poses V09B.5 à l'échelle P4.8, réduction automatique, **non dessinée**) / `dessin_64` (poses redessinées, quand elles existeront) |
 | **P** | vitesses : **actuelles** 2,2 / 3,6 m/s (défaut) / **candidates** 2,8 / 4,5 m/s (marche / course) |
+| **I** | Ilya : **P4.8** (défaut) / **nouvelle apparence V09C, banc d'essai non validé** (4 directions, attente, marche, course ; échelle mesurée ×0,719 ; course choisie d'après sa vitesse réelle) |
 | **L** | locomotion : V09A, essai **non validé** (inertie légère, Ilya suit la trace d'Aren ; défaut) / V08 (déplacement précédent) |
 | **C** | diagnostic des collisions : obstacles (orange), eau (turquoise), bords (violet), pentes 35°–45° (jaune), > 45° (rouge) |
 | **N** | masquer la végétation (et ses collisions) ; **M** : repères des parcours |
@@ -130,6 +131,14 @@ godot --headless --path . --script res://tests/v09b5_anim_smoke.gd
 
 ```bash
 godot --headless --path . --fixed-fps 60 --script res://tools/p49/animations_v09b5.gd -- --out=/tmp/v09b5
+```
+
+```bash
+godot --headless --path . --script res://tests/v09c_ilya_smoke.gd
+```
+
+```bash
+godot --headless --path . --fixed-fps 60 --script res://tools/p49/ilya_v09c.gd -- --out=/tmp/v09c
 ```
 
 ```bash

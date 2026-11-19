@@ -21,8 +21,20 @@ const PORTRAITS := {
 }
 
 
+## V09C — portraits candidats de la nouvelle Ilya (pack V09C.5, art/tests/v09c_ilya/portraits/, 512 × 512), en BANC
+## D'ESSAI : désactivés par défaut (anciens portraits P4.2 inchangés). Correspondance des clés d'expression du code :
+## souriant -> sereine, blesse -> blessee (jusqu'ici inquiete), concentre -> resolue ; nouvelles clés inquiete, sereine.
+const V09C := "res://art/tests/v09c_ilya/portraits/"
+const ILYA_V09C := {
+	"neutre": V09C + "neutre.png", "determine": V09C + "determinee.png", "souriant": V09C + "sereine.png",
+	"surpris": V09C + "surprise.png", "blesse": V09C + "blessee.png", "concentre": V09C + "resolue.png",
+	"inquiete": V09C + "inquiete.png", "sereine": V09C + "sereine.png",
+}
+static var ilya_v09c := false
+
+
 static func path(id: String, expression := "neutre") -> String:
-	var set_: Dictionary = PORTRAITS.get(id, {})
+	var set_: Dictionary = ILYA_V09C if (id == "compagnon_vif" and ilya_v09c) else PORTRAITS.get(id, {})
 	return set_.get(expression, set_.get("neutre", ""))
 
 

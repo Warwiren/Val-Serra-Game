@@ -6,6 +6,7 @@ extends Node3D
 const Actor25 = preload("res://src/explore25/actor25.gd")
 const LocomotionV09 = preload("res://src/explore25/locomotion_v09.gd")
 const AnimV09B5 = preload("res://src/explore25/anim_v09b5.gd")
+const AnimV09C = preload("res://src/explore25/anim_v09c.gd")
 const Occlusion = preload("res://src/occlusion/occlusion_dynamique.gd")
 const DiagCollisions = preload("res://src/diag/diagnostic_collisions.gd")
 const ROOT := "res://ValSerra_P49_V07B_PREFLIGHT_GODOT/"
@@ -50,6 +51,11 @@ var _anim_v09b5: RefCounted
 var _v09b5_on := false
 var _speed_profile := "actuel"
 var _hero_ghost: Sprite3D
+## V09C — banc d'essai de la nouvelle apparence d'Ilya (touche I) ; défaut : Ilya P4.8, comportement inchangé.
+var _ilya_v09c: RefCounted
+var _v09c_on := false
+var _ilya_ghost: Sprite3D
+const ILYA_OCC_H := 1.30
 const HERO_OCC_H := 1.26
 const HERO_PIXEL_M := 0.02                 # taille d'un pixel de sprite (P4.8 : 1 px = 1 px d'écran au ×2,5)
 
@@ -420,6 +426,7 @@ func _make_characters() -> void:
 	_hero_sprite.texture = _hero_anim.texture()
 	_ilya_sprite.texture = _ilya_anim.texture()
 	_anim_v09b5 = AnimV09B5.make()
+	_ilya_v09c = AnimV09C.make()
 
 ## P4.9 — occlusion dynamique : arbres, buissons et rochers de la forêt ; Aren et Ilya suivis séparément.
 func _make_occlusion() -> void:
@@ -434,7 +441,10 @@ func _make_occlusion() -> void:
 	for c in _hero.get_children():
 		if c is Sprite3D and c != _hero_sprite:
 			_hero_ghost = c                    # silhouette d'occlusion d'Aren (créée par le module, non modifié)
-	_occ.ajouter_personnage(_ilya, _ilya_sprite, 1.30, 0.5)
+	_occ.ajouter_personnage(_ilya, _ilya_sprite, ILYA_OCC_H, 0.5)
+	for c in _ilya.get_children():
+		if c is Sprite3D and c != _ilya_sprite:
+			_ilya_ghost = c                    # silhouette d'occlusion d'Ilya (créée par le module, non modifié)
 	print("P4.9 occlusion : %d obstacles suivis" % _occ.nombre_obstacles())
 
 ## V08A — diagnostic des collisions : colliders réels, barrières d'eau, bords et pentes du terrain (touche C).
@@ -568,7 +578,34 @@ func _physics_process(delta: float) -> void:
 	step2.y = 0
 	var dir2 := Vector2(step2.dot(right), -step2.dot(_camera.global_transform.basis.y))
 	_ilya_anim.step(step2.length(), dir2.normalized() if step2.length() > .0001 else Vector2.ZERO, delta)
-	_ilya_sprite.texture = _ilya_anim.texture()
+	_apply_ilya_sprite(step2.length(), step2.length() / maxf(delta, 0.0001), speeds)
+
+## V09C : image d'Ilya (P4.8, ou banc d'essai de la nouvelle apparence, 4 directions). Mêmes règles que pour Aren :
+## pieds posés sur l'origine du corps, échelle mesurée, silhouette et hauteur d'occlusion qui suivent l'image.
+func _apply_ilya_sprite(moved: float, speed: float, speeds: Array) -> void:
+	var tex: Texture2D = _ilya_anim.texture()
+	var ofs := Vector2.ZERO
+	var px := HERO_PIXEL_M
+	var occ_h := ILYA_OCC_H
+	if _v09c_on:
+		_ilya_v09c.step(_ilya_anim, moved, speed, speeds)
+		tex = _ilya_v09c.texture()
+		px = _ilya_v09c.pixel_m()
+		ofs = _ilya_v09c.offset_px(_ilya_sprite.position.y, tex)
+		occ_h = _ilya_v09c.height_m() - 0.02
+	else:
+		_ilya_v09c.active = false
+	_ilya_sprite.texture = tex
+	_ilya_sprite.offset = ofs
+	_ilya_sprite.pixel_size = px
+	if _ilya_ghost != null:
+		_ilya_ghost.texture = tex
+		_ilya_ghost.offset = ofs
+		_ilya_ghost.pixel_size = px
+	if _occ != null:
+		var persos: Array = _occ.get("_persos")
+		if persos.size() > 1:
+			persos[1]["h"] = occ_h
 
 ## V09B.5 : vitesses [marche, course] du profil actif (touche P)
 func current_speeds() -> Array:
@@ -618,6 +655,10 @@ func _process(delta: float) -> void:
 		if _v09b5_on:
 			anim_txt = "V09B.5 CANDIDAT %s, profil droit seul — %s" % [("CALQUE 64 px (réduction, non dessiné)" if _anim_v09b5.format == "calque_64" else ("96×112 — hauteur 64 px (échelle ×%.3f)" % _anim_v09b5.echelle_h64 if _anim_v09b5.format == "96x112_h64" else _anim_v09b5.format)), ("%s image %d · foulée %.2f m" % ["course" if _anim_v09b5.cycle == "run" else "marche", _anim_v09b5.frame, _anim_v09b5.stride_m()]) if _anim_v09b5.active else "autres directions et attente : P4.8"]
 		_hud.text += "\nB : animations d'Aren %s · T : format · P : vitesses %s (marche %.1f / course %.1f m/s) · vitesse mesurée %.2f m/s" % [anim_txt, _speed_profile.to_upper(), spd[0], spd[1], Vector2(_hero.get_real_velocity().x, _hero.get_real_velocity().z).length()]
+		var ilya_txt := "P4.8 (ancienne apparence)"
+		if _v09c_on:
+			ilya_txt = "V09C BANC D'ESSAI (×%.3f) — %s %s image %d" % [_ilya_v09c.echelle, {"idle": "attente", "walk": "marche", "run": "course"}[_ilya_v09c.cycle], _ilya_v09c.dir, _ilya_v09c.frame]
+		_hud.text += "\nI : Ilya %s" % ilya_txt
 		_hud.text += "\nL : locomotion %s · suivi %d points (V09A est un essai)" % ["V09A" if _v09_enabled else "V08", _v09_trail.sampled_points_count()]
 
 func _update_camera(delta: float) -> void:
@@ -654,6 +695,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		KEY_B: _v09b5_on = not _v09b5_on
 		KEY_T: _anim_v09b5.toggle_format()
 		KEY_P: _speed_profile = "candidat" if _speed_profile == "actuel" else "actuel"
+		KEY_I: _v09c_on = not _v09c_on
 		KEY_M: _markers.visible = not _markers.visible
 		KEY_F:
 			var fog_active := not _world_env.fog_enabled
