@@ -165,5 +165,6 @@ des pieds, demi-tours, Ilya ; P4.8 et V09B.5, vitesses actuelles et candidates),
 | Document | Contenu |
 |---|---|
 | `docs/P4_9_V07B.md` | **P4.9** : forêt V07B (intégration, Forward+), inclinaisons 30° / 27° / 24° et occlusion, navigation libre V08A (18 traversées, corrections, F5) |
+| `docs/P4_9_V09C.md` | **V09C** : décisions du 19/11/2026 (Aren V09B.5 ×0,719 retenu, nouvelle identité d'Ilya), besoins techniques et cahier des charges du pack d'Ilya, vérificateur `tools/p49/verif_pack_v09c.py` |
 | `docs/HISTORIQUE.md` | où retrouver les rapports et médias des étapes précédentes (branches Git) |
 | `docs/ASSETS.md` | registre des ressources et de leurs conditions d'usage |

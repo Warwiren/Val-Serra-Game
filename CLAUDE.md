@@ -24,11 +24,16 @@
 - **Personnages** : sprites réduits depuis les sources (`art/p45/`, outil `tools/p45/build_p45.py`), 1 pixel de
   sprite = 1 pixel d'écran à ×2,5 en exploration (shader « pixel net »), ×2 (entier, au plus proche) en combat ; ne jamais agrandir une image réduite avec un filtre
   bilinéaire. Une même apparence en exploration, en combat et en portrait. Aren : cheveux bruns, tenue grise/noire.
-  Ilya : cheveux courts argentés, yeux verts, tenue verte et cuir, **pistolet d'Aether** (jamais d'épée ni d'arc).
+  Ilya : cheveux courts argentés, yeux verts, **pistolet d'Aether** (jamais d'épée ni d'arc). **Identité V09C validée
+  par le créateur le 19/11/2026** (`docs/P4_9_V09C.md`) : visage et silhouette féminins, athlétique ; tenue d'éclaireuse
+  bleu nuit, cuir brun, pièces métalliques ; cape vert forêt à motifs dorés ; pas de grande queue-de-cheval. Les sprites
+  et portraits d'Ilya en jeu sont encore l'ancienne apparence (tenue verte) jusqu'à intégration et validation du pack.
   Garde : armure sombre, bouclier, masse ; PNJ sans combat (courte ronde dans la cour).
 - **Animations** : attente animée (8 images, pieds immobiles) et marche dans les 4 directions, cadence liée à la
   distance (P4.8 : 8 images pour Aren et Ilya, cadence calée sur le pas dessiné, marche 2,2 m/s, course Maj 3,6 m/s ;
-  4 images pour le garde). Une animation dérivée par décalages d'un pixel reste « procédurale » : ne pas la présenter comme
+  4 images pour le garde). **Aren, référence artistique du prototype (19/11/2026)** : V09B.5 96 × 112 affiché à ×0,719
+  (≈ 64 px, touches B / T de la forêt), défauts connus acceptés, ne pas redessiner ni retoucher ; P4.8 conservé en
+  secours ; vitesses d'essai 2,8 / 4,5 m/s (non imposées). Une animation dérivée par décalages d'un pixel reste « procédurale » : ne pas la présenter comme
   dessinée. Toute animation se vérifie en mouvement (vidéo), pas sur une capture fixe.
 - **Ressources graphiques** : une planche conceptuelle n'est pas un asset. Ne rien déclarer « final » sans revue
   du créateur ; signaler tout élément provisoire dans `art/p4/SOURCES.md` et dans le rapport de l'étape.
