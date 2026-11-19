@@ -51,6 +51,7 @@ var _v09b5_on := false
 var _speed_profile := "actuel"
 var _hero_ghost: Sprite3D
 const HERO_OCC_H := 1.26
+const HERO_PIXEL_M := 0.02                 # taille d'un pixel de sprite (P4.8 : 1 px = 1 px d'écran au ×2,5)
 
 func _ready() -> void:
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(MANIFEST))
@@ -580,19 +581,23 @@ func _apply_hero_sprite(moved: float) -> void:
 	var tex: Texture2D = _hero_anim.texture()
 	var ofs := Vector2.ZERO
 	var occ_h := HERO_OCC_H
+	var px := HERO_PIXEL_M
 	if _v09b5_on:
 		_anim_v09b5.step(_hero_anim, moved, _is_running)
 		if _anim_v09b5.active:
 			tex = _anim_v09b5.texture()
+			px = _anim_v09b5.pixel_m()            # variante « hauteur 64 px » : échelle d'affichage réduite
 			ofs = _anim_v09b5.offset_px(_hero_sprite.position.y, tex)
 			occ_h = _anim_v09b5.height_m() - 0.02
 	else:
 		_anim_v09b5.active = false
 	_hero_sprite.texture = tex
 	_hero_sprite.offset = ofs
+	_hero_sprite.pixel_size = px
 	if _hero_ghost != null:
 		_hero_ghost.texture = tex
 		_hero_ghost.offset = ofs
+		_hero_ghost.pixel_size = px
 	if _occ != null:
 		var persos: Array = _occ.get("_persos")
 		if not persos.is_empty():
@@ -611,7 +616,7 @@ func _process(delta: float) -> void:
 		var spd: Array = SPEED_PROFILES[_speed_profile]
 		var anim_txt := "P4.8 (actuelles)"
 		if _v09b5_on:
-			anim_txt = "V09B.5 CANDIDAT %s, profil droit seul — %s" % [("CALQUE 64 px (réduction, non dessiné)" if _anim_v09b5.format == "calque_64" else _anim_v09b5.format), ("%s image %d · foulée %.2f m" % ["course" if _anim_v09b5.cycle == "run" else "marche", _anim_v09b5.frame, _anim_v09b5.stride_m()]) if _anim_v09b5.active else "autres directions et attente : P4.8"]
+			anim_txt = "V09B.5 CANDIDAT %s, profil droit seul — %s" % [("CALQUE 64 px (réduction, non dessiné)" if _anim_v09b5.format == "calque_64" else ("96×112 — hauteur 64 px (échelle ×%.3f)" % _anim_v09b5.echelle_h64 if _anim_v09b5.format == "96x112_h64" else _anim_v09b5.format)), ("%s image %d · foulée %.2f m" % ["course" if _anim_v09b5.cycle == "run" else "marche", _anim_v09b5.frame, _anim_v09b5.stride_m()]) if _anim_v09b5.active else "autres directions et attente : P4.8"]
 		_hud.text += "\nB : animations d'Aren %s · T : format · P : vitesses %s (marche %.1f / course %.1f m/s) · vitesse mesurée %.2f m/s" % [anim_txt, _speed_profile.to_upper(), spd[0], spd[1], Vector2(_hero.get_real_velocity().x, _hero.get_real_velocity().z).length()]
 		_hud.text += "\nL : locomotion %s · suivi %d points (V09A est un essai)" % ["V09A" if _v09_enabled else "V08", _v09_trail.sampled_points_count()]
 

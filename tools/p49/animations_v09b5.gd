@@ -38,7 +38,8 @@ func _run() -> void:
 		return
 	res = {}
 	for c in [["P48", "96x112", false], ["P48", "96x112", true], ["V09B5", "96x112", false], ["V09B5", "96x112", true],
-			["V09B5", "64x72", false], ["V09B5", "64x72", true], ["V09B5", "calque_64", false], ["V09B5", "calque_64", true]]:
+			["V09B5", "64x72", false], ["V09B5", "64x72", true], ["V09B5", "calque_64", false], ["V09B5", "calque_64", true],
+			["V09B5", "96x112_h64", false], ["V09B5", "96x112_h64", true]]:
 		await _config(c[0] == "V09B5", c[1], c[2])
 		var nom := "%s_%s_%s" % [c[0], c[1] if c[0] == "V09B5" else "", "candidat" if c[2] else "actuel"]
 		res[nom.replace("__", "_")] = await _serie()
@@ -128,8 +129,8 @@ func _ligne(run: bool) -> Dictionary:
 			if bool(a5.get("active")) and img_prec >= 0:
 				var rec: Variant = a5.call("recul_px", rec_key, img_prec)
 				if rec != null:
-					glis.append({"image": img_prec, "parcouru_m": snappedf(d_img, 0.001), "recul_dessine_m": snappedf(float(rec) * 0.02, 0.001),
-						"glissement_m": snappedf(d_img - float(rec) * 0.02, 0.001)})
+					glis.append({"image": img_prec, "parcouru_m": snappedf(d_img, 0.001), "recul_dessine_m": snappedf(float(rec) * float(a5.call("pixel_m")), 0.001),
+						"glissement_m": snappedf(d_img - float(rec) * float(a5.call("pixel_m")), 0.001)})
 			d_img = 0.0
 		d_img += d
 		img_prec = img
@@ -285,7 +286,7 @@ func _captures() -> void:
 	await _tap(KEY_H)
 	for z in [[KEY_1, "x2"], [KEY_2, "x2-5"], [KEY_3, "x3"]]:
 		await _tap(z[0])
-		for c in [["P48", "96x112"], ["V09B5", "96x112"], ["V09B5", "64x72"]]:
+		for c in [["P48", "96x112"], ["V09B5", "96x112"], ["V09B5", "96x112_h64"]]:
 			await _config(c[0] == "V09B5", c[1], false)
 			for run in [false, true]:
 				_place(-12.0, -0.5)

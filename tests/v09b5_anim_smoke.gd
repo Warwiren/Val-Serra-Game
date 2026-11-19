@@ -87,6 +87,19 @@ func _run() -> void:
 		_test(absi(ref.get_used_rect().size.y - hmin) <= 3, "calque vs Aren P4.8 : %d / %d px" % [hmin, ref.get_used_rect().size.y])
 		a.format = "96x112"
 
+	# V09B.5 « hauteur 64 px » : mêmes images 96 × 112, échelle d'affichage réduite, pieds et cadence recalés
+	_test(A5.H64 in a.formats and a._tex["walk_" + A5.H64][0] == a._tex["walk_96x112"][0], "H64 : mêmes textures que le 96×112 (PNG inchangés)")
+	a.format = A5.H64
+	var hv: float = a.hauteur_v5_px * a.echelle_h64
+	_test(a.echelle_h64 > 0.69 and a.echelle_h64 < 0.75 and absf(hv - a.hauteur_ref_px) < 0.5,
+		"H64 : facteur ×%.3f (88-91 px -> %.1f px ; Aren P4.8 %d px)" % [a.echelle_h64, hv, a.hauteur_ref_px])
+	var t0: Texture2D = a._tex["walk_" + A5.H64][0]
+	var ofs: Vector2 = a.offset_px(0.96, t0)
+	var foot: float = 0.96 + (ofs.y + t0.get_height() * 0.5 - float(a._cad["formats"][A5.H64]["ligne_sol_px"])) * a.pixel_m()
+	_test(absf(foot) < 0.0001, "H64 : pieds au sol (y = %.4f m)" % foot)
+	_test(absf(a.stride_m("walk") - 92 * 0.02 * a.echelle_h64) < 0.001, "H64 : foulée en mètres à la même échelle (%.2f m)" % a.stride_m("walk"))
+	a.format = "96x112"
+
 	# scène F5 : état par défaut inchangé
 	change_scene_to_file(SCENE)
 	for i in 10:
