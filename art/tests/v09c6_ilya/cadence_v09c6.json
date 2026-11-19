@@ -1,0 +1,105 @@
+{
+ "statut": "V09C.6 — course droite d'Ilya, BANC D'ESSAI NON VALIDÉ (copie sans retouche du pack V09C.6)",
+ "run_right": {
+  "ligne_sol_px": 105,
+  "hauteur_px": [
+   87,
+   85,
+   85,
+   83,
+   88,
+   86,
+   84,
+   84
+  ],
+  "recul_pied_appui_px_par_image": [
+   31,
+   28,
+   null,
+   null,
+   35,
+   31,
+   null,
+   null
+  ],
+  "foulee_px": 250,
+  "phases": [
+   "contact_A",
+   "amorti_A",
+   "propulsion_A",
+   "envol_A_B",
+   "contact_B",
+   "amorti_B",
+   "propulsion_B",
+   "envol_B_A"
+  ],
+  "images_envol": [
+   3,
+   7
+  ],
+  "bas_des_pieds_par_image": [
+   104,
+   104,
+   104,
+   100,
+   104,
+   104,
+   104,
+   100
+  ]
+ },
+ "qa_pack": {
+  "uniform_scale_for_all_poses": 0.224,
+  "airborne_frames": [
+   3,
+   7
+  ],
+  "ground_line_y": 104,
+  "known_limitations": [
+   "Two half-cycles remain artistically close in leg shape; opposite-leg contacts not yet independently certified.",
+   "Flight clearance is a four-pixel PRESENTATION correction, not a mechanically calibrated trajectory.",
+   "Generated source contains micro-texture; shrink to 96x112 can lose pixel clarity and introduce aliasing.",
+   "Silhouette height changes with crouch/airborne pose; head consistency must be judged visually.",
+   "Run stride/cadence must be measured in Godot before integrating; no numerical improvement is claimed.",
+   "Character design is consistent with new short-hair forest-green-cape Ilya but may still vary in small details."
+  ]
+ },
+ "sha256": {
+  "source_v09c5/neutre.png": "48eba26c25e89fab93c07100c6be33d4c736cd838192b4ec8fa78d54be203373",
+  "source_v09c5/determinee.png": "81b0b736fb727b61f47f358c8899e1b1d90d1073e1a7b2145dd0676c032e998e",
+  "source_v09c5/sereine.png": "f64ba916cecef0a8ffa3edc75e4b5d5f38345eb0a3fc6e3201978c5b0a47f756",
+  "source_v09c5/surprise.png": "c8796243586436430e9b3529c585e40dc5ceab8fb8d802492f3835e8e2b89e58",
+  "source_v09c5/inquiete.png": "f4bea811aaaffa26790dbe1eadf156d51dccf641cd4085e7528deb319173fe5c",
+  "source_v09c5/resolue.png": "ba77377cf973c0d8b310b9b06f5a66c80dd7d026913061bc5c9b6a7db34c0477",
+  "source_v09c5/blessee.png": "a08ba04c2c9cce575f6e05540d543b7b184a6b5dcd903a175c5eaa3bd9ef1118",
+  "source_serre/neutre.png": "bb7fadf399c259c36f705c0519f692abb2afe08c65a37ea19b17863740e26262",
+  "source_serre/determinee.png": "52548146e573cb2081c881bff7e57c6a077fcbf3ed7f621ab206fa4b95c44883",
+  "source_serre/sereine.png": "ebc31058e1ee36ea1b7efab9e36a2e0842b3334ea6bcc739f9420ef592d6656d",
+  "source_serre/surprise.png": "093623cca0d908b4d8eb4f2017d91d92a261d5ebdc3858ce2213b3976ee3c49c",
+  "source_serre/inquiete.png": "362a8c7aaf1ae97e313bc8c4bc20de4ebf72e1c0a71b2038fdb3ea533d71670e",
+  "source_serre/resolue.png": "b865431dfdf2c1ea86a3f48e1867bdce76def90d8edac55d7e5b33e123cc0357",
+  "source_serre/blessee.png": "788a421fb0d158df52fd3733da44d63cf2b1e0fd4c7fdeda04b46ea8bc9d3728",
+  "exploration/right/run_right_0.png": "32a4be9f36fb70f6256f10f296799f0ae07740a3b8e80bbebb60d8e9f6b99be6",
+  "exploration/right/run_right_1.png": "f3f82b3977478bcfa51f0065fd3758ed73cec51dd97550e285cd9fea47b2ee48",
+  "exploration/right/run_right_2.png": "b786e711e18a3745a43f9171a5c26cc66c81e8edab7604bbead984a8eb9ec8e4",
+  "exploration/right/run_right_3.png": "a4c18337f856a636ee01c9a40b3bfb5de0b155fd334b8d3cc2c29055a024fb1b",
+  "exploration/right/run_right_4.png": "9fd093e3dece1b8eb8acbb80881d237b2fa68ee07d5c72e9bce5b9762d079962",
+  "exploration/right/run_right_5.png": "b43b5747e07e496ba2cc54bd70b206eb50e1ace918e296d882b3812667737441",
+  "exploration/right/run_right_6.png": "c46bb4868f957d368cc8a83b50caefbc7d2dd490e0cd979daeaa7dba70d1573b",
+  "exploration/right/run_right_7.png": "9de372bb202544c3510825cb200c5c8b79d9d9fcd974c85be070afcf03a5144d",
+  "portraits_160/v09c5/blessee.png": "aed6402e3e004084506ec1a485cac55067eb6e31f69caff8dbaae01d7839bca4",
+  "portraits_160/v09c5/determinee.png": "d1aebb99d45d4f18570e8297426cae6f1d98dd584e343f8e918e3fcedb34e56d",
+  "portraits_160/v09c5/inquiete.png": "c45cc79f5d5c9a0bbe1be02981c437c4eb1c0d3a8e257abc7cf5353f8c055cb0",
+  "portraits_160/v09c5/neutre.png": "6313c26b233682ea0b69af1706021aa428a305e483578e0b0cbd044fcd07f469",
+  "portraits_160/v09c5/resolue.png": "316661ceb50a723345b67e2b6ae2d0a77a0b7efac27735667b1974920fd57373",
+  "portraits_160/v09c5/sereine.png": "015f99619d2a2d263cec2833724798f5444475c4f914f794d545f5f32a00bd68",
+  "portraits_160/v09c5/surprise.png": "90cec8ee7aed8519789f915b6e91fa61fb63e129a00575e5feb9ff8d2526223e",
+  "portraits_160/serre/blessee.png": "c753e15fd2a2ca5c56b82b5211aad8b0016deb43350b90391271ad1398083443",
+  "portraits_160/serre/determinee.png": "379f90112dd3d3e514221b9a1bcfe9c8710da2bd5086f6bebf0c3b5187c301c6",
+  "portraits_160/serre/inquiete.png": "6d2c64c477e97c90273d304e172d0f7016b253c63b452f573ae910e7ebabac0f",
+  "portraits_160/serre/neutre.png": "9bbf3c5bdf7fc6bf9927bf22a6c815ad174b5d4330755a1623245a4b04a0ed31",
+  "portraits_160/serre/resolue.png": "40076bd877f307ccd9d9492402b44a3aee2443d2e0f5bb3e11de05132f025a91",
+  "portraits_160/serre/sereine.png": "e010e0eebb81d78f4ae6002c4462af3e7eb240b059b7d6547b3809bc3cb3176b",
+  "portraits_160/serre/surprise.png": "2c3cdf5d7dc53c683d65c6f4352d177ea19f0e83b10ae8b20d1ec91c96b09e44"
+ }
+}

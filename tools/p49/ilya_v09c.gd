@@ -3,7 +3,7 @@ extends "res://tools/p49/locomotion_ab_v09.gd"
 ## d'essai 2,8 / 4,5 m/s ; Ilya P4.8 ou nouvelle apparence (touche I). Mêmes commandes clavier dans les deux cas.
 ##   godot --headless --path . --fixed-fps 60 --script res://tools/p49/ilya_v09c.gd -- --out=<dossier>
 ##   godot --path . --rendering-method forward_plus --write-movie <d>/f.png --fixed-fps 30 \
-##       --script res://tools/p49/ilya_v09c.gd -- --film=P48|V09C
+##       --script res://tools/p49/ilya_v09c.gd -- --film=P48|V09C5|V09C6   (V09C = V09C5)
 ##   godot --path . --rendering-method forward_plus --script res://tools/p49/ilya_v09c.gd -- --out=<d> --captures
 
 var film_ilya := ""
@@ -20,7 +20,7 @@ func _run() -> void:
 	sc = current_scene
 	await _reference_aren()
 	if film_ilya != "":
-		await _mode_ilya(film_ilya == "V09C")
+		await _mode_ilya("V09C5" if film_ilya == "V09C" else film_ilya)
 		await _film()
 		quit()
 		return
@@ -29,10 +29,10 @@ func _run() -> void:
 		quit()
 		return
 	res = {}
-	for m in ["P48", "V09C"]:
-		await _mode_ilya(m == "V09C")
+	for m in ["P48", "V09C5", "V09C6"]:
+		await _mode_ilya(m)
 		res[m] = await _serie_ilya()
-	await _mode_ilya(false)
+	await _mode_ilya("P48")
 	var f := FileAccess.open(out.path_join("ilya_v09c.json"), FileAccess.WRITE)
 	f.store_string(JSON.stringify(res, " "))
 	_resume()
@@ -52,9 +52,18 @@ func _reference_aren() -> void:
 		await _tap(KEY_P)
 
 
-func _mode_ilya(v09c: bool) -> void:
-	if bool(sc.get("_v09c_on")) != v09c:
+## Ilya : "P48", "V09C5" ou "V09C6" (course droite V09C.6), atteint par la touche I (cycle de 3 états)
+func _mode_ilya(m: String) -> void:
+	for k in 3:
+		if _etat_ilya() == m:
+			return
 		await _tap(KEY_I)
+
+
+func _etat_ilya() -> String:
+	if not bool(sc.get("_v09c_on")):
+		return "P48"
+	return "V09C6" if bool(_c().get("course_v09c6")) else "V09C5"
 
 
 func _c() -> RefCounted:
@@ -66,6 +75,7 @@ func _serie_ilya() -> Dictionary:
 	r["ligne_marche"] = await _suivi_ligne(false)
 	r["ligne_course"] = await _suivi_ligne(true)
 	r["arret_et_demi_tour"] = await _arret_demi_tour()
+	r["marche_course_marche"] = await _transitions()
 	r["autour_tronc"] = await _parcours("autour d'un tronc", Vector2(-5.2, 5.4), [], [Vector2(-2.7, 5.25), Vector2(-1.55, 4.2), Vector2(-1.6, 2.6)])
 	_key(KEY_SHIFT, true)
 	r["courbe_rocher_course"] = await _parcours("courbe autour d'un rocher, course", Vector2(7.2, 9.0), [], [Vector2(9.0, 8.4), Vector2(11.5, 8.5), Vector2(12.6, 9.6)])
@@ -96,6 +106,8 @@ func _suivi_ligne(run: bool) -> Dictionary:
 	var d_img := 0.0
 	var glis: Array = []
 	var dist_ai: Array = []
+	var haut_img := {}
+	var t_envol := 0
 	var n := 180
 	for i in n:
 		await _frames(1)
@@ -110,14 +122,19 @@ func _suivi_ligne(run: bool) -> Dictionary:
 		var tex := spr.texture
 		if tex != tex_prec and tex_prec != null:
 			changements += 1
-			if bool(sc.get("_v09c_on")) and String(c.get("dir")) == "right" and img_prec >= 0:
-				var rec: Variant = c.get("_cad")["directions"]["right"][String(c.get("cycle"))]["recul_pied_appui_px_par_image"][img_prec]
+			if bool(sc.get("_v09c_on")) and String(c.get("dir")) == "right" and img_prec >= 0 and changements > 1:
+				var rec: Variant = c.call("recul_px", img_prec)
 				if rec != null:
 					glis.append(d_img - float(rec) * float(c.call("pixel_m")))
 			d_img = 0.0
 		d_img += d
 		img_prec = int(c.get("frame"))
 		tex_prec = tex
+		if bool(sc.get("_v09c_on")):
+			var hv := _hauteur_affichee(tex, float(c.call("pixel_m")))
+			haut_img[img_prec] = hv
+			if hv.y > 0.5:
+				t_envol += 1
 		if i % 60 == 59:
 			var h := _hero().global_position
 			dist_ai.append(snappedf(Vector2(h.x - p.x, h.z - p.z).length(), 0.01))
@@ -138,7 +155,51 @@ func _suivi_ligne(run: bool) -> Dictionary:
 		r["ilya_glissement_moyen_m"] = snappedf(gs / glis.size(), 0.001)
 		r["ilya_glissement_max_m"] = snappedf(gm, 0.001)
 		r["ilya_foulee_m"] = snappedf(foulee, 0.01)
+	if bool(sc.get("_v09c_on")):
+		var hs := {}
+		for k in haut_img:
+			hs[str(k)] = [snappedf(haut_img[k].x, 0.1), snappedf(haut_img[k].y, 0.1)]
+		r["ilya_hauteur_affichee_px_et_envol_px_par_image"] = hs
+		r["ilya_part_du_temps_en_envol_pc"] = snappedf(100.0 * t_envol / n, 0.1)
 	return r
+
+
+## hauteur visible à l'écran (px au ×2,5 : 1 px = 0,02 m) et hauteur des pieds au-dessus du sol (px d'écran)
+var _cache_h := {}
+func _hauteur_affichee(tex: Texture2D, pixel_m: float) -> Vector2:
+	if not _cache_h.has(tex):
+		var r := tex.get_image().get_used_rect()
+		_cache_h[tex] = r
+	var used: Rect2i = _cache_h[tex]
+	var c := _c()
+	var sol: float = float(c.get("_cad6")["run_right"]["ligne_sol_px"]) if bool(c.call("run_v09c6")) else float(c.get("_cad")["directions"][String(c.get("dir"))][String(c.get("cycle"))]["ligne_sol_px"])
+	var k := pixel_m / 0.02
+	return Vector2((sol - used.position.y) * k, (sol - used.end.y) * k)
+
+
+## Aren marche 2 s, court 2 s, marche 2 s : bascules du cycle d'Ilya (attendu : 2), délai après le changement d'Aren
+func _transitions() -> Dictionary:
+	_place(-15.0, -0.5)
+	_ilya().global_position = _hero().global_position + Vector3(-1.2, 0, 0)
+	(sc.get("_v09_trail") as RefCounted).call("reset", _hero().global_position, _ilya().global_position)
+	await _frames(30)
+	var seq: Array = []
+	var prec := ""
+	var t := 0
+	for seg in [[false, 120], [true, 120], [false, 120]]:
+		_key(KEY_SHIFT, seg[0])
+		_steer(Vector3(1, 0, 0))
+		for i in seg[1]:
+			await _frames(1)
+			t += 1
+			var cyc := String(_c().get("cycle")) if bool(sc.get("_v09c_on")) else String((sc.get("_ilya_anim") as RefCounted).get("anim"))
+			if cyc != prec:
+				seq.append([snappedf(t / 60.0, 0.01), cyc])
+				prec = cyc
+	_stop()
+	_key(KEY_SHIFT, false)
+	await _frames(60)
+	return {"cycles_d_ilya_et_instant_s": seq, "aren_change_d_allure_a_s": [2.0, 4.0]}
 
 
 func _arret_demi_tour() -> Dictionary:
@@ -147,6 +208,7 @@ func _arret_demi_tour() -> Dictionary:
 	(sc.get("_v09_trail") as RefCounted).call("reset", _hero().global_position, _ilya().global_position)
 	await _frames(30)
 	var vus := {}
+	var hauteurs := {}
 	var spr := (_ilya() as Node).get_node("Pixel_Sprite_ilya") as Sprite3D
 	for seg in [[Vector3(1, 0, 0), 90], [Vector3.ZERO, 60], [Vector3(-1, 0, 0), 90], [Vector3(0, 0, -1), 50], [Vector3(0, 0, 1), 50], [Vector3.ZERO, 60]]:
 		if seg[0] == Vector3.ZERO:
@@ -157,8 +219,12 @@ func _arret_demi_tour() -> Dictionary:
 			await _frames(1)
 			var k := ("%s_%s" % [_c().get("cycle"), _c().get("dir")]) if bool(sc.get("_v09c_on")) else String((sc.get("_ilya_anim") as RefCounted).get("anim"))
 			vus[k] = vus.get(k, 0) + 1
+			if bool(sc.get("_v09c_on")):
+				var hv := _hauteur_affichee(spr.texture, float(_c().call("pixel_m")))
+				var mm: Array = hauteurs.get(k, [999.0, 0.0])
+				hauteurs[k] = [minf(mm[0], hv.x), maxf(mm[1], hv.x)]
 	_stop()
-	return {"etats_ilya_vus_images": vus, "hauteur_texture_finale": spr.texture.get_height(), "taille_pixel_finale": snappedf(spr.pixel_size, 0.0001)}
+	return {"etats_ilya_vus_images": vus, "hauteur_affichee_px_min_max_par_etat": hauteurs, "hauteur_texture_finale": spr.texture.get_height(), "taille_pixel_finale": snappedf(spr.pixel_size, 0.0001)}
 
 
 # ---------------------------------------------------------------------------------------------------- film
@@ -188,8 +254,8 @@ func _captures_ilya() -> void:
 	await _tap(KEY_H)
 	for z in [[KEY_2, "x2-5"], [KEY_3, "x3"], [KEY_1, "x2"]]:
 		await _tap(z[0])
-		for m in ["P48", "V09C"]:
-			await _mode_ilya(m == "V09C")
+		for m in ["V09C5", "V09C6"]:
+			await _mode_ilya(m)
 			for etat in ["marche", "course", "arret"]:
 				_place(-12.0, -0.5)
 				_ilya().global_position = _hero().global_position + Vector3(-1.2, 0, 0)
@@ -207,4 +273,4 @@ func _captures_ilya() -> void:
 				sc.call("_update_camera", 1.0)
 				await _snap("%s_ilya_%s_%s" % [z[1], m, etat])
 				sc.set_physics_process(true)
-	await _mode_ilya(false)
+	await _mode_ilya("P48")

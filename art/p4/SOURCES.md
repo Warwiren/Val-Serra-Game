@@ -17,6 +17,7 @@ finale** : les packs Drive sont « À TESTER », les textures générées ici so
 | `art/tests/v09b5_aren/` (hors `art/p4/`) | **V09B.5** : marche et course candidates d'Aren, profil droit, 8 images, 96×112 et 64×72 | pack Drive `ValSerra_V09B5_Aren_Marche_Course_ANIMATIONS.zip`, copié sans retouche | **CANDIDAT NON VALIDÉ** — essai réversible (touche B de la forêt F5), voir `docs/P4_9_V07B.md` § V09B.5 |
 | `art/tests/v09b6_aren/` (hors `art/p4/`) | **V09B.6** : calques d'échelle 64 px (poses V09B.5 réduites automatiquement) et emplacement `dessin_64/` des poses à redessiner | `tools/p49/v09b6_gabarit.py` depuis les planches du pack V09B.5 | **CALQUES NON DESSINÉS, NON ADOPTABLES** — voir `docs/P4_9_V07B.md` § V09B.6 |
 | `art/tests/v09c_ilya/` (hors `art/p4/`) | **V09C** : nouvelle Ilya, 4 directions × attente / marche / course, 7 portraits | pack Drive `ValSerra_V09C5_Ilya_Pack_pour_Claude.zip` + planche de marche du 19/11/2026, préparés par `tools/p49/v09c_ilya_pack.py` | **BANC D'ESSAI NON VALIDÉ** (touche I) — voir `art/tests/v09c_ilya/SOURCES.md` |
+| `art/tests/v09c6_ilya/` (hors `art/p4/`) | **V09C.6** : course droite d'Ilya (8 poses) et portraits au cadrage serré (160 px) | `ValSerra_V09C6_Ilya_Course_Droite_CANDIDAT.zip`, `tools/p49/v09c6_ilya_course.py` | **BANC D'ESSAI NON VALIDÉ** (touche I) — voir son `SOURCES.md` |
 
 Non repris (et pourquoi) : les planches `BAT-REF-*` et `BRI-REF-*` (concepts sur fond peint, vues non concordantes),
 les modules `relief/` et `eau/` de P4_ENV (non calibrés, non bouclables), l'atlas `Ilya_exploration_walk_4dir` de

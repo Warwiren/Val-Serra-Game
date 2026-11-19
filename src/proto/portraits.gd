@@ -24,17 +24,23 @@ const PORTRAITS := {
 ## V09C — portraits candidats de la nouvelle Ilya (pack V09C.5, art/tests/v09c_ilya/portraits/, 512 × 512), en BANC
 ## D'ESSAI : désactivés par défaut (anciens portraits P4.2 inchangés). Correspondance des clés d'expression du code :
 ## souriant -> sereine, blesse -> blessee (jusqu'ici inquiete), concentre -> resolue ; nouvelles clés inquiete, sereine.
-const V09C := "res://art/tests/v09c_ilya/portraits/"
+## V09C.6 : réductions 160 × 160 (comme les portraits P4.x) des portraits V09C.5 et des portraits au cadrage serré
+## (art/tests/v09c6_ilya/portraits_160/{v09c5,serre}/) ; `ilya_cadrage` choisit le jeu (serré par défaut quand la
+## bascule est active, V09C.5 en secours).
+const V09C := "res://art/tests/v09c6_ilya/portraits_160/"
 const ILYA_V09C := {
-	"neutre": V09C + "neutre.png", "determine": V09C + "determinee.png", "souriant": V09C + "sereine.png",
-	"surpris": V09C + "surprise.png", "blesse": V09C + "blessee.png", "concentre": V09C + "resolue.png",
-	"inquiete": V09C + "inquiete.png", "sereine": V09C + "sereine.png",
+	"neutre": "neutre.png", "determine": "determinee.png", "souriant": "sereine.png",
+	"surpris": "surprise.png", "blesse": "blessee.png", "concentre": "resolue.png",
+	"inquiete": "inquiete.png", "sereine": "sereine.png",
 }
 static var ilya_v09c := false
+static var ilya_cadrage := "serre"      # "serre" (V09C.6) ou "v09c5"
 
 
 static func path(id: String, expression := "neutre") -> String:
-	var set_: Dictionary = ILYA_V09C if (id == "compagnon_vif" and ilya_v09c) else PORTRAITS.get(id, {})
+	if id == "compagnon_vif" and ilya_v09c:
+		return V09C + ilya_cadrage + "/" + ILYA_V09C.get(expression, ILYA_V09C["neutre"])
+	var set_: Dictionary = PORTRAITS.get(id, {})
 	return set_.get(expression, set_.get("neutre", ""))
 
 

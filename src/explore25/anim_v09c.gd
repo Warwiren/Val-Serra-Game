@@ -10,6 +10,8 @@ extends RefCounted
 ##   60 % de l'écart marche → course du profil de vitesse, sortie sous 30 %) pour éviter le clignotement.
 
 const DIR := "res://art/tests/v09c_ilya/"
+## V09C.6 : course de profil droit candidate (art/tests/v09c6_ilya/), seule à changer ; le reste reste V09C.5.
+const DIR6 := "res://art/tests/v09c6_ilya/"
 const DIRS := ["right", "left", "face", "back"]
 const N := 8
 const ENTREE_COURSE := 0.6
@@ -27,6 +29,8 @@ var hauteur_px := 89                 # hauteur médiane mesurée de la marche dr
 var _tex := {}                       # "walk_right" -> Array[Texture2D]
 var _cad: Dictionary
 var _pixel_m := 0.02
+var course_v09c6 := false            # true : la course droite utilise les 8 poses V09C.6
+var _cad6: Dictionary
 
 
 static func make() -> RefCounted:
@@ -45,6 +49,11 @@ func _build() -> void:
 			for i in N:
 				arr.append(load(DIR + "exploration/%s/%s_%s_%d.png" % [d, c, d, i]))
 			_tex[c + "_" + d] = arr
+	_cad6 = JSON.parse_string(FileAccess.get_file_as_string(DIR6 + "cadence_v09c6.json"))
+	var arr6: Array[Texture2D] = []
+	for i in N:
+		arr6.append(load(DIR6 + "exploration/right/run_right_%d.png" % i))
+	_tex["run_right_v09c6"] = arr6
 	var hs: Array = []
 	for t in _tex["walk_right"]:
 		var img := (t as Texture2D).get_image()
@@ -63,12 +72,26 @@ func pixel_m() -> float:
 func stride_m(c: String = "", d: String = "") -> float:
 	var cc := cycle if c == "" else c
 	var dd := dir if d == "" else d
+	if course_v09c6 and cc == "run" and dd == "right":
+		return float(_cad6["run_right"]["foulee_px"]) * pixel_m()
 	return float(_cad["directions"][dd][cc]["foulee_px"]) * pixel_m()
+
+
+## true : l'image courante vient de la course V09C.6
+func run_v09c6() -> bool:
+	return course_v09c6 and cycle == "run" and dir == "right"
+
+
+## recul dessiné du pied d'appui après l'image i (px) du cycle courant, ou null
+func recul_px(i: int) -> Variant:
+	if run_v09c6():
+		return _cad6["run_right"]["recul_pied_appui_px_par_image"][i]
+	return _cad["directions"][dir][cycle]["recul_pied_appui_px_par_image"][i]
 
 
 ## décalage vertical (px de texture, +y vers le haut) qui pose la ligne de sol de l'image sur l'origine du corps
 func offset_px(sprite_y_m: float, tex: Texture2D) -> Vector2:
-	var ground := float(_cad["directions"][dir][cycle]["ligne_sol_px"])
+	var ground := float(_cad6["run_right"]["ligne_sol_px"]) if run_v09c6() else float(_cad["directions"][dir][cycle]["ligne_sol_px"])
 	return Vector2(0.0, -(sprite_y_m / pixel_m() - (ground - tex.get_height() * 0.5)))
 
 
@@ -109,4 +132,6 @@ func step(base: RefCounted, moved_m: float, speed: float, speeds: Array) -> void
 
 
 func texture() -> Texture2D:
+	if run_v09c6():
+		return (_tex["run_right_v09c6"] as Array)[frame]
 	return (_tex[cycle + "_" + dir] as Array)[frame]

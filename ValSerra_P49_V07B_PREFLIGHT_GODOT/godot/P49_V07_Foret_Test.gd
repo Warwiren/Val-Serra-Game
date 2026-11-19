@@ -657,7 +657,7 @@ func _process(delta: float) -> void:
 		_hud.text += "\nB : animations d'Aren %s · T : format · P : vitesses %s (marche %.1f / course %.1f m/s) · vitesse mesurée %.2f m/s" % [anim_txt, _speed_profile.to_upper(), spd[0], spd[1], Vector2(_hero.get_real_velocity().x, _hero.get_real_velocity().z).length()]
 		var ilya_txt := "P4.8 (ancienne apparence)"
 		if _v09c_on:
-			ilya_txt = "V09C BANC D'ESSAI (×%.3f) — %s %s image %d" % [_ilya_v09c.echelle, {"idle": "attente", "walk": "marche", "run": "course"}[_ilya_v09c.cycle], _ilya_v09c.dir, _ilya_v09c.frame]
+			ilya_txt = "%s BANC D'ESSAI (×%.3f) — %s %s image %d" % ["V09C.6 (course droite)" if _ilya_v09c.course_v09c6 else "V09C.5", _ilya_v09c.echelle, {"idle": "attente", "walk": "marche", "run": "course"}[_ilya_v09c.cycle], _ilya_v09c.dir, _ilya_v09c.frame]
 		_hud.text += "\nI : Ilya %s" % ilya_txt
 		_hud.text += "\nL : locomotion %s · suivi %d points (V09A est un essai)" % ["V09A" if _v09_enabled else "V08", _v09_trail.sampled_points_count()]
 
@@ -695,7 +695,15 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		KEY_B: _v09b5_on = not _v09b5_on
 		KEY_T: _anim_v09b5.toggle_format()
 		KEY_P: _speed_profile = "candidat" if _speed_profile == "actuel" else "actuel"
-		KEY_I: _v09c_on = not _v09c_on
+		KEY_I:                                 # Ilya : P4.8 -> V09C.5 -> V09C.6 (course droite) -> P4.8
+			if not _v09c_on:
+				_v09c_on = true
+				_ilya_v09c.course_v09c6 = false
+			elif not _ilya_v09c.course_v09c6:
+				_ilya_v09c.course_v09c6 = true
+			else:
+				_v09c_on = false
+				_ilya_v09c.course_v09c6 = false
 		KEY_M: _markers.visible = not _markers.visible
 		KEY_F:
 			var fog_active := not _world_env.fog_enabled
