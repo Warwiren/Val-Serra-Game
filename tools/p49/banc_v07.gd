@@ -20,6 +20,8 @@ var data: Dictionary
 
 
 func _initialize() -> void:
+	# état de référence de la non-régression (P4.8, 30°, ×2,5), indépendant du démarrage retenu pour F5
+	load("res://ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.gd").set("demarrage_v09c6", false)
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--out="):
 			out = a.substr(6)

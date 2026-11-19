@@ -105,7 +105,9 @@ func _run() -> void:
 	for i in 10:
 		await physics_frame
 	var sc := current_scene
-	_test(sc != null and not bool(sc.get("_v09b5_on")), "F5 démarre avec les animations P4.8")
+	_test(sc != null and bool(sc.get("_v09b5_on")) and String((sc.get("_anim_v09b5") as RefCounted).get("format")) == "96x112_h64",
+		"F5 démarre avec Aren V09B.5 96×112 à 64 px (démarrage du 19/11/2026)")
 	_test(sc != null and String(sc.get("_speed_profile")) == "actuel" and sc.call("current_speeds") == [2.2, 3.6], "F5 démarre aux vitesses 2,2 / 3,6 m/s")
+	_test(sc != null and float(sc.get("_pitch")) == 24.0 and float(sc.get("_zoom")) == 3.0, "F5 démarre à 24°, zoom ×3")
 	print("V09B.5 : %d échec(s)" % failures)
 	quit(1 if failures > 0 else 0)

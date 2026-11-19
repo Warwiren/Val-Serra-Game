@@ -57,6 +57,11 @@ var _v09c_on := false
 var _ilya_ghost: Sprite3D
 const ILYA_OCC_H := 1.30
 const HERO_OCC_H := 1.26
+## Démarrage retenu par le créateur le 19/11/2026 (vidéo de test) pour la validation : Aren V09B.5 96 × 112 affiché
+## à ×0,719 (≈ 64 px, taille constante), Ilya V09C.6, vitesses 2,2 / 3,6 m/s, inclinaison 24°, zoom ×3. Les autres
+## versions restent aux touches B / T / I / P / 1-6 (P4.8 en secours). Les outils de non-régression mettent
+## `demarrage_v09c6` à false pour garder leur état de référence (P4.8, 30°, ×2,5).
+static var demarrage_v09c6 := true
 const HERO_PIXEL_M := 0.02                 # taille d'un pixel de sprite (P4.8 : 1 px = 1 px d'écran au ×2,5)
 
 func _ready() -> void:
@@ -75,6 +80,14 @@ func _ready() -> void:
 	_make_occlusion()
 	_make_route_markers()
 	_make_hud()
+	if demarrage_v09c6:
+		_v09b5_on = true
+		_anim_v09b5.format = "96x112_h64"
+		_v09c_on = true
+		_ilya_v09c.course_v09c6 = true
+		_speed_profile = "actuel"
+		_pitch = 24.0
+		_zoom = 3.0
 	_reset_positions()
 
 func _make_environment() -> void:

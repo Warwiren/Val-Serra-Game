@@ -100,7 +100,31 @@ func _run() -> void:
 	for i in 10:
 		await physics_frame
 	var sc := current_scene
-	_test(sc != null and not bool(sc.get("_v09c_on")), "F5 démarre avec Ilya P4.8")
+	_test(sc != null and bool(sc.get("_v09c_on")) and bool((sc.get("_ilya_v09c") as RefCounted).get("course_v09c6")), "F5 démarre avec Ilya V09C.6")
+	# tailles constantes au démarrage : hauteur visible à l'écran (px au ×2,5, 1 px = 0,02 m) de chaque image possible
+	var c6: RefCounted = sc.get("_ilya_v09c")
+	var a5: RefCounted = sc.get("_anim_v09b5")
+	var h_aren: Array = []
+	for d in ["face", "back", "left", "right"]:
+		for k in ["idle_", "walk_"]:
+			var fr: SpriteFrames = (sc.get("_hero_anim") as RefCounted).get("frames")
+			if d == "right" and k == "walk_":
+				continue                              # remplacé par V09B.5 ci-dessous
+			for i in fr.get_frame_count(k + d):
+				h_aren.append(fr.get_frame_texture(k + d, i).get_image().get_used_rect().size.y)
+	for t in a5.get("_tex")["walk_96x112"]:
+		h_aren.append(roundf((101 - (t as Texture2D).get_image().get_used_rect().position.y) * float(a5.get("echelle_h64"))))
+	h_aren.sort()
+	var h_ilya: Array = []
+	for d in C.DIRS:
+		for cy in ["idle", "walk"]:
+			for t in c6.get("_tex")[cy + "_" + d]:
+				var u: Rect2i = (t as Texture2D).get_image().get_used_rect()
+				h_ilya.append(roundf((float(c6.get("_cad")["directions"][d][cy]["ligne_sol_px"]) - u.position.y) * float(c6.get("echelle"))))
+	h_ilya.sort()
+	# Aren : profil droit V09B.5 63-65 px ; P4.8 de face 60-62 px (dessin d'origine, plus court), de dos 64-67 px
+	_test(h_aren[0] >= 60 and h_aren[-1] <= 67, "Aren : attente et marche dans toutes les directions entre %d et %d px (64 −6 / +5 %%, face P4.8 plus courte)" % [h_aren[0], h_aren[-1]])
+	_test(h_ilya[0] >= 61 and h_ilya[-1] <= 67, "Ilya : attente et marche dans toutes les directions entre %d et %d px (64 ± 5 %%)" % [h_ilya[0], h_ilya[-1]])
 	var etats := []
 	for i in 4:
 		var e := InputEventKey.new()
@@ -109,6 +133,6 @@ func _run() -> void:
 		e.pressed = true
 		sc.call("_unhandled_key_input", e)
 		etats.append("P4.8" if not bool(sc.get("_v09c_on")) else ("V09C.6" if bool((sc.get("_ilya_v09c") as RefCounted).get("course_v09c6")) else "V09C.5"))
-	_test(etats == ["V09C.5", "V09C.6", "P4.8", "V09C.5"], "touche I : %s" % [etats])
+	_test(etats == ["P4.8", "V09C.5", "V09C.6", "P4.8"], "touche I depuis V09C.6 : %s" % [etats])
 	print("V09C : %d échec(s)" % failures)
 	quit(1 if failures > 0 else 0)

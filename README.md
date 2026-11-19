@@ -50,7 +50,9 @@ d'Aren en comparaison** (touches B / T / P, [vidéo comparative](docs/media/p4_9
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
-   corrections de navigation V08A et la locomotion V09A en essai (touche L pour revenir à V08). Les animations
+   corrections de navigation V08A et la locomotion V09A en essai (touche L pour revenir à V08). **Depuis le 19/11/2026,
+   F5 démarre dans la configuration de validation** : Aren V09B.5 à 64 px, Ilya nouvelle apparence V09C.6, marche
+   2,2 / course 3,6 m/s, inclinaison 24°, zoom ×3 (rien à activer ; P4.8 et les autres versions restent aux touches). Les animations
    candidates V09B.5 d'Aren s'activent avec **B** (retour aux animations P4.8 : B de nouveau ; P4.8 au lancement). La **démo de l'avant-poste** s'ouvre en **F6** depuis `scenes/p4/avant_poste.tscn`.
 
 ### Commandes — forêt V07B (F5)
@@ -58,13 +60,13 @@ d'Aren en comparaison** (touches B / T / P, [vidéo comparative](docs/media/p4_9
 | Touche | Action |
 |---|---|
 | Flèches / ZQSD | se déplacer ; **Maj** maintenue : courir |
-| **1 / 2 / 3** | zoom ×2 / ×2,5 (défaut) / ×3 |
-| **4 / 5 / 6** | inclinaison de la caméra : 30° (défaut) / 27° / 24° |
+| **1 / 2 / 3** | zoom ×2 / ×2,5 (référence de la caméra P30) / ×3 (démarrage) |
+| **4 / 5 / 6** | inclinaison de la caméra : 30° (référence de la caméra P30) / 27° / 24° (démarrage) |
 | **O** | occlusion dynamique : active (défaut) / coupée |
-| **B** | animations d'Aren : **P4.8** (défaut) / **V09B.5 candidates** (marche et course distinctes, **profil droit seulement** ; autres directions et attente restent P4.8) — essai **non validé** |
-| **T** | format des cycles : 96×112 (défaut, 88–91 px) / **96×112 — hauteur 64 px** (mêmes PNG, affichés à ×0,719 : taille d'Aren P4.8) / 64×72 (réductions du pack) / **calque 64 px** (V09B.6 : poses V09B.5 à l'échelle P4.8, réduction automatique, **non dessinée**) / `dessin_64` (poses redessinées, quand elles existeront) |
-| **P** | vitesses : **actuelles** 2,2 / 3,6 m/s (défaut) / **candidates** 2,8 / 4,5 m/s (marche / course) |
-| **I** | Ilya : **P4.8** (défaut) → **V09C.5** → **V09C.6** (course droite V09C.6, le reste V09C.5) → P4.8 ; nouvelle apparence en **banc d'essai non validé** (4 directions, échelle mesurée ×0,719, course choisie d'après sa vitesse réelle) |
+| **B** | animations d'Aren : **V09B.5** (démarrage) / **P4.8** (secours) — V09B.5 (marche et course distinctes, **profil droit seulement** ; autres directions et attente restent P4.8) — essai **non validé** |
+| **T** | format des cycles : **96×112 — hauteur 64 px** (démarrage) / 96×112 (88–91 px) (mêmes PNG, affichés à ×0,719 : taille d'Aren P4.8) / 64×72 (réductions du pack) / **calque 64 px** (V09B.6 : poses V09B.5 à l'échelle P4.8, réduction automatique, **non dessinée**) / `dessin_64` (poses redessinées, quand elles existeront) |
+| **P** | vitesses : **actuelles** 2,2 / 3,6 m/s (démarrage) / **candidates** 2,8 / 4,5 m/s (marche / course) |
+| **I** | Ilya : **V09C.6** (démarrage) → P4.8 → V09C.5 → V09C.6 (V09C.6 = course droite nouvelle, le reste V09C.5) ; nouvelle apparence en **banc d'essai non validé** (4 directions, échelle mesurée ×0,719, course choisie d'après sa vitesse réelle) |
 | **L** | locomotion : V09A, essai **non validé** (inertie légère, Ilya suit la trace d'Aren ; défaut) / V08 (déplacement précédent) |
 | **C** | diagnostic des collisions : obstacles (orange), eau (turquoise), bords (violet), pentes 35°–45° (jaune), > 45° (rouge) |
 | **N** | masquer la végétation (et ses collisions) ; **M** : repères des parcours |

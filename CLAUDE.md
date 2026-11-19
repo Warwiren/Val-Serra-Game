@@ -33,7 +33,10 @@
   distance (P4.8 : 8 images pour Aren et Ilya, cadence calée sur le pas dessiné, marche 2,2 m/s, course Maj 3,6 m/s ;
   4 images pour le garde). **Aren, référence artistique du prototype (19/11/2026)** : V09B.5 96 × 112 affiché à ×0,719
   (≈ 64 px, touches B / T de la forêt), défauts connus acceptés, ne pas redessiner ni retoucher ; P4.8 conservé en
-  secours ; vitesses d'essai 2,8 / 4,5 m/s (non imposées). Une animation dérivée par décalages d'un pixel reste « procédurale » : ne pas la présenter comme
+  secours ; vitesses d'essai 2,8 / 4,5 m/s (non imposées). **Démarrage de F5 pour la validation (décision du
+  créateur du 19/11/2026, `docs/P4_9_V09C.md` § 9)** : Aren V09B.5 ×0,719, Ilya V09C.6 (banc d'essai), vitesses
+  2,2 / 3,6 m/s, inclinaison 24°, zoom ×3 ; autres versions aux touches B / T / I / P / 1-6 ; les outils de
+  non-régression gardent leur état de référence (P4.8, 30°, ×2,5) via `demarrage_v09c6 = false`. Une animation dérivée par décalages d'un pixel reste « procédurale » : ne pas la présenter comme
   dessinée. Toute animation se vérifie en mouvement (vidéo), pas sur une capture fixe.
 - **Ressources graphiques** : une planche conceptuelle n'est pas un asset. Ne rien déclarer « final » sans revue
   du créateur ; signaler tout élément provisoire dans `art/p4/SOURCES.md` et dans le rapport de l'étape.
