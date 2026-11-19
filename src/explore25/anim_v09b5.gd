@@ -30,6 +30,15 @@ var phase := 0.0                     # position dans le cycle, 0..1
 var _tex := {}                       # "walk_96x112" -> Array[Texture2D]
 var _cad: Dictionary
 var _pixel_m := 0.02
+## Profil unique (demande du créateur du 19/11/2026 : même apparence dans toutes les directions) : le profil droit
+## V09B.5 sert à TOUTES les directions — miroir horizontal vers la gauche ; vers le haut ou le bas, Aren garde son
+## dernier profil ; à l'arrêt, pose tenue IMAGE_ARRET de la marche (jambes rassemblées ; aucune attente V09B.5 n'est
+## dessinée). Aucun dessin ajouté : seulement des images existantes, retournées ou tenues.
+var profil_unique := true
+const IMAGE_ARRET := 2
+var flip := false                    # true : profil gauche (miroir du profil droit)
+var _bouge := false
+var _axe := {}                       # cycle_format -> axe vertical de la tête (px de texture), médiane du cycle
 
 
 static func make() -> RefCounted:
@@ -73,7 +82,25 @@ func _build() -> void:
 	hs.sort()
 	hauteur_v5_px = int(hs[hs.size() / 2])
 	echelle_h64 = float(hauteur_ref_px) / float(hauteur_v5_px)
+	for k in _tex:
+		_axe[k] = axe_tete(_tex[k])
 
+
+## axe vertical de la tête d'un cycle : médiane, sur les 8 images, du x médian des pixels opaques du quart supérieur
+static func axe_tete(frames: Array) -> float:
+	var xs: Array = []
+	for t in frames:
+		var img := (t as Texture2D).get_image()
+		var u := img.get_used_rect()
+		var px: Array = []
+		for y in range(u.position.y, u.position.y + int(u.size.y * 0.25)):
+			for x in range(u.position.x, u.end.x):
+				if img.get_pixel(x, y).a > 0.5:
+					px.append(x)
+		px.sort()
+		xs.append(float(px[px.size() / 2]) + 0.5)
+	xs.sort()
+	return xs[xs.size() / 2]
 
 ## mètres par pixel de texture du format courant (0,02 m, ou 0,02 × facteur pour la variante H64)
 func pixel_m() -> float:
@@ -95,7 +122,11 @@ func recul_px(c: String, i: int) -> Variant:
 ## Sprite3D centré placé à `sprite_y_m` (0,96 m : bas des images P4.8 de 96 px au sol)
 func offset_px(sprite_y_m: float, tex: Texture2D) -> Vector2:
 	var ground := float(_cad["formats"][format]["ligne_sol_px"])
-	return Vector2(0.0, -(sprite_y_m / pixel_m() - (ground - tex.get_height() * 0.5)))
+	var ox := 0.0
+	if profil_unique:                   # axe de la tête sur l'origine du corps, à droite comme en miroir
+		var ax: float = _axe[cycle + "_" + format]
+		ox = (ax - tex.get_width() * 0.5) if flip else (tex.get_width() * 0.5 - ax)
+	return Vector2(ox, -(sprite_y_m / pixel_m() - (ground - tex.get_height() * 0.5)))
 
 
 ## hauteur visible du personnage (m), pour l'occlusion
@@ -108,7 +139,28 @@ func toggle_format() -> void:
 
 
 ## base : l'Actor25 d'Aren, DÉJÀ avancé pour cette image ; moved_m : distance parcourue ; running : Maj tenue.
-func step(base: RefCounted, moved_m: float, running: bool) -> void:
+func step(base: RefCounted, moved_m: float, running: bool, sx: float = 0.0) -> void:
+	if profil_unique:
+		if sx > 0.15:
+			flip = false
+		elif sx < -0.15:
+			flip = true
+		if not String(base.get("anim")).begins_with("walk"):
+			cycle = "walk"                  # arrêt : pose tenue de la marche
+			frame = IMAGE_ARRET
+			active = true
+			_bouge = false
+			return
+		cycle = "run" if running else "walk"
+		if not _bouge:
+			phase = float(_cad["image_de_depart"]) / N
+		else:
+			phase = fposmod(phase + moved_m / stride_m(), 1.0)
+		_bouge = true
+		active = true
+		frame = int(phase * N) % N
+		return
+	flip = false
 	if String(base.get("anim")) != "walk_right":
 		active = false
 		return

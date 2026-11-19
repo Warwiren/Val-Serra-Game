@@ -30,6 +30,15 @@ var _tex := {}                       # "walk_right" -> Array[Texture2D]
 var _cad: Dictionary
 var _pixel_m := 0.02
 var course_v09c6 := false            # true : la course droite utilise les 8 poses V09C.6
+## Profil unique (demande du créateur du 19/11/2026) : le profil droit (marche de la planche du 19/11, course V09C.5
+## ou V09C.6) sert à toutes les directions — miroir vers la gauche, dernier profil gardé vers le haut / le bas ; à
+## l'arrêt, pose tenue IMAGE_ARRET de la marche droite (même style ; l'attente du pack est d'un autre style). Les vues
+## gauche / face / dos et les attentes du pack restent dans le banc (profil_unique = false) mais ne sont plus affichées.
+var profil_unique := true
+const IMAGE_ARRET := 2
+var flip := false
+var _axe := {}
+var _arret := false
 var _cad6: Dictionary
 
 
@@ -54,6 +63,8 @@ func _build() -> void:
 	for i in N:
 		arr6.append(load(DIR6 + "exploration/right/run_right_%d.png" % i))
 	_tex["run_right_v09c6"] = arr6
+	for k in ["walk_right", "run_right", "run_right_v09c6"]:
+		_axe[k] = load("res://src/explore25/anim_v09b5.gd").axe_tete(_tex[k])
 	var hs: Array = []
 	for t in _tex["walk_right"]:
 		var img := (t as Texture2D).get_image()
@@ -92,7 +103,11 @@ func recul_px(i: int) -> Variant:
 ## décalage vertical (px de texture, +y vers le haut) qui pose la ligne de sol de l'image sur l'origine du corps
 func offset_px(sprite_y_m: float, tex: Texture2D) -> Vector2:
 	var ground := float(_cad6["run_right"]["ligne_sol_px"]) if run_v09c6() else float(_cad["directions"][dir][cycle]["ligne_sol_px"])
-	return Vector2(0.0, -(sprite_y_m / pixel_m() - (ground - tex.get_height() * 0.5)))
+	var ox := 0.0
+	if profil_unique:
+		var ax: float = _axe["run_right_v09c6" if run_v09c6() else cycle + "_right"]
+		ox = (ax - tex.get_width() * 0.5) if flip else (tex.get_width() * 0.5 - ax)
+	return Vector2(ox, -(sprite_y_m / pixel_m() - (ground - tex.get_height() * 0.5)))
 
 
 func height_m() -> float:
@@ -107,9 +122,25 @@ static func seuils(speeds: Array) -> Vector2:
 
 
 ## base : l'Actor25 d'Ilya, DÉJÀ avancé pour cette image ; moved_m : distance parcourue ; speed : vitesse réelle (m/s)
-func step(base: RefCounted, moved_m: float, speed: float, speeds: Array) -> void:
+func step(base: RefCounted, moved_m: float, speed: float, speeds: Array, sx: float = 0.0) -> void:
 	var parts := String(base.get("anim")).split("_")
 	var d: String = parts[1] if parts.size() > 1 else "face"
+	if profil_unique:
+		if sx > 0.15:
+			flip = false
+		elif sx < -0.15:
+			flip = true
+		d = "right"                           # toutes les directions : profil droit (retourné si flip)
+		if parts[0] != "walk":
+			running = false
+			cycle = "walk"
+			frame = IMAGE_ARRET
+			dir = d
+			active = true
+			_arret = true
+			return
+	else:
+		flip = false
 	if parts[0] == "walk":
 		var s := seuils(speeds)
 		if not running and speed > s.x:
@@ -117,12 +148,13 @@ func step(base: RefCounted, moved_m: float, speed: float, speeds: Array) -> void
 		elif running and speed < s.y:
 			running = false
 		var c := "run" if running else "walk"
-		if not active or cycle == "idle":
+		if not active or cycle == "idle" or _arret:
 			phase = float(_cad["image_de_depart"]) / N           # départ : jambe en passage
 		else:
 			phase = fposmod(phase + moved_m / stride_m(c, d), 1.0)
 		cycle = c
 		frame = int(phase * N) % N
+		_arret = false
 	else:
 		running = false
 		cycle = "idle"

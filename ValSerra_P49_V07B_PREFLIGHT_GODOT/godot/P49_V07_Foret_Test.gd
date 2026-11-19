@@ -569,7 +569,7 @@ func _physics_process(delta: float) -> void:
 		_moved_accum += moved
 	var face_dir := Vector2(step.dot(right), -step.dot(_camera.global_transform.basis.y))
 	_hero_anim.step(moved, face_dir.normalized() if moved > .0001 else Vector2.ZERO, delta)
-	_apply_hero_sprite(moved)
+	_apply_hero_sprite(moved, face_dir.normalized().x if moved > .0001 else 0.0)
 	if _v09_enabled:
 		_v09_trail.record(_hero.global_position)
 	# Companion pursues a follow point, independent of screen FPS, with floor collision.
@@ -591,30 +591,33 @@ func _physics_process(delta: float) -> void:
 	step2.y = 0
 	var dir2 := Vector2(step2.dot(right), -step2.dot(_camera.global_transform.basis.y))
 	_ilya_anim.step(step2.length(), dir2.normalized() if step2.length() > .0001 else Vector2.ZERO, delta)
-	_apply_ilya_sprite(step2.length(), step2.length() / maxf(delta, 0.0001), speeds)
+	_apply_ilya_sprite(step2.length(), step2.length() / maxf(delta, 0.0001), speeds, dir2.normalized().x if step2.length() > .0001 else 0.0)
 
 ## V09C : image d'Ilya (P4.8, ou banc d'essai de la nouvelle apparence, 4 directions). Mêmes règles que pour Aren :
 ## pieds posés sur l'origine du corps, échelle mesurée, silhouette et hauteur d'occlusion qui suivent l'image.
-func _apply_ilya_sprite(moved: float, speed: float, speeds: Array) -> void:
+func _apply_ilya_sprite(moved: float, speed: float, speeds: Array, sx: float = 0.0) -> void:
 	var tex: Texture2D = _ilya_anim.texture()
 	var ofs := Vector2.ZERO
 	var px := HERO_PIXEL_M
 	var occ_h := ILYA_OCC_H
 	if _v09c_on:
-		_ilya_v09c.step(_ilya_anim, moved, speed, speeds)
+		_ilya_v09c.step(_ilya_anim, moved, speed, speeds, sx)
 		tex = _ilya_v09c.texture()
 		px = _ilya_v09c.pixel_m()
 		ofs = _ilya_v09c.offset_px(_ilya_sprite.position.y, tex)
 		occ_h = _ilya_v09c.height_m() - 0.02
 	else:
 		_ilya_v09c.active = false
+	var fl: bool = _v09c_on and bool(_ilya_v09c.flip)
 	_ilya_sprite.texture = tex
 	_ilya_sprite.offset = ofs
 	_ilya_sprite.pixel_size = px
+	_ilya_sprite.flip_h = fl
 	if _ilya_ghost != null:
 		_ilya_ghost.texture = tex
 		_ilya_ghost.offset = ofs
 		_ilya_ghost.pixel_size = px
+		_ilya_ghost.flip_h = fl
 	if _occ != null:
 		var persos: Array = _occ.get("_persos")
 		if persos.size() > 1:
@@ -627,13 +630,13 @@ func current_speeds() -> Array:
 ## V09B.5 : image d'Aren (P4.8, ou cycle candidat sur le seul profil droit en marche/course). Les pieds du cycle
 ## candidat sont posés sur l'origine du corps par un décalage vertical du sprite ; la silhouette d'occlusion suit la
 ## même image et le même décalage, et la hauteur testée par l'occlusion suit la taille du sprite affiché.
-func _apply_hero_sprite(moved: float) -> void:
+func _apply_hero_sprite(moved: float, sx: float = 0.0) -> void:
 	var tex: Texture2D = _hero_anim.texture()
 	var ofs := Vector2.ZERO
 	var occ_h := HERO_OCC_H
 	var px := HERO_PIXEL_M
 	if _v09b5_on:
-		_anim_v09b5.step(_hero_anim, moved, _is_running)
+		_anim_v09b5.step(_hero_anim, moved, _is_running, sx)
 		if _anim_v09b5.active:
 			tex = _anim_v09b5.texture()
 			px = _anim_v09b5.pixel_m()            # variante « hauteur 64 px » : échelle d'affichage réduite
@@ -641,13 +644,16 @@ func _apply_hero_sprite(moved: float) -> void:
 			occ_h = _anim_v09b5.height_m() - 0.02
 	else:
 		_anim_v09b5.active = false
+	var fl: bool = _v09b5_on and _anim_v09b5.active and bool(_anim_v09b5.flip)
 	_hero_sprite.texture = tex
 	_hero_sprite.offset = ofs
 	_hero_sprite.pixel_size = px
+	_hero_sprite.flip_h = fl
 	if _hero_ghost != null:
 		_hero_ghost.texture = tex
 		_hero_ghost.offset = ofs
 		_hero_ghost.pixel_size = px
+		_hero_ghost.flip_h = fl
 	if _occ != null:
 		var persos: Array = _occ.get("_persos")
 		if not persos.is_empty():

@@ -22,6 +22,7 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var a = C.make()
+	a.profil_unique = false                   # banc V09C.5 d'origine (4 directions du pack) ; profil unique testé plus bas
 	var n := 0
 	for k in a._tex:
 		for t in a._tex[k]:
@@ -62,6 +63,31 @@ func _run() -> void:
 		base.step(0.0, Vector2.ZERO, 1.0 / 60.0)
 	a.step(base, 0.0, 0.0, sp)
 	_test(a.cycle == "idle" and a.frame == int(base.frame) % 8, "attente : images du pack au rythme d'Actor25")
+
+	# profil unique (19/11/2026) : profil droit dans toutes les directions, miroir à gauche, arrêt sur la pose tenue
+	var pu = C.make()
+	pu.course_v09c6 = true
+	var b3 = Actor25.make("ilya")
+	b3.set_scale_k(26.0 / 65.0)
+	for v in [4.0, 4.5, 4.5]:
+		b3.step(v / 60.0, Vector2(-1, 0), 1.0 / 60.0)
+		pu.step(b3, v / 60.0, v, sp, -1.0)
+	_test(pu.flip and pu.dir == "right" and pu.run_v09c6() and pu.texture() == pu._tex["run_right_v09c6"][pu.frame], "profil unique : course vers la gauche = course droite V09C.6 en miroir")
+	b3.step(0.05, Vector2(0, -1), 1.0 / 60.0)
+	pu.step(b3, 0.05, 2.8, sp, 0.0)
+	_test(pu.flip and pu.cycle == "walk" and pu.texture() == pu._tex["walk_right"][pu.frame], "profil unique : vers le haut, marche droite (dernier profil gardé)")
+	for i in 30:
+		b3.step(0.0, Vector2.ZERO, 1.0 / 60.0)
+	pu.step(b3, 0.0, 0.0, sp, 0.0)
+	_test(pu.cycle == "walk" and pu.frame == C.IMAGE_ARRET and pu.texture() == pu._tex["walk_right"][C.IMAGE_ARRET], "profil unique : arrêt sur la pose tenue de la marche droite")
+	var ow: float = pu.offset_px(0.96, pu.texture()).x
+	b3.step(4.5 / 60.0, Vector2(-1, 0), 1.0 / 60.0)
+	pu.step(b3, 4.5 / 60.0, 4.5, sp, -1.0)
+	b3.step(4.5 / 60.0, Vector2(-1, 0), 1.0 / 60.0)
+	pu.step(b3, 4.5 / 60.0, 4.5, sp, -1.0)
+	var orun: float = pu.offset_px(0.96, pu.texture()).x
+	_test(pu.run_v09c6() and absf((ow - float(pu._axe["walk_right"]) + 48.0) - (orun - float(pu._axe["run_right_v09c6"]) + 48.0)) < 0.001,
+		"profil unique : axe de la tête identique en marche et en course (pas de saut latéral)")
 
 	# V09C.6 : course droite candidate, seule à changer ; même échelle, pieds au sol, foulée propre
 	a.course_v09c6 = true

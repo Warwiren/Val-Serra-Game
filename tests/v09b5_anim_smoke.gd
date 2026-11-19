@@ -23,6 +23,7 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var a = A5.make()
+	a.profil_unique = false                   # mode d'origine (V09B.5 au seul profil droit) ; profil unique testé plus bas
 	var n := 0
 	for f in A5.FORMATS:
 		for c in ["walk", "run"]:
@@ -99,6 +100,27 @@ func _run() -> void:
 	_test(absf(foot) < 0.0001, "H64 : pieds au sol (y = %.4f m)" % foot)
 	_test(absf(a.stride_m("walk") - 92 * 0.02 * a.echelle_h64) < 0.001, "H64 : foulée en mètres à la même échelle (%.2f m)" % a.stride_m("walk"))
 	a.format = "96x112"
+
+	# profil unique (19/11/2026) : profil droit V09B.5 dans toutes les directions, miroir à gauche, pose d'arrêt tenue
+	var u = A5.make()
+	u.format = A5.H64
+	var b2 = Actor25.make("aren")
+	b2.set_scale_k(25.2 / 63.0)
+	for i in 10:
+		b2.step(0.04, Vector2(1, 0), 1.0 / 60.0)
+		u.step(b2, 0.04, false, 1.0)
+	var ox_d: float = u.offset_px(0.96, u.texture()).x
+	b2.step(0.04, Vector2(-1, 0), 1.0 / 60.0)
+	u.step(b2, 0.04, false, -1.0)
+	_test(u.active and u.flip and u.cycle == "walk", "profil unique : vers la gauche, profil droit en miroir")
+	_test(absf(u.offset_px(0.96, u.texture()).x + ox_d) < 0.001, "profil unique : axe de la tête sur le corps à droite comme en miroir (%.1f / %.1f px)" % [ox_d, u.offset_px(0.96, u.texture()).x])
+	b2.step(0.04, Vector2(0, 1), 1.0 / 60.0)
+	u.step(b2, 0.04, false, 0.0)
+	_test(u.active and u.flip and b2.anim == "walk_face", "profil unique : vers le bas, dernier profil gardé (gauche)")
+	for i in 20:
+		b2.step(0.0, Vector2.ZERO, 1.0 / 60.0)
+	u.step(b2, 0.0, false, 0.0)
+	_test(u.active and u.cycle == "walk" and u.frame == A5.IMAGE_ARRET, "profil unique : arrêt sur la pose tenue %d (pas de P4.8)" % A5.IMAGE_ARRET)
 
 	# scène F5 : état par défaut inchangé
 	change_scene_to_file(SCENE)

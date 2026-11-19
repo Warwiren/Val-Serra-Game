@@ -15,6 +15,18 @@ func _run() -> void:
 		if a.begins_with("--film="):
 			film_ilya = a.substr(7)
 		caps = caps or a == "--captures"
+	if film_ilya in ["AVANT", "APRES"]:
+		# démarrage réel de F5 (19/11/2026) ; AVANT = directions mélangées d'origine, APRES = profil unique
+		load("res://ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.gd").set("demarrage_v09c6", true)
+		change_scene_to_file(SCENE)
+		await _frames(30)
+		sc = current_scene
+		if film_ilya == "AVANT":
+			(sc.get("_anim_v09b5") as RefCounted).set("profil_unique", false)
+			_c().set("profil_unique", false)
+		await _film_directions()
+		quit()
+		return
 	change_scene_to_file(SCENE)
 	await _frames(30)
 	sc = current_scene
@@ -238,6 +250,27 @@ func _film() -> void:
 	for seg in [[Vector3(1, 0, 0), 150, false], [Vector3.ZERO, 70, false], [Vector3(1, 0, 0), 110, true], [Vector3.ZERO, 60, false],
 			[Vector3(-1, 0, 0), 80, false], [Vector3(0, 0, -1), 45, false], [Vector3(0, 0, 1), 60, false], [Vector3(1, 0, 0), 90, true],
 			[Vector3.ZERO, 80, false]]:
+		_key(KEY_SHIFT, seg[2])
+		if seg[0] == Vector3.ZERO:
+			_stop()
+		else:
+			_steer(seg[0])
+		await _frames(seg[1])
+	_key(KEY_SHIFT, false)
+	_stop()
+	await _frames(20)
+
+
+## toutes les directions, arrêts compris, à la caméra et aux vitesses du démarrage (24°, ×3, 2,2 / 3,6 m/s)
+func _film_directions() -> void:
+	await _tap(KEY_H)
+	_place(-12.0, -0.5)
+	_ilya().global_position = _hero().global_position + Vector3(-1.2, 0, 0)
+	(sc.get("_v09_trail") as RefCounted).call("reset", _hero().global_position, _ilya().global_position)
+	await _frames(40)
+	for seg in [[Vector3(1, 0, 0), 120, false], [Vector3.ZERO, 60, false], [Vector3(-1, 0, 0), 110, false], [Vector3.ZERO, 50, false],
+			[Vector3(0, 0, 1), 70, false], [Vector3(0, 0, -1), 70, false], [Vector3(1, 0, 0), 90, true], [Vector3(-1, 0, 0), 90, true],
+			[Vector3(0, 0, 1), 60, true], [Vector3.ZERO, 80, false]]:
 		_key(KEY_SHIFT, seg[2])
 		if seg[0] == Vector3.ZERO:
 			_stop()
