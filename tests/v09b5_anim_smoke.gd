@@ -267,5 +267,20 @@ func _run() -> void:
 		"F5 démarre avec Aren V09B.5 96×112 à 64 px (démarrage du 19/11/2026)")
 	_test(sc != null and String(sc.get("_speed_profile")) == "actuel" and sc.call("current_speeds") == [2.2, 3.6], "F5 démarre aux vitesses 2,2 / 3,6 m/s")
 	_test(sc != null and float(sc.get("_pitch")) == 24.0 and float(sc.get("_zoom")) == 3.0, "F5 démarre à 24°, zoom ×3")
+	# V10 : rendu des personnages (touche K)
+	var hs3: Sprite3D = sc.get("_hero_sprite")
+	var is3: Sprite3D = sc.get("_ilya_sprite")
+	var m3 = hs3.material_override
+	_test(bool(sc.get("_rendu_v10")) and m3 is ShaderMaterial and (m3 as ShaderMaterial).shader.resource_path.ends_with("perso_v10.gdshader")
+		and (m3 as ShaderMaterial).get_shader_parameter("tex") == hs3.texture and is3.material_override is ShaderMaterial,
+		"F5 démarre avec le rendu V10 des personnages (Aren et Ilya, texture de l'image courante)")
+	var ek := InputEventKey.new()
+	ek.keycode = KEY_K
+	ek.physical_keycode = KEY_K
+	ek.pressed = true
+	sc.call("_unhandled_key_input", ek)
+	for i in 3:
+		await physics_frame
+	_test(not bool(sc.get("_rendu_v10")) and hs3.material_override == null and is3.material_override == null, "touche K : retour au rendu Sprite3D d'origine")
 	print("V09B.5 : %d échec(s)" % failures)
 	quit(1 if failures > 0 else 0)

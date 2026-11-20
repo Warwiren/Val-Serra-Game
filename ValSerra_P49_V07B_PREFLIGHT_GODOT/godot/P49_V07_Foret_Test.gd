@@ -7,6 +7,7 @@ const Actor25 = preload("res://src/explore25/actor25.gd")
 const LocomotionV09 = preload("res://src/explore25/locomotion_v09.gd")
 const AnimV09B5 = preload("res://src/explore25/anim_v09b5.gd")
 const AnimV09C = preload("res://src/explore25/anim_v09c.gd")
+const PersoV10 = preload("res://src/explore25/perso_v10.gdshader")
 const Occlusion = preload("res://src/occlusion/occlusion_dynamique.gd")
 const DiagCollisions = preload("res://src/diag/diagnostic_collisions.gd")
 const ROOT := "res://ValSerra_P49_V07B_PREFLIGHT_GODOT/"
@@ -55,6 +56,9 @@ var _hero_ghost: Sprite3D
 var _ilya_v09c: RefCounted
 var _v09c_on := false
 var _ilya_ghost: Sprite3D
+## V10 (20/11/2026, proposition, touche K) : rendu des personnages plus lisible, même dessin (src/explore25/perso_v10.gdshader)
+var _rendu_v10 := false
+var _mat_v10 := {}
 const ILYA_OCC_H := 1.30
 const HERO_OCC_H := 1.26
 ## Démarrage retenu par le créateur le 19/11/2026 (vidéo de test) pour la validation : Aren V09B.5 96 × 112 affiché
@@ -88,6 +92,7 @@ func _ready() -> void:
 		_speed_profile = "actuel"
 		_pitch = 24.0
 		_zoom = 3.0
+		_rendu_v10 = true
 	_reset_positions()
 
 func _make_environment() -> void:
@@ -613,6 +618,7 @@ func _apply_ilya_sprite(moved: float, speed: float, speeds: Array, sx: float = 0
 	_ilya_sprite.offset = ofs
 	_ilya_sprite.pixel_size = px
 	_ilya_sprite.flip_h = fl
+	_rendu_perso(_ilya_sprite, tex)
 	if _ilya_ghost != null:
 		_ilya_ghost.texture = tex
 		_ilya_ghost.offset = ofs
@@ -622,6 +628,19 @@ func _apply_ilya_sprite(moved: float, speed: float, speeds: Array, sx: float = 0
 		var persos: Array = _occ.get("_persos")
 		if persos.size() > 1:
 			persos[1]["h"] = occ_h
+
+## V10 : matériau du rendu des personnages (ou retour au Sprite3D d'origine) ; même texture, même géométrie
+func _rendu_perso(sprite: Sprite3D, tex: Texture2D) -> void:
+	if not _rendu_v10:
+		sprite.material_override = null
+		return
+	if not _mat_v10.has(sprite.name):
+		var m := ShaderMaterial.new()
+		m.shader = PersoV10
+		_mat_v10[sprite.name] = m
+	var mat: ShaderMaterial = _mat_v10[sprite.name]
+	mat.set_shader_parameter("tex", tex)
+	sprite.material_override = mat
 
 ## V09B.5 : vitesses [marche, course] du profil actif (touche P)
 func current_speeds() -> Array:
@@ -649,6 +668,7 @@ func _apply_hero_sprite(moved: float, sx: float = 0.0) -> void:
 	_hero_sprite.offset = ofs
 	_hero_sprite.pixel_size = px
 	_hero_sprite.flip_h = fl
+	_rendu_perso(_hero_sprite, tex)
 	if _hero_ghost != null:
 		_hero_ghost.texture = tex
 		_hero_ghost.offset = ofs
@@ -676,6 +696,7 @@ func _process(delta: float) -> void:
 		_hud.text += "\nB : animations d'Aren %s · T : format · P : vitesses %s (marche %.1f / course %.1f m/s) · vitesse mesurée %.2f m/s" % [anim_txt, _speed_profile.to_upper(), spd[0], spd[1], Vector2(_hero.get_real_velocity().x, _hero.get_real_velocity().z).length()]
 		if _v09b5_on:
 			_hud.text += "\nG : Aren de face / de dos %s" % {"v4": "V4 dessinée (GIF du 20/11, proposition)", "v3": "V3 « en profondeur » (procédurale, proposition)", "4dir": "4dir du 20/11 (procédurale)", "v2": "planche V2"}.get(_anim_v09b5.jeu_vues, _anim_v09b5.jeu_vues)
+		_hud.text += "\nK : rendu des personnages %s" % ("V10 (net, éclairé, sans brume, contour — proposition)" if _rendu_v10 else "d'origine (Sprite3D)")
 		var ilya_txt := "P4.8 (ancienne apparence)"
 		if _v09c_on:
 			ilya_txt = "%s BANC D'ESSAI (×%.3f) — %s %s image %d" % ["V09C.6 (course droite)" if _ilya_v09c.course_v09c6 else "V09C.5", _ilya_v09c.echelle, {"idle": "attente", "walk": "marche", "run": "course"}[_ilya_v09c.cycle], _ilya_v09c.dir, _ilya_v09c.frame]
@@ -715,6 +736,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		KEY_R: _reset_positions()
 		KEY_B: _v09b5_on = not _v09b5_on
 		KEY_T: _anim_v09b5.toggle_format()
+		KEY_K: _rendu_v10 = not _rendu_v10          # rendu des personnages : V10 / d'origine
 		KEY_G: _anim_v09b5.toggle_jeu_vues()          # Aren face / dos : V4 -> V3 -> 4dir -> V2
 		KEY_P: _speed_profile = "candidat" if _speed_profile == "actuel" else "actuel"
 		KEY_I:                                 # Ilya : P4.8 -> V09C.5 -> V09C.6 (course droite) -> P4.8
