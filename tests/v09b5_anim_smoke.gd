@@ -145,7 +145,8 @@ func _run() -> void:
 	# jeu complet d'orientations (défaut) : attentes de l'étude IDLE V1, marche / course de face et de dos procédurales
 	var w = A5.make()
 	w.format = A5.H64
-	_test(w.jeu_vues == "4dir" and w.d4_dispo, "jeu complet d'orientations chargé par défaut")
+	_test(w.jeu_vues == "v3" and w.v3_dispo and w.d4_dispo, "proposition V3 (face / dos en profondeur) chargée par défaut")
+	w.jeu_vues = "4dir"                       # jeu « 4dir » du 20/11 ; V3 testée plus bas
 	var b4 = Actor25.make("aren")
 	b4.set_scale_k(25.2 / 63.0)
 	var vus := []
@@ -182,6 +183,43 @@ func _run() -> void:
 	var i0: Image = (w._tex["d4_idle_face"][0] as Texture2D).get_image()
 	var m0: Image = (w._tex["d4_walk_face"][0] as Texture2D).get_image()
 	_test(i0.get_data() == m0.get_data(), "face : la marche part exactement de l'attente (image 0 identique, pas de saut)")
+
+	# proposition V3 : face / dos en profondeur, attentes et profil du jeu 4dir
+	var v = A5.make()
+	v.format = A5.H64
+	var b5 = Actor25.make("aren")
+	b5.set_scale_k(25.2 / 63.0)
+	var vus3 := []
+	for seg in [[Vector2(0, 1), false, "v3_walk_face"], [Vector2(0, 1), true, "v3_run_face"], [Vector2(0, -1), false, "v3_walk_back"], [Vector2(0, -1), true, "v3_run_back"], [Vector2(1, 0), false, "walk_" + A5.H64]]:
+		for i in 6:
+			b5.step(0.04, seg[0], 1.0 / 60.0)
+			v.step(b5, 0.04, seg[1], seg[0].x)
+		vus3.append(v._cle == seg[2] and v.texture() == v._tex[seg[2]][v.frame])
+	_test(vus3 == [true, true, true, true, true], "V3 : bas / haut, marche et course en profondeur ; droite : V09B.5 (%s)" % [vus3])
+	for i in 20:
+		b5.step(0.0, Vector2.ZERO, 1.0 / 60.0)
+	v.step(b5, 0.0, false, 0.0)
+	_test(v._cle == "d4_idle_right", "V3 : attentes du jeu 4dir")
+	var v0 = A5.make()
+	v0.format = A5.H64
+	var b6 = Actor25.make("aren")
+	b6.set_scale_k(25.2 / 63.0)
+	b6.step(0.001, Vector2(0, 1), 1.0 / 60.0)
+	v0.step(b6, 0.001, false, 0.0)
+	_test(v0._cle == "v3_walk_face" and v0.frame == A5.IMAGE_DEPART_V3, "V3 : départ vers le bas au passage (image %d)" % v0.frame)
+	var h3: Array = []
+	for k in v._tex:
+		if String(k).begins_with("v3_"):
+			for t in v._tex[k]:
+				var r: Rect2i = (t as Texture2D).get_image().get_used_rect()
+				h3.append(roundf((101 - r.position.y) * v.echelle_h64))
+	h3.sort()
+	_test(h3[0] >= 61 and h3[-1] <= 68, "V3 : tête à %d à %d px au-dessus du sol à l'écran (rebond compris)" % [h3[0], h3[-1]])
+	var jeux := []
+	for i in 3:
+		v.toggle_jeu_vues()
+		jeux.append(v.jeu_vues)
+	_test(jeux == ["4dir", "v2", "v3"], "touche G : V3 -> 4dir -> V2 -> V3 (%s)" % [jeux])
 
 	# scène F5 : état par défaut inchangé
 	change_scene_to_file(SCENE)

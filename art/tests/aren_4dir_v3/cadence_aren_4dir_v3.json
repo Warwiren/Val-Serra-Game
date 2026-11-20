@@ -1,0 +1,471 @@
+{
+ "statut": "Aren face / dos V3 « en profondeur » — PROPOSITION PROCÉDURALE, BANC D'ESSAI NON VALIDÉ",
+ "source": "art/tests/aren_4dir/idle_{face,back}_0.png (étude IDLE V1)",
+ "tangage_deg": 24.0,
+ "pixel_m": 0.02,
+ "ligne_sol_px": 101,
+ "cycles": {
+  "walk_face": {
+   "demi_foulee_px": 46,
+   "part": 0.6,
+   "levee": 3,
+   "rebond": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "bras": 2,
+   "haut_jambes": 79,
+   "ecart_x": 44,
+   "haut_bottes": 92,
+   "amplitude_px": 5.61,
+   "images": [
+    {
+     "image": 0,
+     "pied_g_px": 6,
+     "pied_d_px": -6,
+     "rebond_px": 0,
+     "bascule_px": 0,
+     "mains_px": [
+      -2,
+      2
+     ]
+    },
+    {
+     "image": 1,
+     "pied_g_px": 3,
+     "pied_d_px": -6,
+     "rebond_px": 1,
+     "bascule_px": -1,
+     "mains_px": [
+      -1,
+      1
+     ]
+    },
+    {
+     "image": 2,
+     "pied_g_px": 0,
+     "pied_d_px": -3,
+     "rebond_px": 1,
+     "bascule_px": -1,
+     "mains_px": [
+      0,
+      0
+     ]
+    },
+    {
+     "image": 3,
+     "pied_g_px": -3,
+     "pied_d_px": 2,
+     "rebond_px": 0,
+     "bascule_px": -1,
+     "mains_px": [
+      1,
+      -1
+     ]
+    },
+    {
+     "image": 4,
+     "pied_g_px": -6,
+     "pied_d_px": 6,
+     "rebond_px": 0,
+     "bascule_px": 0,
+     "mains_px": [
+      2,
+      -2
+     ]
+    },
+    {
+     "image": 5,
+     "pied_g_px": -6,
+     "pied_d_px": 3,
+     "rebond_px": 1,
+     "bascule_px": 1,
+     "mains_px": [
+      1,
+      -1
+     ]
+    },
+    {
+     "image": 6,
+     "pied_g_px": -3,
+     "pied_d_px": 0,
+     "rebond_px": 1,
+     "bascule_px": 1,
+     "mains_px": [
+      0,
+      0
+     ]
+    },
+    {
+     "image": 7,
+     "pied_g_px": 2,
+     "pied_d_px": -3,
+     "rebond_px": 0,
+     "bascule_px": 1,
+     "mains_px": [
+      -1,
+      1
+     ]
+    }
+   ],
+   "procedural": true
+  },
+  "run_face": {
+   "demi_foulee_px": 91,
+   "part": 0.4,
+   "levee": 6,
+   "rebond": [
+    0,
+    1,
+    2,
+    1
+   ],
+   "bras": 3,
+   "haut_jambes": 79,
+   "ecart_x": 44,
+   "haut_bottes": 92,
+   "amplitude_px": 7.4,
+   "images": [
+    {
+     "image": 0,
+     "pied_g_px": 7,
+     "pied_d_px": -7,
+     "rebond_px": 0,
+     "bascule_px": 0,
+     "mains_px": [
+      -3,
+      3
+     ]
+    },
+    {
+     "image": 1,
+     "pied_g_px": 4,
+     "pied_d_px": -9,
+     "rebond_px": 1,
+     "bascule_px": -1,
+     "mains_px": [
+      -2,
+      2
+     ]
+    },
+    {
+     "image": 2,
+     "pied_g_px": 0,
+     "pied_d_px": -6,
+     "rebond_px": 2,
+     "bascule_px": -1,
+     "mains_px": [
+      0,
+      0
+     ]
+    },
+    {
+     "image": 3,
+     "pied_g_px": -4,
+     "pied_d_px": 1,
+     "rebond_px": 1,
+     "bascule_px": -1,
+     "mains_px": [
+      2,
+      -2
+     ]
+    },
+    {
+     "image": 4,
+     "pied_g_px": -7,
+     "pied_d_px": 7,
+     "rebond_px": 0,
+     "bascule_px": 0,
+     "mains_px": [
+      3,
+      -3
+     ]
+    },
+    {
+     "image": 5,
+     "pied_g_px": -9,
+     "pied_d_px": 4,
+     "rebond_px": 1,
+     "bascule_px": 1,
+     "mains_px": [
+      2,
+      -2
+     ]
+    },
+    {
+     "image": 6,
+     "pied_g_px": -6,
+     "pied_d_px": 0,
+     "rebond_px": 2,
+     "bascule_px": 1,
+     "mains_px": [
+      0,
+      0
+     ]
+    },
+    {
+     "image": 7,
+     "pied_g_px": 1,
+     "pied_d_px": -4,
+     "rebond_px": 1,
+     "bascule_px": 1,
+     "mains_px": [
+      -2,
+      2
+     ]
+    }
+   ],
+   "procedural": true
+  },
+  "walk_back": {
+   "demi_foulee_px": 46,
+   "part": 0.6,
+   "levee": 3,
+   "rebond": [
+    0,
+    1,
+    1,
+    0
+   ],
+   "bras": 2,
+   "haut_jambes": 82,
+   "ecart_x": 47,
+   "haut_bottes": 92,
+   "amplitude_px": 5.61,
+   "images": [
+    {
+     "image": 0,
+     "pied_g_px": -6,
+     "pied_d_px": 6,
+     "rebond_px": 0,
+     "bascule_px": 0,
+     "mains_px": [
+      2,
+      -2
+     ]
+    },
+    {
+     "image": 1,
+     "pied_g_px": -3,
+     "pied_d_px": 2,
+     "rebond_px": 1,
+     "bascule_px": -1,
+     "mains_px": [
+      1,
+      -1
+     ]
+    },
+    {
+     "image": 2,
+     "pied_g_px": 0,
+     "pied_d_px": -3,
+     "rebond_px": 1,
+     "bascule_px": -1,
+     "mains_px": [
+      0,
+      0
+     ]
+    },
+    {
+     "image": 3,
+     "pied_g_px": 3,
+     "pied_d_px": -6,
+     "rebond_px": 0,
+     "bascule_px": -1,
+     "mains_px": [
+      -1,
+      1
+     ]
+    },
+    {
+     "image": 4,
+     "pied_g_px": 6,
+     "pied_d_px": -6,
+     "rebond_px": 0,
+     "bascule_px": 0,
+     "mains_px": [
+      -2,
+      2
+     ]
+    },
+    {
+     "image": 5,
+     "pied_g_px": 2,
+     "pied_d_px": -3,
+     "rebond_px": 1,
+     "bascule_px": 1,
+     "mains_px": [
+      -1,
+      1
+     ]
+    },
+    {
+     "image": 6,
+     "pied_g_px": -3,
+     "pied_d_px": 0,
+     "rebond_px": 1,
+     "bascule_px": 1,
+     "mains_px": [
+      0,
+      0
+     ]
+    },
+    {
+     "image": 7,
+     "pied_g_px": -6,
+     "pied_d_px": 3,
+     "rebond_px": 0,
+     "bascule_px": 1,
+     "mains_px": [
+      1,
+      -1
+     ]
+    }
+   ],
+   "procedural": true
+  },
+  "run_back": {
+   "demi_foulee_px": 91,
+   "part": 0.4,
+   "levee": 6,
+   "rebond": [
+    0,
+    1,
+    2,
+    1
+   ],
+   "bras": 3,
+   "haut_jambes": 82,
+   "ecart_x": 47,
+   "haut_bottes": 92,
+   "amplitude_px": 7.4,
+   "images": [
+    {
+     "image": 0,
+     "pied_g_px": -7,
+     "pied_d_px": 7,
+     "rebond_px": 0,
+     "bascule_px": 0,
+     "mains_px": [
+      3,
+      -3
+     ]
+    },
+    {
+     "image": 1,
+     "pied_g_px": -4,
+     "pied_d_px": 1,
+     "rebond_px": 1,
+     "bascule_px": -1,
+     "mains_px": [
+      2,
+      -2
+     ]
+    },
+    {
+     "image": 2,
+     "pied_g_px": 0,
+     "pied_d_px": -6,
+     "rebond_px": 2,
+     "bascule_px": -1,
+     "mains_px": [
+      0,
+      0
+     ]
+    },
+    {
+     "image": 3,
+     "pied_g_px": 4,
+     "pied_d_px": -9,
+     "rebond_px": 1,
+     "bascule_px": -1,
+     "mains_px": [
+      -2,
+      2
+     ]
+    },
+    {
+     "image": 4,
+     "pied_g_px": 7,
+     "pied_d_px": -7,
+     "rebond_px": 0,
+     "bascule_px": 0,
+     "mains_px": [
+      -3,
+      3
+     ]
+    },
+    {
+     "image": 5,
+     "pied_g_px": 1,
+     "pied_d_px": -4,
+     "rebond_px": 1,
+     "bascule_px": 1,
+     "mains_px": [
+      -2,
+      2
+     ]
+    },
+    {
+     "image": 6,
+     "pied_g_px": -6,
+     "pied_d_px": 0,
+     "rebond_px": 2,
+     "bascule_px": 1,
+     "mains_px": [
+      0,
+      0
+     ]
+    },
+    {
+     "image": 7,
+     "pied_g_px": -9,
+     "pied_d_px": 4,
+     "rebond_px": 1,
+     "bascule_px": 1,
+     "mains_px": [
+      2,
+      -2
+     ]
+    }
+   ],
+   "procedural": true
+  }
+ },
+ "sha256": {
+  "run_back_0.png": "4d570c48c8445f69e5dc82649c295a5f1aeba4193b8a1feee97c538a489b086e",
+  "run_back_1.png": "dc0bf04708d3dbf572c2bad5e2d3abd49b2888ff345b2dd7e1c2710477638ec2",
+  "run_back_2.png": "b8c03b288b2de811cd9b3a552ec0fe81b2bbbc8767fa245eba8a738f2ca1f148",
+  "run_back_3.png": "76806738a1bf8828c9d443a2e1c728ba324b3b3884ce3749f748dd362aaf247b",
+  "run_back_4.png": "6a0dcb417d0128e6d445613eafc075287fe7f72e717b9434c7bcde1932b6fe9e",
+  "run_back_5.png": "b61f36080484e160a6413ea5b4a8bf2c686af892916fbeec76ba05a313ede852",
+  "run_back_6.png": "c01f38b9f7333bebc55d3a4f5e1b458fb70be9be5899c9ccaf84e61d640a763c",
+  "run_back_7.png": "14594d3622ebdd7f51b743e486f522be734d47fc568ded1bf502bf0ae80939bc",
+  "run_face_0.png": "a1986c94f8b27b348492a2dc86c619b66fae9e36d2af9282f63bd7995b2ce766",
+  "run_face_1.png": "ce8fe6f71ec56880fc231768201e57dd105c0cc103ecce11ec1d64b064164bc8",
+  "run_face_2.png": "0dd62ab1573562cac136ff61a35da672c14fcef6e6d85c94e863eb973f0fb695",
+  "run_face_3.png": "6db73c8162f9a10963e9d11ef570ad8e9db41cee685c891e4b86ad0579e94604",
+  "run_face_4.png": "5a53212791500ca7c9ab711c3c56619345f235b02821513dde07827c112cef2f",
+  "run_face_5.png": "10884fc66233c3495fbfd264518f370c6ce5b532ea93353d5e48c728c6c4876c",
+  "run_face_6.png": "4a1db20690b22111809297ccd8dc4c4fe7383d03832b75267c5fd6255b7e24c1",
+  "run_face_7.png": "afa0ce91aa4283f2ea1faaaaad7a32a0cdfc1c7486b6ef278b90251cc68c857e",
+  "walk_back_0.png": "c0a638e31125d9eff02c9515e94a3e25667e638ffdfd4d89474915cca3ce6b4b",
+  "walk_back_1.png": "8d5a5f70bd27ebce2947838aa4f4597337c46a5fe918a1d9ec3eb8b7b8482b5d",
+  "walk_back_2.png": "483661ee15ff39690d136cbbdb5de05116718047474fa4175620ffaae01e6a03",
+  "walk_back_3.png": "4ef8fb1cbec702ddfa444b072264a053b515c254b13ff7511e8822c099397636",
+  "walk_back_4.png": "38ac7bae0cedb3bdc842750efad4fecb46378c128130c2941b1ff50705ae6127",
+  "walk_back_5.png": "57a67c9813ee9eac6093cc4e392e750707f774c3d5adb2a8ebe13fdac24a3d72",
+  "walk_back_6.png": "c0113a539be7f934da14b6dcc1e15515e21682296bb59d53fab20b46cb913f19",
+  "walk_back_7.png": "8c2249d98f3b3f155bbe458526defbeebf2ced0ac908dbad26d7f4b530f5ed88",
+  "walk_face_0.png": "addd5e7903dd858fd70a63ce17e90a2b78de6252bc451c744b44e71f065ba0a9",
+  "walk_face_1.png": "aa2964fb4496c46c0e119835f576ca192cc7f403b4aa92ff831d8bfbb71b2cd4",
+  "walk_face_2.png": "dacd8f17c34d64291bd2bf253e3b268587412c335697fa05fed1aa8309e3ffdb",
+  "walk_face_3.png": "0e78d06035f28c9985445aa6d635a7e33640d93de42b71ead95ff11e109f5061",
+  "walk_face_4.png": "6638dc5d39377ed5c951e7d0a375efda78a959dc832d3c297225825eb7d271a6",
+  "walk_face_5.png": "acdb9a189b3260304778efbfd54cf23a57071ba5d097355dd21375271e9a451a",
+  "walk_face_6.png": "f4f887abbf45777d043e4617d15410744447856ac14c51576412ae76e48901c7",
+  "walk_face_7.png": "e8cd86312e8ec7dabaa483153e7b6addfd8a3697de0b7a309e998fabcdb9b5a9"
+ }
+}

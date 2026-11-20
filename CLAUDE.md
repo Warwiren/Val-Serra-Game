@@ -42,7 +42,10 @@
   le bas marche de face, vers le haut marche de dos, arrêt après le bas attente de face (`art/tests/aren_v2/`) ; Ilya :
   profil gardé tant qu'une planche face / dos dans son style n'est pas fournie. **Aren 4 directions (20/11/2026, § 12)** :
   attentes profil / face / dos de l'étude IDLE V1 et marches / courses de face et de dos **procédurales** dérivées de
-  ces attentes (`art/tests/aren_4dir/`, prioritaires sur V2) ; même foulée, donc même cadence, dans toutes les directions. Une animation dérivée par décalages d'un pixel reste « procédurale » : ne pas la présenter comme
+  ces attentes (`art/tests/aren_4dir/`, prioritaires sur V2) ; même foulée, donc même cadence, dans toutes les directions.
+  **Proposition V3 (20/11/2026, § 13)**, au démarrage de F5 après le refus des marches face / dos 4dir : pas en
+  profondeur (pied avancé plus bas de face, plus haut de dos), bras en opposition, toujours **procédurale**
+  (`art/tests/aren_4dir_v3/`, touche G : V3 / 4dir / V2) ; attentes et profil inchangés. Une animation dérivée par décalages d'un pixel reste « procédurale » : ne pas la présenter comme
   dessinée. Toute animation se vérifie en mouvement (vidéo), pas sur une capture fixe.
 - **Ressources graphiques** : une planche conceptuelle n'est pas un asset. Ne rien déclarer « final » sans revue
   du créateur ; signaler tout élément provisoire dans `art/p4/SOURCES.md` et dans le rapport de l'étape.

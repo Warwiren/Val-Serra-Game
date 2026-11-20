@@ -674,6 +674,8 @@ func _process(delta: float) -> void:
 		if _v09b5_on:
 			anim_txt = "V09B.5 CANDIDAT %s, profil droit seul — %s" % [("CALQUE 64 px (réduction, non dessiné)" if _anim_v09b5.format == "calque_64" else ("96×112 — hauteur 64 px (échelle ×%.3f)" % _anim_v09b5.echelle_h64 if _anim_v09b5.format == "96x112_h64" else _anim_v09b5.format)), ("%s image %d · foulée %.2f m" % ["course" if _anim_v09b5.cycle == "run" else "marche", _anim_v09b5.frame, _anim_v09b5.stride_m()]) if _anim_v09b5.active else "autres directions et attente : P4.8"]
 		_hud.text += "\nB : animations d'Aren %s · T : format · P : vitesses %s (marche %.1f / course %.1f m/s) · vitesse mesurée %.2f m/s" % [anim_txt, _speed_profile.to_upper(), spd[0], spd[1], Vector2(_hero.get_real_velocity().x, _hero.get_real_velocity().z).length()]
+		if _v09b5_on:
+			_hud.text += "\nG : Aren de face / de dos %s" % {"v3": "V3 « en profondeur » (procédurale, proposition)", "4dir": "4dir du 20/11 (procédurale)", "v2": "planche V2"}.get(_anim_v09b5.jeu_vues, _anim_v09b5.jeu_vues)
 		var ilya_txt := "P4.8 (ancienne apparence)"
 		if _v09c_on:
 			ilya_txt = "%s BANC D'ESSAI (×%.3f) — %s %s image %d" % ["V09C.6 (course droite)" if _ilya_v09c.course_v09c6 else "V09C.5", _ilya_v09c.echelle, {"idle": "attente", "walk": "marche", "run": "course"}[_ilya_v09c.cycle], _ilya_v09c.dir, _ilya_v09c.frame]
@@ -713,6 +715,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		KEY_R: _reset_positions()
 		KEY_B: _v09b5_on = not _v09b5_on
 		KEY_T: _anim_v09b5.toggle_format()
+		KEY_G: _anim_v09b5.toggle_jeu_vues()          # Aren face / dos : V3 -> 4dir -> V2
 		KEY_P: _speed_profile = "candidat" if _speed_profile == "actuel" else "actuel"
 		KEY_I:                                 # Ilya : P4.8 -> V09C.5 -> V09C.6 (course droite) -> P4.8
 			if not _v09c_on:

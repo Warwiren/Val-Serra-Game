@@ -51,8 +51,15 @@ var v2_dispo := false
 ## mêmes proportions que V09B.5) et marches / courses de face et de dos PROCÉDURALES dérivées de ces attentes
 ## (tools/p49/aren_orientations.py). Prioritaire sur V2 ; « v2 » rétablit la planche V2 du 20/11.
 const DIR_4D := "res://art/tests/aren_4dir/"
-var jeu_vues := "4dir"               # « 4dir » ou « v2 »
+## Proposition V3 (20/11/2026, art/tests/aren_4dir_v3/, tools/p49/aren_marche_profondeur.py) : marches et courses de
+## face / dos « en profondeur » (pied avancé plus bas de face, plus haut de dos ; bras en opposition), toujours
+## PROCÉDURALES ; attentes et profil inchangés (jeu « 4dir »). Touche G : v3 -> 4dir -> v2 -> v3.
+const DIR_V3 := "res://art/tests/aren_4dir_v3/"
+const IMAGE_DEPART_V3 := 2           # face / dos V3 : départ au passage (pieds presque joints, une jambe qui se lève)
+const JEUX_VUES := ["v3", "4dir", "v2"]
+var jeu_vues := "v3"                 # « v3 », « 4dir » ou « v2 »
 var d4_dispo := false
+var v3_dispo := false
 var vue := "profil"                  # profil, face ou dos
 var _cle := ""                       # jeu d'images affiché
 var _axe := {}                       # cycle_format -> axe vertical de la tête (px de texture), médiane du cycle
@@ -106,6 +113,13 @@ func _build() -> void:
 			for i in (4 if c.begins_with("idle") else N):
 				arr.append(load(DIR_4D + "%s_%d.png" % [c, i]))
 			_tex["d4_" + c] = arr
+	if d4_dispo and ResourceLoader.exists(DIR_V3 + "walk_face_0.png"):
+		v3_dispo = true
+		for c in ["walk_face", "walk_back", "run_face", "run_back"]:
+			var arr: Array[Texture2D] = []
+			for i in N:
+				arr.append(load(DIR_V3 + "%s_%d.png" % [c, i]))
+			_tex["v3_" + c] = arr
 	if ResourceLoader.exists(DIR_V2 + "walk_face_0.png"):
 		v2_dispo = true
 		for c in ["walk_face", "walk_back", "idle_face"]:
@@ -173,7 +187,11 @@ func toggle_format() -> void:
 ## les vues V2 (face, dos) ne servent qu'aux formats de même densité (96 × 112, affiché ×1 ou ×0,719)
 func vues_v2_actives() -> bool:
 	return profil_unique and vues_v2 and (format == "96x112" or format == H64) and (
-		(jeu_vues == "4dir" and d4_dispo) or (jeu_vues == "v2" and v2_dispo))
+		(jeu_vues == "4dir" and d4_dispo) or (jeu_vues == "v3" and v3_dispo) or (jeu_vues == "v2" and v2_dispo))
+
+
+func toggle_jeu_vues() -> void:
+	jeu_vues = JEUX_VUES[(JEUX_VUES.find(jeu_vues) + 1) % JEUX_VUES.size()]
 
 
 func step(base: RefCounted, moved_m: float, running: bool, sx: float = 0.0) -> void:
@@ -190,7 +208,8 @@ func step(base: RefCounted, moved_m: float, running: bool, sx: float = 0.0) -> v
 		elif vues_v2_actives() and d == "back":
 			vue = "dos"
 		active = true
-		var d4 := jeu_vues == "4dir" and d4_dispo and (format == "96x112" or format == H64)
+		var v3 := jeu_vues == "v3" and v3_dispo
+		var d4 := (jeu_vues == "4dir" or v3) and d4_dispo and (format == "96x112" or format == H64)
 		if parts[0] != "walk":
 			_bouge = false
 			cycle = "walk"
@@ -209,7 +228,7 @@ func step(base: RefCounted, moved_m: float, running: bool, sx: float = 0.0) -> v
 			return
 		cycle = "run" if running else "walk"
 		if not _bouge:
-			phase = float(_cad["image_de_depart"]) / N
+			phase = float(IMAGE_DEPART_V3 if v3 and vue != "profil" else _cad["image_de_depart"]) / N
 		elif vue == "profil":
 			phase = fposmod(phase + moved_m / stride_m(), 1.0)
 		elif d4:                             # face / dos procéduraux : même foulée que le profil -> même cadence
@@ -220,7 +239,7 @@ func step(base: RefCounted, moved_m: float, running: bool, sx: float = 0.0) -> v
 		if vue == "profil":
 			_cle = cycle + "_" + format
 		elif d4:
-			_cle = "d4_%s_%s" % [cycle, "face" if vue == "face" else "back"]
+			_cle = "%s_%s_%s" % ["v3" if v3 else "d4", cycle, "face" if vue == "face" else "back"]
 		else:
 			_cle = "v2_walk_face" if vue == "face" else "v2_walk_back"
 		frame = int(phase * N) % N
