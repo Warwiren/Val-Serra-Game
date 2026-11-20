@@ -84,6 +84,7 @@ func _ready() -> void:
 	_make_characters()
 	_make_occlusion()
 	_make_route_markers()
+	_make_monstre()
 	_make_hud()
 	if demarrage_v09c6:
 		_v09b5_on = true
@@ -93,6 +94,7 @@ func _ready() -> void:
 		_speed_profile = "actuel"
 		_pitch = 24.0
 		_zoom = 3.0
+		_set_brume(false)                       # V11 (20/11/2026) : brouillard retiré au démarrage (touche F pour le revoir)
 	_reset_positions()
 
 func _make_environment() -> void:
@@ -124,6 +126,55 @@ func _make_environment() -> void:
 	sun.shadow_enabled = true
 	sun.light_angular_distance = 2.0
 	add_child(sun)
+
+## brume de distance et brume volumétrique (touche F)
+func _set_brume(active: bool) -> void:
+	_world_env.fog_enabled = active
+	_world_env.volumetric_fog_enabled = active and _forward_plus()
+
+## V11 — le Vorgane : corps statique (collision), Sprite3D comme les personnages, posé au sol à la première image
+## physique (rayon vers le terrain)
+func _make_monstre() -> void:
+	for i in 24:
+		_monstre_images.append(load(MONSTRE_DIR + "idle_%d.png" % i))
+	_monstre = StaticBody3D.new()
+	_monstre.name = "Vorgane"
+	_monstre.position = Vector3(MONSTRE_XZ.x, 0.0, MONSTRE_XZ.y)
+	var collision := CollisionShape3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = MONSTRE_BOITE
+	collision.position.y = MONSTRE_BOITE.y * 0.5
+	collision.rotation.y = deg_to_rad(-YAW)      # longueur selon l'axe droite de la caméra (rotation fixe)
+	collision.shape = shape
+	_monstre.add_child(collision)
+	_monstre_sprite = Sprite3D.new()
+	_monstre_sprite.name = "Pixel_Sprite_vorgane"
+	_monstre_sprite.pixel_size = .02
+	_monstre_sprite.texture = _monstre_images[0]
+	_monstre_sprite.position = Vector3(0, _monstre_images[0].get_height() * .02 * .5, 0)
+	_monstre_sprite.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_monstre_sprite.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	_monstre_sprite.shaded = true
+	_monstre_sprite.alpha_cut = SpriteBase3D.ALPHA_CUT_DISCARD
+	_monstre.add_child(_monstre_sprite)
+	add_child(_monstre)
+
+func _update_monstre(delta: float) -> void:
+	if _monstre == null:
+		return
+	if not _monstre_pose:
+		var q := PhysicsRayQueryParameters3D.create(Vector3(MONSTRE_XZ.x, 30, MONSTRE_XZ.y), Vector3(MONSTRE_XZ.x, -10, MONSTRE_XZ.y))
+		q.exclude = [_monstre.get_rid(), _hero.get_rid(), _ilya.get_rid()]
+		var hit := get_world_3d().direct_space_state.intersect_ray(q)
+		if not hit.is_empty():
+			_monstre.position.y = float(hit["position"].y)
+			_monstre_pose = true
+	_monstre_t += delta
+	_monstre_sprite.texture = _monstre_images[int(_monstre_t * MONSTRE_IPS) % _monstre_images.size()]
+	# il regarde vers la gauche de l'écran ; retourné quand Aren est à sa droite
+	var vers := (_hero.global_position - _monstre.global_position).dot(_camera.global_transform.basis.x)
+	if absf(vers) > 0.3:
+		_monstre_sprite.flip_h = vers > 0.0
 
 func _forward_plus() -> bool:
 	return RenderingServer.get_current_rendering_method() == "forward_plus"
@@ -242,6 +293,29 @@ var _forest_root: Node3D
 var _model_cache: Dictionary = {}
 # Separate scene-visibility toggle from physics: N must also disable obstacles.
 var _set_colliders: Array[StaticBody3D] = []
+## V11 (20/11/2026) — collisions du décor : tous les rochers bloquent (enveloppe convexe de leur modèle ; seuls 4 sur
+## 33 bloquaient, marqués « blocking » dans le manifeste) ; les buissons d'au moins BUISSON_H_MIN de haut bloquent aussi
+## (cylindre au cœur du feuillage, BUISSON_COEUR × sa largeur, pour ne pas accrocher sur les feuilles). Herbes,
+## fougères, fleurs, cailloux et pierres de chemin restent traversables. Tous ces obstacles sont à plus de 1,6 m des
+## tracés des parcours (mesure : tools/p49/mesure_decor.gd).
+const BUISSON_H_MIN := 0.85
+const BUISSON_COEUR := 0.3
+var _nb_rochers := 0
+var _nb_buissons := 0
+## V11 — le Vorgane (monstre de l'avant-poste, art/p45/chars/vorgane/, 24 images d'attente à 6 i/s) dans une
+## clairière au sud du chemin principal (2,45 m du tracé, entre les axes d'audit des traversées) ; même densité de
+## pixels que les personnages P4.8 (0,02 m / px) ; collision : boîte de MONSTRE_BOITE alignée sur l'écran (le sprite
+## fait 3 m de long : le cylindre de 0,9 m de l'avant-poste laissait Aren entrer dans sa tête) ; il se tourne vers
+## Aren. Pas de combat déclenché ici.
+const MONSTRE_DIR := "res://art/p45/chars/vorgane/"
+const MONSTRE_XZ := Vector2(7.5, 2.5)
+const MONSTRE_BOITE := Vector3(2.7, 1.6, 1.1)    # longueur (axe droite de l'écran), hauteur, épaisseur (m)
+const MONSTRE_IPS := 6.0
+var _monstre: StaticBody3D
+var _monstre_sprite: Sprite3D
+var _monstre_images: Array[Texture2D] = []
+var _monstre_pose := false
+var _monstre_t := 0.0
 
 func _tinted_material(base: Material, tint: Color) -> Material:
 	if base == null:
@@ -331,6 +405,13 @@ func _load_set_dressing() -> void:
 			batches.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			batches.material_override = _tinted_material(mesh_inst.mesh.surface_get_material(0), tint)
 			_forest_root.add_child(batches)
+			if filename.get_file().begins_with("Bush_"):
+				var bb := mesh_inst.mesh.get_aabb()
+				for p in entries:
+					var s := float(p["scale"])
+					if bb.size.y * s >= BUISSON_H_MIN:
+						var xyz: Array = p["xyz"]
+						_add_bush_collider(Vector3(float(xyz[0]), float(xyz[1]), float(xyz[2])), maxf(bb.size.x, bb.size.z) * s * BUISSON_COEUR, bb.size.y * s)
 			total += entries.size()
 		else:
 			for p in entries:
@@ -345,7 +426,7 @@ func _load_set_dressing() -> void:
 				obj.rotation_degrees.y = float(p["rotation_y_deg"])
 				obj.scale = Vector3.ONE * sc
 				_tint_tree(obj, tint)
-				if bool(p.get("blocking", false)):
+				if bool(p.get("blocking", false)) or String(p["role"]) == "rock":
 					if String(p["role"]) == "rock":
 						_add_rock_collider(obj)
 					else:
@@ -353,6 +434,7 @@ func _load_set_dressing() -> void:
 				total += 1
 		test.free()
 	print("V07: placed %d styled Quaternius instances in %d groups" % [total, grouped.size()])
+	print("V11 collisions : %d rochers, %d buissons hauts" % [_nb_rochers, _nb_buissons])
 
 func _add_set_collider(pos: Vector3, scale_factor: float, kind: String) -> void:
 	var body := StaticBody3D.new()
@@ -367,6 +449,22 @@ func _add_set_collider(pos: Vector3, scale_factor: float, kind: String) -> void:
 	body.add_child(collision)
 	_forest_root.add_child(body)
 	_set_colliders.append(body)
+
+## V11 — buisson haut : cylindre au cœur du feuillage
+func _add_bush_collider(pos: Vector3, radius: float, height: float) -> void:
+	var body := StaticBody3D.new()
+	body.name = "Obstacle_bush"
+	body.position = pos
+	var collision := CollisionShape3D.new()
+	var shape := CylinderShape3D.new()
+	shape.radius = radius
+	shape.height = height
+	collision.position.y = height * .5
+	collision.shape = shape
+	body.add_child(collision)
+	_forest_root.add_child(body)
+	_set_colliders.append(body)
+	_nb_buissons += 1
 
 ## V08A — rocher : collision = enveloppe convexe de SON modèle (position, rotation, échelle comprises). Le cylindre de
 ## V07 (rayon 1,25 × échelle) était plus petit que la masse visible (1,8 à 2,5 m) : les personnages entraient dans la
@@ -384,6 +482,7 @@ func _add_rock_collider(obj: Node3D) -> void:
 	hull.points = pts
 	var body := StaticBody3D.new()
 	body.name = "Obstacle_rock"
+	_nb_rochers += 1
 	body.position = obj.position
 	var collision := CollisionShape3D.new()
 	collision.shape = hull
@@ -597,6 +696,7 @@ func _physics_process(delta: float) -> void:
 	var dir2 := Vector2(step2.dot(right), -step2.dot(_camera.global_transform.basis.y))
 	_ilya_anim.step(step2.length(), dir2.normalized() if step2.length() > .0001 else Vector2.ZERO, delta)
 	_apply_ilya_sprite(step2.length(), step2.length() / maxf(delta, 0.0001), speeds, dir2.normalized().x if step2.length() > .0001 else 0.0)
+	_update_monstre(delta)
 
 ## V09C : image d'Ilya (P4.8, ou banc d'essai de la nouvelle apparence, 4 directions). Mêmes règles que pour Aren :
 ## pieds posés sur l'origine du corps, échelle mesurée, silhouette et hauteur d'occlusion qui suivent l'image.
@@ -749,10 +849,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 				_v09c_on = false
 				_ilya_v09c.course_v09c6 = false
 		KEY_M: _markers.visible = not _markers.visible
-		KEY_F:
-			var fog_active := not _world_env.fog_enabled
-			_world_env.fog_enabled = fog_active
-			_world_env.volumetric_fog_enabled = fog_active and _forward_plus()
+		KEY_F: _set_brume(not _world_env.fog_enabled)
 		KEY_V: _toggle_water_shader()
 		KEY_N: _set_forest_visible(not _forest_root.visible)
 		KEY_H:

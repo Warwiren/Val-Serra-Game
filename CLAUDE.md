@@ -51,7 +51,9 @@
   § 15–16)** : le créateur garde le **rendu Sprite3D d'origine** au démarrage ; le rendu V10
   (`src/explore25/perso_v10.gdshader`) reste en comparaison (touche K). **Ilya haut / bas (20/11/2026, § 16)** : vers le
   bas / le haut, marche, course et attente de face / de dos **dessinées** du pack V09C.5 (`vues_face_dos`) ; droite /
-  gauche inchangées (profil, miroir, pose tenue). Une animation dérivée par décalages d'un pixel reste « procédurale » : ne pas la présenter comme
+  gauche inchangées (profil, miroir, pose tenue). **État validé par le créateur le 20/11/2026** (animations et rendu
+  ci-dessus). **V11 (20/11/2026, `docs/P4_9_V11.md`)** : brouillard coupé au démarrage de F5 (touche F) ; tous les
+  rochers et les buissons ≥ 0,85 m bloquent ; Vorgane placé dans la forêt (sans combat). Test : `tests/v11_collisions_smoke.gd`. Une animation dérivée par décalages d'un pixel reste « procédurale » : ne pas la présenter comme
   dessinée. Toute animation se vérifie en mouvement (vidéo), pas sur une capture fixe.
 - **Ressources graphiques** : une planche conceptuelle n'est pas un asset. Ne rien déclarer « final » sans revue
   du créateur ; signaler tout élément provisoire dans `art/p4/SOURCES.md` et dans le rapport de l'étape.

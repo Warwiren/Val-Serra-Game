@@ -52,12 +52,11 @@ d'Aren en comparaison** (touches B / T / P, [vidéo comparative](docs/media/p4_9
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
    corrections de navigation V08A et la locomotion V09A en essai (touche L pour revenir à V08). **Depuis le 19/11/2026,
    F5 démarre dans la configuration de validation** : Aren V09B.5 à 64 px, Ilya nouvelle apparence V09C.6, marche
-   2,2 / course 3,6 m/s, inclinaison 24°, zoom ×3 (rien à activer ; P4.8 et les autres versions restent aux touches)
-   ; **même apparence dans toutes les directions** : le profil droit sert partout (miroir vers la gauche, dernier profil
-   gardé vers le haut ou le bas, pose de marche tenue à l'arrêt) ; **Aren se montre de face vers le bas et de dos
-   vers le haut**, avec une attente dans chaque direction et les proportions du profil (étude IDLE V1, marches de face /
-   dos procédurales, 20/11/2026). Les animations
-   candidates V09B.5 d'Aren s'activent avec **B** (retour aux animations P4.8 : B de nouveau ; P4.8 au lancement). La **démo de l'avant-poste** s'ouvre en **F6** depuis `scenes/p4/avant_poste.tscn`.
+   2,2 / course 3,6 m/s, inclinaison 24°, zoom ×3 (rien à activer ; P4.8 et les autres versions restent aux touches).
+   **État validé le 20/11/2026** : profil droit (miroir vers la gauche) ; vers le bas / le haut, Aren marche de face /
+   de dos (GIF dessinés, V4) et Ilya de face / de dos (pack V09C.5) ; rendu Sprite3D d'origine. **V11 (20/11/2026)** :
+   **sans brouillard** au démarrage (touche F pour le revoir), **tous les rochers et les buissons hauts bloquent**, et
+   le **Vorgane** se tient au sud du chemin principal (x ≈ 7,5), animé et solide, sans combat déclenché. La **démo de l'avant-poste** s'ouvre en **F6** depuis `scenes/p4/avant_poste.tscn`.
 
 ### Commandes — forêt V07B (F5)
 
@@ -76,7 +75,7 @@ d'Aren en comparaison** (touches B / T / P, [vidéo comparative](docs/media/p4_9
 | **L** | locomotion : V09A, essai **non validé** (inertie légère, Ilya suit la trace d'Aren ; défaut) / V08 (déplacement précédent) |
 | **C** | diagnostic des collisions : obstacles (orange), eau (turquoise), bords (violet), pentes 35°–45° (jaune), > 45° (rouge) |
 | **N** | masquer la végétation (et ses collisions) ; **M** : repères des parcours |
-| **V** | eau animée (shader candidat) ; **F** : brume ; **H** : interface ; **R** : retour au départ |
+| **V** | eau animée (shader candidat) ; **F** : brume (coupée au démarrage depuis V11) ; **H** : interface ; **R** : retour au départ |
 
 ### Commandes — démo de l'avant-poste (F6)
 
@@ -143,6 +142,10 @@ godot --headless --path . --fixed-fps 60 --script res://tools/p49/animations_v09
 
 ```bash
 godot --headless --path . --script res://tests/v09c_ilya_smoke.gd
+```
+
+```bash
+godot --headless --path . --fixed-fps 60 --script res://tests/v11_collisions_smoke.gd
 ```
 
 ```bash
