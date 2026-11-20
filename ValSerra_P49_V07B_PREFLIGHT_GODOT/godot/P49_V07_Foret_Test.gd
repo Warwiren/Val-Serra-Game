@@ -8,6 +8,7 @@ const LocomotionV09 = preload("res://src/explore25/locomotion_v09.gd")
 const AnimV09B5 = preload("res://src/explore25/anim_v09b5.gd")
 const AnimV09C = preload("res://src/explore25/anim_v09c.gd")
 const PersoV10 = preload("res://src/explore25/perso_v10.gdshader")
+const SolForet = preload("res://src/explore25/sol_foret.gd")
 const Occlusion = preload("res://src/occlusion/occlusion_dynamique.gd")
 const DiagCollisions = preload("res://src/diag/diagnostic_collisions.gd")
 const ROOT := "res://ValSerra_P49_V07B_PREFLIGHT_GODOT/"
@@ -59,6 +60,10 @@ var _ilya_ghost: Sprite3D
 ## V10 (20/11/2026, touche K) : rendu des personnages plus lisible, même dessin (src/explore25/perso_v10.gdshader) ;
 ## le créateur garde le rendu Sprite3D d'origine au démarrage (20/11/2026), V10 reste en comparaison
 var _rendu_v10 := false
+## P5.2 (sol de la forêt, touche U) : matière de sol, pieds d'objets, horizon fermé ; présentation seulement
+var _sol_p52 := false
+var _sol: RefCounted
+var _fond_origine := Color.BLACK
 var _mat_v10 := {}
 const ILYA_OCC_H := 1.30
 const HERO_OCC_H := 1.26
@@ -95,6 +100,7 @@ func _ready() -> void:
 		_pitch = 24.0
 		_zoom = 3.0
 		_set_brume(false)                       # V11 (20/11/2026) : brouillard retiré au démarrage (touche F pour le revoir)
+		set_sol_p52(true)                       # P5.2 : nouveau sol et horizon fermé (touche U : sol V07 d'origine)
 	_reset_positions()
 
 func _make_environment() -> void:
@@ -126,6 +132,35 @@ func _make_environment() -> void:
 	sun.shadow_enabled = true
 	sun.light_angular_distance = 2.0
 	add_child(sun)
+
+## P5.2 — sol de la forêt (src/explore25/sol_foret.gd) : terrain jouable et bordure hors jeu, horizon fermé
+func set_sol_p52(actif: bool) -> void:
+	if actif and _sol == null:
+		_fond_origine = _world_env.background_color
+		_sol = SolForet.new()
+		var carte: Texture2D = (_terrain_mi.get_active_material(0) as BaseMaterial3D).albedo_texture
+		_sol.construire(carte, _data.get("placements", []), _charge_modele)
+		_sol.construire_horizon(self, _charge_modele)
+	_sol_p52 = actif
+	if _sol == null:
+		return
+	_sol.appliquer(_sols_mi(), actif)
+	(_sol.horizon as Node3D).visible = actif
+	_world_env.background_color = SolForet.FOND if actif else _fond_origine
+
+func _sols_mi() -> Array:
+	var out: Array = [_terrain_mi]
+	var jupe := get_node_or_null("V07_FOND_HORS_JEU")
+	if jupe != null:
+		var m := _first_mesh(jupe)
+		if m != null:
+			out.append(m)
+	return out
+
+func _charge_modele(f: String) -> PackedScene:
+	if not _model_cache.has(f):
+		_model_cache[f] = _load_asset(f)
+	return _model_cache[f]
 
 ## brume de distance et brume volumétrique (touche F)
 func _set_brume(active: bool) -> void:
@@ -796,6 +831,7 @@ func _process(delta: float) -> void:
 		_hud.text += "\nB : animations d'Aren %s · T : format · P : vitesses %s (marche %.1f / course %.1f m/s) · vitesse mesurée %.2f m/s" % [anim_txt, _speed_profile.to_upper(), spd[0], spd[1], Vector2(_hero.get_real_velocity().x, _hero.get_real_velocity().z).length()]
 		if _v09b5_on:
 			_hud.text += "\nG : Aren de face / de dos %s" % {"v4": "V4 dessinée (GIF du 20/11, proposition)", "v3": "V3 « en profondeur » (procédurale, proposition)", "4dir": "4dir du 20/11 (procédurale)", "v2": "planche V2"}.get(_anim_v09b5.jeu_vues, _anim_v09b5.jeu_vues)
+		_hud.text += "\nU : sol %s" % ("P5.2 (matière, raccords, pentes, horizon)" if _sol_p52 else "V07 d'origine")
 		_hud.text += "\nK : rendu des personnages %s" % ("V10 (net, éclairé, sans brume, contour — proposition)" if _rendu_v10 else "d'origine (Sprite3D)")
 		var ilya_txt := "P4.8 (ancienne apparence)"
 		if _v09c_on:
@@ -850,6 +886,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 				_ilya_v09c.course_v09c6 = false
 		KEY_M: _markers.visible = not _markers.visible
 		KEY_F: _set_brume(not _world_env.fog_enabled)
+		KEY_U: set_sol_p52(not _sol_p52)              # P5.2 : sol / sol V07 d'origine
 		KEY_V: _toggle_water_shader()
 		KEY_N: _set_forest_visible(not _forest_root.visible)
 		KEY_H:

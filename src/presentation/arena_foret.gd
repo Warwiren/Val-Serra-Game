@@ -6,7 +6,11 @@ extends "res://src/presentation/arena_layers.gd"
 ## Poussière dorée dans les rayons, très discrète.
 
 const IMAGE := "res://art/p5/combat/foret_clairiere.png"
+## P5.2 : premier plan (fougères et herbes hautes dans les coins du bas, rendu à part, fond transparent), dessiné
+## DEVANT les combattants, un peu assombri (profondeur) ; centre dégagé
+const AVANT := "res://art/p5/combat/foret_clairiere_avant.png"
 const SOLEIL := Vector2(1180, -160)
+var _layers_avant: Sprite2D
 
 
 func _build_hd() -> void:
@@ -24,6 +28,13 @@ func _build_hd() -> void:
 	cm.color = Color(1.0, 0.98, 0.95)
 	add_child(cm)
 	lights.append(SOLEIL)
+	if ResourceLoader.exists(AVANT):
+		var f := Sprite2D.new()
+		f.texture = load(AVANT)
+		f.centered = false
+		f.modulate = Color(0.8, 0.84, 0.78)
+		_front.add_child(f)
+		_layers_avant = f
 	_add_dust()
 
 

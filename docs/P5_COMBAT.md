@@ -1,5 +1,8 @@
 # P5 — refonte du combat (branche `p5-combat`, 20/11/2026)
 
+> **Validé provisoirement par le créateur le 20/11/2026** (disposition, règles inchangées) ; suite : environnement
+> (sols, décor de combat) sur `p5-2-environnement` (`docs/P5_2_ENVIRONNEMENT.md`).
+
 Demande du créateur (20/11/2026) : « nouvelle branche -> refonte du combat, on va placer plutôt les héros sur la
 gauche et le monstre sur la droite et adapter le décor à l'environnement. Demande-moi si tu as besoin d'assets. »
 Point de départ : `p4-9-v07-test` (forêt V11 validée le 20/11/2026). F5 inchangé.

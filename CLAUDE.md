@@ -69,6 +69,12 @@
   tourné vers la droite, monstre à **droite** tourné vers la gauche (prototype, toutes arènes) ; décor adapté au lieu :
   arène « forêt » = rendu de la forêt d'exploration V07B (`tools/p5/decor_foret.gd`, `art/p5/combat/`), arène
   « lisière » (avant-poste) inchangée. F6 : `scenes/battle/combat_foret.tscn`. Règles de combat inchangées.
+  **Validé provisoirement par le créateur le 20/11/2026** (avec l'état des déplacements).
+- **Environnement P5.2 (branche `p5-2-environnement`, `docs/P5_2_ENVIRONNEMENT.md`)** : sol de la forêt par shader
+  (`src/explore25/sol_foret.gdshader` / `sol_foret.gd`), la texture V07 sert de carte ; normales calculées sur une
+  copie du maillage (collision inchangée) ; horizon fermé (arbres lointains) ; touche U : sol V07 d'origine. Le décor
+  de combat forêt est rendu depuis la même forêt (même sol) avec clairière, flou d'arrière-plan et premier plan
+  (`art/p5/combat/foret_clairiere*.png`). Test : `tests/p52_sol_smoke.gd`. Ne pas modifier les collisions pour le rendu.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.
