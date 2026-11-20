@@ -40,7 +40,9 @@
   § 10)** : en V09B.5 / V09C, le profil droit sert à toutes les directions (miroir vers la gauche, dernier profil
   gardé vers le haut ou le bas, pose de marche tenue à l'arrêt) ; aucune pose générée. **Aren V2 (20/11/2026, § 11)** : vers
   le bas marche de face, vers le haut marche de dos, arrêt après le bas attente de face (`art/tests/aren_v2/`) ; Ilya :
-  profil gardé tant qu'une planche face / dos dans son style n'est pas fournie. Une animation dérivée par décalages d'un pixel reste « procédurale » : ne pas la présenter comme
+  profil gardé tant qu'une planche face / dos dans son style n'est pas fournie. **Aren 4 directions (20/11/2026, § 12)** :
+  attentes profil / face / dos de l'étude IDLE V1 et marches / courses de face et de dos **procédurales** dérivées de
+  ces attentes (`art/tests/aren_4dir/`, prioritaires sur V2) ; même foulée, donc même cadence, dans toutes les directions. Une animation dérivée par décalages d'un pixel reste « procédurale » : ne pas la présenter comme
   dessinée. Toute animation se vérifie en mouvement (vidéo), pas sur une capture fixe.
 - **Ressources graphiques** : une planche conceptuelle n'est pas un asset. Ne rien déclarer « final » sans revue
   du créateur ; signaler tout élément provisoire dans `art/p4/SOURCES.md` et dans le rapport de l'étape.

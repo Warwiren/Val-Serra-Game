@@ -104,6 +104,7 @@ func _run() -> void:
 	# profil unique (19/11/2026) : profil droit V09B.5 dans toutes les directions, miroir à gauche, pose d'arrêt tenue
 	var u = A5.make()
 	u.format = A5.H64
+	u.jeu_vues = "v2"                         # planche V2 (20/11) ; le jeu complet « 4dir » est testé plus bas
 	var b2 = Actor25.make("aren")
 	b2.set_scale_k(25.2 / 63.0)
 	for i in 10:
@@ -140,6 +141,47 @@ func _run() -> void:
 			hv2.append(roundf((101 - (t as Texture2D).get_image().get_used_rect().position.y) * u.echelle_h64))
 	hv2.sort()
 	_test(hv2[0] >= 61 and hv2[-1] <= 67, "face, dos, attente et profil : %d à %d px à l'écran (64 ± 5 %%)" % [hv2[0], hv2[-1]])
+
+	# jeu complet d'orientations (défaut) : attentes de l'étude IDLE V1, marche / course de face et de dos procédurales
+	var w = A5.make()
+	w.format = A5.H64
+	_test(w.jeu_vues == "4dir" and w.d4_dispo, "jeu complet d'orientations chargé par défaut")
+	var b4 = Actor25.make("aren")
+	b4.set_scale_k(25.2 / 63.0)
+	var vus := []
+	for seg in [[Vector2(0, 1), false, "d4_walk_face"], [Vector2(0, 1), true, "d4_run_face"], [Vector2(0, -1), false, "d4_walk_back"], [Vector2(0, -1), true, "d4_run_back"], [Vector2(1, 0), false, "walk_" + A5.H64]]:
+		for i in 6:
+			b4.step(0.04, seg[0], 1.0 / 60.0)
+			w.step(b4, 0.04, seg[1], seg[0].x)
+		vus.append(w._cle == seg[2] and w.texture() == w._tex[seg[2]][w.frame])
+	_test(vus == [true, true, true, true, true], "bas / haut, marche et course : cycles de face et de dos ; droite : V09B.5 (%s)" % [vus])
+	for i in 20:
+		b4.step(0.0, Vector2.ZERO, 1.0 / 60.0)
+	w.step(b4, 0.0, false, 0.0)
+	_test(w._cle == "d4_idle_right" and not w.flip, "arrêt après la droite : attente de profil de l'étude")
+	b4.step(0.04, Vector2(-1, 0), 1.0 / 60.0)
+	w.step(b4, 0.04, false, -1.0)
+	for i in 20:
+		b4.step(0.0, Vector2.ZERO, 1.0 / 60.0)
+	w.step(b4, 0.0, false, 0.0)
+	_test(w._cle == "d4_idle_right" and w.miroir(), "arrêt après la gauche : attente de profil en miroir")
+	b4.step(0.04, Vector2(0, 1), 1.0 / 60.0)
+	w.step(b4, 0.04, false, 0.0)
+	for i in 20:
+		b4.step(0.0, Vector2.ZERO, 1.0 / 60.0)
+	w.step(b4, 0.0, false, 0.0)
+	_test(w._cle == "d4_idle_face" and not w.miroir(), "arrêt après le bas : attente de face de l'étude")
+	_test(w.stride_m() == w.stride_m("walk"), "face / dos : même foulée que le profil (même cadence dans toutes les directions)")
+	var h4: Array = []
+	for k in w._tex:
+		if String(k).begins_with("d4_"):
+			for t in w._tex[k]:
+				h4.append(roundf((101 - (t as Texture2D).get_image().get_used_rect().position.y) * w.echelle_h64))
+	h4.sort()
+	_test(h4[0] >= 61 and h4[-1] <= 67, "jeu complet : %d à %d px à l'écran (64 ± 5 %%)" % [h4[0], h4[-1]])
+	var i0: Image = (w._tex["d4_idle_face"][0] as Texture2D).get_image()
+	var m0: Image = (w._tex["d4_walk_face"][0] as Texture2D).get_image()
+	_test(i0.get_data() == m0.get_data(), "face : la marche part exactement de l'attente (image 0 identique, pas de saut)")
 
 	# scène F5 : état par défaut inchangé
 	change_scene_to_file(SCENE)

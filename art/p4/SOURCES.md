@@ -19,6 +19,7 @@ finale** : les packs Drive sont « À TESTER », les textures générées ici so
 | `art/tests/v09c_ilya/` (hors `art/p4/`) | **V09C** : nouvelle Ilya, 4 directions × attente / marche / course, 7 portraits | pack Drive `ValSerra_V09C5_Ilya_Pack_pour_Claude.zip` + planche de marche du 19/11/2026, préparés par `tools/p49/v09c_ilya_pack.py` | **BANC D'ESSAI NON VALIDÉ** (touche I) — voir `art/tests/v09c_ilya/SOURCES.md` |
 | `art/tests/v09c6_ilya/` (hors `art/p4/`) | **V09C.6** : course droite d'Ilya (8 poses) et portraits au cadrage serré (160 px) | `ValSerra_V09C6_Ilya_Course_Droite_CANDIDAT.zip`, `tools/p49/v09c6_ilya_course.py` | **BANC D'ESSAI NON VALIDÉ** (touche I) — voir son `SOURCES.md` |
 | `art/tests/aren_v2/` (hors `art/p4/`) | **Aren V2** : marche de face, marche de dos, attente de face (8 images chacune) | planche du 20/11/2026, `tools/p49/aren_v2_directions.py` | **BANC D'ESSAI NON VALIDÉ** — voir son `SOURCES.md` |
+| `art/tests/aren_4dir/` (hors `art/p4/`) | **Aren 4 directions** : attentes profil / face / dos (étude IDLE V1), marches et courses de face / dos **procédurales** | `ValSerra_Aren_IDLE_V1_ETUDE.zip`, `tools/p49/aren_orientations.py` | **BANC D'ESSAI NON VALIDÉ** — voir son `SOURCES.md` |
 
 Non repris (et pourquoi) : les planches `BAT-REF-*` et `BRI-REF-*` (concepts sur fond peint, vues non concordantes),
 les modules `relief/` et `eau/` de P4_ENV (non calibrés, non bouclables), l'atlas `Ilya_exploration_walk_4dir` de
