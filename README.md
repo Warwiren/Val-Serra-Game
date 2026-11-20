@@ -45,8 +45,8 @@ d'Aren en comparaison** (touches B / T / P, [vidéo comparative](docs/media/p4_9
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p4-9-v07-test`**, puis **Code → Download ZIP** ; le
-   dossier s'appelle `Val-Serra-Game-p4-9-v07-test`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p5-combat`**, puis **Code → Download ZIP** ; le
+   dossier s'appelle `Val-Serra-Game-p5-combat`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -57,6 +57,8 @@ d'Aren en comparaison** (touches B / T / P, [vidéo comparative](docs/media/p4_9
    de dos (GIF dessinés, V4) et Ilya de face / de dos (pack V09C.5) ; rendu Sprite3D d'origine. **V11 (20/11/2026)** :
    **sans brouillard** au démarrage (touche F pour le revoir), **tous les rochers et les buissons hauts bloquent**, et
    le **Vorgane** se tient au sud du chemin principal (x ≈ 7,5), animé et solide, sans combat déclenché. La **démo de l'avant-poste** s'ouvre en **F6** depuis `scenes/p4/avant_poste.tscn`.
+   **Branche `p5-combat` (refonte du combat, 20/11/2026)** : F5 est inchangé (forêt validée) ; le combat refondu
+   s'ouvre en **F6** depuis `scenes/battle/combat_foret.tscn` (groupe à gauche, Vorgane à droite, décor forêt).
 
 ### Commandes — forêt V07B (F5)
 
@@ -99,7 +101,8 @@ d'Aren en comparaison** (touches B / T / P, [vidéo comparative](docs/media/p4_9
 |---|---|
 | `scenes/p4/avant_poste.tscn` | **démo complète de l'avant-poste** (F5 jusqu'en P4.8) : exploration, dialogue, combat, retour |
 | `scenes/p4/comparaison_camera_B28.tscn` | la démo de l'avant-poste avec l'ancienne caméra orthographique 28° (B28), pour comparer |
-| `scenes/battle/battle_scene.tscn` | combat seul (avec `--start=proto-battle --arena=lisiere` en ligne de commande) |
+| `scenes/battle/combat_foret.tscn` | **P5 — combat refondu** : groupe à gauche, Vorgane à droite, décor = la forêt d'exploration |
+| `scenes/battle/battle_scene.tscn` | combat seul (avec `--start=proto-battle --arena=lisiere` ou `--arena=foret` en ligne de commande) |
 | `tests/test_runner.tscn` | tests automatiques dans l'éditeur |
 
 ## Vérifications
@@ -146,6 +149,10 @@ godot --headless --path . --script res://tests/v09c_ilya_smoke.gd
 
 ```bash
 godot --headless --path . --fixed-fps 60 --script res://tests/v11_collisions_smoke.gd
+```
+
+```bash
+godot --headless --path . --script res://tests/p5_combat_smoke.gd
 ```
 
 ```bash

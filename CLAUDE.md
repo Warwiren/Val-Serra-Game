@@ -53,7 +53,8 @@
   bas / le haut, marche, course et attente de face / de dos **dessinées** du pack V09C.5 (`vues_face_dos`) ; droite /
   gauche inchangées (profil, miroir, pose tenue). **État validé par le créateur le 20/11/2026** (animations et rendu
   ci-dessus). **V11 (20/11/2026, `docs/P4_9_V11.md`)** : brouillard coupé au démarrage de F5 (touche F) ; tous les
-  rochers et les buissons ≥ 0,85 m bloquent ; Vorgane placé dans la forêt (sans combat). Test : `tests/v11_collisions_smoke.gd`. Une animation dérivée par décalages d'un pixel reste « procédurale » : ne pas la présenter comme
+  rochers et les buissons ≥ 0,85 m bloquent ; Vorgane placé dans la forêt (sans combat). Test : `tests/v11_collisions_smoke.gd`.
+  **V11 validé par le créateur le 20/11/2026.** Une animation dérivée par décalages d'un pixel reste « procédurale » : ne pas la présenter comme
   dessinée. Toute animation se vérifie en mouvement (vidéo), pas sur une capture fixe.
 - **Ressources graphiques** : une planche conceptuelle n'est pas un asset. Ne rien déclarer « final » sans revue
   du créateur ; signaler tout élément provisoire dans `art/p4/SOURCES.md` et dans le rapport de l'étape.
@@ -64,6 +65,10 @@
   et du dossier ZIP `Val-Serra-Game-<branche>`, ce que montre F5, quelles scènes ouvrir avec F6.
   Vérifier ensuite avec `godot --headless --path . --quit-after 60` que la scène principale se charge sans erreur.
 - Ne pas toucher au combat dans le cadre d'un travail sur l'exploration, sauf demande explicite.
+- **Combat P5 (branche `p5-combat`, demande du créateur du 20/11/2026, `docs/P5_COMBAT.md`)** : groupe à **gauche**
+  tourné vers la droite, monstre à **droite** tourné vers la gauche (prototype, toutes arènes) ; décor adapté au lieu :
+  arène « forêt » = rendu de la forêt d'exploration V07B (`tools/p5/decor_foret.gd`, `art/p5/combat/`), arène
+  « lisière » (avant-poste) inchangée. F6 : `scenes/battle/combat_foret.tscn`. Règles de combat inchangées.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.

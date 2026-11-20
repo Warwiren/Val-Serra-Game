@@ -23,9 +23,12 @@ const CombatHud = preload("res://src/presentation/combat_hud.gd")
 const UI = preload("res://src/presentation/ui_style.gd")
 const Portraits = preload("res://src/proto/portraits.gd")
 const ArenaLayers = preload("res://src/presentation/arena_layers.gd")
-## Prototype recentré : groupe à droite tourné vers la gauche, monstre à gauche (maquette du pack, Octopath).
-const HUNTER_POS_PROTO := {"heros": Vector2(900, 500), "compagnon_vif": Vector2(1028, 468), "compagnon_lourd": Vector2(1150, 492)}
-const MONSTER_POS_PROTO := Vector2(330, 506)
+const ArenaForet = preload("res://src/presentation/arena_foret.gd")
+## P5 (refonte du combat, 20/11/2026) : groupe à GAUCHE tourné vers la droite, monstre à DROITE tourné vers la
+## gauche (demande du créateur) ; avant P5 : groupe à droite, monstre à gauche (maquette du pack, Octopath). Mêmes
+## distances qu'avant, en miroir.
+const HUNTER_POS_PROTO := {"heros": Vector2(380, 500), "compagnon_vif": Vector2(252, 468), "compagnon_lourd": Vector2(130, 492)}
+const MONSTER_POS_PROTO := Vector2(950, 506)
 const PROTO_SPRITES := {"heros": "aren", "compagnon_vif": "ilya", "compagnon_lourd": "throne"}
 ## Lanternes peintes du décor (coordonnées écran) : sources de lumière du combat ET de l'éclairage du Vorgane.
 const PROTO_LIGHTS := [Vector2(60, 212), Vector2(683, 282), Vector2(951, 266), Vector2(1068, 262)]
@@ -225,7 +228,7 @@ func _build_world_proto() -> void:
 	overlay.add_child(fx)
 	var mv := SpriteMonsterView.new()
 	mv.sprite_dir = "res://art/proto/vorgane_nuit_p1/"
-	mv.facing_right = true
+	mv.facing_right = false                    # P5 : à droite, tourné vers le groupe
 	mv.scene_lights = arena.lights if arena != null and arena.visible else PROTO_LIGHTS
 	monster_view = mv
 	actors.add_child(monster_view)
@@ -238,7 +241,7 @@ func _build_world_proto() -> void:
 		var hv := ProtoHero.new()
 		actors.add_child(hv)
 		hv.setup(c.id, {"sprite": PROTO_SPRITES[c.id], "combat": true}, HUNTER_POS_PROTO[c.id])
-		hv.scale.x = -1
+		hv.scale.x = 1                         # P5 : à gauche, tournés vers le monstre (droite)
 		hv.z_index = int(HUNTER_POS_PROTO[c.id].y / 10.0)
 		hunters[c.id] = hv
 	cam = Camera2D.new()
@@ -256,7 +259,7 @@ func _build_world_proto() -> void:
 ## Comparaison A/B du décor de combat (F2) : présentation seulement, le combat continue.
 func _show_arena(new_one: bool) -> void:
 	if new_one and arena == null:
-		arena = ArenaLayers.new()
+		arena = ArenaForet.new() if GameState.arena == "foret" else ArenaLayers.new()
 		add_child(arena)
 		arena.build(self)
 	for n in _old_arena:
@@ -323,6 +326,8 @@ func _build_hud() -> void:
 	layer.visible = not OS.get_cmdline_user_args().has("--no-hud")   # outil : capture de cohérence sans interface
 	hud = CombatHud.new() if GameState.proto else BattleHud.new()
 	hud.simple = GameState.proto
+	if GameState.proto and GameState.arena == "foret":
+		hud.zone_name = "Forêt de la lisière"     # P5 : le lieu de la rencontre (la forêt d'exploration)
 	layer.add_child(hud)
 	hud.build()
 	var i := 0
