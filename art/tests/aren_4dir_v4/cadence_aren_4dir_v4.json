@@ -1,0 +1,117 @@
+{
+ "statut": "Aren marches de face / de dos V4 — DESSINÉES (GIF du créateur, 20/11/2026), préparées sans redessin ; BANC D'ESSAI NON VALIDÉ",
+ "pixel_m": 0.02,
+ "ligne_sol_px": 101,
+ "cycles": {
+  "walk_face": {
+   "images": 8,
+   "duree_gif_ms": 120,
+   "hauteur_source_px": [
+    362,
+    358,
+    362,
+    374,
+    376,
+    366,
+    357,
+    354
+   ],
+   "facteur": 0.2459,
+   "bas_source_px": [
+    402,
+    395,
+    395,
+    402,
+    405,
+    405,
+    398,
+    394
+   ],
+   "hauteur_px": [
+    89,
+    89,
+    90,
+    92,
+    91,
+    89,
+    88,
+    89
+   ],
+   "bas_px": [
+    101,
+    99,
+    99,
+    101,
+    101,
+    101,
+    100,
+    99
+   ]
+  },
+  "walk_back": {
+   "images": 8,
+   "duree_gif_ms": 120,
+   "hauteur_source_px": [
+    433,
+    428,
+    428,
+    422,
+    421,
+    425,
+    427,
+    427
+   ],
+   "facteur": 0.2084,
+   "bas_source_px": [
+    531,
+    531,
+    533,
+    530,
+    531,
+    531,
+    530,
+    531
+   ],
+   "hauteur_px": [
+    90,
+    89,
+    89,
+    88,
+    88,
+    89,
+    89,
+    89
+   ],
+   "bas_px": [
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100,
+    100
+   ]
+  }
+ },
+ "sha256": {
+  "walk_face_0.png": "92debdd653e04a8063aa38f0ad17751ee33f450c91c40d05046e6d64c9259b8d",
+  "walk_face_1.png": "0d03120ea24fdbe06187eb1dac386e0a0e5970a8ad0873d8f349ba3cf20f2591",
+  "walk_face_2.png": "410e2777d2b61940c5cec8354a4bf337446c733c79ce7b045e464075ea58020c",
+  "walk_face_3.png": "bec81e13c6775275ccad1d1bb668739bbc11d291abc39e9964b20a2c1741efae",
+  "walk_face_4.png": "3d4c7f6533ae3250d2d4ffdf6e91b4592f34b52e44157cb0eef0819566282a7b",
+  "walk_face_5.png": "2afab8557bc9e3a68f2cd33b3300b60c7639d973e778ff20fc7b810d993c4e31",
+  "walk_face_6.png": "33b043c116d2b011df4abbd22afc89e61baa3973f6d18235f0be40f9fadfda5f",
+  "walk_face_7.png": "d751bea2b20f560455e61465a0cd09ddbea174483f5b35ed9f41f27bcfc1e64a",
+  "walk_back_0.png": "63231dff98729f8e586e5ba4e3ed4cf75ac989845dbcf6b182f0c05acab1bec4",
+  "walk_back_1.png": "5dc03f43d94c36debb86089a4d6e143a612c335c5dd0b25d3499a2eb87a78425",
+  "walk_back_2.png": "8dad994a0edbde086e139406228c8b33ff7d8e273d802804d60189a5338c98e1",
+  "walk_back_3.png": "62d46e30b16faea6f7a0889409bd6920c52ebf5490712356eb4b4b1e93aee1b2",
+  "walk_back_4.png": "c4b0da79fce8215426a00367be8e000b6abf739d7ee7b2c52a26914ea8ab4836",
+  "walk_back_5.png": "bc9f9e3877589a01fb4416b761ee9919527109e1990983b4061c4d9079767b4b",
+  "walk_back_6.png": "c2c72ee064819b0142146c60edda8a93fd0eff69342c27d894ae2be661522e3a",
+  "walk_back_7.png": "716819f30931f03164aacf66b3ddcab49d9b63a3e2bfac6d8725d8a91f860762",
+  "gif_face": "b5f2c45e7f07b2d23d7547d456ed003c01099bb15d85ba12255fcf5c30332bda",
+  "gif_dos": "0aaf8e7a7cce1883a3f88465975d59ba049076328e890e5c29e62f67f19dfdd1"
+ }
+}

@@ -145,7 +145,7 @@ func _run() -> void:
 	# jeu complet d'orientations (défaut) : attentes de l'étude IDLE V1, marche / course de face et de dos procédurales
 	var w = A5.make()
 	w.format = A5.H64
-	_test(w.jeu_vues == "v3" and w.v3_dispo and w.d4_dispo, "proposition V3 (face / dos en profondeur) chargée par défaut")
+	_test(w.jeu_vues == "v4" and w.v4_dispo and w.v3_dispo and w.d4_dispo, "marches face / dos dessinées V4 chargées par défaut")
 	w.jeu_vues = "4dir"                       # jeu « 4dir » du 20/11 ; V3 testée plus bas
 	var b4 = Actor25.make("aren")
 	b4.set_scale_k(25.2 / 63.0)
@@ -187,6 +187,7 @@ func _run() -> void:
 	# proposition V3 : face / dos en profondeur, attentes et profil du jeu 4dir
 	var v = A5.make()
 	v.format = A5.H64
+	v.jeu_vues = "v3"
 	var b5 = Actor25.make("aren")
 	b5.set_scale_k(25.2 / 63.0)
 	var vus3 := []
@@ -202,6 +203,7 @@ func _run() -> void:
 	_test(v._cle == "d4_idle_right", "V3 : attentes du jeu 4dir")
 	var v0 = A5.make()
 	v0.format = A5.H64
+	v0.jeu_vues = "v3"
 	var b6 = Actor25.make("aren")
 	b6.set_scale_k(25.2 / 63.0)
 	b6.step(0.001, Vector2(0, 1), 1.0 / 60.0)
@@ -216,10 +218,45 @@ func _run() -> void:
 	h3.sort()
 	_test(h3[0] >= 61 and h3[-1] <= 68, "V3 : tête à %d à %d px au-dessus du sol à l'écran (rebond compris)" % [h3[0], h3[-1]])
 	var jeux := []
-	for i in 3:
+	for i in 4:
 		v.toggle_jeu_vues()
 		jeux.append(v.jeu_vues)
-	_test(jeux == ["4dir", "v2", "v3"], "touche G : V3 -> 4dir -> V2 -> V3 (%s)" % [jeux])
+	_test(jeux == ["4dir", "v2", "v4", "v3"], "touche G : V4 -> V3 -> 4dir -> V2 -> V4 (%s)" % [jeux])
+
+	# V4 (défaut) : marches de face / de dos dessinées (GIF du 20/11), réduites et ramenées à la palette du profil
+	var q = A5.make()
+	q.format = A5.H64
+	var b7 = Actor25.make("aren")
+	b7.set_scale_k(25.2 / 63.0)
+	var vus4 := []
+	for seg in [[Vector2(0, 1), false, "v4_walk_face"], [Vector2(0, 1), true, "v4_walk_face"], [Vector2(0, -1), false, "v4_walk_back"], [Vector2(0, -1), true, "v4_walk_back"], [Vector2(1, 0), true, "run_" + A5.H64]]:
+		for i in 6:
+			b7.step(0.04, seg[0], 1.0 / 60.0)
+			q.step(b7, 0.04, seg[1], seg[0].x)
+		vus4.append(q._cle == seg[2] and q.texture() == q._tex[seg[2]][q.frame])
+	_test(vus4 == [true, true, true, true, true], "V4 : bas / haut (marche et course) : marches dessinées ; droite : V09B.5 (%s)" % [vus4])
+	b7.step(0.04, Vector2(0, 1), 1.0 / 60.0)
+	q.step(b7, 0.04, false, 0.0)
+	for i in 20:
+		b7.step(0.0, Vector2.ZERO, 1.0 / 60.0)
+	q.step(b7, 0.0, false, 0.0)
+	_test(q._cle == "v4_walk_face" and q.frame == A5.IMAGE_ARRET_V4, "V4 : arrêt après le bas : pose dessinée tenue (même dessin)")
+	b7.step(0.001, Vector2(0, 1), 1.0 / 60.0)
+	q.step(b7, 0.001, false, 0.0)
+	_test(q._cle == "v4_walk_face" and q.frame == A5.IMAGE_ARRET_V4, "V4 : redémarrage depuis la pose tenue (pas de saut)")
+	b7.step(0.04, Vector2(1, 0), 1.0 / 60.0)
+	q.step(b7, 0.04, false, 1.0)
+	for i in 20:
+		b7.step(0.0, Vector2.ZERO, 1.0 / 60.0)
+	q.step(b7, 0.0, false, 0.0)
+	_test(q._cle == "d4_idle_right", "V4 : arrêt après la droite : attente de profil de l'étude")
+	var h5: Array = []
+	for k in q._tex:
+		if String(k).begins_with("v4_"):
+			for t in q._tex[k]:
+				h5.append(roundf((101 - (t as Texture2D).get_image().get_used_rect().position.y) * q.echelle_h64))
+	h5.sort()
+	_test(h5[0] >= 61 and h5[-1] <= 67, "V4 : %d à %d px à l'écran (64 ± 5 %%)" % [h5[0], h5[-1]])
 
 	# scène F5 : état par défaut inchangé
 	change_scene_to_file(SCENE)

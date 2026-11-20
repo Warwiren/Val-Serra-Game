@@ -21,6 +21,7 @@ finale** : les packs Drive sont « À TESTER », les textures générées ici so
 | `art/tests/aren_v2/` (hors `art/p4/`) | **Aren V2** : marche de face, marche de dos, attente de face (8 images chacune) | planche du 20/11/2026, `tools/p49/aren_v2_directions.py` | **BANC D'ESSAI NON VALIDÉ** — voir son `SOURCES.md` |
 | `art/tests/aren_4dir/` (hors `art/p4/`) | **Aren 4 directions** : attentes profil / face / dos (étude IDLE V1), marches et courses de face / dos **procédurales** | `ValSerra_Aren_IDLE_V1_ETUDE.zip`, `tools/p49/aren_orientations.py` | **BANC D'ESSAI NON VALIDÉ** — voir son `SOURCES.md` |
 | `art/tests/aren_4dir_v3/` (hors `art/p4/`) | **Aren face / dos V3 « en profondeur »** : marches et courses de face / dos **procédurales** (pas en profondeur, bras en opposition) | `tools/p49/aren_marche_profondeur.py` (depuis `art/tests/aren_4dir/`) | **PROPOSITION NON VALIDÉE** — voir son `SOURCES.md` |
+| `art/tests/aren_4dir_v4/` (hors `art/p4/`) | **Aren face / dos V4 DESSINÉES** : marches de face et de dos des GIF du créateur (20/11/2026), réduites à l'échelle du profil et ramenées à sa palette | GIF du créateur, `tools/p49/aren_marche_gif.py` | **PROPOSITION NON VALIDÉE** — voir son `SOURCES.md` |
 
 Non repris (et pourquoi) : les planches `BAT-REF-*` et `BRI-REF-*` (concepts sur fond peint, vues non concordantes),
 les modules `relief/` et `eau/` de P4_ENV (non calibrés, non bouclables), l'atlas `Ilya_exploration_walk_4dir` de

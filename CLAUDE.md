@@ -45,7 +45,10 @@
   ces attentes (`art/tests/aren_4dir/`, prioritaires sur V2) ; même foulée, donc même cadence, dans toutes les directions.
   **Proposition V3 (20/11/2026, § 13)**, au démarrage de F5 après le refus des marches face / dos 4dir : pas en
   profondeur (pied avancé plus bas de face, plus haut de dos), bras en opposition, toujours **procédurale**
-  (`art/tests/aren_4dir_v3/`, touche G : V3 / 4dir / V2) ; attentes et profil inchangés. Une animation dérivée par décalages d'un pixel reste « procédurale » : ne pas la présenter comme
+  (`art/tests/aren_4dir_v3/`) ; attentes et profil inchangés. **V4 (20/11/2026, § 14)**, au démarrage de F5 après
+  le refus de V3 : marches de face et de dos **dessinées** (GIF du créateur), réduites à l'échelle du profil et ramenées
+  à sa palette sans redessin (`art/tests/aren_4dir_v4/`, touche G : V4 / V3 / 4dir / V2) ; pas de course face / dos
+  dessinée (marche, foulée ×1,25) ; arrêt haut / bas : pose dessinée tenue. Une animation dérivée par décalages d'un pixel reste « procédurale » : ne pas la présenter comme
   dessinée. Toute animation se vérifie en mouvement (vidéo), pas sur une capture fixe.
 - **Ressources graphiques** : une planche conceptuelle n'est pas un asset. Ne rien déclarer « final » sans revue
   du créateur ; signaler tout élément provisoire dans `art/p4/SOURCES.md` et dans le rapport de l'étape.
