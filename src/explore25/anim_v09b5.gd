@@ -38,6 +38,17 @@ var profil_unique := true
 const IMAGE_ARRET := 2
 var flip := false                    # true : profil gauche (miroir du profil droit)
 var _bouge := false
+## Aren V2 (planche « Animations de déplacement V2 », 20/11/2026) : vues de FACE et de DOS dans le même design, pour
+## distinguer les déplacements vers le bas et vers le haut (art/tests/aren_v2/, préparées sans redessin). Utilisées
+## en profil unique avec les formats 96 × 112 (même densité de pixels) ; arrêt après un déplacement vers le bas :
+## attente de face V2 (8 images) ; vers le haut : pose de dos tenue IMAGE_ARRET_DOS. Pas de course de face / dos
+## dessinée : vers le haut ou le bas en courant, le cycle de marche V2 est joué au rythme de la distance.
+const DIR_V2 := "res://art/tests/aren_v2/"
+const IMAGE_ARRET_DOS := 4
+var vues_v2 := true                  # false : vers le haut / le bas, dernier profil gardé (comportement du 19/11)
+var v2_dispo := false
+var vue := "profil"                  # profil, face ou dos
+var _cle := ""                       # jeu d'images affiché
 var _axe := {}                       # cycle_format -> axe vertical de la tête (px de texture), médiane du cycle
 
 
@@ -82,6 +93,13 @@ func _build() -> void:
 	hs.sort()
 	hauteur_v5_px = int(hs[hs.size() / 2])
 	echelle_h64 = float(hauteur_ref_px) / float(hauteur_v5_px)
+	if ResourceLoader.exists(DIR_V2 + "walk_face_0.png"):
+		v2_dispo = true
+		for c in ["walk_face", "walk_back", "idle_face"]:
+			var arr: Array[Texture2D] = []
+			for i in N:
+				arr.append(load(DIR_V2 + "%s_%d.png" % [c, i]))
+			_tex["v2_" + c] = arr
 	for k in _tex:
 		_axe[k] = axe_tete(_tex[k])
 
@@ -124,7 +142,7 @@ func offset_px(sprite_y_m: float, tex: Texture2D) -> Vector2:
 	var ground := float(_cad["formats"][format]["ligne_sol_px"])
 	var ox := 0.0
 	if profil_unique:                   # axe de la tête sur l'origine du corps, à droite comme en miroir
-		var ax: float = _axe[cycle + "_" + format]
+		var ax: float = _axe[_cle if _cle != "" else cycle + "_" + format]
 		ox = (ax - tex.get_width() * 0.5) if flip else (tex.get_width() * 0.5 - ax)
 	return Vector2(ox, -(sprite_y_m / pixel_m() - (ground - tex.get_height() * 0.5)))
 
@@ -139,27 +157,50 @@ func toggle_format() -> void:
 
 
 ## base : l'Actor25 d'Aren, DÉJÀ avancé pour cette image ; moved_m : distance parcourue ; running : Maj tenue.
+## les vues V2 (face, dos) ne servent qu'aux formats de même densité (96 × 112, affiché ×1 ou ×0,719)
+func vues_v2_actives() -> bool:
+	return profil_unique and vues_v2 and v2_dispo and (format == "96x112" or format == H64)
+
+
 func step(base: RefCounted, moved_m: float, running: bool, sx: float = 0.0) -> void:
 	if profil_unique:
 		if sx > 0.15:
 			flip = false
 		elif sx < -0.15:
 			flip = true
-		if not String(base.get("anim")).begins_with("walk"):
-			cycle = "walk"                  # arrêt : pose tenue de la marche
-			frame = IMAGE_ARRET
-			active = true
+		var parts := String(base.get("anim")).split("_")
+		var d: String = parts[1] if parts.size() > 1 else "right"
+		vue = "profil"
+		if vues_v2_actives() and d == "face":
+			vue = "face"
+		elif vues_v2_actives() and d == "back":
+			vue = "dos"
+		active = true
+		if parts[0] != "walk":
 			_bouge = false
+			cycle = "walk"
+			if vue == "face":                # arrêt après un déplacement vers le bas : attente de face V2
+				_cle = "v2_idle_face"
+				frame = int(base.get("frame")) % N
+			elif vue == "dos":               # vers le haut : pose de dos tenue
+				_cle = "v2_walk_back"
+				frame = IMAGE_ARRET_DOS
+			else:                            # profil : pose tenue de la marche
+				_cle = "walk_" + format
+				frame = IMAGE_ARRET
 			return
 		cycle = "run" if running else "walk"
 		if not _bouge:
 			phase = float(_cad["image_de_depart"]) / N
-		else:
+		elif vue == "profil":
 			phase = fposmod(phase + moved_m / stride_m(), 1.0)
+		else:                                # face / dos : cycle de marche V2, foulée de la marche
+			phase = fposmod(phase + moved_m / stride_m("walk"), 1.0)
 		_bouge = true
-		active = true
+		_cle = (cycle + "_" + format) if vue == "profil" else ("v2_walk_face" if vue == "face" else "v2_walk_back")
 		frame = int(phase * N) % N
 		return
+	_cle = ""
 	flip = false
 	if String(base.get("anim")) != "walk_right":
 		active = false
@@ -174,4 +215,9 @@ func step(base: RefCounted, moved_m: float, running: bool, sx: float = 0.0) -> v
 
 
 func texture() -> Texture2D:
-	return (_tex[cycle + "_" + format] as Array)[frame]
+	return (_tex[_cle if _cle != "" else cycle + "_" + format] as Array)[frame]
+
+
+## miroir à appliquer : seulement aux vues de profil
+func miroir() -> bool:
+	return flip and vue == "profil"

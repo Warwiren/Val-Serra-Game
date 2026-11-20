@@ -54,7 +54,8 @@ d'Aren en comparaison** (touches B / T / P, [vidéo comparative](docs/media/p4_9
    F5 démarre dans la configuration de validation** : Aren V09B.5 à 64 px, Ilya nouvelle apparence V09C.6, marche
    2,2 / course 3,6 m/s, inclinaison 24°, zoom ×3 (rien à activer ; P4.8 et les autres versions restent aux touches)
    ; **même apparence dans toutes les directions** : le profil droit sert partout (miroir vers la gauche, dernier profil
-   gardé vers le haut ou le bas, pose de marche tenue à l'arrêt). Les animations
+   gardé vers le haut ou le bas, pose de marche tenue à l'arrêt) ; **Aren se montre de face vers le bas et de dos
+   vers le haut** (planche V2 du 20/11/2026). Les animations
    candidates V09B.5 d'Aren s'activent avec **B** (retour aux animations P4.8 : B de nouveau ; P4.8 au lancement). La **démo de l'avant-poste** s'ouvre en **F6** depuis `scenes/p4/avant_poste.tscn`.
 
 ### Commandes — forêt V07B (F5)

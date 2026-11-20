@@ -116,11 +116,30 @@ func _run() -> void:
 	_test(absf(u.offset_px(0.96, u.texture()).x + ox_d) < 0.001, "profil unique : axe de la tête sur le corps à droite comme en miroir (%.1f / %.1f px)" % [ox_d, u.offset_px(0.96, u.texture()).x])
 	b2.step(0.04, Vector2(0, 1), 1.0 / 60.0)
 	u.step(b2, 0.04, false, 0.0)
-	_test(u.active and u.flip and b2.anim == "walk_face", "profil unique : vers le bas, dernier profil gardé (gauche)")
+	_test(u.active and u.vue == "face" and not u.miroir() and u.texture() == u._tex["v2_walk_face"][u.frame], "vers le bas : marche de face V2 (même design, sans miroir)")
 	for i in 20:
 		b2.step(0.0, Vector2.ZERO, 1.0 / 60.0)
 	u.step(b2, 0.0, false, 0.0)
-	_test(u.active and u.cycle == "walk" and u.frame == A5.IMAGE_ARRET, "profil unique : arrêt sur la pose tenue %d (pas de P4.8)" % A5.IMAGE_ARRET)
+	_test(u.vue == "face" and u.texture() == u._tex["v2_idle_face"][u.frame], "arrêt après le bas : attente de face V2")
+	b2.step(0.04, Vector2(0, -1), 1.0 / 60.0)
+	u.step(b2, 0.04, true, 0.0)
+	_test(u.vue == "dos" and u.texture() == u._tex["v2_walk_back"][u.frame], "vers le haut (même en courant) : marche de dos V2")
+	for i in 20:
+		b2.step(0.0, Vector2.ZERO, 1.0 / 60.0)
+	u.step(b2, 0.0, false, 0.0)
+	_test(u.texture() == u._tex["v2_walk_back"][A5.IMAGE_ARRET_DOS], "arrêt après le haut : pose de dos tenue")
+	b2.step(0.04, Vector2(1, 0), 1.0 / 60.0)
+	u.step(b2, 0.04, false, 1.0)
+	for i in 20:
+		b2.step(0.0, Vector2.ZERO, 1.0 / 60.0)
+	u.step(b2, 0.0, false, 0.0)
+	_test(u.vue == "profil" and u.frame == A5.IMAGE_ARRET and u.texture() == u._tex["walk_" + A5.H64][A5.IMAGE_ARRET], "arrêt après la droite : pose de profil tenue (pas de P4.8)")
+	var hv2: Array = []
+	for k in ["v2_walk_face", "v2_walk_back", "v2_idle_face", "walk_" + A5.H64]:
+		for t in u._tex[k]:
+			hv2.append(roundf((101 - (t as Texture2D).get_image().get_used_rect().position.y) * u.echelle_h64))
+	hv2.sort()
+	_test(hv2[0] >= 61 and hv2[-1] <= 67, "face, dos, attente et profil : %d à %d px à l'écran (64 ± 5 %%)" % [hv2[0], hv2[-1]])
 
 	# scène F5 : état par défaut inchangé
 	change_scene_to_file(SCENE)

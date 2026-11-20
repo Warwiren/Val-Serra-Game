@@ -38,7 +38,9 @@
   2,2 / 3,6 m/s, inclinaison 24°, zoom ×3 ; autres versions aux touches B / T / I / P / 1-6 ; les outils de
   non-régression gardent leur état de référence (P4.8, 30°, ×2,5) via `demarrage_v09c6 = false`. **Profil unique (19/11/2026,
   § 10)** : en V09B.5 / V09C, le profil droit sert à toutes les directions (miroir vers la gauche, dernier profil
-  gardé vers le haut ou le bas, pose de marche tenue à l'arrêt) ; aucune pose générée. Une animation dérivée par décalages d'un pixel reste « procédurale » : ne pas la présenter comme
+  gardé vers le haut ou le bas, pose de marche tenue à l'arrêt) ; aucune pose générée. **Aren V2 (20/11/2026, § 11)** : vers
+  le bas marche de face, vers le haut marche de dos, arrêt après le bas attente de face (`art/tests/aren_v2/`) ; Ilya :
+  profil gardé tant qu'une planche face / dos dans son style n'est pas fournie. Une animation dérivée par décalages d'un pixel reste « procédurale » : ne pas la présenter comme
   dessinée. Toute animation se vérifie en mouvement (vidéo), pas sur une capture fixe.
 - **Ressources graphiques** : une planche conceptuelle n'est pas un asset. Ne rien déclarer « final » sans revue
   du créateur ; signaler tout élément provisoire dans `art/p4/SOURCES.md` et dans le rapport de l'étape.

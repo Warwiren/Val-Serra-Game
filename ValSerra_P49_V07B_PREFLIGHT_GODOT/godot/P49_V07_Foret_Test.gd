@@ -644,7 +644,7 @@ func _apply_hero_sprite(moved: float, sx: float = 0.0) -> void:
 			occ_h = _anim_v09b5.height_m() - 0.02
 	else:
 		_anim_v09b5.active = false
-	var fl: bool = _v09b5_on and _anim_v09b5.active and bool(_anim_v09b5.flip)
+	var fl: bool = _v09b5_on and _anim_v09b5.active and bool(_anim_v09b5.miroir())
 	_hero_sprite.texture = tex
 	_hero_sprite.offset = ofs
 	_hero_sprite.pixel_size = px
