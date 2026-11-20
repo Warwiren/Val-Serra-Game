@@ -32,10 +32,14 @@ var _pixel_m := 0.02
 var course_v09c6 := false            # true : la course droite utilise les 8 poses V09C.6
 ## Profil unique (demande du créateur du 19/11/2026) : le profil droit (marche de la planche du 19/11, course V09C.5
 ## ou V09C.6) sert à toutes les directions — miroir vers la gauche, dernier profil gardé vers le haut / le bas ; à
-## l'arrêt, pose tenue IMAGE_ARRET de la marche droite (même style ; l'attente du pack est d'un autre style). Les vues
-## gauche / face / dos et les attentes du pack restent dans le banc (profil_unique = false) mais ne sont plus affichées.
+## l'arrêt, pose tenue IMAGE_ARRET de la marche droite (même style ; l'attente du pack est d'un autre style). La vue
+## gauche du pack reste dans le banc (profil_unique = false) ; face et dos : voir vues_face_dos.
 var profil_unique := true
 const IMAGE_ARRET := 2
+## Haut / bas (demande du créateur du 20/11/2026) : en profil unique, vers le bas et vers le haut, les vues de FACE et
+## de DOS dessinées du pack V09C.5 (marche, course, attente animée 8 images à l'arrêt) ; droite / gauche inchangées
+## (profil, miroir). false : dernier profil gardé vers le haut / le bas (comportement du 19/11).
+var vues_face_dos := true
 var flip := false
 var _axe := {}
 var _arret := false
@@ -63,7 +67,7 @@ func _build() -> void:
 	for i in N:
 		arr6.append(load(DIR6 + "exploration/right/run_right_%d.png" % i))
 	_tex["run_right_v09c6"] = arr6
-	for k in ["walk_right", "run_right", "run_right_v09c6"]:
+	for k in ["walk_right", "run_right", "run_right_v09c6", "walk_face", "run_face", "idle_face", "walk_back", "run_back", "idle_back"]:
 		_axe[k] = load("res://src/explore25/anim_v09b5.gd").axe_tete(_tex[k])
 	var hs: Array = []
 	for t in _tex["walk_right"]:
@@ -105,8 +109,9 @@ func offset_px(sprite_y_m: float, tex: Texture2D) -> Vector2:
 	var ground := float(_cad6["run_right"]["ligne_sol_px"]) if run_v09c6() else float(_cad["directions"][dir][cycle]["ligne_sol_px"])
 	var ox := 0.0
 	if profil_unique:
-		var ax: float = _axe["run_right_v09c6" if run_v09c6() else cycle + "_right"]
-		ox = (ax - tex.get_width() * 0.5) if flip else (tex.get_width() * 0.5 - ax)
+		var vk := cycle + "_" + dir if dir in ["face", "back"] else cycle + "_right"
+		var ax: float = _axe["run_right_v09c6" if run_v09c6() else vk]
+		ox = (ax - tex.get_width() * 0.5) if miroir() else (tex.get_width() * 0.5 - ax)
 	return Vector2(ox, -(sprite_y_m / pixel_m() - (ground - tex.get_height() * 0.5)))
 
 
@@ -130,8 +135,9 @@ func step(base: RefCounted, moved_m: float, speed: float, speeds: Array, sx: flo
 			flip = false
 		elif sx < -0.15:
 			flip = true
-		d = "right"                           # toutes les directions : profil droit (retourné si flip)
-		if parts[0] != "walk":
+		var vue := d if vues_face_dos and d in ["face", "back"] else "right"
+		d = vue                               # droite / gauche : profil droit (retourné si flip) ; haut / bas : face / dos
+		if parts[0] != "walk" and vue == "right":
 			running = false
 			cycle = "walk"
 			frame = IMAGE_ARRET
@@ -159,8 +165,14 @@ func step(base: RefCounted, moved_m: float, speed: float, speeds: Array, sx: flo
 		running = false
 		cycle = "idle"
 		frame = int(base.get("frame")) % N                    # attente : même rythme qu'Actor25 (4 i/s)
+		_arret = true
 	dir = d
 	active = true
+
+
+## true : afficher l'image en miroir (vers la gauche, en profil seulement ; face et dos jamais retournés)
+func miroir() -> bool:
+	return flip and dir == "right"
 
 
 func texture() -> Texture2D:

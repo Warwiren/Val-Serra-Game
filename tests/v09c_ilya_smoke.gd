@@ -67,6 +67,7 @@ func _run() -> void:
 	# profil unique (19/11/2026) : profil droit dans toutes les directions, miroir à gauche, arrêt sur la pose tenue
 	var pu = C.make()
 	pu.course_v09c6 = true
+	pu.vues_face_dos = false                  # comportement du 19/11 ; haut / bas en face / dos testés plus bas
 	var b3 = Actor25.make("ilya")
 	b3.set_scale_k(26.0 / 65.0)
 	for v in [4.0, 4.5, 4.5]:
@@ -88,6 +89,41 @@ func _run() -> void:
 	var orun: float = pu.offset_px(0.96, pu.texture()).x
 	_test(pu.run_v09c6() and absf((ow - float(pu._axe["walk_right"]) + 48.0) - (orun - float(pu._axe["run_right_v09c6"]) + 48.0)) < 0.001,
 		"profil unique : axe de la tête identique en marche et en course (pas de saut latéral)")
+
+	# haut / bas (20/11/2026, défaut) : vues de face et de dos dessinées du pack V09C.5, jamais en miroir
+	var fd = C.make()
+	fd.course_v09c6 = true
+	_test(fd.profil_unique and fd.vues_face_dos, "Ilya : vues de face et de dos actives par défaut")
+	var b4 = Actor25.make("ilya")
+	b4.set_scale_k(26.0 / 65.0)
+	var vus := []
+	for seg in [[Vector2(-1, 0), 2.8, "walk_right", true], [Vector2(0, 1), 2.8, "walk_face", false], [Vector2(0, 1), 4.5, "run_face", false],
+			[Vector2(0, -1), 2.8, "walk_back", false], [Vector2(0, -1), 4.5, "run_back", false], [Vector2(1, 0), 4.5, "run_right_v09c6", false]]:
+		for i in 8:
+			b4.step(seg[1] / 60.0, seg[0], 1.0 / 60.0)
+			fd.step(b4, seg[1] / 60.0, seg[1], sp, seg[0].x)
+		var cle: String = "run_right_v09c6" if fd.run_v09c6() else fd.cycle + "_" + fd.dir
+		vus.append(cle == seg[2] and fd.texture() == fd._tex[seg[2]][fd.frame] and fd.miroir() == seg[3])
+	_test(vus == [true, true, true, true, true, true], "Ilya : gauche = profil en miroir, bas = face, haut = dos (marche et course), droite = V09C.6 (%s)" % [vus])
+	b4.step(0.05, Vector2(0, 1), 1.0 / 60.0)
+	fd.step(b4, 0.05, 2.8, sp, 0.0)
+	for i in 30:
+		b4.step(0.0, Vector2.ZERO, 1.0 / 60.0)
+	fd.step(b4, 0.0, 0.0, sp, 0.0)
+	_test(fd.cycle == "idle" and fd.dir == "face" and not fd.miroir() and fd.texture() == fd._tex["idle_face"][fd.frame], "Ilya : arrêt après le bas = attente de face du pack")
+	b4.step(0.05, Vector2(0, -1), 1.0 / 60.0)
+	fd.step(b4, 0.05, 2.8, sp, 0.0)
+	for i in 30:
+		b4.step(0.0, Vector2.ZERO, 1.0 / 60.0)
+	fd.step(b4, 0.0, 0.0, sp, 0.0)
+	_test(fd.cycle == "idle" and fd.dir == "back" and fd.texture() == fd._tex["idle_back"][fd.frame], "Ilya : arrêt après le haut = attente de dos du pack")
+	b4.step(0.05, Vector2(-1, 0), 1.0 / 60.0)
+	fd.step(b4, 0.05, 2.8, sp, -1.0)
+	for i in 30:
+		b4.step(0.0, Vector2.ZERO, 1.0 / 60.0)
+	fd.step(b4, 0.0, 0.0, sp, 0.0)
+	_test(fd.cycle == "walk" and fd.frame == C.IMAGE_ARRET and fd.miroir(), "Ilya : arrêt après la gauche = pose tenue du profil en miroir (inchangé)")
+	_test(absf(fd.stride_m("walk", "face") - fd.stride_m("walk", "right")) < 0.0001, "Ilya : même foulée de face / de dos qu'en profil (même cadence)")
 
 	# V09C.6 : course droite candidate, seule à changer ; même échelle, pieds au sol, foulée propre
 	a.course_v09c6 = true

@@ -56,7 +56,8 @@ var _hero_ghost: Sprite3D
 var _ilya_v09c: RefCounted
 var _v09c_on := false
 var _ilya_ghost: Sprite3D
-## V10 (20/11/2026, proposition, touche K) : rendu des personnages plus lisible, même dessin (src/explore25/perso_v10.gdshader)
+## V10 (20/11/2026, touche K) : rendu des personnages plus lisible, même dessin (src/explore25/perso_v10.gdshader) ;
+## le créateur garde le rendu Sprite3D d'origine au démarrage (20/11/2026), V10 reste en comparaison
 var _rendu_v10 := false
 var _mat_v10 := {}
 const ILYA_OCC_H := 1.30
@@ -92,7 +93,6 @@ func _ready() -> void:
 		_speed_profile = "actuel"
 		_pitch = 24.0
 		_zoom = 3.0
-		_rendu_v10 = true
 	_reset_positions()
 
 func _make_environment() -> void:
@@ -613,7 +613,7 @@ func _apply_ilya_sprite(moved: float, speed: float, speeds: Array, sx: float = 0
 		occ_h = _ilya_v09c.height_m() - 0.02
 	else:
 		_ilya_v09c.active = false
-	var fl: bool = _v09c_on and bool(_ilya_v09c.flip)
+	var fl: bool = _v09c_on and bool(_ilya_v09c.miroir())
 	_ilya_sprite.texture = tex
 	_ilya_sprite.offset = ofs
 	_ilya_sprite.pixel_size = px

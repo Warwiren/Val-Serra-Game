@@ -271,13 +271,19 @@ func _run() -> void:
 	var hs3: Sprite3D = sc.get("_hero_sprite")
 	var is3: Sprite3D = sc.get("_ilya_sprite")
 	var m3 = hs3.material_override
-	_test(bool(sc.get("_rendu_v10")) and m3 is ShaderMaterial and (m3 as ShaderMaterial).shader.resource_path.ends_with("perso_v10.gdshader")
-		and (m3 as ShaderMaterial).get_shader_parameter("tex") == hs3.texture and is3.material_override is ShaderMaterial,
-		"F5 démarre avec le rendu V10 des personnages (Aren et Ilya, texture de l'image courante)")
+	_test(not bool(sc.get("_rendu_v10")) and hs3.material_override == null and is3.material_override == null,
+		"F5 démarre avec le rendu Sprite3D d'origine (choix du créateur du 20/11/2026)")
 	var ek := InputEventKey.new()
 	ek.keycode = KEY_K
 	ek.physical_keycode = KEY_K
 	ek.pressed = true
+	sc.call("_unhandled_key_input", ek)
+	for i in 3:
+		await physics_frame
+	m3 = hs3.material_override
+	_test(bool(sc.get("_rendu_v10")) and m3 is ShaderMaterial and (m3 as ShaderMaterial).shader.resource_path.ends_with("perso_v10.gdshader")
+		and (m3 as ShaderMaterial).get_shader_parameter("tex") == hs3.texture and is3.material_override is ShaderMaterial,
+		"touche K : rendu V10 des personnages (Aren et Ilya, texture de l'image courante)")
 	sc.call("_unhandled_key_input", ek)
 	for i in 3:
 		await physics_frame

@@ -70,9 +70,9 @@ d'Aren en comparaison** (touches B / T / P, [vidéo comparative](docs/media/p4_9
 | **B** | animations d'Aren : **V09B.5** (démarrage) / **P4.8** (secours) — V09B.5 (marche et course distinctes, **profil droit seulement** ; autres directions et attente restent P4.8) — essai **non validé** |
 | **T** | format des cycles : **96×112 — hauteur 64 px** (démarrage) / 96×112 (88–91 px) (mêmes PNG, affichés à ×0,719 : taille d'Aren P4.8) / 64×72 (réductions du pack) / **calque 64 px** (V09B.6 : poses V09B.5 à l'échelle P4.8, réduction automatique, **non dessinée**) / `dessin_64` (poses redessinées, quand elles existeront) |
 | **G** | Aren vers le haut / le bas : **V4 dessinée** (démarrage, GIF du créateur du 20/11, proposition) → V3 « en profondeur » (**procédurale**) → 4dir du 20/11 (procédurale) → planche V2 → V4 |
-| **K** | rendu des personnages : **V10** (démarrage, proposition : pixels moyennés au lieu de sautés, soleil sans ternir, pas de brume sur le sprite, contour d'un pixel, lisible à l'ombre) / Sprite3D d'origine — même dessin |
+| **K** | rendu des personnages : **Sprite3D d'origine** (démarrage, choix du créateur du 20/11) / V10 (comparaison : pixels moyennés, soleil sans ternir, pas de brume sur le sprite, contour d'un pixel) — même dessin |
 | **P** | vitesses : **actuelles** 2,2 / 3,6 m/s (démarrage) / **candidates** 2,8 / 4,5 m/s (marche / course) |
-| **I** | Ilya : **V09C.6** (démarrage) → P4.8 → V09C.5 → V09C.6 (V09C.6 = course droite nouvelle, le reste V09C.5) ; nouvelle apparence en **banc d'essai non validé** (4 directions, échelle mesurée ×0,719, course choisie d'après sa vitesse réelle) |
+| **I** | Ilya (vers le haut / le bas : face / dos dessinées du pack V09C.5) : **V09C.6** (démarrage) → P4.8 → V09C.5 → V09C.6 (V09C.6 = course droite nouvelle, le reste V09C.5) ; nouvelle apparence en **banc d'essai non validé** (4 directions, échelle mesurée ×0,719, course choisie d'après sa vitesse réelle) |
 | **L** | locomotion : V09A, essai **non validé** (inertie légère, Ilya suit la trace d'Aren ; défaut) / V08 (déplacement précédent) |
 | **C** | diagnostic des collisions : obstacles (orange), eau (turquoise), bords (violet), pentes 35°–45° (jaune), > 45° (rouge) |
 | **N** | masquer la végétation (et ses collisions) ; **M** : repères des parcours |
