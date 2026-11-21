@@ -354,7 +354,7 @@ func _carte(root: Node3D, k: Dictionary) -> void:
 	var a := Vector2(k["a"][0], k["a"][1])
 	var b := Vector2(k["b"][0], k["b"][1])
 	var mid := (a + b) / 2.0
-	var right := Vector2(cos(World25.YAW), sin(World25.YAW))
+	var right := Vector2(cos(World25.yaw), sin(World25.yaw))
 	var width := absf((b - a).dot(right)) + 6.0
 	var hh: float = k["haut"]
 	var tex := _silhouette(k["type"], int(width * 8), int(hh * 8), k["graine"], k["teinte"])
@@ -370,7 +370,7 @@ func _carte(root: Node3D, k: Dictionary) -> void:
 	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR
 	m.cull_mode = BaseMaterial3D.CULL_DISABLED
 	mi.material_override = m
-	mi.transform = Transform3D(Basis(Vector3.UP, -World25.YAW), Vector3(mid.x, k["h0"] + hh / 2.0, mid.y))
+	mi.transform = Transform3D(Basis(Vector3.UP, -World25.yaw), Vector3(mid.x, k["h0"] + hh / 2.0, mid.y))
 	root.add_child(mi)
 	var sb := StaticBody3D.new()
 	sb.collision_layer = L_FOND

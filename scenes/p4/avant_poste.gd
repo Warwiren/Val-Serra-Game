@@ -282,7 +282,7 @@ func _card(tex_path: String, foot: Vector3, width_m: float, o := {}) -> MeshInst
 	mm.set_shader_parameter("hole", 1.0 if o.get("hole", false) else 0.0)
 	mm.set_shader_parameter("emit", o.get("emit", 0.0))
 	mi.material_override = mm
-	mi.basis = Basis(Vector3.UP, -World25.YAW)
+	mi.basis = Basis(Vector3.UP, -World25.yaw)
 	mi.position = foot + World25.cam_back() * (shift + o.get("layer", 0.0)) + Vector3.UP * (hw * (0.5 - anchor))
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	(o.get("parent", root) as Node3D).add_child(mi)
@@ -300,7 +300,7 @@ func _blob(foot: Vector3, w: float, strength := 0.4) -> void:
 	bmat.shader = BLOB_SH
 	bmat.set_shader_parameter("strength", strength)
 	blob.material_override = bmat
-	blob.rotation = Vector3(-PI / 2, -World25.YAW, 0)
+	blob.rotation = Vector3(-PI / 2, -World25.yaw, 0)
 	blob.position = foot + Vector3(0, 0.03, 0)
 	blob.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(blob)
@@ -369,7 +369,7 @@ func _halo(pos: Vector3, size: float, strength := 0.5) -> void:
 	mm.set_shader_parameter("strength", strength)
 	mm.set_shader_parameter("phase", pos.x * 2.3 + pos.z)
 	mi.material_override = mm
-	mi.basis = Basis(Vector3.UP, -World25.YAW)
+	mi.basis = Basis(Vector3.UP, -World25.yaw)
 	mi.position = pos + World25.cam_back() * 0.9
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(mi)
@@ -1224,7 +1224,7 @@ func _spawn_monster() -> void:
 	_monster.name = "Vorgane"
 	_monster.position = foot
 	var holder := Node3D.new()
-	holder.basis = Basis(Vector3.UP, -World25.YAW)
+	holder.basis = Basis(Vector3.UP, -World25.yaw)
 	holder.position = World25.cam_back() * (SPRITE_TOWARD_CAM + 0.5)
 	_monster.add_child(holder)
 	_monster_frames.clear()

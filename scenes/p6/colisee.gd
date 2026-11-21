@@ -76,6 +76,8 @@ func _ready() -> void:
 		aren_variante = "foret"
 	paysage = "aucun"
 	arch_label = "P6 — Colisée"
+	# P6.2 : azimut de la caméra propre au Colisée (comparaison 20° / 0°) ; la forêt et l'avant-poste gardent 20°
+	World25.yaw = deg_to_rad(float(_cli.get("azimut", 20.0)))
 	for k in CHARS:
 		Actor25.overrides[k] = CHARS[k]["dir"]
 	get_tree().physics_interpolation = true
@@ -146,6 +148,7 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	super._exit_tree()
+	World25.yaw = World25.YAW
 	RenderingServer.directional_soft_shadow_filter_set_quality(QUALITE_OMBRE_DEFAUT)
 
 

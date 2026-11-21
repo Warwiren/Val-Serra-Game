@@ -125,6 +125,16 @@ static func route(name: String) -> Array:
 				_go(46.0, 23.0, "coursive", 0.3),
 				{"do": "wait", "t": 0.6},
 			]
+		"p6_az":
+			# P6.2 — comparaison d'azimut : mêmes points dans les vestiaires, la salle d'attente et la coursive
+			var pts := [["1_vestiaires_centre", 26.0, 51.0], ["2_vestiaires_porte", 26.0, 47.3], ["3_salle_attente", 26.0, 41.0],
+				["4_tunnel_sud", 26.0, 34.0], ["5_arene", 26.0, 25.0], ["6_coursive", 50.0, 23.0]]
+			var out := [{"do": "wait", "t": 1.0}]
+			for p in pts:
+				out.append(_warp(p[1], p[2], 0.0))
+				out.append({"do": "wait", "t": 1.4})
+				out.append({"do": "snap", "id": p[0]})
+			return out
 		"p6_captures":
 			return [
 				{"do": "wait", "t": 1.5},

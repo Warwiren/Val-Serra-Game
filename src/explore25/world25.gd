@@ -11,7 +11,8 @@ extends RefCounted
 const PPM := 20.0
 const PITCH := 0.6108652381980153        # 35° (référence ; la plongée courante est `pitch`, réglable par variante P3-07)
 static var pitch := PITCH
-const YAW := 0.3490658503988659          # 20°
+const YAW := 0.3490658503988659          # 20° (référence ; l'azimut courant est `yaw`, réglable par scène : P6.2)
+static var yaw := YAW
 const EPS := 0.002
 const SPEC := "res://data/explore25/gabarits_blockout_v01.json"
 const ADJ := "res://data/explore25/ajustements_p3_v01.json"
@@ -46,25 +47,25 @@ var rails: Array = []                     # garde-corps (posés après les régi
 
 # ------------------------------------------------------------------------------------------------ projection
 static func screen(p: Vector3) -> Vector2:
-	var u := p.x * cos(YAW) + p.y * sin(YAW)
-	var d := -p.x * sin(YAW) + p.y * cos(YAW)
+	var u := p.x * cos(yaw) + p.y * sin(yaw)
+	var d := -p.x * sin(yaw) + p.y * cos(yaw)
 	return Vector2(u, d * sin(pitch) - p.z * cos(pitch)) * PPM
 
 
 static func depth(x: float, y: float) -> float:
-	return -x * sin(YAW) + y * cos(YAW)
+	return -x * sin(yaw) + y * cos(yaw)
 
 
 ## Direction horizontale (plan) vers la caméra.
 static func toward_cam() -> Vector2:
-	return Vector2(-sin(YAW), cos(YAW))
+	return Vector2(-sin(yaw), cos(yaw))
 
 
 ## Direction d'entrée À L'ÉCRAN (x droite, y bas, clavier 8 directions) -> direction au sol dans le plan.
 ## « Haut » fait monter le personnage verticalement à l'écran, quel que soit l'azimut.
 static func input_to_plan(v: Vector2) -> Vector2:
-	var r := Vector2(cos(YAW), sin(YAW))
-	var f := Vector2(sin(YAW), -cos(YAW))
+	var r := Vector2(cos(yaw), sin(yaw))
+	var f := Vector2(sin(yaw), -cos(yaw))
 	var w := r * v.x - f * v.y
 	return w.normalized() if w.length() > 0.0001 else Vector2.ZERO
 
@@ -80,11 +81,11 @@ static func g3(p: Vector3) -> Vector3:
 
 
 static func cam_right() -> Vector3:
-	return Vector3(cos(YAW), 0, sin(YAW))
+	return Vector3(cos(yaw), 0, sin(yaw))
 
 
 static func cam_back() -> Vector3:
-	return Vector3(-sin(YAW) * cos(pitch), sin(pitch), cos(YAW) * cos(pitch))
+	return Vector3(-sin(yaw) * cos(pitch), sin(pitch), cos(yaw) * cos(pitch))
 
 
 static func cam_up() -> Vector3:
@@ -525,4 +526,4 @@ func view_inside_decor(view: Rect2) -> bool:
 static func screen_to_plan(s: Vector2, h: float) -> Vector2:
 	var u := s.x / PPM
 	var d := (s.y / PPM + h * cos(pitch)) / sin(pitch)
-	return Vector2(u * cos(YAW) - d * sin(YAW), u * sin(YAW) + d * cos(YAW))
+	return Vector2(u * cos(yaw) - d * sin(yaw), u * sin(yaw) + d * cos(yaw))

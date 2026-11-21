@@ -43,8 +43,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p6-1-colisee-camera-art`**, puis **Code → Download ZIP** ; le
-   dossier s'appelle `Val-Serra-Game-p6-1-colisee-camera-art`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p6-2-colisee-circulation-visibilite`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p6-2-colisee-circulation-visibilite`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -83,6 +83,8 @@ masque de collision avant / après.
    (à valider) : caméra **P24 ×3** comme la forêt (touche **C** : P30 ×2,5 / P30 ×3 / P24 ×3), Aren avec
    **l'apparence de la forêt** (V09B.5 + V4 ; touche **B** : P4.8), **pilote d'habillage** (touche **H** : blockout).
    Rapport : `docs/P6_1_CAMERA_ART.md`.
+   **Branche `p6-2-colisee-circulation-visibilite` (étape A, plan de circulation)** : F5 inchangé ; Colisée en F6
+   comme en P6.1 (option de comparaison `-- --azimut=0`). Rapport et nouveau plan : `docs/P6_2_CIRCULATION_VISIBILITE.md`.
 
 ### Commandes — forêt V07B (F5)
 

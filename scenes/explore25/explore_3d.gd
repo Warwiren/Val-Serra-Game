@@ -728,7 +728,7 @@ func _make_actor(name: String, key: String) -> Dictionary:
 	node.name = name
 	var holder := Node3D.new()
 	# carte verticale tournée vers la caméra (azimut seul) : les verticales du monde restent verticales à l'écran
-	holder.basis = Basis(Vector3.UP, -World25.YAW)
+	holder.basis = Basis(Vector3.UP, -World25.yaw)
 	holder.position = World25.cam_back() * SPRITE_TOWARD_CAM
 	node.add_child(holder)
 	var spr := AnimatedSprite3D.new()
