@@ -20,6 +20,96 @@ static func _push(id: String, dir: Vector2, t: float, expect: Dictionary) -> Dic
 
 static func route(name: String) -> Array:
 	match name:
+		"p6_avant":
+			# P6 — ouverture, avant le tutoriel : vestiaires (garde) → salle d'attente → arène → commandant. Le
+			# dialogue du commandant s'ouvre seul à 2,6 m ; à sa fermeture, le combat tutoriel est lancé.
+			return [
+				{"do": "wait", "t": 0.8},
+				_go(27.4, 48.6, "A garde des vestiaires", 0.3),
+				{"do": "talk", "id": "garde_vestiaires"},
+				{"do": "wait", "t": 7.0},
+				_go(26.0, 45.6, "passage des vestiaires", 0.3),
+				_go(26.0, 41.2, "B salle d'attente", 0.3),
+				_go(26.0, 35.0, "tunnel sud", 0.3),
+				_go(26.0, 30.0, "C entrée de l'arène", 0.3),
+				_go(26.0, 23.1, "D devant le commandant", 0.45),
+				{"do": "talk", "id": "commandant"},
+				{"do": "wait", "t": 12.0},
+			]
+		"p6_apres":
+			# P6 — après le tutoriel (retour devant le commandant) : coursive, PNJ, sortie est, quartier.
+			return [
+				{"do": "wait", "t": 9.0},
+				{"do": "talk", "id": "commandant"},
+				{"do": "wait", "t": 3.0},
+				_go(33.0, 23.0, "arène (vers l'est)", 0.3),
+				_go(39.5, 23.0, "grille est (levée)", 0.3),
+				_go(44.6, 23.0, "E entrée de la coursive", 0.3),
+				_go(47.8, 24.8, "chasseur reçu", 0.3),
+				{"do": "talk", "id": "chasseur_reussi"},
+				{"do": "wait", "t": 3.0},
+				_go(53.4, 30.2, "chasseuse recalée", 0.35),
+				{"do": "talk", "id": "chasseuse_echouee"},
+				{"do": "wait", "t": 4.0},
+				_go(55.0, 23.2, "coursive (est)", 0.3),
+				_go(58.5, 23.4, "couloir de sortie", 0.3),
+				_go(62.5, 23.2, "F sortie est", 0.3),
+				{"do": "go", "to": Vector2(64.4, 23.0), "tol": 0.25, "id": "porte de la ville", "exit": true},
+				{"do": "wait", "t": 1.5},
+				_go(10.0, 8.0, "quartier", 0.3),
+				_go(25.8, 8.0, "panneau de la Guilde", 0.3),
+				{"do": "talk", "id": "ex_panneau_guilde"},
+				{"do": "wait", "t": 2.0},
+			]
+		"p6_sondes":
+			# P6 — sondes de collision (portes fermées, podium, murs) : pousse contre l'obstacle et vérifie la position.
+			return [
+				{"do": "wait", "t": 0.5},
+				_warp(36.0, 23.0, 0.0),
+				_push("grille est fermée (avant le tutoriel)", Vector2(1, 0), 3.0, {"max_x": 38.3}),
+				_warp(54.6, 23.0, 0.0),
+				_push("porte de la ville fermée (avant le tutoriel)", Vector2(1, 0), 3.0, {"max_x": 56.4}),
+				_warp(50.0, 13.4, 0.0),
+				_push("loge officielle fermée", Vector2(0, -1), 2.5, {"min_y": 12.2}),
+				_warp(53.0, 33.0, 0.0),
+				_push("réserve fermée", Vector2(0, 1), 2.5, {"max_y": 34.0}),
+				_warp(21.4, 41.0, 0.0),
+				_push("porte de service (salle d'attente)", Vector2(-1, 0), 2.5, {"min_x": 20.1}),
+				_warp(19.0, 23.0, 0.0),
+				_push("podium ouest de l'arène", Vector2(-1, 0), 4.0, {"min_x": 13.6}),
+				_warp(26.0, 16.0, 0.0),
+				_push("podium nord de l'arène", Vector2(0, -1), 4.0, {"min_y": 14.1}),
+				_warp(26.0, 52.0, 0.0),
+				_push("mur sud des vestiaires", Vector2(0, 1), 3.0, {"max_y": 54.8}),
+				_warp(18.0, 52.0, 0.0),
+				_push("porte des vestiaires vers la rue (fermée)", Vector2(-1, 0), 3.0, {"min_x": 16.1}),
+				_warp(26.0, 44.0, 0.0),
+				_push("passage salle d'attente → vestiaires", Vector2(0, 1), 2.0, {"min_y": 46.0}),
+			]
+		"p6_captures":
+			return [
+				{"do": "wait", "t": 1.5},
+				{"do": "snap", "id": "vestiaires"},
+				_warp(26.0, 41.5, 0.0),
+				{"do": "wait", "t": 1.5},
+				{"do": "snap", "id": "salle_attente"},
+				_warp(26.0, 27.5, 0.0),
+				{"do": "wait", "t": 1.5},
+				{"do": "snap", "id": "arene"},
+				{"do": "zoom", "i": 0, "smooth": false},
+				{"do": "wait", "t": 1.2},
+				{"do": "snap", "id": "arene_x2"},
+				{"do": "zoom", "i": 1, "smooth": false},
+				_warp(49.5, 24.5, 0.0),
+				{"do": "wait", "t": 1.5},
+				{"do": "snap", "id": "coursive"},
+				_warp(46.5, 37.8, 0.0),
+				{"do": "wait", "t": 1.5},
+				{"do": "snap", "id": "infirmerie"},
+				_warp(61.5, 23.0, 0.0),
+				{"do": "wait", "t": 1.5},
+				{"do": "snap", "id": "sortie_est"},
+			]
 		"p4":
 			# P4 — parcours complet de l'avant-poste : cour → garde (dialogue) → escalier → terrasse → bâtiment (entrée,
 			# examen, sortie) → descente → porte fortifiée → pont → plaine → abords du Vorgane (le combat se déclenche

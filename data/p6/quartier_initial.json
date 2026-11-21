@@ -1,0 +1,261 @@
+{
+ "project": "Val'Serra — Les Larmes d'Aether",
+ "stage": "P6 — point de transition provisoire vers la ville",
+ "godot_target": "4.7.2",
+ "_note": "Généré par tools/p6/build_colisee.py — ne pas éditer à la main.",
+ "world": {
+  "axes": "x droite, y bas du plan, h altitude",
+  "unit": "mètre",
+  "extent_m": [
+   32,
+   16
+  ],
+  "reference_native_px_per_m": 20
+ },
+ "checkpoints": [
+  {
+   "id": "A",
+   "name": "sortie du Colisée",
+   "xy_m": [
+    4.2,
+    8.0
+   ],
+   "height_m": 0
+  }
+ ],
+ "assets": [
+  {
+   "id": "rue",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     2,
+     4
+    ],
+    [
+     30,
+     4
+    ],
+    [
+     30,
+     12
+    ],
+    [
+     2,
+     12
+    ]
+   ],
+   "height_m": 0,
+   "walkable": true
+  }
+ ],
+ "ajustements": {
+  "parametres": {
+   "pas_franchissable_m": 0.25,
+   "rayon_personnage_m": 0.28,
+   "vitesse_m_s": 2.2,
+   "vitesse_course_m_s": 3.6,
+   "ecart_compagnon_m": 1.0,
+   "assistance_escalier": 0.3
+  },
+  "decor_marge": [
+   -6,
+   -6,
+   38,
+   22
+  ],
+  "obstacles": [
+   {
+    "id": "cmur_rue_n0",
+    "rect": [
+     1.6,
+     3.6,
+     30.4,
+     4.0
+    ],
+    "h": 0.0,
+    "haut": 3.4
+   },
+   {
+    "id": "cmur_rue_s0",
+    "rect": [
+     1.6,
+     12.0,
+     30.4,
+     12.4
+    ],
+    "h": 0.0,
+    "haut": 1.0
+   },
+   {
+    "id": "cmur_rue_o0",
+    "rect": [
+     1.6,
+     4.0,
+     2.0,
+     6.5
+    ],
+    "h": 0.0,
+    "haut": 2.6
+   },
+   {
+    "id": "cmur_rue_o1",
+    "rect": [
+     1.6,
+     9.5,
+     2.0,
+     12.0
+    ],
+    "h": 0.0,
+    "haut": 2.6
+   },
+   {
+    "id": "cmur_rue_e0",
+    "rect": [
+     30.0,
+     4.0,
+     30.4,
+     6.5
+    ],
+    "h": 0.0,
+    "haut": 2.6
+   },
+   {
+    "id": "cmur_rue_e1",
+    "rect": [
+     30.0,
+     9.5,
+     30.4,
+     12.0
+    ],
+    "h": 0.0,
+    "haut": 2.6
+   },
+   {
+    "id": "meuble_barriere_e",
+    "rect": [
+     29.4,
+     6.5,
+     30.0,
+     9.5
+    ],
+    "h": 0.0,
+    "haut": 1.1
+   },
+   {
+    "id": "meuble_etal_1",
+    "rect": [
+     9.0,
+     4.2,
+     12.0,
+     5.2
+    ],
+    "h": 0.0,
+    "haut": 1.2
+   },
+   {
+    "id": "meuble_etal_2",
+    "rect": [
+     18.0,
+     4.2,
+     21.0,
+     5.2
+    ],
+    "h": 0.0,
+    "haut": 1.2
+   },
+   {
+    "id": "meuble_fontaine",
+    "rect": [
+     14.4,
+     9.6,
+     16.6,
+     11.6
+    ],
+    "h": 0.0,
+    "haut": 0.8
+   }
+  ],
+  "entree": {
+   "xy": [
+    4.2,
+    8.0
+   ],
+   "h": 0.0
+  },
+  "sorties": [],
+  "p6": {
+   "nom": "Val'Serra — quartier du Colisée (transition provisoire)",
+   "zone": "quartier",
+   "sols": {
+    "rue": "paves"
+   },
+   "portes": [
+    {
+     "id": "portes_colisee",
+     "rect": [
+      1.6,
+      6.5,
+      2.0,
+      9.5
+     ],
+     "type": "grille",
+     "marque": "fermee",
+     "fermee_a_partir_de": "coliseum_exited",
+     "texte_ferme": "Les portes du Colisée se sont refermées derrière vous. Elles rouvriront plus tard."
+    }
+   ],
+   "examens": [
+    {
+     "id": "ex_panneau_guilde",
+     "xy": [
+      27.6,
+      8.0
+     ],
+     "portee_m": 1.8,
+     "texte": "« Guilde des Chasseurs — par la grande rue ». (Fin de l'introduction : la zone de la Guilde reste à construire.)"
+    },
+    {
+     "id": "ex_fontaine",
+     "xy": [
+      15.5,
+      9.0
+     ],
+     "portee_m": 1.6,
+     "texte": "Une fontaine. L'eau scintille d'un léger reflet d'Aether."
+    }
+   ],
+   "zones_nommees": [
+    {
+     "id": "rue",
+     "nom": "Quartier du Colisée",
+     "rect": [
+      2.0,
+      4.0,
+      30.0,
+      12.0
+     ]
+    }
+   ],
+   "camera_vue_dessus": [
+    0.0,
+    0.0,
+    32.0,
+    16.0
+   ],
+   "lumieres": [
+    [
+     8.0,
+     4.6,
+     2.6
+    ],
+    [
+     24.0,
+     4.6,
+     2.6
+    ]
+   ],
+   "pnj_zone": "quartier"
+  }
+ }
+}
