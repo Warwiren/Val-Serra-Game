@@ -211,6 +211,35 @@ func test_tutoriel_imperdable() -> void:
 	check(b2.get_combatant("heros").is_alive() and b2.state == Battle.State.AWAITING_COMMAND, "6 attaques sans garde : Aren tient toujours debout")
 
 
+## P6.1 : imperdable PAR CONSTRUCTION (garde-fou appliqué avant chaque décision), sur une longue durée et quelles que
+## soient les actions autorisées (attaque seule, technique chargée, garde, potions), et sans dépendre du schéma de l'IA.
+func test_tutoriel_imperdable_garde_fou() -> void:
+	var GardeFou = load("res://src/tutorial/garde_fou.gd")
+	var jeux := [["attaque"], ["technique"], ["garde"], ["attaque", "technique", "garde", "potion"]]
+	for jeu in jeux:
+		var b = _combat_tuto()
+		var base: int = b.get_combatant("commandant").attack
+		b.start()
+		for i in 60:
+			GardeFou.borner(b, "heros", "commandant", base)
+			var a: String = jeu[i % jeu.size()]
+			var cmd := {"action": a}
+			if a in ["attaque", "technique"]:
+				cmd["target"] = "commandant"
+				cmd["part"] = "heaume"
+				if a == "technique":
+					cmd["mode"] = "CHARGE"
+			elif a == "potion":
+				cmd["target"] = "heros"
+			if b.submit(cmd) != "":
+				b.submit({"action": "garde"})
+			if b.state != Battle.State.AWAITING_COMMAND:
+				break
+		check(b.get_combatant("heros").is_alive() and b.state == Battle.State.AWAITING_COMMAND,
+			"60 tours (%s) : Aren tient debout (%d PV)" % [",".join(PackedStringArray(jeu)), b.get_combatant("heros").hp])
+		check_eq(b.get_combatant("commandant").hp, 500, "60 tours (%s) : commandant intact" % ",".join(PackedStringArray(jeu)))
+
+
 func test_etapes_du_tutoriel() -> void:
 	var t: Dictionary = _json(TUTO)
 	var hunters: Dictionary = BattleFactory.load_json("res://data/combat/hunters.json")

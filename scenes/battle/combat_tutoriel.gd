@@ -12,6 +12,7 @@ extends "res://scenes/battle/battle_scene.gd"
 const Guide = preload("res://src/tutorial/guide_interface.gd")
 const CommandantView = preload("res://src/presentation/commandant_view.gd")
 const Progression = preload("res://src/game/progression.gd")
+const GardeFou = preload("res://src/tutorial/garde_fou.gd")
 const ETAPES := "res://data/p6/tutoriel_colisee.json"
 const MONSTRE := "res://data/combat/monster_commandant.json"
 const DECOR := "res://art/p6/combat/arene_colisee.png"
@@ -29,6 +30,7 @@ var _termine := false
 var _trace: Array = []                    # déroulé (tests, rapport) : étapes montrées, cibles, refus
 var _hp_min := 999999
 var _cli_auto := false
+var _attaque_base := 0
 
 
 func _ready() -> void:
@@ -41,6 +43,7 @@ func _ready() -> void:
 	battle = BattleFactory.create(data, ["heros"], {"potion": GameState.potions})
 	battle.get_combatant("heros").name = GameState.hero_name
 	monster_id = battle.monsters()[0].id
+	_attaque_base = battle.get_combatant(monster_id).attack
 	_build_world()
 	_build_hud()
 	guide = Guide.new()
@@ -150,6 +153,7 @@ func _play(e: Dictionary) -> void:
 
 
 func _setup_turn() -> void:
+	GardeFou.borner(battle, "heros", monster_id, _attaque_base)
 	super._setup_turn()
 	if _termine:
 		return
@@ -210,6 +214,7 @@ func _confirm() -> void:
 	_attend_action = false
 	_i += 1
 	guide.masquer()
+	GardeFou.borner(battle, "heros", monster_id, _attaque_base)
 	super._confirm()
 
 

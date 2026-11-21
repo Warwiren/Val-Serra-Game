@@ -561,7 +561,7 @@ func _play(e: Dictionary) -> void:
 			tele_resolve = -1
 			monster_view.set_telegraph(false)
 			hud.banner("INTERROMPU !", Color("#7cfc9a"), 0.7)
-			Fx.float_text(fx, monster_view.part_global("glande") + Vector2(0, -80), "Souffle annulé", Color("#7cfc9a"), 28)
+			Fx.float_text(fx, monster_view.center() + Vector2(0, -80), "%s annulé" % tele_name.split(" ")[0], Color("#7cfc9a"), 28)
 			await _wait(0.9)
 		"tempo":
 			var amount2: int = int(d.get("amount", 0))
@@ -862,9 +862,9 @@ func _refresh_selection() -> void:
 				("Dégâts ≈ %d · partie brisée" % est["damage"]) if m.get_part(sel_part) != null and m.get_part(sel_part).broken else "Dégâts ≈ %d · Rupture %d" % [est["damage"], est["break"]]]
 			if tele_resolve >= 0:
 				if GameState.proto:
-					lines.append("+ avant le Souffle" if int(est["resolve_at"]) < tele_resolve else "- après le Souffle")
+					lines.append(("+ avant " if int(est["resolve_at"]) < tele_resolve else "- après ") + _nom_annonce())
 				else:
-					lines.append("✔ avant le Souffle" if int(est["resolve_at"]) < tele_resolve else "✘ après le Souffle")
+					lines.append(("✔ avant " if int(est["resolve_at"]) < tele_resolve else "✘ après ") + _nom_annonce())
 			cards.append({"mode": mode, "title": MODE_TITLES[mode], "lines": lines, "selected": mode == sel_mode,
 				"color": MODE_COLORS[mode], "windup": float(battle.rules["modes"][mode]["windup"])})
 		hud.set_mode_cards(cards)
@@ -1046,6 +1046,14 @@ func _unhandled_input(event: InputEvent) -> void:
 		if pk >= KEY_1 and pk <= KEY_5 and pk - KEY_1 < ids.size():
 			sel_action = ids[pk - KEY_1]
 			_refresh_selection()
+
+
+## P6.1 : libellé de l'attaque annoncée dans les cartes de tempo (« le Souffle » pour le Vorgane, comme avant ;
+## sinon le nom réel de l'action annoncée, ex. « l'Assaut d'entraînement » du commandant).
+func _nom_annonce() -> String:
+	if tele_name.begins_with("Souffle"):
+		return "le Souffle"
+	return "« %s »" % tele_name
 
 
 func _cycle_target(dir: int) -> void:
