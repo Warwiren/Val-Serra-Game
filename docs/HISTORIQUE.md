@@ -17,11 +17,11 @@ et vidéos des étapes précédentes. Ils restent intacts dans Git, sur les bran
 | P4.7 taille d'Aren, combat d'Ilya (planche), Vorgane au sol | `p4-7-corrections` | `P4_7_CORRECTIONS.md` (+ `docs/media/p4_7/`) |
 | P4.8 marche d'Aren et d'Ilya (8 images, course) | `p4-8-marche` | `P4_8_MARCHE.md` (+ `docs/media/p4_8/`) |
 
-| P4.9 forêt V07B, V08A, V09A–V09C, V11 | `p4-9-v07-test` et suivantes, étiquette `archive/avant-p6` | `P4_9_V07B.md`, `P4_9_V09C.md`, `P4_9_V11.md` (présents) ; médias `docs/media/p4_9/` retirés en P6 |
-| P5 combat, P5.2, P5.3, P5.3-B (pilote, V2, V2 transitions) | `p5-combat`, `p5-2-environnement`, `p5-3-sols`, `p5-3b-*`, étiquette `archive/avant-p6` | rapports présents ; médias `docs/media/p5*/` retirés en P6 (sauf `p5_3b_v3h`, référence actuelle) |
+| P4.9 forêt V07B, V08A, V09A–V09C, V11 | `p4-9-v07-test` et suivantes | `P4_9_V07B.md`, `P4_9_V09C.md`, `P4_9_V11.md` (présents) ; médias `docs/media/p4_9/` retirés en P6 |
+| P5 combat, P5.2, P5.3, P5.3-B (pilote, V2, V2 transitions) | `p5-combat`, `p5-2-environnement`, `p5-3-sols`, `p5-3b-*` | rapports présents ; médias `docs/media/p5*/` retirés en P6 (sauf `p5_3b_v3h`, référence actuelle) |
 
 Nettoyage P6 (21/11/2026) : voir `docs/P6_INVENTAIRE.md`. Pour récupérer les médias retirés :
-`git checkout archive/avant-p6 -- docs/media/p4_9` (même chose pour `p5`, `p5_2`, `p5_3`, `p5_3b`, `p5_3b_v2`, `p5_3b_v2t`).
+`git checkout origin/p5-3b-v3-hybride -- docs/media/p4_9` (même chose pour `p5`, `p5_2`, `p5_3`, `p5_3b`, `p5_3b_v2`, `p5_3b_v2t`).
 
 Exemple : `git show p4-1-finitions:docs/P4_1_FINITIONS.md`, ou `git checkout p4-1-finitions -- docs/media/p4_1`.
 Les planches sources (concepts, packs) sont sur le Drive du projet (`Art/`, `Art/Assets/`).

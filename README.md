@@ -5,8 +5,8 @@ Démo jouable du RPG narratif au tour par tour **Val'Serra**, réalisée sous **
 > Tous les personnages, monstres, illustrations et nombres de ce dépôt sont **provisoires et non canoniques**.
 > Ce dépôt est indépendant du système Foundry du JDR (`Warwiren/Val-serra`), qui n'est pas modifié.
 
-> Médias des étapes P4.9 à P5.3-B V2 : retirés du projet actif en P6 (`docs/P6_INVENTAIRE.md`), disponibles sous
-> l'étiquette Git `archive/avant-p6` et dans les branches d'origine.
+> Médias des étapes P4.9 à P5.3-B V2 : retirés du projet actif en P6 (`docs/P6_INVENTAIRE.md`), disponibles dans
+> les branches d'origine (dernier état : `p5-3b-v3-hybride`).
 
 ## Ce qui est jouable
 

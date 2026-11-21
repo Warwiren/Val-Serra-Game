@@ -15,8 +15,8 @@ Branche `p6-colisee-ouverture`, créée le 21/11/2026 depuis **`p5-3b-v3-hybride
 | `tests/p5_combat_smoke.gd` | 0 échec |
 
 **Récupération** : rien n'est perdu. Toutes les anciennes branches restent intactes (aucune n'est modifiée) et l'état
-exact de départ est aussi marqué par l'étiquette Git **`archive/avant-p6`** (= `1f29e41`). Pour retrouver un fichier
-retiré : `git checkout archive/avant-p6 -- <chemin>` (ou télécharger le ZIP de la branche `p5-3b-v3-hybride`).
+exact de départ est aussi marqué par la branche **`p5-3b-v3-hybride`** (= `1f29e41`, inchangée). Pour retrouver un fichier
+retiré : `git checkout origin/p5-3b-v3-hybride -- <chemin>` (ou télécharger le ZIP de la branche `p5-3b-v3-hybride`).
 
 ## 1. Ce qui est réellement utilisé
 
@@ -64,7 +64,7 @@ Ressources graphiques : un script de comptage des références (chemins `res://`
 Justification : consigne du projet (« médias de rapport limités à l'étape en cours ») ; **aucune référence** depuis le
 code, les scènes, les données ou les tests (vérifié par recherche ; seul `tools/p49/v09b6_gabarit.py` y écrit par
 défaut, il recrée le dossier au besoin). Les rapports `.md` restent ; leurs liens d'images pointent vers des fichiers
-disponibles dans les branches d'origine et sous l'étiquette `archive/avant-p6` (indiqué dans `docs/HISTORIQUE.md`).
+disponibles dans les branches d'origine et dans la branche `p5-3b-v3-hybride` (indiqué dans `docs/HISTORIQUE.md`).
 
 Conservé : `docs/media/p5_3b_v3h/` (12 Mo) — référence visuelle **actuelle** du terrain (V3 hybride retenue).
 
