@@ -75,6 +75,12 @@
   copie du maillage (collision inchangée) ; horizon fermé (arbres lointains) ; touche U : sol V07 d'origine. Le décor
   de combat forêt est rendu depuis la même forêt (même sol) avec clairière, flou d'arrière-plan et premier plan
   (`art/p5/combat/foret_clairiere*.png`). Test : `tests/p52_sol_smoke.gd`. Ne pas modifier les collisions pour le rendu.
+- **Sols P5.3 (branche `p5-3-sols`, `docs/P5_3_SOLS.md`)** : P5.2 retenu comme base technique **provisoire** (non validé
+  artistiquement). Shader P5.3 (moins de bruit fin, transitions et usure), P5.2 figé dans `sol_foret_p52.gdshader`
+  (touche U). Ombre du terrain rétablie ; filtre des ombres douces en qualité 4 **à l'essai** (touche J : 2), à ne pas
+  considérer validé avant le test GPU du créateur. Les « hachures » autour des obstacles viennent de la trame de
+  l'occlusion (validée, non modifiée). Étape B : textures peintes RGBA (A = hauteur), 1024² = 4 × 4 m, pilote
+  herbe drue / herbe usée / terre de chemin dans `art/p53/sol/` ; ne pas inventer de textures de remplacement.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.

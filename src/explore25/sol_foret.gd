@@ -8,12 +8,14 @@ extends RefCounted
 ##    de l'écran). Une ceinture d'arbres lointains (modèles déjà présents, sans collision, sans ombre) et un sol de fond
 ##    sombre ferment la vue au nord et sur les côtés ; rien au sud (entre la caméra et les personnages).
 
-const SHADER := preload("res://src/explore25/sol_foret.gdshader")
+const SHADER := preload("res://src/explore25/sol_foret.gdshader")            # P5.3 (courant)
+const SHADER_P52 := preload("res://src/explore25/sol_foret_p52.gdshader")    # P5.2 figé (comparaison)
 ## surtout des pins (feuillage jusqu'au sol : un mur de verdure, pas une rangée de troncs), quelques feuillus
 const ARBRES_HORIZON := ["models/Pine_2.gltf", "models/Pine_4.gltf", "models/Pine_1.gltf", "models/Pine_2.gltf", "models/Pine_4.gltf", "models/CommonTree_2.gltf"]
 const FOND := Color(0.075, 0.105, 0.075)
 
-var materiau: ShaderMaterial
+var materiau: ShaderMaterial             # P5.3
+var materiau_p52: ShaderMaterial
 var _maillages := {}                 # MeshInstance3D -> [maillage d'origine, copie avec normales]
 var horizon: Node3D
 var nb_obstacles := 0
@@ -59,15 +61,19 @@ static func avec_normales(m: Mesh) -> ArrayMesh:
 	return out
 
 
-## nouveau sol (actif) ou sol V07 d'origine sur ces maillages
-func appliquer(mis: Array, actif: bool) -> void:
+## version du sol sur ces maillages : "p53" (courant), "p52" (figé) ou "v07" (d'origine)
+## Ombre du terrain : P5.2 la coupait (pensant supprimer des hachures dues en fait au micro-relief) ; sans le terrain
+## dans la carte d'ombres, les ombres douces des arbres et personnages se désagrégeaient en points. P5.3 la rétablit.
+func appliquer(mis: Array, version) -> void:
+	if version is bool:
+		version = "p53" if version else "v07"
 	for mi in mis:
 		var m: MeshInstance3D = mi
 		if not _maillages.has(m):
 			_maillages[m] = [m.mesh, avec_normales(m.mesh)]
-		m.mesh = _maillages[m][1] if actif else _maillages[m][0]
-		m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF if actif else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-		m.material_override = materiau if actif else null
+		m.mesh = _maillages[m][0] if version == "v07" else _maillages[m][1]
+		m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF if version == "p52" else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		m.material_override = {"p53": materiau, "p52": materiau_p52}.get(version, null)
 
 
 ## carte : la texture V07 du terrain ; placements : manifeste ; charge : fonction(nom de fichier) -> PackedScene
@@ -102,6 +108,10 @@ func construire(carte: Texture2D, placements: Array, charge: Callable) -> void:
 	nb_obstacles = obs.size()
 	materiau.set_shader_parameter("obstacles", obs)
 	materiau.set_shader_parameter("nb_obstacles", nb_obstacles)
+	materiau_p52 = materiau.duplicate() as ShaderMaterial
+	materiau_p52.shader = SHADER_P52
+	for k in ["carte", "bruit_large", "bruit_fin", "obstacles", "nb_obstacles"]:
+		materiau_p52.set_shader_parameter(k, materiau.get_shader_parameter(k))
 
 
 func _largeur(sc: PackedScene) -> float:

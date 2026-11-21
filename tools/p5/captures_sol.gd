@@ -49,6 +49,20 @@ func _variante_ombre() -> void:
 			abaisse = float(a.substr(10))
 		elif a.begins_with("--angulaire="):
 			sun.light_angular_distance = float(a.substr(12))
+		elif a.begins_with("--occ_mode="):          # diagnostic : "trame" (Bayer, validé) ou "alpha" (repli existant)
+			(sc.get("_occ")).set("mode", a.substr(11))
+		elif a == "--occlusion=0":                 # diagnostic : occlusion dynamique coupée (touche O)
+			(sc.get("_occ")).set("enabled", false)
+		elif a == "--soleil_sans_ombre":            # diagnostic : aucune ombre du soleil
+			sun.shadow_enabled = false
+		elif a == "--sans_silhouettes":             # diagnostic : silhouettes d'occlusion des personnages masquées
+			for n in ["_hero_ghost", "_ilya_ghost"]:
+				var g = sc.get(n)
+				if g != null:
+					(g as Node3D).visible = false
+					(g as Node3D).set_meta("cache", true)
+		elif a.begins_with("--sol="):               # P5.3 : p53 | p52 | v07
+			sc.call("set_version_sol", a.substr(6))
 		elif a.begins_with("--qualite="):          # filtre des ombres douces : 0 dur … 5 ultra (défaut du projet : 2)
 			RenderingServer.directional_soft_shadow_filter_set_quality(int(a.substr(10)))
 		elif a.begins_with("--biais_normal="):

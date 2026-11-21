@@ -1,5 +1,6 @@
 extends "res://tools/p49/banc_v07.gd"
-## P5.2 — sol de la forêt : nouveau sol au démarrage de F5 (touche U), mêmes collisions, horizon fermé, décor de combat
+## P5.2 / P5.3 — sol de la forêt : sol P5.3 au démarrage de F5 (touche U : P5.2 figé / V07), ombre du terrain, qualité
+## des ombres (touche J), mêmes collisions, horizon fermé, décor de combat
 ## forêt avec premier plan.
 ##   godot --headless --path . --fixed-fps 60 --script res://tests/p52_sol_smoke.gd
 
@@ -21,7 +22,9 @@ func _run() -> void:
 	sc = current_scene
 	var terrain: MeshInstance3D = sc.get("_terrain_mi")
 	var sol = sc.get("_sol")
-	_test(bool(sc.get("_sol_p52")) and sol != null and terrain.material_override == sol.get("materiau"), "F5 démarre avec le sol P5.2 (terrain)")
+	_test(bool(sc.get("_sol_p52")) and String(sc.get("version_sol")) == "p53" and sol != null and terrain.material_override == sol.get("materiau"), "F5 démarre avec le sol P5.3 (terrain)")
+	_test(terrain.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_ON, "P5.3 : le terrain projette son ombre (ombres douces non désagrégées)")
+	_test(int(sc.get("qualite_ombre")) == 4, "P5.3 : filtre des ombres douces en qualité 4 (essai, à confirmer sur GPU)")
 	var mis: Array = sc.call("_sols_mi")
 	_test(mis.size() == 2 and (mis[1] as MeshInstance3D).material_override == sol.get("materiau"), "bordure hors jeu : même sol")
 	var arr: Array = terrain.mesh.surface_get_arrays(0)
@@ -38,9 +41,18 @@ func _run() -> void:
 	_test(col.shape is ConcavePolygonShape3D and (col.shape as ConcavePolygonShape3D).get_faces().size() == 90240 * 3, "collision du terrain inchangée (90 240 triangles)")
 	_test((sc.get("_set_colliders") as Array).size() == 97, "obstacles inchangés (97)")
 	var orig: Mesh = (sol.get("_maillages") as Dictionary)[terrain][0]
+	sc.call("set_version_sol", "p52")
+	_test(terrain.material_override == sol.get("materiau_p52") and terrain.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF, "touche U : P5.2 figé (matière P5.2, terrain sans ombre)")
+	var ej := InputEventKey.new()
+	ej.keycode = KEY_J
+	ej.physical_keycode = KEY_J
+	ej.pressed = true
+	sc.call("_unhandled_key_input", ej)
+	_test(int(sc.get("qualite_ombre")) == 2, "touche J : retour à la qualité 2 (défaut du projet)")
+	sc.call("_unhandled_key_input", ej)
 	sc.call("set_sol_p52", false)
 	_test(terrain.material_override == null and terrain.mesh == orig and not (sol.get("horizon") as Node3D).visible, "touche U : sol V07 d'origine (maillage, matière, horizon)")
-	sc.call("set_sol_p52", true)
+	sc.call("set_version_sol", "p53")
 	# un parcours court au sol : Aren marche sur le chemin sans blocage
 	_place(-13.5, 0.3)
 	await _frames(10)
