@@ -43,8 +43,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p6-colisee-ouverture`**, puis **Code → Download ZIP** ; le
-   dossier s'appelle `Val-Serra-Game-p6-colisee-ouverture`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p6-1-colisee-camera-art`**, puis **Code → Download ZIP** ; le
+   dossier s'appelle `Val-Serra-Game-p6-1-colisee-camera-art`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -79,6 +79,10 @@ masque de collision avant / après.
    vestiaires → salle d'attente → arène → combat tutoriel guidé contre le commandant → retour en exploration →
    coursive → sortie est → quartier (transition provisoire). Aren seul. Rapport : `docs/P6_COLISEE.md` ;
    inventaire et allègement : `docs/P6_INVENTAIRE.md`.
+   **Branche `p6-1-colisee-camera-art` (21/11/2026)** : F5 inchangé ; Colisée en F6 avec les réglages proposés
+   (à valider) : caméra **P24 ×3** comme la forêt (touche **C** : P30 ×2,5 / P30 ×3 / P24 ×3), Aren avec
+   **l'apparence de la forêt** (V09B.5 + V4 ; touche **B** : P4.8), **pilote d'habillage** (touche **H** : blockout).
+   Rapport : `docs/P6_1_CAMERA_ART.md`.
 
 ### Commandes — forêt V07B (F5)
 
@@ -110,6 +114,7 @@ masque de collision avant / après.
 | **E** / Entrée / Espace | parler, examiner ; faire avancer le dialogue ; ↑ / ↓ puis E : choisir une réponse |
 | **Molette** (ou PgPréc / PgSuiv) | zoom ×2 / ×2,5 / ×3 |
 | En combat tutoriel | Entrée / Espace / clic : suite de l'explication ; puis commandes habituelles du combat ; Échap : refusé |
+| **C** / **B** / **H** | caméra (A / B / C) ; apparence d'Aren (forêt / P4.8) ; habillage (pilote / blockout) |
 | **P** | parcours automatique (avant ou après le tutoriel) ; **F1** : informations |
 
 ### Commandes — démo de l'avant-poste (F6)

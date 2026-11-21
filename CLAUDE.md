@@ -107,6 +107,12 @@
   (cibles = composants réels du HUD, `combat_hud.guide_target`). Aren seul pendant l'introduction. F5 inchangé
   (promotion du Colisée en attente de l'accord du créateur). Tests : `tests/unit/test_p6_colisee.gd`,
   `tests/e2e_p6_ouverture.gd -- --tuto-rapide`, parcours `p6_sondes`.
+- **P6.1 (branche `p6-1-colisee-camera-art`, `docs/P6_1_CAMERA_ART.md`)** : propositions EN ATTENTE de validation du
+  créateur — caméra du Colisée P24 ×3 (touche C), Aren « forêt » = V09B.5 96×112 h64 + V4 (fichiers `art/tests/`,
+  module `anim_v09b5.gd`, touche B ; P4.8 = `art/p45/chars/aren/`, style chibi, conservé), pilote d'habillage
+  `scenes/p6/habillage_p6.gd` (touche H, ressources du dépôt seulement, décor sans collision). Garde-fou du tutoriel :
+  `src/tutorial/garde_fou.gd` (attaque du commandant bornée, CombatCore inchangé). Aucun pack externe téléchargé
+  (hôtes bloqués, licences non vérifiées).
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.
