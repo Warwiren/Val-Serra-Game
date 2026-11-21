@@ -1,0 +1,36 @@
+{
+  "_note": "P6 — adversaire du COMBAT TUTORIEL (commandant de la Guilde, humain). Données de PROTOTYPE, non canoniques. Il ne perd jamais de PV PAR SES DONNÉES, sans toucher au CombatCore : toutes ses parties ont une affinité nulle (dégâts et rupture × 0) et il résiste totalement à l'Aether. Ses coups sont retenus (attaque basse) : le joueur ne peut pas perdre. Schéma fixe : assaut annoncé (pour apprendre la garde), puis frappe d'essai.",
+
+  "id": "commandant",
+  "name": "Commandant de la Guilde",
+  "is_boss": false,
+  "hp": 500,
+  "defense": 30,
+  "speed": 88,
+  "attack": 30,
+  "stats": { "FOR": 6, "DEX": 5, "CON": 7, "TEC": 6, "VOL": 5 },
+  "stat_weights": { "FOR": 1.0 },
+  "resistances": { "aether": 0.0 },
+
+  "parts": [
+    { "id": "heaume", "name": "Heaume", "integrity": 100,
+      "affinities": { "tranchant": 0.0, "impact": 0.0, "perforant": 0.0, "aether": 0.0 }, "break_effect": {}, "loot": "" },
+    { "id": "bouclier", "name": "Bouclier", "integrity": 100,
+      "affinities": { "tranchant": 0.0, "impact": 0.0, "perforant": 0.0, "aether": 0.0 }, "break_effect": {}, "loot": "" },
+    { "id": "plastron", "name": "Plastron", "integrity": 100,
+      "affinities": { "tranchant": 0.0, "impact": 0.0, "perforant": 0.0, "aether": 0.0 }, "break_effect": {}, "loot": "" }
+  ],
+
+  "actions": {
+    "assaut":  { "name": "Assaut d'entraînement", "target": "single", "power": 1.0, "windup": 0.95, "damage_type": "impact", "interruptible": false, "telegraph": true },
+    "frappe":  { "name": "Frappe d'essai",        "target": "single", "power": 0.5, "windup": 0.30, "damage_type": "impact", "interruptible": false, "telegraph": false }
+  },
+
+  "ai": {
+    "pattern": ["assaut", "frappe"],
+    "fallback": "frappe",
+    "targeting": "lowest_hp"
+  },
+
+  "rewards": { "currency": 0, "items": {} }
+}

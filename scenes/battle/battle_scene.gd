@@ -328,6 +328,8 @@ func _build_hud() -> void:
 	hud.simple = GameState.proto
 	if GameState.proto and GameState.arena == "foret":
 		hud.zone_name = "Forêt de la lisière"     # P5 : le lieu de la rencontre (la forêt d'exploration)
+	elif GameState.proto and GameState.arena == "colisee":
+		hud.zone_name = "Colisée de Val'Serra"    # P6 : combat tutoriel dans l'arène
 	layer.add_child(hud)
 	hud.build()
 	var i := 0

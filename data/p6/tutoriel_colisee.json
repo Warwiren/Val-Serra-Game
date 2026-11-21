@@ -1,0 +1,130 @@
+{
+ "_note": "P6 — étapes du COMBAT TUTORIEL (src/tutorial/guide_interface.gd). Textes provisoires, conformes aux mécaniques réellement implémentées (data/combat/actions.json, rules.json). cibles : composants du HUD mis en surbrillance (initiative, groupe, actions, tempos, confirmer, adversaire, pv_adversaire). attendre : « suite » (Entrée / clic) ou « action » (le joueur doit valider une des actions listées ; les autres sont refusées avec « refus »). tour : numéro du tour du joueur où l'étape est jouée (1, 2, 3…).",
+ "orateur": "Commandant de la Guilde",
+ "portrait": "pnj",
+ "etapes": [
+  {
+   "id": "presentation",
+   "tour": 1,
+   "cibles": [],
+   "texte": "Avant de frapper, prenez le temps d'observer la situation. Chaque action a son importance.",
+   "selection": "attaque"
+  },
+  {
+   "id": "tour_par_tour",
+   "tour": 1,
+   "cibles": [],
+   "texte": "Le combat se joue au tour par tour : quand vient votre tour, tout s'arrête et attend votre ordre. Rien ne presse."
+  },
+  {
+   "id": "initiative",
+   "tour": 1,
+   "cibles": [
+    "initiative"
+   ],
+   "texte": "Cette frise donne l'ordre des prochains tours : à gauche, celui qui agit maintenant, puis les suivants. Le nombre sous chaque portrait indique dans combien de temps il agira."
+  },
+  {
+   "id": "groupe",
+   "tour": 1,
+   "cibles": [
+    "groupe"
+   ],
+   "texte": "Ici, votre état : vos points de vie, et votre Résonance, une énergie qui se gagne en attaquant et en parant au bon moment."
+  },
+  {
+   "id": "actions",
+   "tour": 1,
+   "cibles": [
+    "actions"
+   ],
+   "texte": "Vos actions. Attaque : un coup rapide et fiable, qui fait monter la Résonance. Technique d'arme : plus puissante. Garde : réduit le prochain coup reçu. Potion : rend des points de vie."
+  },
+  {
+   "id": "tempos",
+   "tour": 1,
+   "cibles": [
+    "tempos"
+   ],
+   "texte": "Une technique se règle en trois tempos : Vif frappe vite, Chargé frappe fort mais tard. Chaque carte annonce quand l'effet aura lieu. Avec Tab, on passe d'un tempo à l'autre.",
+   "selection": "technique"
+  },
+  {
+   "id": "ciblage",
+   "tour": 1,
+   "cibles": [
+    "adversaire",
+    "pv_adversaire"
+   ],
+   "texte": "Pour viser, cliquez sur une partie de l'adversaire, ou utilisez ← et →. Sur un monstre, briser une partie l'affaiblit. Moi, je pare tout : vos coups ne m'entameront pas.",
+   "selection": "attaque"
+  },
+  {
+   "id": "attaque",
+   "tour": 1,
+   "cibles": [
+    "actions",
+    "confirmer"
+   ],
+   "attendre": "action",
+   "actions": [
+    "attaque"
+   ],
+   "texte": "À vous. Choisissez « Attaque », visez une partie, puis validez avec « Confirmer » ou la touche Entrée.",
+   "refus": "Pas cette fois : choisissez « Attaque », puis confirmez.",
+   "selection": "attaque"
+  },
+  {
+   "id": "annonce",
+   "tour": 2,
+   "cibles": [
+    "initiative"
+   ],
+   "texte": "Paré ! Maintenant, regardez la frise : j'annonce un assaut. Le losange rouge montre quand il frappera… avant votre prochain tour."
+  },
+  {
+   "id": "garde",
+   "tour": 2,
+   "cibles": [
+    "actions",
+    "confirmer"
+   ],
+   "attendre": "action",
+   "actions": [
+    "garde"
+   ],
+   "texte": "Quand un coup puissant arrive, mettez-vous en garde. Choisissez « Garde » et validez.",
+   "refus": "Mon assaut arrive : choisissez « Garde » et validez.",
+   "selection": "attaque"
+  },
+  {
+   "id": "garde_ok",
+   "tour": 3,
+   "cibles": [
+    "groupe"
+   ],
+   "texte": "Vous voyez ? Votre garde a absorbé une bonne partie du choc, et vous a rapporté de la Résonance.",
+   "selection": "attaque"
+  },
+  {
+   "id": "objets",
+   "tour": 3,
+   "cibles": [
+    "actions"
+   ],
+   "texte": "Si vos points de vie baissent trop, une potion vous remettra d'aplomb. Gardez-les pour la suite : aujourd'hui, inutile."
+  },
+  {
+   "id": "fin",
+   "tour": 3,
+   "cibles": [],
+   "fin": true,
+   "texte": "Bien. Je pense que vous êtes prêt. Vous connaissez les bases, le reste viendra avec l'expérience.",
+   "selection": "attaque"
+  }
+ ],
+ "interjections": {
+  "quitter": "L'évaluation n'est pas terminée, recrue. On ne quitte pas l'arène en plein combat.",
+  "attendre": "Écoutez d'abord. Appuyez sur Entrée ou cliquez pour continuer."
+ }
+}
