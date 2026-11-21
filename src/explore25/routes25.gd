@@ -86,6 +86,45 @@ static func route(name: String) -> Array:
 				_warp(26.0, 44.0, 0.0),
 				_push("passage salle d'attente → vestiaires", Vector2(0, 1), 2.0, {"min_y": 46.0}),
 			]
+		"p6_cam":
+			# P6.1 — six positions de comparaison des caméras (même ordre pour A, B et C)
+			var pts := [["1_vestiaires", 26.0, 50.6], ["2_salle_attente", 26.0, 41.2], ["3_entree_arene", 26.0, 30.2],
+				["4_centre_arene", 26.0, 24.2], ["5_coursive", 49.6, 24.6], ["6_sortie_est", 61.0, 23.0]]
+			var out := [{"do": "wait", "t": 1.0}]
+			for p in pts:
+				out.append(_warp(p[1], p[2], 0.0))
+				out.append({"do": "wait", "t": 1.4})
+				out.append({"do": "snap", "id": p[0]})
+			return out
+		"p6_aren":
+			# P6.1 — Aren en jeu : immobile, marche et course vers la droite, de face (centre de l'arène)
+			return [
+				_warp(22.0, 24.0, 0.0),
+				{"do": "wait", "t": 1.5},
+				{"do": "push", "id": "pose droite", "dir": Vector2(1, 0), "t": 0.12, "expect": {}},
+				{"do": "wait", "t": 1.0},
+				{"do": "snap", "id": "aren_immobile"},
+				{"do": "push", "id": "marche droite", "dir": Vector2(1, 0), "t": 0.75, "expect": {}},
+				{"do": "snap", "id": "aren_marche"},
+				{"do": "push", "id": "course droite", "dir": Vector2(1, 0), "t": 0.62, "run": true, "expect": {}},
+				{"do": "snap", "id": "aren_course"},
+				{"do": "push", "id": "vers le bas", "dir": Vector2(0, 1), "t": 0.5, "expect": {}},
+				{"do": "snap", "id": "aren_face_marche"},
+				{"do": "wait", "t": 1.0},
+				{"do": "snap", "id": "aren_face"},
+			]
+		"p6_video_cam":
+			# P6.1 — courte traversée filmée (vestiaires -> arène -> coursive), identique pour les trois caméras
+			return [
+				{"do": "wait", "t": 0.8},
+				_go(26.0, 45.6, "passage", 0.3),
+				_go(26.0, 38.5, "salle d'attente", 0.3),
+				_go(26.0, 30.0, "entrée de l'arène", 0.3),
+				_go(31.0, 25.5, "arène", 0.3),
+				_go(39.5, 23.0, "grille est", 0.3),
+				_go(46.0, 23.0, "coursive", 0.3),
+				{"do": "wait", "t": 0.6},
+			]
 		"p6_captures":
 			return [
 				{"do": "wait", "t": 1.5},

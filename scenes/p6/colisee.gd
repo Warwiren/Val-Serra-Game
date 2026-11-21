@@ -23,6 +23,16 @@ const PNJ_P6 := "res://data/p6/pnj_colisee.json"
 const QUALITE_OMBRE := 4                  # ombres douces qualité 4 (référence P5.3 retenue)
 const QUALITE_OMBRE_DEFAUT := 2
 const PNJ_R := 0.35
+const AnimV09B5 = preload("res://src/explore25/anim_v09b5.gd")
+const Habillage = preload("res://scenes/p6/habillage_p6.gd")
+## P6.1 — réglages de caméra comparés (touche C) : [nom, préréglage, indice de zoom (0 : ×2, 1 : ×2,5, 2 : ×3)]
+const CAMS_P6 := {"A": ["P30", 1], "B": ["P30", 2], "C": ["P24", 2]}
+const CAMS_P6_ORDRE := ["A", "B", "C"]
+const CAMS_P6_LABEL := {"A": "A — P30 ×2,5 (P6)", "B": "B — P30 ×3", "C": "C — P24 ×3 (réglage de la forêt)"}
+## P6.1 — apparences d'Aren comparées (touche B) : « foret » = ce qu'affiche F5 depuis le 19/11 (profil V09B.5
+## 96 × 112 réduit à 64 px de haut, face / dos V4 dessinés, art/tests/) ; « p48 » = art/p45/chars/aren/ (P6).
+const AREN_VARIANTES := ["foret", "p48"]
+const TEINTE_P6 := Color(1.0, 0.97, 0.94)        # lumière de fin d'après-midi (l'avant-poste garde son crépuscule)
 const PORTEE_PARLER := 1.7
 const COMMANDANT_AUTO_M := 2.6             # le dialogue du commandant s'ouvre seul à cette distance (avant le tutoriel)
 ## Couleurs des marques de passage (légende du plan)
@@ -46,14 +56,24 @@ var _obj_panel: PanelContainer
 var _obj_label: Label
 var _obj_flash := 0.0
 var _journal: Array = []                  # événements de la session (tests, rapport)
+var cam_p6 := "C"
+var aren_variante := "foret"
+var _anim_aren: RefCounted
+var habillage := true                       # P6.1 : pilote d'habillage (touche H : pilote / blockout P6)
+var _hab
 
 
 func _ready() -> void:
 	_cli = parse_cli()
 	variante = "B"
-	cam_mode = "P30"
-	if CAMS.has(str(_cli.get("camera", "")).to_upper()):
-		cam_mode = str(_cli["camera"]).to_upper()
+	cam_p6 = str(_cli.get("cam_p6", cam_p6)).to_upper()
+	if not CAMS_P6.has(cam_p6):
+		cam_p6 = "C"
+	cam_mode = CAMS_P6[cam_p6][0]
+	habillage = str(_cli.get("habillage", "pilote")) != "blockout"
+	aren_variante = str(_cli.get("aren", aren_variante))
+	if not AREN_VARIANTES.has(aren_variante):
+		aren_variante = "foret"
 	paysage = "aucun"
 	arch_label = "P6 — Colisée"
 	for k in CHARS:
@@ -64,9 +84,9 @@ func _ready() -> void:
 	s.options["grid"] = false
 	s.options["occlusion"] = 0
 	_apply_variante()
-	s.arch = "P6 — Colisée · " + CAMS[cam_mode]["label"]
+	s.arch = "P6 — Colisée · " + CAMS_P6_LABEL[cam_p6]
 	s.build_hud()
-	s._help.text = "Flèches / ZQSD : marcher  ·  Maj : courir  ·  E / Entrée : parler, examiner  ·  Molette : zoom  ·  F1 : infos"
+	s._help.text = "Flèches / ZQSD : marcher  ·  Maj : courir  ·  E / Entrée : parler, examiner  ·  Molette : zoom  ·  C : caméra  ·  B : Aren  ·  H : habillage  ·  F1 : infos"
 	_build_ui()
 	_build_ui_p6()
 	_build_tilt()
@@ -112,6 +132,7 @@ func _ready() -> void:
 			_cli.erase("route")
 	var zone := ZONE_QUARTIER if Progression.au_moins(Progression.COLISEUM_EXITED) else ZONE_COLISEE
 	_load(_cli.get("instance", zone), "instance", arrive)
+	s.cam.set_index(CAMS_P6[cam_p6][1], false)
 	_apply_cli()
 	_maj_objectif(false)
 	_log("chargement", {"etat": Progression.etat(), "zone": _p6.get("zone", ""), "retour_tutoriel": _fin_tutoriel})
@@ -185,6 +206,8 @@ func _spawn_actors() -> void:
 	cs.position = Vector3(0, 0.8, 0)
 	body.add_child(cs)
 	add_child(body)
+	_anim_aren = AnimV09B5.make()
+	_anim_aren.format = "96x112_h64"           # même réglage que le démarrage de F5 (forêt)
 	var h := _make_actor("aren", "aren")
 	body.add_child(h["node"])
 	comp_vis = Node3D.new()                 # point d'ancrage vide (le socle déplace « le compagnon »)
@@ -194,7 +217,33 @@ func _spawn_actors() -> void:
 
 func animate(hm: float, hdir: Vector2, _cm: float, _cdir: Vector2, delta: float) -> void:
 	actors["aren"]["actor"].step(hm, hdir, delta)
+	if _anim_aren != null:
+		var run := force_run or Input.is_physical_key_pressed(KEY_SHIFT)
+		_anim_aren.step(actors["aren"]["actor"], hm, run, hdir.x if hm > 0.0001 else 0.0)
 	_sync_sprite(actors["aren"])
+
+
+## P6.1 — Aren : image P4.8 (Actor25) ou variante « forêt » (V09B.5 + V4, module de F5), même carte « pixel net ».
+## Le pied du personnage reste sur l'origine : ligne de sol et axe de la tête du format V09B.5 pris en compte.
+func _sync_sprite(d: Dictionary) -> void:
+	super._sync_sprite(d)
+	if not d.has("main"):
+		return
+	var mi: MeshInstance3D = d["main"]
+	var mm: ShaderMaterial = mi.material_override
+	if d.get("node") != null and actors.has("aren") and d == actors["aren"]:
+		mm.set_shader_parameter("tint", TEINTE_P6)
+		if aren_variante == "foret" and _anim_aren != null and _anim_aren.active:
+			var tex: Texture2D = _anim_aren.texture()
+			var pm: float = _anim_aren.pixel_m()
+			var w := tex.get_width() * pm
+			var h := tex.get_height() * pm / cos(World25.pitch)
+			var sol: float = float(_anim_aren._cad["formats"][_anim_aren.format]["ligne_sol_px"])
+			var ox: float = _anim_aren.offset_px(0.0, tex).x * pm
+			(mi.mesh as QuadMesh).size = Vector2(w, h)
+			mi.position = Vector3(ox, h / 2.0 - (tex.get_height() - sol) * pm / cos(World25.pitch), 0)
+			mm.set_shader_parameter("tex", tex)
+			mm.set_shader_parameter("flip", 1.0 if _anim_aren.miroir() else 0.0)
 
 
 func groupe() -> Array:
@@ -299,6 +348,11 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	_env_res.ambient_light_color = Color(0.6, 0.6, 0.68)
 	_env_res.ambient_light_energy = 0.85
 	_env_res.background_color = Color(0.36, 0.43, 0.6) if _p6.has("arene") else Color(0.09, 0.08, 0.12)   # ciel au-dessus de l'arène
+	_env_res.background_mode = Environment.BG_COLOR
+	_env_res.tonemap_mode = Environment.TONE_MAPPER_LINEAR
+	_hab = Habillage.new(self) if habillage else null
+	if _hab != null:
+		_hab.lumiere(_env_res, _sun)
 	_portes_fermees.clear()
 	for e in world.elements:
 		_build(e)
@@ -352,6 +406,8 @@ func _decor_floor(e: Dictionary) -> void:
 	var c := Vector3(r.get_center().x, e["h"] - 0.17, r.get_center().y)
 	var size := Vector3(r.size.x + 60.0, 0.3, r.size.y + 60.0)
 	_static_box(c, size, L_NOWALK)
+	if _hab != null:
+		return                                  # parvis et bâtiments lointains : Habillage.exterieur
 	var mi := _box_mesh(c, size, _tinted("paves", Color(0.2, 0.19, 0.25)))
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
@@ -367,9 +423,16 @@ func _build_bloc_p6(e: Dictionary) -> void:
 		return                                          # podium : collision seule, maillage continu dans _build_arene
 	if id.begins_with("cmur_"):
 		var tall := h1 - h0 > 1.5
-		var mi := _box_mesh(_rect_center(r, h0, h1), size, _surf("pierre", tall))
+		if _hab != null and id.begins_with("cmur_tunnel_sud"):
+			h1 = h0 + 1.7                       # rendu à la hauteur des gradins sud (collision inchangée : 2,6 m)
+			size.y = h1 - h0
+		var mpierre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE, tall) if _hab != null else _surf("pierre", tall)
+		var mi := _box_mesh(_rect_center(r, h0, h1), size, mpierre)
 		fade_nodes[sb] = [mi]
-		_box_mesh(_rect_center(r.grow(0.04), h1, h1 + 0.08), Vector3(r.size.x + 0.08, 0.08, r.size.y + 0.08), _tinted("pierre", Color(1.12, 1.1, 1.14), tall))
+		var mcap: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(1.12, 1.1, 1.08), tall) if _hab != null else _tinted("pierre", Color(1.12, 1.1, 1.14), tall)
+		_box_mesh(_rect_center(r.grow(0.06), h1, h1 + 0.12), Vector3(r.size.x + 0.12, 0.12, r.size.y + 0.12), mcap)
+		if _hab != null:
+			_box_mesh(_rect_center(r.grow(0.05), h0, 0.3), Vector3(r.size.x + 0.1, 0.3, r.size.y + 0.1), _hab.mat(Habillage.PIERRE, 1.2, Habillage.C_CALCAIRE * Color(0.72, 0.7, 0.7)))
 		return
 	var nom := id.trim_prefix("meuble_")
 	var bois := _surf("bois")
@@ -402,7 +465,8 @@ func _build_bloc_p6(e: Dictionary) -> void:
 		_box_mesh(c + Vector3(0, 1.62, 0), Vector3(0.26, 0.26, 0.26), _tinted("bois", Color(0.95, 0.82, 0.6)))
 		_box_mesh(c + Vector3(0, 1.35, 0), Vector3(1.0, 0.1, 0.1), bois)
 	elif nom.begins_with("pilier"):
-		_box_mesh(_rect_center(r, h0, h1), size, _surf("pierre", true))
+		var mp: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE, true) if _hab != null else _surf("pierre", true)
+		_box_mesh(_rect_center(r, h0, h1), size, mp)
 		_box_mesh(_rect_center(r.grow(0.12), h0, 0.3), Vector3(r.size.x + 0.24, 0.3, r.size.y + 0.24), _surf("pierre"))
 		_box_mesh(_rect_center(r.grow(0.12), h1 - 0.25, h1), Vector3(r.size.x + 0.24, 0.25, r.size.y + 0.24), _surf("pierre", true))
 	elif nom.begins_with("lit"):
@@ -430,6 +494,10 @@ func _build_bloc_p6(e: Dictionary) -> void:
 
 
 func _build_p6() -> void:
+	if _hab != null:
+		_hab.exterieur(world.decor)
+		if _p6.get("zone", "") == "colisee":
+			_hab.vestiaires(Rect2(16.0, 46.5, 20.0, 8.5))
 	if _p6.has("arene"):
 		_build_arene(_p6["arene"])
 	for pid in _p6.get("pieces_fermees", {}):
@@ -530,6 +598,10 @@ func _build_arene(a: Dictionary) -> void:
 	var tunnels: Array = []
 	for t in a["tunnels"]:
 		tunnels.append(Rect2(t[0], t[1], t[2] - t[0], t[3] - t[1]).grow(0.05))
+	if _hab != null:
+		_hab.arene(a, tunnels)
+		_hab.loge(a["loge"])
+		return
 	var n := 120
 	# sable
 	var st := SurfaceTool.new()
@@ -729,7 +801,10 @@ func parler(id: String, cle := "") -> void:
 	s.dialogue_open = true
 	s.cam.ui_lock = true
 	var np: Vector2 = n["p"]
-	actors["aren"]["actor"].face_toward(World25.plan_to_screen_dir(np - Vector2(s.hero.x, s.hero.y)))
+	var vers := World25.plan_to_screen_dir(np - Vector2(s.hero.x, s.hero.y))
+	actors["aren"]["actor"].face_toward(vers)
+	if _anim_aren != null:
+		_anim_aren.step(actors["aren"]["actor"], 0.0, false, vers.x)
 	_sync_sprite(actors["aren"])
 	actors[n["key"]]["actor"].face_toward(World25.plan_to_screen_dir(Vector2(s.hero.x, s.hero.y) - np))
 	_dialog.open(v["etapes"], spk)
@@ -796,6 +871,24 @@ func _unhandled_input(e: InputEvent) -> void:
 	if _dialog.is_open():
 		if e is InputEventKey and e.pressed and not e.echo:
 			_dialog.handle_key(e)
+		return
+	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_C:
+		cam_p6 = CAMS_P6_ORDRE[(CAMS_P6_ORDRE.find(cam_p6) + 1) % CAMS_P6_ORDRE.size()]
+		cam_mode = CAMS_P6[cam_p6][0]
+		s.arch = "P6 — Colisée · " + CAMS_P6_LABEL[cam_p6]
+		_reload_here()
+		s.cam.set_index(CAMS_P6[cam_p6][1], false)
+		s.toast("Caméra " + CAMS_P6_LABEL[cam_p6], 2.5)
+		return
+	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_H:
+		habillage = not habillage
+		_reload_here()
+		s.toast("Habillage : " + ("pilote P6.1" if habillage else "blockout P6"), 2.5)
+		return
+	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_B:
+		aren_variante = AREN_VARIANTES[(AREN_VARIANTES.find(aren_variante) + 1) % AREN_VARIANTES.size()]
+		_sync_sprite(actors["aren"])
+		s.toast("Aren : " + {"foret": "apparence de la forêt (V09B.5 + V4)", "p48": "P4.8 (art/p45)"}[aren_variante], 2.5)
 		return
 	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_P:
 		s.start_pilot("p6_avant" if not Progression.au_moins(Progression.TUTORIAL_COMPLETED) else "p6_apres")

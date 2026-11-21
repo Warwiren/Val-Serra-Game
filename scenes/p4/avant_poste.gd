@@ -42,6 +42,8 @@ const CAMS := {
 	"P30": {"label": "P30 — perspective, plongée 30°, champ 30°, flou de distance léger (défaut P4.4)", "pitch": 30.0, "persp": true, "fov": 30.0, "tilt": 0.3},
 	"B28": {"label": "B28 — orthographique, plongée 28° (référence P4 / P4.1)", "pitch": 28.0, "persp": false},
 	"P38": {"label": "P38 — perspective, plongée 38°, champ 22°, flou de distance léger", "pitch": 38.0, "persp": true, "fov": 22.0, "tilt": 0.3},
+	## P6.1 : réglage de démarrage de la forêt V07B (plongée 24°, azimut 20°, champ 30°) ; hors du cycle C de l'avant-poste
+	"P24": {"label": "P24 — perspective, plongée 24°, champ 30° (réglage de la forêt)", "pitch": 24.0, "persp": true, "fov": 30.0, "tilt": 0.3},
 }
 const CAM_ORDER := ["P30", "B28", "P38"]
 const BANK_TINT := Color(0.86, 0.78, 0.86)        # berge BER-01 moins orangée (raccord avec le talus et l'eau)
