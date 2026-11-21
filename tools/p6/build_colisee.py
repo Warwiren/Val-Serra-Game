@@ -37,7 +37,7 @@ H_SUD = 1.0                     # murs « coupés » côté caméra (sud) : l'in
 # Pièces praticables : id -> [x0, y0, x1, y1], sol (matière de l'habillage)
 PIECES = {
     "vestiaires":        ([16.0, 46.5, 36.0, 55.0], "plancher"),
-    "passage_vestiaires": ([24.75, 44.5, 27.25, 46.5], "paves"),
+    "passage_vestiaires": ([24.5, 44.5, 27.5, 46.5], "paves"),     # P6.2 : 3 m, aligné sur la salle et le tunnel
     "salle_attente":     ([20.0, 37.5, 32.0, 44.5], "paves"),
     "tunnel_sud":        ([24.5, 31.0, 27.5, 37.5], "paves"),
     "arene":             ([13.5, 14.0, 38.5, 32.0], "sable"),
@@ -112,10 +112,10 @@ def anneau():
 def colisee():
     murs = []
     P = {k: v[0] for k, v in PIECES.items()}
-    murs += murs_piece("vestiaires", P["vestiaires"], [("n", 24.75, 27.25)])
+    murs += murs_piece("vestiaires", P["vestiaires"], [("n", 24.5, 27.5)])
     murs += murs_piece("passage_vestiaires", P["passage_vestiaires"], [], cotes="oe", hauteurs={"o": 2.6, "e": 2.6})
     murs += murs_piece("salle_attente", P["salle_attente"],
-                       [("n", 24.5, 27.5), ("s", 24.75, 27.25)])
+                       [("n", 24.5, 27.5), ("s", 24.5, 27.5)])
     murs += murs_piece("tunnel_sud", [24.5, 32.0, 27.5, 37.5], [], cotes="oe")
     murs += murs_piece("tunnel_est", [38.4, 21.5, 44.0, 24.5], [], cotes="ns", hauteurs={"s": 1.6})
     murs += murs_piece("coursive", P["coursive"],
