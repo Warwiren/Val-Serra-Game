@@ -6,7 +6,9 @@ extends "res://tools/p49/banc_v07.gd"
 ##       [--points=chemin,large]
 
 const POINTS := [["depart", -14.5, 0.2], ["croisement", -12.0, 1.2], ["chemin", -2.0, -0.4], ["pente_nord", 1.0, -6.6],
-	["ruisseau", 2.5, -9.6], ["clairiere", 6.0, 1.0]]
+	["ruisseau", 2.5, -9.6], ["clairiere", 6.0, 1.0],
+	# P5.3 : vues rapprochées (bord de chemin, pente, pied d'arbre, pied de rocher)
+	["proche_bord", -7.2, 2.6], ["proche_pente", -1.0, -7.4], ["proche_arbre", -5.0, -3.0], ["proche_rocher", -6.6, 3.4]]
 
 
 func _run() -> void:
@@ -15,6 +17,7 @@ func _run() -> void:
 	await _frames(30)
 	sc = current_scene
 	await _tap(KEY_H)
+	_variante_ombre()
 	var seuls := []
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--points="):
@@ -27,6 +30,39 @@ func _run() -> void:
 		await _tap(KEY_4)
 		await _vue("large", -2.0, 0.5)
 	quit()
+
+
+## diagnostic P5.3 des ombres du terrain : --ombre=aucune (P5.2) | directe (le terrain projette son ombre, état qui
+## donnait des hachures) | proxy (copie du terrain, ombre seule, abaissée de --abaisse m) ; --angulaire=<°> (taille
+## du soleil : ombres douces PCSS) ; --biais_normal=<x>
+func _variante_ombre() -> void:
+	var mode := ""
+	var abaisse := 0.12
+	var sun: DirectionalLight3D = null
+	for c in sc.get_children():
+		if c is DirectionalLight3D:
+			sun = c
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--ombre="):
+			mode = a.substr(8)
+		elif a.begins_with("--abaisse="):
+			abaisse = float(a.substr(10))
+		elif a.begins_with("--angulaire="):
+			sun.light_angular_distance = float(a.substr(12))
+		elif a.begins_with("--qualite="):          # filtre des ombres douces : 0 dur … 5 ultra (défaut du projet : 2)
+			RenderingServer.directional_soft_shadow_filter_set_quality(int(a.substr(10)))
+		elif a.begins_with("--biais_normal="):
+			sun.shadow_normal_bias = float(a.substr(15))
+	var t: MeshInstance3D = sc.get("_terrain_mi")
+	if mode == "directe":
+		t.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	elif mode == "proxy":
+		var p := MeshInstance3D.new()
+		p.mesh = t.mesh
+		p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
+		t.add_child(p)
+		p.position = Vector3(0, -abaisse, 0)
+	print("ombre terrain : %s ; soleil angulaire %.1f, biais %.2f, biais normal %.2f" % [mode if mode != "" else "aucune", sun.light_angular_distance, sun.shadow_bias, sun.shadow_normal_bias])
 
 
 func _vue(nom: String, x: float, z: float) -> void:
