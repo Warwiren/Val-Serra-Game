@@ -59,6 +59,22 @@ uniform float moy_usee = 0.45;
 uniform float moy_terre = 0.43;
 uniform float test_usure = 0.0;                 // outil : 1 = herbe usée imposée dans la zone (contrôle de sa répétition)
 uniform float profondeur_melange = 0.08;
+// --- P5.3-B V2 « transitions » (21/11/2026), sans effet sur V1 / V1 calée / V2 actuelle (valeurs par défaut) :
+//  - force_mat : étirement des hauteurs PAR MATIÈRE autour de leur moyenne (0 : force_hauteur commune). Les hauteurs V2
+//    sont absolues et presque plates à l'intérieur d'une matière (écart type herbe 0,031, terre 0,018) : sans
+//    étirement, le mélange ne trouve aucun relief pour découper le bord et reproduit le contour lisse du masque ;
+//  - transition > 0 : bande intermédiaire herbe drue → herbe usée → terre, de largeur variable, à la place de la
+//    simple frontière herbe / terre (la forme et le cœur praticable des chemins ne changent pas).
+uniform vec3 force_mat = vec3(0.0);
+uniform vec3 biais_mat = vec3(0.0);             // décalage de priorité (drue, usée, terre)
+uniform float transition = 0.0;
+uniform vec2 largeur_bande = vec2(0.14, 0.32);  // largeur de la bande intermédiaire (unités du masque b), min / max
+// le masque du chemin (carte V07 à 64 px/m) passe de 0 à 1 sur ≈ 40 cm : toute bande définie dessus reste étroite.
+// La bande intermédiaire utilise la PROXIMITÉ du chemin : moyenne du masque sur deux anneaux de 8 lectures
+// (rayons rayon_proximite.x et .y, en mètres ; la carte n'a pas de mipmaps exploitables)
+uniform vec2 rayon_proximite = vec2(0.55, 1.1);
+const vec2 CARTE_M = vec2(36.0, 28.0);          // étendue de la carte V07 (m) : UV = (x + 18) / 36, (z + 14) / 28
+uniform int debug_poids = 0;                    // outil : 1 = affiche les poids (rouge herbe dense, vert usée, bleu terre)
 uniform float anti_repetition = 1.0;            // 0 : un seul échantillon (répétition brute, comparaison)
 // couleur peinte décodée en linéaire × gain. ÉTALONNÉ (tools/p5/captures_sol.gd --etalon) : couleur unie = moyenne
 // peinte de la terre (117, 68, 51) ; sol plat au soleil affiché (143, 74, 42) à 0,30, (160, 82, 47) à 0,40 ;
@@ -87,11 +103,12 @@ float fin(vec2 p) {
 	return texture(bruit_fin, p).r;
 }
 
-vec4 peint(sampler2D t, vec2 p, float m, float moyenne) {
+vec4 peint(sampler2D t, vec2 p, float m, float moyenne, float etirement) {
 	vec4 a = texture(t, p / tuile_m);
 	vec4 b = texture(t, p / (tuile_m * 0.83) + vec2(0.37, 0.61));
-	float ha = (a.a - moyenne) * force_hauteur;
-	float hb = (b.a - moyenne) * force_hauteur;
+	float f = etirement > 0.0 ? etirement : force_hauteur;
+	float ha = (a.a - moyenne) * f;
+	float hb = (b.a - moyenne) * f;
 	float w = smoothstep(0.42, 0.58, m + (hb - ha) * 0.5) * anti_repetition;
 	vec4 c = mix(a, b, w);
 	return vec4(c.rgb * gain_peint, mix(ha, hb, w));
@@ -184,9 +201,12 @@ void fragment() {
 	float zp = carte_entiere ? 1.0 : smoothstep(zone_pilote.z, zone_pilote.z - fondu_zone, distance(p, zone_pilote.xy));
 	if (zp > 0.0) {
 		float mr = texture(bruit_large, p / 11.0 + vec2(0.71, 0.29)).r;
-		vec4 td = peint(tex_drue, p, mr, moy_drue);
-		vec4 tu = peint(tex_usee, p, 1.0 - mr, moy_usee);
-		vec4 tt = peint(tex_terre, p, mr, moy_terre);
+		vec4 td = peint(tex_drue, p, mr, moy_drue, force_mat.x);
+		vec4 tu = peint(tex_usee, p, 1.0 - mr, moy_usee, force_mat.y);
+		vec4 tt = peint(tex_terre, p, mr, moy_terre, force_mat.z);
+		td.a += biais_mat.x;
+		tu.a += biais_mat.y;
+		tt.a += biais_mat.z;
 		td.rgb *= mix(vec3(1.0), PAL_DRUE / MOY_DRUE, calage);
 		tu.rgb *= mix(vec3(1.0), PAL_USEE / MOY_USEE, calage);
 		tt.rgb *= mix(vec3(1.0), PAL_TERRE / MOY_TERRE, calage);
@@ -194,7 +214,39 @@ void fragment() {
 		float wt = terre_t * (1.0 - test_usure);
 		float wu = us * (1.0 - wt);
 		float wd = (1.0 - us) * (1.0 - wt);
+		if (transition > 0.0) {
+			// bande intermédiaire : largeur variable le long du chemin (m1 ≈ 23 m, m2 ≈ 9 m), position déjà irrégulière
+			// dans b (m2, d1) ; aucune échelle plus fine que d2 (≈ 1,3 m), pour rester doux à l'échelle du jeu
+			float lb = mix(largeur_bande.x, largeur_bande.y, clamp(m1 * 0.6 + m2 * 0.6 - 0.1, 0.0, 1.0));
+			float a1 = 0.0;
+			float a2 = 0.0;
+			for (int k = 0; k < 8; k++) {
+				float ang = float(k) * 0.7854 + 0.39;
+				vec2 dir = vec2(cos(ang), sin(ang)) / CARTE_M;
+				vec3 c1 = textureLod(carte, UV + dir * rayon_proximite.x, 0.0).rgb;
+				vec3 c2 = textureLod(carte, UV + dir * rayon_proximite.y, 0.0).rgb;
+				a1 += smoothstep(-0.012, 0.075, c1.r - c1.g);
+				a2 += smoothstep(-0.012, 0.075, c2.r - c2.g);
+			}
+			float prox = max(a1 / 8.0, a2 / 8.0 * 0.8);                       // 0 loin, ≈ 0,5 au bord, 1 dans le chemin
+			// variations à 3 échelles seulement (≈ 9 m, 3 m, 1,3 m), amplitudes modérées : bord irrégulier mais doux
+			float pn = clamp(prox + (m2 - 0.5) * 0.30 + (d1 - 0.5) * 0.18 + (d2 - 0.5) * 0.08, 0.0, 1.0);
+			// transition centrée sur le bord d'origine du chemin (pn ≈ 0,5) : la forme et le cœur restent les mêmes
+			float t_terre = max(smoothstep(0.42, 0.86, pn), smoothstep(0.72, 0.92, b));   // cœur du chemin : terre pleine
+			float t_drue = 1.0 - smoothstep(0.10, 0.40 + lb * 0.5, pn);                    // herbe dense : s'efface (≈ 1 m)
+			float t_usee = smoothstep(0.08, 0.42, pn) * (1.0 - smoothstep(0.60, 0.95, pn) * 0.85);   // herbe clairsemée
+			// usure P5.3 hors chemins (pentes, sous les arbres, grandes zones) : conservée
+			float us_hors = clamp(max(max(pente_usure * 0.75, lt * 0.5), smoothstep(0.62, 0.86, m1) * 0.35) - dense * 0.5, 0.0, 1.0);
+			t_usee = max(t_usee, us_hors * t_drue);
+			t_drue *= 1.0 - us_hors;
+			wt = mix(wt, t_terre * (1.0 - test_usure), transition);
+			wu = mix(wu, max(t_usee, test_usure), transition);
+			wd = mix(wd, t_drue * (1.0 - test_usure), transition);
+		}
 		vec3 cp = etalon.a > 0.0 ? etalon.rgb * gain_peint : melange_hauteur(td, tu, tt, wd, wu, wt);
+		if (debug_poids == 1) {
+			cp = vec3(wd, wu, wt) * 0.35;
+		}
 		col = mix(col, cp, zp);
 	}
 	col *= 1.0 - 0.07 * smoothstep(0.35, 0.5, b) * (1.0 - smoothstep(0.5, 0.65, b));   // très léger tassement au bord

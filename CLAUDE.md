@@ -90,6 +90,11 @@
 - **P5.3-B V2 (branche `p5-3b-v2-sols`, `docs/P5_3B_V2.md`)** : V2 du créateur (`art/p53/sol_v2/`, hauteurs absolues,
   couleurs déjà recalées : **jamais de second calage**) retenue au démarrage de F5 et en combat après comparaison avec
   P5.3 et V1 + calage (référence visuelle conservée, touche U). Zone pilote seulement ; pas de remplacement global.
+  **Revue du créateur (21/11/2026)** : la V2 se découpe en plaques ; préférence provisoire pour la **V1 + calage**.
+- **P5.3-B V2 transitions (branche `p5-3b-v2-transitions`, `docs/P5_3B_V2_TRANSITIONS.md`)** : dernière passe ciblée,
+  shader seulement (hauteurs par matière, bande d'herbe usée par proximité du chemin, matériau `materiau_p53b2t`) ;
+  textures V1 / V2 inchangées. Plus naturelle que la V2, presque au niveau de la V1 + calage (moins bien aux
+  embranchements). Choix final du créateur en attente ; ne pas commencer SOL-04, litière ni autres matériaux avant.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.

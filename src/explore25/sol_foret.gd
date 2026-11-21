@@ -21,6 +21,15 @@ var materiau_p52: ShaderMaterial
 var materiau_p53b: ShaderMaterial          # pilote V1 tel que livré (référence conservée), null si absent
 var materiau_p53b1c: ShaderMaterial        # V1 + calage de palette (référence visuelle retenue le 21/11/2026)
 var materiau_p53b2: ShaderMaterial         # V2 corrective (couleurs recalées par le créateur, hauteurs absolues)
+var materiau_p53b2t: ShaderMaterial        # V2 + transitions corrigées (proposition du 21/11/2026)
+## V2 transitions : moyennes et écarts types mesurés des hauteurs V2 (manifeste + mesure) ; chaque matière est étirée
+## pour atteindre un écart type de relief de ≈ 0,2 (comme la V1 étirée ×4), l'herbe usée gardant ses deux modes
+## (touffes hautes / terre basse) ; mélange plus doux ; bande intermédiaire en herbe usée
+const V2T_MOYENNES := [0.893, 0.565, 0.284]
+const V2T_FORCES := Vector3(6.0, 1.3, 8.0)
+const V2T_BIAIS := Vector3(0.0, 0.06, -0.02)
+const V2T_RAYONS := Vector2(0.8, 1.6)           # proximité du chemin : anneaux de 0,8 et 1,6 m
+const V2T_PROFONDEUR := 0.12
 const DIR_PEINT_V2 := "res://art/p53/sol_v2/"
 var _maillages := {}                 # MeshInstance3D -> [maillage d'origine, copie avec normales]
 var horizon: Node3D
@@ -79,7 +88,7 @@ func appliquer(mis: Array, version) -> void:
 			_maillages[m] = [m.mesh, avec_normales(m.mesh)]
 		m.mesh = _maillages[m][0] if version == "v07" else _maillages[m][1]
 		m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF if version == "p52" else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-		var mats := {"p53": materiau, "p52": materiau_p52, "p53b": materiau_p53b, "p53b1c": materiau_p53b1c, "p53b2": materiau_p53b2}
+		var mats := {"p53": materiau, "p52": materiau_p52, "p53b": materiau_p53b, "p53b1c": materiau_p53b1c, "p53b2": materiau_p53b2, "p53b2t": materiau_p53b2t}
 		m.material_override = (mats[version] if mats[version] != null else materiau) if mats.has(version) else null
 
 
@@ -138,11 +147,20 @@ func construire(carte: Texture2D, placements: Array, charge: Callable) -> void:
 		for k in ["moy_drue", "moy_usee", "moy_terre"]:
 			materiau_p53b2.set_shader_parameter(k, 0.5)
 		materiau_p53b2.set_shader_parameter("force_hauteur", 0.6)
+		materiau_p53b2t = materiau_p53b2.duplicate() as ShaderMaterial
+		materiau_p53b2t.set_shader_parameter("moy_drue", V2T_MOYENNES[0])
+		materiau_p53b2t.set_shader_parameter("moy_usee", V2T_MOYENNES[1])
+		materiau_p53b2t.set_shader_parameter("moy_terre", V2T_MOYENNES[2])
+		materiau_p53b2t.set_shader_parameter("force_mat", V2T_FORCES)
+		materiau_p53b2t.set_shader_parameter("biais_mat", V2T_BIAIS)
+		materiau_p53b2t.set_shader_parameter("profondeur_melange", V2T_PROFONDEUR)
+		materiau_p53b2t.set_shader_parameter("transition", 1.0)
+		materiau_p53b2t.set_shader_parameter("rayon_proximite", V2T_RAYONS)
 
 
 ## matériaux du pilote P5.3-B (V1, V1 calée, V2), pour les réglages communs (touche Y)
 func materiaux_pilote() -> Array:
-	return [materiau_p53b, materiau_p53b1c, materiau_p53b2].filter(func(m): return m != null)
+	return [materiau_p53b, materiau_p53b1c, materiau_p53b2, materiau_p53b2t].filter(func(m): return m != null)
 
 
 func _largeur(sc: PackedScene) -> float:
