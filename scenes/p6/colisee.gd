@@ -57,6 +57,8 @@ var _obj_label: Label
 var _obj_flash := 0.0
 var _journal: Array = []                  # événements de la session (tests, rapport)
 var cam_p6 := "C"
+## P6.2 : azimut de départ (scène de comparaison F6 colisee_azimut0.tscn : 0°) ; -- --azimut= l'emporte
+@export var azimut_initial := 20.0
 var aren_variante := "foret"
 var _anim_aren: RefCounted
 var habillage := true                       # P6.1 : pilote d'habillage (touche H : pilote / blockout P6)
@@ -77,7 +79,7 @@ func _ready() -> void:
 	paysage = "aucun"
 	arch_label = "P6 — Colisée"
 	# P6.2 : azimut de la caméra propre au Colisée (comparaison 20° / 0°) ; la forêt et l'avant-poste gardent 20°
-	World25.yaw = deg_to_rad(float(_cli.get("azimut", 20.0)))
+	World25.yaw = deg_to_rad(float(_cli.get("azimut", azimut_initial)))
 	for k in CHARS:
 		Actor25.overrides[k] = CHARS[k]["dir"]
 	get_tree().physics_interpolation = true

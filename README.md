@@ -84,7 +84,7 @@ masque de collision avant / après.
    **l'apparence de la forêt** (V09B.5 + V4 ; touche **B** : P4.8), **pilote d'habillage** (touche **H** : blockout).
    Rapport : `docs/P6_1_CAMERA_ART.md`.
    **Branche `p6-2-colisee-circulation-visibilite` (étape A, plan de circulation)** : F5 inchangé ; Colisée en F6
-   comme en P6.1 (option de comparaison `-- --azimut=0`). Rapport et nouveau plan : `docs/P6_2_CIRCULATION_VISIBILITE.md`.
+   comme en P6.1 ; **azimut 0° proposé : F6 sur `scenes/p6/colisee_azimut0.tscn`**. Rapport et nouveau plan : `docs/P6_2_CIRCULATION_VISIBILITE.md`.
 
 ### Commandes — forêt V07B (F5)
 
@@ -140,6 +140,7 @@ masque de collision avant / après.
 | Scène | Contenu |
 |---|---|
 | `scenes/p6/colisee.tscn` | **P6 — ouverture du jeu** : Colisée de Val'Serra, tutoriel, sortie vers la ville |
+| `scenes/p6/colisee_azimut0.tscn` | P6.2 — même Colisée avec la caméra à **azimut 0°** (proposition, comparaison avec `colisee.tscn` à 20°) |
 | `scenes/battle/combat_tutoriel.tscn` | P6 — combat tutoriel seul (retourne au Colisée à la fin) |
 | `scenes/p4/avant_poste.tscn` | **démo complète de l'avant-poste** (F5 jusqu'en P4.8) : exploration, dialogue, combat, retour |
 | `scenes/p4/comparaison_camera_B28.tscn` | la démo de l'avant-poste avec l'ancienne caméra orthographique 28° (B28), pour comparer |
