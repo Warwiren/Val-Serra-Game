@@ -14,6 +14,7 @@ const TEST_FILES := [
 	"res://tests/unit/test_p46_corrections.gd",
 	"res://tests/unit/test_p47_corrections.gd",
 	"res://tests/unit/test_p48_marche.gd",
+	"res://tests/unit/test_p6_colisee.gd",
 ]
 
 

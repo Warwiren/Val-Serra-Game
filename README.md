@@ -43,8 +43,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p5-3b-v3-hybride`**, puis **Code → Download ZIP** ; le
-   dossier s'appelle `Val-Serra-Game-p5-3b-v3-hybride`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p6-colisee-ouverture`**, puis **Code → Download ZIP** ; le
+   dossier s'appelle `Val-Serra-Game-p6-colisee-ouverture`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -74,6 +74,11 @@ masque de collision avant / après.
    **Branche `p5-3b-v3-hybride` (21/11/2026)** : F5 démarre sur la **V3 hybride** (matières V2, forme des zones mixtes
    de la V1) ; **U** : V3 hybride → V2 transitions → V2 → V1 + calage → V1 → P5.3 → P5.2 → V07 ; combat forêt (F6) en
    V3 hybride. Rapport : `docs/P5_3B_V3_HYBRIDE.md`.
+   **Branche `p6-colisee-ouverture` (21/11/2026)** : F5 est **inchangé** (forêt V07B, la promotion du Colisée sur
+   F5 attend l'accord du créateur). **L'ouverture du jeu se lance en F6 depuis `scenes/p6/colisee.tscn`** :
+   vestiaires → salle d'attente → arène → combat tutoriel guidé contre le commandant → retour en exploration →
+   coursive → sortie est → quartier (transition provisoire). Aren seul. Rapport : `docs/P6_COLISEE.md` ;
+   inventaire et allègement : `docs/P6_INVENTAIRE.md`.
 
 ### Commandes — forêt V07B (F5)
 
@@ -97,6 +102,16 @@ masque de collision avant / après.
 | **N** | masquer la végétation (et ses collisions) ; **M** : repères des parcours |
 | **V** | eau animée (shader candidat) ; **F** : brume (coupée au démarrage depuis V11) ; **H** : interface ; **R** : retour au départ |
 
+### Commandes — Colisée, ouverture (F6 sur `scenes/p6/colisee.tscn`)
+
+| Touche | Action |
+|---|---|
+| Flèches / ZQSD | se déplacer ; **Maj** maintenue : courir |
+| **E** / Entrée / Espace | parler, examiner ; faire avancer le dialogue ; ↑ / ↓ puis E : choisir une réponse |
+| **Molette** (ou PgPréc / PgSuiv) | zoom ×2 / ×2,5 / ×3 |
+| En combat tutoriel | Entrée / Espace / clic : suite de l'explication ; puis commandes habituelles du combat ; Échap : refusé |
+| **P** | parcours automatique (avant ou après le tutoriel) ; **F1** : informations |
+
 ### Commandes — démo de l'avant-poste (F6)
 
 | Touche | Action |
@@ -117,6 +132,8 @@ masque de collision avant / après.
 
 | Scène | Contenu |
 |---|---|
+| `scenes/p6/colisee.tscn` | **P6 — ouverture du jeu** : Colisée de Val'Serra, tutoriel, sortie vers la ville |
+| `scenes/battle/combat_tutoriel.tscn` | P6 — combat tutoriel seul (retourne au Colisée à la fin) |
 | `scenes/p4/avant_poste.tscn` | **démo complète de l'avant-poste** (F5 jusqu'en P4.8) : exploration, dialogue, combat, retour |
 | `scenes/p4/comparaison_camera_B28.tscn` | la démo de l'avant-poste avec l'ancienne caméra orthographique 28° (B28), pour comparer |
 | `scenes/battle/combat_foret.tscn` | **P5 — combat refondu** : groupe à gauche, Vorgane à droite, décor = la forêt d'exploration |
@@ -131,6 +148,14 @@ godot --headless --path . --script res://tests/run_tests.gd
 
 ```bash
 godot --headless --path . --script res://tests/e2e_p4_retour.gd
+```
+
+```bash
+godot --headless --path . --script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide
+```
+
+```bash
+godot --headless --path . res://scenes/p6/colisee.tscn -- --route=p6_sondes --quit --neuf --etat=tutorial_available --out=/tmp/p6
 ```
 
 ```bash
@@ -193,7 +218,8 @@ python3 tools/p49/v09b6_gabarit.py <dossier du pack V09B.5 décompressé>/ValSer
 godot --path . res://scenes/p4/avant_poste.tscn -- --autoplay --route=p4_demo --route_retour=p4_retour
 ```
 
-Dans l'ordre : tests automatiques (71), rencontre de bout en bout de l'avant-poste (déclenchement, PV de démo,
+Dans l'ordre : tests automatiques (80, dont 9 pour P6), ouverture P6 de bout en bout (Colisée → tutoriel → retour →
+sortie), sondes de collision du Colisée (10), rencontre de bout en bout de l'avant-poste (déclenchement, PV de démo,
 victoire, défaite, bâtiment), parcours complet au clavier simulé (29 étapes ; `--camera=B28` ou `P38` pour
 comparer), sondes de collision (20), forêt V07B : 18 traversées hors des chemins (marche et course) et 12 scénarios
 d'occlusion, test de locomotion V09A, test des animations V09B.5 (12), mesures V09B.5 (vitesses, cadence, glissement

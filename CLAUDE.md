@@ -99,6 +99,14 @@
   des zones mixtes V1 (masque tiré du dessin de l'herbe usée V1, aucune couleur V1) ; matériau `materiau_p53b3h`, au
   démarrage de F5 et en combat ; toutes les autres variantes sur U. Aucun nouvel asset, textures inchangées.
   Retenue seulement si le créateur la juge au moins égale à la V1 + calage sur les transitions.
+- **P6 Colisée (branche `p6-colisee-ouverture`, `docs/P6_COLISEE.md`)** : ouverture jouable en F6
+  (`scenes/p6/colisee.tscn`, hérite de l'habillage de l'avant-poste), données `data/p6/*.json` (zone générée par
+  `tools/p6/build_colisee.py` : ne pas éditer `colisee.json` à la main), progression explicite
+  `src/game/progression.gd` (états dans `GameState.flags`), combat tutoriel `scenes/battle/combat_tutoriel.tscn`
+  (CombatCore inchangé : le commandant est invulnérable PAR SES DONNÉES), guide `src/tutorial/guide_interface.gd`
+  (cibles = composants réels du HUD, `combat_hud.guide_target`). Aren seul pendant l'introduction. F5 inchangé
+  (promotion du Colisée en attente de l'accord du créateur). Tests : `tests/unit/test_p6_colisee.gd`,
+  `tests/e2e_p6_ouverture.gd -- --tuto-rapide`, parcours `p6_sondes`.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
-  `--script res://tests/e2e_p4_retour.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
+  `--script res://tests/e2e_p4_retour.gd`, `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.
