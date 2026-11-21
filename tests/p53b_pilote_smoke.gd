@@ -36,7 +36,19 @@ func _run() -> void:
 	var sol = sc.get("_sol")
 	var mat: ShaderMaterial = sol.get("materiau_p53b")
 	var terrain: MeshInstance3D = sc.get("_terrain_mi")
-	_test(mat != null and terrain.material_override == mat and String(sc.get("version_sol")) == "p53b", "F5 : pilote P5.3-B actif")
+	var mat2: ShaderMaterial = sol.get("materiau_p53b2")
+	var mat1c: ShaderMaterial = sol.get("materiau_p53b1c")
+	_test(mat2 != null and terrain.material_override == mat2 and String(sc.get("version_sol")) == "p53b2", "F5 : pilote P5.3-B V2 actif (meilleur résultat mesuré)")
+	_test(float(_p(mat2, "calage", 0.0)) == 0.0 and (mat2.get_shader_parameter("tex_drue") as Texture2D).resource_path.contains("sol_v2"), "V2 : textures V2, aucun second calage")
+	_test(mat1c != null and float(_p(mat1c, "calage", 0.0)) == 1.0, "V1 + calage conservée (référence)")
+	var ordre := []
+	for i in 6:
+		ordre.append(String(sc.get("version_sol")))
+		sc.call("set_version_sol", (sc.get("SOLS") as Array)[((sc.get("SOLS") as Array).find(sc.get("version_sol")) + 1) % 6])
+	_test(ordre == ["p53b2", "p53b1c", "p53b", "p53", "p52", "v07"] and String(sc.get("version_sol")) == "p53b2", "touche U : V2 → V1 calée → V1 → P5.3 → P5.2 → V07 (%s)" % [ordre])
+	for n in ["herbe_drue", "herbe_usee", "terre_chemin"]:
+		var t2: Texture2D = load("res://art/p53/sol_v2/%s.png" % n)
+		_test(t2 != null and t2.get_image().get_width() == 1024 and t2.get_image().has_mipmaps(), "V2 %s : 1024 × 1024, mipmaps" % n)
 	_test(mat.get_shader_parameter("tex_drue") != null and mat.get_shader_parameter("tex_usee") != null and mat.get_shader_parameter("tex_terre") != null, "trois matières peintes branchées")
 	var zone: Vector3 = _p(mat, "zone_pilote", Vector3(-10, 1, 8))
 	_test(not _p(mat, "carte_entiere", false) and zone.z <= 10.0, "zone pilote limitée (rayon %.0f m)" % zone.z)
@@ -46,7 +58,7 @@ func _run() -> void:
 	ey.physical_keycode = KEY_Y
 	ey.pressed = true
 	sc.call("_unhandled_key_input", ey)
-	_test(_p(mat, "carte_entiere", false) == true, "touche Y : matières peintes sur toute la carte")
+	_test(_p(mat, "carte_entiere", false) == true and _p(mat2, "carte_entiere", false) == true, "touche Y : matières peintes sur toute la carte (V1 et V2)")
 	sc.call("_unhandled_key_input", ey)
 	_test(_p(mat, "carte_entiere", false) == false, "touche Y : retour à la zone pilote")
 	var col: CollisionShape3D = terrain.get_child(0).get_child(0)

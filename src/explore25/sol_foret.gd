@@ -18,7 +18,10 @@ const FOND := Color(0.075, 0.105, 0.075)
 
 var materiau: ShaderMaterial             # P5.3
 var materiau_p52: ShaderMaterial
-var materiau_p53b: ShaderMaterial          # null si les textures du pilote sont absentes
+var materiau_p53b: ShaderMaterial          # pilote V1 tel que livré (référence conservée), null si absent
+var materiau_p53b1c: ShaderMaterial        # V1 + calage de palette (référence visuelle retenue le 21/11/2026)
+var materiau_p53b2: ShaderMaterial         # V2 corrective (couleurs recalées par le créateur, hauteurs absolues)
+const DIR_PEINT_V2 := "res://art/p53/sol_v2/"
 var _maillages := {}                 # MeshInstance3D -> [maillage d'origine, copie avec normales]
 var horizon: Node3D
 var nb_obstacles := 0
@@ -76,7 +79,8 @@ func appliquer(mis: Array, version) -> void:
 			_maillages[m] = [m.mesh, avec_normales(m.mesh)]
 		m.mesh = _maillages[m][0] if version == "v07" else _maillages[m][1]
 		m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF if version == "p52" else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-		m.material_override = {"p53": materiau, "p52": materiau_p52, "p53b": materiau_p53b if materiau_p53b != null else materiau}.get(version, null)
+		var mats := {"p53": materiau, "p52": materiau_p52, "p53b": materiau_p53b, "p53b1c": materiau_p53b1c, "p53b2": materiau_p53b2}
+		m.material_override = (mats[version] if mats[version] != null else materiau) if mats.has(version) else null
 
 
 ## carte : la texture V07 du terrain ; placements : manifeste ; charge : fonction(nom de fichier) -> PackedScene
@@ -123,6 +127,22 @@ func construire(carte: Texture2D, placements: Array, charge: Callable) -> void:
 		materiau_p53b.set_shader_parameter("tex_drue", load(DIR_PEINT + "herbe_drue.png"))
 		materiau_p53b.set_shader_parameter("tex_usee", load(DIR_PEINT + "herbe_usee.png"))
 		materiau_p53b.set_shader_parameter("tex_terre", load(DIR_PEINT + "terre_chemin.png"))
+		materiau_p53b1c = materiau_p53b.duplicate() as ShaderMaterial
+		materiau_p53b1c.set_shader_parameter("calage", 1.0)
+	if materiau_p53b != null and ResourceLoader.exists(DIR_PEINT_V2 + "herbe_drue.png"):
+		materiau_p53b2 = materiau_p53b.duplicate() as ShaderMaterial
+		materiau_p53b2.set_shader_parameter("tex_drue", load(DIR_PEINT_V2 + "herbe_drue.png"))
+		materiau_p53b2.set_shader_parameter("tex_usee", load(DIR_PEINT_V2 + "herbe_usee.png"))
+		materiau_p53b2.set_shader_parameter("tex_terre", load(DIR_PEINT_V2 + "terre_chemin.png"))
+		materiau_p53b2.set_shader_parameter("calage", 0.0)          # couleurs déjà recalées : jamais de second calage
+		for k in ["moy_drue", "moy_usee", "moy_terre"]:
+			materiau_p53b2.set_shader_parameter(k, 0.5)
+		materiau_p53b2.set_shader_parameter("force_hauteur", 0.6)
+
+
+## matériaux du pilote P5.3-B (V1, V1 calée, V2), pour les réglages communs (touche Y)
+func materiaux_pilote() -> Array:
+	return [materiau_p53b, materiau_p53b1c, materiau_p53b2].filter(func(m): return m != null)
 
 
 func _largeur(sc: PackedScene) -> float:

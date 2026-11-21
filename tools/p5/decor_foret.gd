@@ -103,12 +103,20 @@ func _run() -> void:
 		for o in obs:
 			if (Vector3(o.x, 0, o.y) - Vector3(p["x"], 0, p["z"])).dot(fwd) >= -float(p["avant"]):
 				garde.append(o)
-		mat.set_shader_parameter("obstacles", garde)
-		mat.set_shader_parameter("nb_obstacles", garde.size())
+		# tous les matériaux de sol (P5.3 et pilotes) : chacun garde sa propre copie des pieds d'objets
+		var mats: Array = [mat, sol.get("materiau_p52")]
+		if sol.has_method("materiaux_pilote"):
+			mats.append_array(sol.call("materiaux_pilote"))
+		for m in mats:
+			if m != null:
+				(m as ShaderMaterial).set_shader_parameter("obstacles", garde)
+				(m as ShaderMaterial).set_shader_parameter("nb_obstacles", garde.size())
 	# P5.3-B pilote : matières peintes sur tout le décor de combat (--pilote=carte), sinon la zone pilote seule
 	if OS.get_cmdline_user_args().has("--pilote=carte") and sc.has_method("set_pilote_carte_entiere"):
 		sc.call("set_pilote_carte_entiere", true)
 	for a2 in OS.get_cmdline_user_args():
+		if a2.begins_with("--sol="):                                    # p53 | p53b | p53b1c | p53b2
+			sc.call("set_version_sol", a2.substr(6))
 		if a2.begins_with("--calage=") and sc.get("_sol") != null:      # P5.3-B : essai de calage de couleur
 			(sc.get("_sol").get("materiau_p53b") as ShaderMaterial).set_shader_parameter("calage", float(a2.substr(9)))
 	for i in 12:

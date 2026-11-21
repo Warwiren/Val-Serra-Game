@@ -9,3 +9,10 @@
 
 Sources et références du pack (dont SOL-04, TRS-01) : sur le Drive, non intégrées. Note de licence du pack : ne pas
 considérer ces fichiers comme validés pour une diffusion commerciale sans revue du responsable.
+
+## V2 corrective (`sol_v2/`)
+
+| Fichier | Origine | Traitement | Statut |
+|---|---|---|---|
+| `sol_v2/herbe_drue.png`, `herbe_usee.png`, `terre_chemin.png` | pack `ValSerra_P53B_V2_CORRECTION_TEST` (21/11/2026) : couleurs recalées sur la palette de la forêt, raccord à 1/2 tuile, herbe usée recomposée (touffes 30–50 cm), hauteurs algorithmiques absolues en A | copiés tels quels (aucune conversion) | **PILOTE, NON VALIDÉ** ; retenus au démarrage de F5 (meilleur résultat mesuré) |
+| `sol_v2/manifest_v2.json` | manifeste du pack + SHA-256 des fichiers intégrés | — | — |

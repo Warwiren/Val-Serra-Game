@@ -51,7 +51,13 @@ uniform float tuile_m = 4.0;                    // 1024 px = 4 m (256 px/m)
 uniform vec3 zone_pilote = vec3(-10.0, 1.0, 8.0);   // x, z, rayon (m)
 uniform float fondu_zone = 1.5;
 uniform bool carte_entiere = false;
-uniform float force_hauteur = 4.0;              // hauteurs (écart type ≈ 0,05) étirées autour de leur moyenne
+uniform float force_hauteur = 4.0;              // V1 : hauteurs (écart type ≈ 0,05) étirées autour de leur moyenne
+// centre des hauteurs par matière. V1 (hauteurs relatives, ≈ 0,45) : centrées sur leur moyenne. V2 (hauteurs ABSOLUES :
+// herbe ≈ 0,89, terre ≈ 0,28, herbe usée bimodale) : centre commun 0,5 et force faible (l'herbe passe au-dessus de la terre)
+uniform float moy_drue = 0.45;
+uniform float moy_usee = 0.45;
+uniform float moy_terre = 0.43;
+uniform float test_usure = 0.0;                 // outil : 1 = herbe usée imposée dans la zone (contrôle de sa répétition)
 uniform float profondeur_melange = 0.08;
 uniform float anti_repetition = 1.0;            // 0 : un seul échantillon (répétition brute, comparaison)
 // couleur peinte décodée en linéaire × gain. ÉTALONNÉ (tools/p5/captures_sol.gd --etalon) : couleur unie = moyenne
@@ -178,15 +184,16 @@ void fragment() {
 	float zp = carte_entiere ? 1.0 : smoothstep(zone_pilote.z, zone_pilote.z - fondu_zone, distance(p, zone_pilote.xy));
 	if (zp > 0.0) {
 		float mr = texture(bruit_large, p / 11.0 + vec2(0.71, 0.29)).r;
-		vec4 td = peint(tex_drue, p, mr, 0.45);
-		vec4 tu = peint(tex_usee, p, 1.0 - mr, 0.45);
-		vec4 tt = peint(tex_terre, p, mr, 0.43);
+		vec4 td = peint(tex_drue, p, mr, moy_drue);
+		vec4 tu = peint(tex_usee, p, 1.0 - mr, moy_usee);
+		vec4 tt = peint(tex_terre, p, mr, moy_terre);
 		td.rgb *= mix(vec3(1.0), PAL_DRUE / MOY_DRUE, calage);
 		tu.rgb *= mix(vec3(1.0), PAL_USEE / MOY_USEE, calage);
 		tt.rgb *= mix(vec3(1.0), PAL_TERRE / MOY_TERRE, calage);
-		float wt = terre_t;
-		float wu = usure * (1.0 - terre_t);
-		float wd = (1.0 - usure) * (1.0 - terre_t);
+		float us = max(usure, test_usure);
+		float wt = terre_t * (1.0 - test_usure);
+		float wu = us * (1.0 - wt);
+		float wd = (1.0 - us) * (1.0 - wt);
 		vec3 cp = etalon.a > 0.0 ? etalon.rgb * gain_peint : melange_hauteur(td, tu, tt, wd, wu, wt);
 		col = mix(col, cp, zp);
 	}

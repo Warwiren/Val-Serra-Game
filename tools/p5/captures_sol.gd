@@ -71,9 +71,12 @@ func _variante_ombre() -> void:
 		elif a.begins_with("--etalon="):            # P5.3-B : couleur unie r,g,b (sRGB 0-255) à la place des textures
 			var c := a.substr(9).split(",")
 			(sc.get("_sol").get("materiau_p53b") as ShaderMaterial).set_shader_parameter("etalon", Color8(int(c[0]), int(c[1]), int(c[2])))
-		elif a.begins_with("--calage=") or a.begins_with("--anti_repetition="):
+		elif a.begins_with("--calage="):            # V1 seulement (la V2 a déjà ses couleurs recalées)
+			(sc.get("_sol").get("materiau_p53b") as ShaderMaterial).set_shader_parameter("calage", float(a.substr(9)))
+		elif a.begins_with("--anti_repetition=") or a.begins_with("--test_usure=") or a.begins_with("--force_hauteur="):
 			var kv := a.substr(2).split("=")
-			(sc.get("_sol").get("materiau_p53b") as ShaderMaterial).set_shader_parameter(kv[0], float(kv[1]))
+			for m in sc.get("_sol").call("materiaux_pilote"):
+				(m as ShaderMaterial).set_shader_parameter(kv[0], float(kv[1]))
 		elif a.begins_with("--gain="):
 			(sc.get("_sol").get("materiau_p53b") as ShaderMaterial).set_shader_parameter("gain_peint", float(a.substr(7)))
 		elif a == "--pilote=carte":                 # P5.3-B : textures peintes sur toute la carte (touche Y)

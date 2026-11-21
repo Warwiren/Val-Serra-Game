@@ -22,7 +22,7 @@ func _run() -> void:
 	sc = current_scene
 	var terrain: MeshInstance3D = sc.get("_terrain_mi")
 	var sol = sc.get("_sol")
-	_test(bool(sc.get("_sol_p52")) and String(sc.get("version_sol")) == "p53b" and sol != null and terrain.material_override == sol.get("materiau_p53b"), "F5 démarre avec le pilote P5.3-B (textures peintes en zone pilote)")
+	_test(bool(sc.get("_sol_p52")) and String(sc.get("version_sol")) == "p53b2" and sol != null and terrain.material_override == sol.get("materiau_p53b2"), "F5 démarre avec le pilote P5.3-B V2 (textures peintes en zone pilote)")
 	sc.call("set_version_sol", "p53")
 	_test(terrain.material_override == sol.get("materiau"), "touche U : P5.3 (étape A validée)")
 	_test(terrain.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_ON, "P5.3 : le terrain projette son ombre (ombres douces non désagrégées)")

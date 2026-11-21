@@ -6,7 +6,9 @@ extends "res://tools/p49/banc_v07.gd"
 
 const SECTEURS := [["chemin", -2.0, -0.4], ["pente_nord", 1.0, -6.6], ["clairiere", 6.0, 1.0]]
 const ZOOMS := [[KEY_1, 2.0], [KEY_3, 3.0]]
-const CONFIGS := [["P5.2_q2", "p52", 2], ["P5.3_q2", "p53", 2], ["P5.3_q4", "p53", 4]]
+var CONFIGS := [["P5.2_q2", "p52", 2], ["P5.3_q2", "p53", 2], ["P5.3_q4", "p53", 4]]
+## --sols : P5.3 contre pilotes P5.3-B (V1 calée, V2), qualité 4, textures sur toute la carte (pire cas)
+const CONFIGS_SOLS := [["P5.3", "p53", 4], ["V1_calee", "p53b1c", 4], ["V2", "p53b2", 4]]
 
 
 func _run() -> void:
@@ -15,6 +17,9 @@ func _run() -> void:
 	await _frames(30)
 	sc = current_scene
 	await _tap(KEY_H)
+	if OS.get_cmdline_user_args().has("--sols"):
+		CONFIGS = CONFIGS_SOLS
+		sc.call("set_pilote_carte_entiere", true)
 	var vp := root.get_viewport_rid()
 	RenderingServer.viewport_set_measure_render_time(vp, true)
 	var out_d := {}

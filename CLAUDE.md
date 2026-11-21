@@ -87,6 +87,9 @@
   `sol_foret_p53b.gdshader` (copie de P5.3 + mélange par hauteur) limité à une zone pilote (touche Y : carte entière) ;
   gain de couleur étalonné par mesure (0,22) ; « calage » de palette = essai de discussion, désactivé. Combat forêt :
   décor rendu avec les textures. Test : `tests/p53b_pilote_smoke.gd`. Pas de nouvelle passe sur l'occlusion.
+- **P5.3-B V2 (branche `p5-3b-v2-sols`, `docs/P5_3B_V2.md`)** : V2 du créateur (`art/p53/sol_v2/`, hauteurs absolues,
+  couleurs déjà recalées : **jamais de second calage**) retenue au démarrage de F5 et en combat après comparaison avec
+  P5.3 et V1 + calage (référence visuelle conservée, touche U). Zone pilote seulement ; pas de remplacement global.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.

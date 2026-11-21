@@ -1,0 +1,47 @@
+{
+ "p53": {
+  "sol_lum": 97.9,
+  "sol_grain": 0.64,
+  "sol_sat": 72.3,
+  "vorgane_lum": 80.5,
+  "fond_vorgane_lum": 97.5,
+  "contraste_vorgane": 0.174,
+  "groupe_lum": 71.4,
+  "fond_groupe_lum": 110.1
+ },
+ "p53b1c": {
+  "sol_lum": 96.5,
+  "sol_grain": 9.09,
+  "sol_sat": 77.9,
+  "vorgane_lum": 81.9,
+  "fond_vorgane_lum": 95.4,
+  "contraste_vorgane": 0.142,
+  "groupe_lum": 72.0,
+  "fond_groupe_lum": 100.9
+ },
+ "p53b2": {
+  "sol_lum": 87.5,
+  "sol_grain": 5.57,
+  "sol_sat": 64.4,
+  "vorgane_lum": 80.0,
+  "fond_vorgane_lum": 85.2,
+  "contraste_vorgane": 0.061,
+  "groupe_lum": 71.2,
+  "fond_groupe_lum": 97.2
+ },
+ "expl_p53": {
+  "lum": 71.0,
+  "grain": 10.06,
+  "sat": 66.3
+ },
+ "expl_v1c": {
+  "lum": 67.5,
+  "grain": 13.11,
+  "sat": 67.1
+ },
+ "expl_v2": {
+  "lum": 64.6,
+  "grain": 11.4,
+  "sat": 63.8
+ }
+}
