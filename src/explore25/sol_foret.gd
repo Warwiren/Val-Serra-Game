@@ -22,6 +22,7 @@ var materiau_p53b: ShaderMaterial          # pilote V1 tel que livré (référen
 var materiau_p53b1c: ShaderMaterial        # V1 + calage de palette (référence visuelle retenue le 21/11/2026)
 var materiau_p53b2: ShaderMaterial         # V2 corrective (couleurs recalées par le créateur, hauteurs absolues)
 var materiau_p53b2t: ShaderMaterial        # V2 + transitions corrigées (proposition du 21/11/2026)
+var materiau_p53b3h: ShaderMaterial        # V3 hybride : V2 transitions + forme des zones mixtes V1 (21/11/2026)
 ## V2 transitions : moyennes et écarts types mesurés des hauteurs V2 (manifeste + mesure) ; chaque matière est étirée
 ## pour atteindre un écart type de relief de ≈ 0,2 (comme la V1 étirée ×4), l'herbe usée gardant ses deux modes
 ## (touffes hautes / terre basse) ; mélange plus doux ; bande intermédiaire en herbe usée
@@ -30,6 +31,11 @@ const V2T_FORCES := Vector3(6.0, 1.3, 8.0)
 const V2T_BIAIS := Vector3(0.0, 0.06, -0.02)
 const V2T_RAYONS := Vector2(0.8, 1.6)           # proximité du chemin : anneaux de 0,8 et 1,6 m
 const V2T_PROFONDEUR := 0.12
+## V3 hybride : V2 transitions + herbe clairsemée recomposée (masque du dessin V1, matières V2) ; bande 1 à 2 m,
+## relief des îlots 0,5, même recomposition au pied des arbres et rochers (0,8)
+const V3H_RAYONS := Vector2(1.0, 2.0)
+const V3H_RELIEF := 0.5
+const V3H_OBJETS := 0.8
 const DIR_PEINT_V2 := "res://art/p53/sol_v2/"
 var _maillages := {}                 # MeshInstance3D -> [maillage d'origine, copie avec normales]
 var horizon: Node3D
@@ -88,7 +94,7 @@ func appliquer(mis: Array, version) -> void:
 			_maillages[m] = [m.mesh, avec_normales(m.mesh)]
 		m.mesh = _maillages[m][0] if version == "v07" else _maillages[m][1]
 		m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF if version == "p52" else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-		var mats := {"p53": materiau, "p52": materiau_p52, "p53b": materiau_p53b, "p53b1c": materiau_p53b1c, "p53b2": materiau_p53b2, "p53b2t": materiau_p53b2t}
+		var mats := {"p53": materiau, "p52": materiau_p52, "p53b": materiau_p53b, "p53b1c": materiau_p53b1c, "p53b2": materiau_p53b2, "p53b2t": materiau_p53b2t, "p53b3h": materiau_p53b3h}
 		m.material_override = (mats[version] if mats[version] != null else materiau) if mats.has(version) else null
 
 
@@ -156,11 +162,17 @@ func construire(carte: Texture2D, placements: Array, charge: Callable) -> void:
 		materiau_p53b2t.set_shader_parameter("profondeur_melange", V2T_PROFONDEUR)
 		materiau_p53b2t.set_shader_parameter("transition", 1.0)
 		materiau_p53b2t.set_shader_parameter("rayon_proximite", V2T_RAYONS)
+		materiau_p53b3h = materiau_p53b2t.duplicate() as ShaderMaterial
+		materiau_p53b3h.set_shader_parameter("tex_v1_usee", load(DIR_PEINT + "herbe_usee.png"))
+		materiau_p53b3h.set_shader_parameter("hybride", 1.0)
+		materiau_p53b3h.set_shader_parameter("rayon_proximite", V3H_RAYONS)
+		materiau_p53b3h.set_shader_parameter("relief_hybride", V3H_RELIEF)
+		materiau_p53b3h.set_shader_parameter("hybride_objets", V3H_OBJETS)
 
 
 ## matériaux du pilote P5.3-B (V1, V1 calée, V2), pour les réglages communs (touche Y)
 func materiaux_pilote() -> Array:
-	return [materiau_p53b, materiau_p53b1c, materiau_p53b2, materiau_p53b2t].filter(func(m): return m != null)
+	return [materiau_p53b, materiau_p53b1c, materiau_p53b2, materiau_p53b2t, materiau_p53b3h].filter(func(m): return m != null)
 
 
 func _largeur(sc: PackedScene) -> float:

@@ -74,7 +74,16 @@ uniform vec2 largeur_bande = vec2(0.14, 0.32);  // largeur de la bande interméd
 // (rayons rayon_proximite.x et .y, en mètres ; la carte n'a pas de mipmaps exploitables)
 uniform vec2 rayon_proximite = vec2(0.55, 1.1);
 const vec2 CARTE_M = vec2(36.0, 28.0);          // étendue de la carte V07 (m) : UV = (x + 18) / 36, (z + 14) / 28
-uniform int debug_poids = 0;                    // outil : 1 = affiche les poids (rouge herbe dense, vert usée, bleu terre)
+uniform int debug_poids = 0;
+// --- V3 HYBRIDE (21/11/2026) : matières V2 (palette, calme) + FORME des zones mixtes de la V1. Dans la bande de
+// transition des chemins, l'herbe clairsemée est recomposée : le dessin de l'herbe usée V1 (îlots organiques d'herbe et
+// de terre, 0,3 à 2 m) sert de MASQUE pour mêler l'herbe dense V2 et la terre V2 ; aucune couleur V1 n'est utilisée
+// (pas de points orange). Ailleurs (pentes, sous les arbres) : herbe usée V2.
+uniform sampler2D tex_v1_usee : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform float hybride = 0.0;
+uniform float tuile_v1_m = 4.0;
+uniform float relief_hybride = 0.35;            // poids du masque V1 dans les hauteurs (touffes au-dessus de la terre)
+uniform float hybride_objets = 0.0;             // part de l'herbe clairsemée hybride au pied des arbres et rochers                    // outil : 1 = affiche les poids (rouge herbe dense, vert usée, bleu terre)
 uniform float anti_repetition = 1.0;            // 0 : un seul échantillon (répétition brute, comparaison)
 // couleur peinte décodée en linéaire × gain. ÉTALONNÉ (tools/p5/captures_sol.gd --etalon) : couleur unie = moyenne
 // peinte de la terre (117, 68, 51) ; sol plat au soleil affiché (143, 74, 42) à 0,30, (160, 82, 47) à 0,40 ;
@@ -112,6 +121,17 @@ vec4 peint(sampler2D t, vec2 p, float m, float moyenne, float etirement) {
 	float w = smoothstep(0.42, 0.58, m + (hb - ha) * 0.5) * anti_repetition;
 	vec4 c = mix(a, b, w);
 	return vec4(c.rgb * gain_peint, mix(ha, hb, w));
+}
+
+// herbe clairsemée hybride : masque herbe / terre tiré du dessin V1 (vert > rouge), matières V2 ; hauteur = masque
+vec4 usee_hybride(vec2 p, float m, vec4 drue, vec4 terre) {
+	vec3 a = texture(tex_v1_usee, p / tuile_v1_m + vec2(0.13, 0.41)).rgb;
+	vec3 b = texture(tex_v1_usee, p / (tuile_v1_m * 0.79) + vec2(0.58, 0.07)).rgb;
+	float ga = smoothstep(-0.03, 0.03, a.g - a.r);
+	float gb = smoothstep(-0.03, 0.03, b.g - b.r);
+	float g = mix(ga, gb, smoothstep(0.4, 0.6, m) * anti_repetition);
+	vec3 c = mix(terre.rgb, drue.rgb, g);
+	return vec4(c, (g - 0.5) * relief_hybride + mix(terre.a, drue.a, g) * 0.5);
 }
 
 vec3 melange_hauteur(vec4 a, vec4 b, vec4 c, float wa, float wb, float wc) {
@@ -207,6 +227,7 @@ void fragment() {
 		td.a += biais_mat.x;
 		tu.a += biais_mat.y;
 		tt.a += biais_mat.z;
+		float bande_chemin = 0.0;
 		td.rgb *= mix(vec3(1.0), PAL_DRUE / MOY_DRUE, calage);
 		tu.rgb *= mix(vec3(1.0), PAL_USEE / MOY_USEE, calage);
 		tt.rgb *= mix(vec3(1.0), PAL_TERRE / MOY_TERRE, calage);
@@ -235,13 +256,20 @@ void fragment() {
 			float t_terre = max(smoothstep(0.42, 0.86, pn), smoothstep(0.72, 0.92, b));   // cœur du chemin : terre pleine
 			float t_drue = 1.0 - smoothstep(0.10, 0.40 + lb * 0.5, pn);                    // herbe dense : s'efface (≈ 1 m)
 			float t_usee = smoothstep(0.08, 0.42, pn) * (1.0 - smoothstep(0.60, 0.95, pn) * 0.85);   // herbe clairsemée
+			bande_chemin = smoothstep(0.04, 0.3, pn);
 			// usure P5.3 hors chemins (pentes, sous les arbres, grandes zones) : conservée
 			float us_hors = clamp(max(max(pente_usure * 0.75, lt * 0.5), smoothstep(0.62, 0.86, m1) * 0.35) - dense * 0.5, 0.0, 1.0);
 			t_usee = max(t_usee, us_hors * t_drue);
+			bande_chemin = max(bande_chemin, clamp(max(lt, mousse) * hybride_objets, 0.0, 1.0));
 			t_drue *= 1.0 - us_hors;
 			wt = mix(wt, t_terre * (1.0 - test_usure), transition);
 			wu = mix(wu, max(t_usee, test_usure), transition);
 			wd = mix(wd, t_drue * (1.0 - test_usure), transition);
+		}
+		if (hybride > 0.0) {
+			vec4 th = usee_hybride(p, 1.0 - mr, td, tt);
+			th.a += biais_mat.y;
+			tu = mix(tu, th, bande_chemin * hybride);
 		}
 		vec3 cp = etalon.a > 0.0 ? etalon.rgb * gain_peint : melange_hauteur(td, tu, tt, wd, wu, wt);
 		if (debug_poids == 1) {

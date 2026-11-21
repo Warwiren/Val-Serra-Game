@@ -95,6 +95,10 @@
   shader seulement (hauteurs par matière, bande d'herbe usée par proximité du chemin, matériau `materiau_p53b2t`) ;
   textures V1 / V2 inchangées. Plus naturelle que la V2, presque au niveau de la V1 + calage (moins bien aux
   embranchements). Choix final du créateur en attente ; ne pas commencer SOL-04, litière ni autres matériaux avant.
+- **P5.3-B V3 hybride (branche `p5-3b-v3-hybride`, `docs/P5_3B_V3_HYBRIDE.md`)** : matières V2 (palette, calme) + forme
+  des zones mixtes V1 (masque tiré du dessin de l'herbe usée V1, aucune couleur V1) ; matériau `materiau_p53b3h`, au
+  démarrage de F5 et en combat ; toutes les autres variantes sur U. Aucun nouvel asset, textures inchangées.
+  Retenue seulement si le créateur la juge au moins égale à la V1 + calage sur les transitions.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.

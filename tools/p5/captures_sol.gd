@@ -77,7 +77,8 @@ func _variante_ombre() -> void:
 			var kv := a.substr(6).split("=")
 			var nb := kv[1].split(",")
 			var v: Variant = int(kv[1]) if kv[0] == "debug_poids" else (float(kv[1]) if nb.size() == 1 else (Vector2(float(nb[0]), float(nb[1])) if nb.size() == 2 else Vector3(float(nb[0]), float(nb[1]), float(nb[2]))))
-			(sc.get("_sol").get("materiau_p53b2t") as ShaderMaterial).set_shader_parameter(kv[0], v)
+			for nm in ["materiau_p53b2t", "materiau_p53b3h"]:
+				(sc.get("_sol").get(nm) as ShaderMaterial).set_shader_parameter(kv[0], v)
 		elif a.begins_with("--anti_repetition=") or a.begins_with("--test_usure=") or a.begins_with("--force_hauteur="):
 			var kv := a.substr(2).split("=")
 			for m in sc.get("_sol").call("materiaux_pilote"):

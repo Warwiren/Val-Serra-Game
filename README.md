@@ -45,8 +45,8 @@ d'Aren en comparaison** (touches B / T / P, [vidéo comparative](docs/media/p4_9
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p5-3b-v2-transitions`**, puis **Code → Download ZIP** ; le
-   dossier s'appelle `Val-Serra-Game-p5-3b-v2-transitions`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p5-3b-v3-hybride`**, puis **Code → Download ZIP** ; le
+   dossier s'appelle `Val-Serra-Game-p5-3b-v3-hybride`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -73,6 +73,9 @@ d'Aren en comparaison** (touches B / T / P, [vidéo comparative](docs/media/p4_9
    **Branche `p5-3b-v2-transitions` (21/11/2026)** : F5 démarre sur la **V2 avec transitions corrigées** (bande
    d'herbe clairsemée, touffes débordantes) ; **U** : V2 transitions → V2 actuelle → V1 + calage → V1 → P5.3 → P5.2 →
    V07 ; combat forêt (F6) en V2 transitions. Rapport : `docs/P5_3B_V2_TRANSITIONS.md`.
+   **Branche `p5-3b-v3-hybride` (21/11/2026)** : F5 démarre sur la **V3 hybride** (matières V2, forme des zones mixtes
+   de la V1) ; **U** : V3 hybride → V2 transitions → V2 → V1 + calage → V1 → P5.3 → P5.2 → V07 ; combat forêt (F6) en
+   V3 hybride. Rapport : `docs/P5_3B_V3_HYBRIDE.md`.
 
 ### Commandes — forêt V07B (F5)
 
@@ -85,7 +88,7 @@ d'Aren en comparaison** (touches B / T / P, [vidéo comparative](docs/media/p4_9
 | **B** | animations d'Aren : **V09B.5** (démarrage) / **P4.8** (secours) — V09B.5 (marche et course distinctes, **profil droit seulement** ; autres directions et attente restent P4.8) — essai **non validé** |
 | **T** | format des cycles : **96×112 — hauteur 64 px** (démarrage) / 96×112 (88–91 px) (mêmes PNG, affichés à ×0,719 : taille d'Aren P4.8) / 64×72 (réductions du pack) / **calque 64 px** (V09B.6 : poses V09B.5 à l'échelle P4.8, réduction automatique, **non dessinée**) / `dessin_64` (poses redessinées, quand elles existeront) |
 | **G** | Aren vers le haut / le bas : **V4 dessinée** (démarrage, GIF du créateur du 20/11, proposition) → V3 « en profondeur » (**procédurale**) → 4dir du 20/11 (procédurale) → planche V2 → V4 |
-| **U** | sol : **P5.3-B V2 transitions** (démarrage) → V2 actuelle → V1 + calage → V1 brute → P5.3 → P5.2 figé → V07 d'origine — collisions identiques |
+| **U** | sol : **P5.3-B V3 hybride** (démarrage) → V2 transitions → V2 actuelle → V1 + calage → V1 brute → P5.3 → P5.2 figé → V07 d'origine — collisions identiques |
 | **Y** | pilote P5.3-B : textures peintes sur **toute la carte** (test de répétition) / zone pilote |
 | **J** | ombres douces du soleil : **qualité 4** (démarrage, essai à confirmer sur GPU) / 2 (défaut du projet) |
 | **K** | rendu des personnages : **Sprite3D d'origine** (démarrage, choix du créateur du 20/11) / V10 (comparaison : pixels moyennés, soleil sans ternir, pas de brume sur le sprite, contour d'un pixel) — même dessin |
