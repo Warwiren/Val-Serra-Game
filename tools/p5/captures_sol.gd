@@ -8,7 +8,9 @@ extends "res://tools/p49/banc_v07.gd"
 const POINTS := [["depart", -14.5, 0.2], ["croisement", -12.0, 1.2], ["chemin", -2.0, -0.4], ["pente_nord", 1.0, -6.6],
 	["ruisseau", 2.5, -9.6], ["clairiere", 6.0, 1.0],
 	# P5.3 : vues rapprochées (bord de chemin, pente, pied d'arbre, pied de rocher)
-	["proche_bord", -7.2, 2.6], ["proche_pente", -1.0, -7.4], ["proche_arbre", -5.0, -3.0], ["proche_rocher", -6.6, 3.4]]
+	["proche_bord", -7.2, 2.6], ["proche_pente", -1.0, -7.4], ["proche_arbre", -5.0, -3.0], ["proche_rocher", -6.6, 3.4],
+	# P5.3-B : zone pilote des textures peintes (centre (-10, 1), rayon 8 m)
+	["pilote_chemin", -10.2, -0.4], ["pilote_herbe", -9.0, 4.2], ["pilote_nord", -11.0, -4.0]]
 
 
 func _run() -> void:
@@ -25,6 +27,9 @@ func _run() -> void:
 	for p in POINTS:
 		if seuls.is_empty() or p[0] in seuls:
 			await _vue(p[0], p[1], p[2])
+	if "pilote_large" in seuls:
+		await _tap(KEY_1)
+		await _vue("pilote_large", -10.0, 1.0)
 	if seuls.is_empty() or "large" in seuls:
 		await _tap(KEY_1)
 		await _tap(KEY_4)
@@ -61,6 +66,18 @@ func _variante_ombre() -> void:
 				if g != null:
 					(g as Node3D).visible = false
 					(g as Node3D).set_meta("cache", true)
+		elif a.begins_with("--zoom="):              # 1 (×2) | 2 (×2,5) | 3 (×3, démarrage)
+			sc.set("_zoom", {"1": 2.0, "2": 2.5, "3": 3.0}[a.substr(7)])
+		elif a.begins_with("--etalon="):            # P5.3-B : couleur unie r,g,b (sRGB 0-255) à la place des textures
+			var c := a.substr(9).split(",")
+			(sc.get("_sol").get("materiau_p53b") as ShaderMaterial).set_shader_parameter("etalon", Color8(int(c[0]), int(c[1]), int(c[2])))
+		elif a.begins_with("--calage=") or a.begins_with("--anti_repetition="):
+			var kv := a.substr(2).split("=")
+			(sc.get("_sol").get("materiau_p53b") as ShaderMaterial).set_shader_parameter(kv[0], float(kv[1]))
+		elif a.begins_with("--gain="):
+			(sc.get("_sol").get("materiau_p53b") as ShaderMaterial).set_shader_parameter("gain_peint", float(a.substr(7)))
+		elif a == "--pilote=carte":                 # P5.3-B : textures peintes sur toute la carte (touche Y)
+			sc.call("set_pilote_carte_entiere", true)
 		elif a.begins_with("--sol="):               # P5.3 : p53 | p52 | v07
 			sc.call("set_version_sol", a.substr(6))
 		elif a.begins_with("--qualite="):          # filtre des ombres douces : 0 dur … 5 ultra (défaut du projet : 2)

@@ -10,12 +10,15 @@ extends RefCounted
 
 const SHADER := preload("res://src/explore25/sol_foret.gdshader")            # P5.3 (courant)
 const SHADER_P52 := preload("res://src/explore25/sol_foret_p52.gdshader")    # P5.2 figé (comparaison)
+const SHADER_P53B := preload("res://src/explore25/sol_foret_p53b.gdshader")  # P5.3-B pilote (textures peintes)
+const DIR_PEINT := "res://art/p53/sol/"
 ## surtout des pins (feuillage jusqu'au sol : un mur de verdure, pas une rangée de troncs), quelques feuillus
 const ARBRES_HORIZON := ["models/Pine_2.gltf", "models/Pine_4.gltf", "models/Pine_1.gltf", "models/Pine_2.gltf", "models/Pine_4.gltf", "models/CommonTree_2.gltf"]
 const FOND := Color(0.075, 0.105, 0.075)
 
 var materiau: ShaderMaterial             # P5.3
 var materiau_p52: ShaderMaterial
+var materiau_p53b: ShaderMaterial          # null si les textures du pilote sont absentes
 var _maillages := {}                 # MeshInstance3D -> [maillage d'origine, copie avec normales]
 var horizon: Node3D
 var nb_obstacles := 0
@@ -73,7 +76,7 @@ func appliquer(mis: Array, version) -> void:
 			_maillages[m] = [m.mesh, avec_normales(m.mesh)]
 		m.mesh = _maillages[m][0] if version == "v07" else _maillages[m][1]
 		m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF if version == "p52" else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-		m.material_override = {"p53": materiau, "p52": materiau_p52}.get(version, null)
+		m.material_override = {"p53": materiau, "p52": materiau_p52, "p53b": materiau_p53b if materiau_p53b != null else materiau}.get(version, null)
 
 
 ## carte : la texture V07 du terrain ; placements : manifeste ; charge : fonction(nom de fichier) -> PackedScene
@@ -112,6 +115,14 @@ func construire(carte: Texture2D, placements: Array, charge: Callable) -> void:
 	materiau_p52.shader = SHADER_P52
 	for k in ["carte", "bruit_large", "bruit_fin", "obstacles", "nb_obstacles"]:
 		materiau_p52.set_shader_parameter(k, materiau.get_shader_parameter(k))
+	if ResourceLoader.exists(DIR_PEINT + "herbe_drue.png"):
+		materiau_p53b = materiau.duplicate() as ShaderMaterial
+		materiau_p53b.shader = SHADER_P53B
+		for k in ["carte", "bruit_large", "bruit_fin", "obstacles", "nb_obstacles"]:
+			materiau_p53b.set_shader_parameter(k, materiau.get_shader_parameter(k))
+		materiau_p53b.set_shader_parameter("tex_drue", load(DIR_PEINT + "herbe_drue.png"))
+		materiau_p53b.set_shader_parameter("tex_usee", load(DIR_PEINT + "herbe_usee.png"))
+		materiau_p53b.set_shader_parameter("tex_terre", load(DIR_PEINT + "terre_chemin.png"))
 
 
 func _largeur(sc: PackedScene) -> float:

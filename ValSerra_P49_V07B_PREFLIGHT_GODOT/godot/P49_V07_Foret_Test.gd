@@ -62,7 +62,8 @@ var _ilya_ghost: Sprite3D
 var _rendu_v10 := false
 ## P5.2 (sol de la forêt, touche U) : matière de sol, pieds d'objets, horizon fermé ; présentation seulement
 var _sol_p52 := false                  # vrai dès qu'un sol P5.x est affiché
-var version_sol := "v07"               # P5.3 : "p53" (démarrage) / "p52" (figé) / "v07" (touche U)
+var version_sol := "v07"               # "p53b" (démarrage, pilote) / "p53" / "p52" (figé) / "v07" (touche U)
+var pilote_carte_entiere := false      # P5.3-B : touche Y, matières peintes sur toute la carte (test de répétition)
 ## P5.3 : filtre des ombres douces du soleil, qualité 4 à l'essai (2 = défaut du projet) ; touche J ; à confirmer sur GPU
 const QUALITE_OMBRE_ESSAI := 4
 const QUALITE_OMBRE_DEFAUT := 2
@@ -105,7 +106,7 @@ func _ready() -> void:
 		_pitch = 24.0
 		_zoom = 3.0
 		_set_brume(false)                       # V11 (20/11/2026) : brouillard retiré au démarrage (touche F pour le revoir)
-		set_version_sol("p53")                  # P5.3 : sol, ombre du terrain (touche U : P5.2 figé / V07 d'origine)
+		set_version_sol("p53b")                 # P5.3-B pilote : textures peintes en zone pilote (U : P5.3 / P5.2 / V07)
 		set_qualite_ombre(QUALITE_OMBRE_ESSAI)  # P5.3 : essai qualité 4 (touche J : 2)
 	_reset_positions()
 
@@ -145,6 +146,12 @@ func set_version_sol(v: String) -> void:
 	version_sol = v
 	if _sol != null:
 		_sol.appliquer(_sols_mi(), v)
+
+## P5.3-B : matières peintes limitées à la zone pilote (défaut) ou sur toute la carte (test de répétition)
+func set_pilote_carte_entiere(v: bool) -> void:
+	pilote_carte_entiere = v
+	if _sol != null and _sol.materiau_p53b != null:
+		(_sol.materiau_p53b as ShaderMaterial).set_shader_parameter("carte_entiere", v)
 
 func set_qualite_ombre(q: int) -> void:
 	qualite_ombre = q
@@ -851,7 +858,7 @@ func _process(delta: float) -> void:
 		_hud.text += "\nB : animations d'Aren %s · T : format · P : vitesses %s (marche %.1f / course %.1f m/s) · vitesse mesurée %.2f m/s" % [anim_txt, _speed_profile.to_upper(), spd[0], spd[1], Vector2(_hero.get_real_velocity().x, _hero.get_real_velocity().z).length()]
 		if _v09b5_on:
 			_hud.text += "\nG : Aren de face / de dos %s" % {"v4": "V4 dessinée (GIF du 20/11, proposition)", "v3": "V3 « en profondeur » (procédurale, proposition)", "4dir": "4dir du 20/11 (procédurale)", "v2": "planche V2"}.get(_anim_v09b5.jeu_vues, _anim_v09b5.jeu_vues)
-		_hud.text += "\nU : sol %s · J : ombres douces qualité %d%s" % [{"p53": "P5.3 (transitions, usure, pentes, contacts ; ombre du terrain)", "p52": "P5.2 figé (sans ombre du terrain)", "v07": "V07 d'origine"}[version_sol], qualite_ombre, " (essai)" if qualite_ombre == QUALITE_OMBRE_ESSAI else " (défaut)"]
+		_hud.text += "\nU : sol %s · J : ombres douces qualité %d%s" % [{"p53b": "P5.3-B PILOTE (textures peintes, %s)" % ("carte entière — Y" if pilote_carte_entiere else "zone pilote — Y : carte entière"), "p53": "P5.3 (transitions, usure, pentes, contacts ; ombre du terrain)", "p52": "P5.2 figé (sans ombre du terrain)", "v07": "V07 d'origine"}[version_sol], qualite_ombre, " (essai)" if qualite_ombre == QUALITE_OMBRE_ESSAI else " (défaut)"]
 		_hud.text += "\nK : rendu des personnages %s" % ("V10 (net, éclairé, sans brume, contour — proposition)" if _rendu_v10 else "d'origine (Sprite3D)")
 		var ilya_txt := "P4.8 (ancienne apparence)"
 		if _v09c_on:
@@ -906,7 +913,8 @@ func _unhandled_key_input(event: InputEvent) -> void:
 				_ilya_v09c.course_v09c6 = false
 		KEY_M: _markers.visible = not _markers.visible
 		KEY_F: _set_brume(not _world_env.fog_enabled)
-		KEY_U: set_version_sol({"p53": "p52", "p52": "v07", "v07": "p53"}[version_sol])   # P5.3 -> P5.2 -> V07
+		KEY_U: set_version_sol({"p53b": "p53", "p53": "p52", "p52": "v07", "v07": "p53b"}[version_sol])   # P5.3-B -> P5.3 -> P5.2 -> V07
+		KEY_Y: set_pilote_carte_entiere(not pilote_carte_entiere)
 		KEY_J: set_qualite_ombre(QUALITE_OMBRE_DEFAUT if qualite_ombre == QUALITE_OMBRE_ESSAI else QUALITE_OMBRE_ESSAI)
 		KEY_V: _toggle_water_shader()
 		KEY_N: _set_forest_visible(not _forest_root.visible)

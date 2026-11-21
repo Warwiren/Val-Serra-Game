@@ -81,6 +81,12 @@
   considérer validé avant le test GPU du créateur. Les « hachures » autour des obstacles viennent de la trame de
   l'occlusion (validée, non modifiée). Étape B : textures peintes RGBA (A = hauteur), 1024² = 4 × 4 m, pilote
   herbe drue / herbe usée / terre de chemin dans `art/p53/sol/` ; ne pas inventer de textures de remplacement.
+  **P5.3 validé par le créateur le 21/11/2026 (fin de l'étape A) : ne plus retoucher `sol_foret.gdshader`.**
+- **Pilote P5.3-B (branche `p5-3b-pilote-sols`, `docs/P5_3B_PILOTE.md`)** : textures du créateur (SOL-01/02/03 → herbe_drue,
+  herbe_usee, terre_chemin ; hauteurs PROVISOIRES), format seulement adapté (RGBA), couleurs non retouchées ; shader
+  `sol_foret_p53b.gdshader` (copie de P5.3 + mélange par hauteur) limité à une zone pilote (touche Y : carte entière) ;
+  gain de couleur étalonné par mesure (0,22) ; « calage » de palette = essai de discussion, désactivé. Combat forêt :
+  décor rendu avec les textures. Test : `tests/p53b_pilote_smoke.gd`. Pas de nouvelle passe sur l'occlusion.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.

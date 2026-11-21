@@ -1,0 +1,61 @@
+{
+ "statut": "P5.3-B PILOTE — textures du créateur, hauteurs PROVISOIRES ; non validé en jeu",
+ "tuile_m": 4.0,
+ "px_par_m": 256,
+ "materiaux": {
+  "herbe_drue": {
+   "source": "SOL-01_herbe_dense",
+   "moyenne_srgb": [
+    46.2,
+    83.6,
+    53.2
+   ],
+   "hauteur_moyenne": 0.45,
+   "hauteur_ecart_type": 0.051,
+   "luminosite_bords_64px": 65.5,
+   "luminosite_centre": 70.4,
+   "assombrissement_bords_pct": 7.0,
+   "colonne_0_egale_colonne_1023": true,
+   "bords_en_miroir_col1_col1022": 0.02,
+   "sha256_couleur": "9590429027145f2130a19d0f39dbb2e452dab7bc81dfb87abd36de9f2b2f94a1",
+   "sha256_hauteur": "79be181981c28aa52585a5b4421f2dd11341fa875084f21b7f37856aa1455462",
+   "sha256_rgba": "ba0b0f0b5a3369c03b25f13a096a1edc2946e524b561db1f2418b6ddd064ad66"
+  },
+  "herbe_usee": {
+   "source": "SOL-02_herbe_clairsemee",
+   "moyenne_srgb": [
+    76.2,
+    75.8,
+    50.7
+   ],
+   "hauteur_moyenne": 0.45,
+   "hauteur_ecart_type": 0.059,
+   "luminosite_bords_64px": 66.1,
+   "luminosite_centre": 79.9,
+   "assombrissement_bords_pct": 17.3,
+   "colonne_0_egale_colonne_1023": true,
+   "bords_en_miroir_col1_col1022": 0.18,
+   "sha256_couleur": "b5041493f010d7390929b78ab89d412ca676561d733eb3c8dbda9a8d318ee219",
+   "sha256_hauteur": "f462c13c391e88cabafc7eab0b7ef4f45eb4ef9d435e43373223338ceb3be507",
+   "sha256_rgba": "381f9b7a6ca40be94430900e1c7494de6e8f33587b374cc5ee6285cffb4bc9a1"
+  },
+  "terre_chemin": {
+   "source": "SOL-03_chemin_terre_tassee",
+   "moyenne_srgb": [
+    117.0,
+    68.1,
+    50.6
+   ],
+   "hauteur_moyenne": 0.43,
+   "hauteur_ecart_type": 0.027,
+   "luminosite_bords_64px": 71.1,
+   "luminosite_centre": 89.9,
+   "assombrissement_bords_pct": 20.9,
+   "colonne_0_egale_colonne_1023": true,
+   "bords_en_miroir_col1_col1022": 0.02,
+   "sha256_couleur": "106670476d47ea5e9c9cadecd0f198dae7a0958fb755eafafece191f163ed8c3",
+   "sha256_hauteur": "19bf6194fcf3c77b23f76d31b36d47751935e20ca75e14f595a2732f03957169",
+   "sha256_rgba": "b58ba730bb98eac8b330e4243077a6d872b4558fb61836c419add8dd2390d4c7"
+  }
+ }
+}
