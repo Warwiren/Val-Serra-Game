@@ -5,7 +5,8 @@ Démo jouable du RPG narratif au tour par tour **Val'Serra**, réalisée sous **
 > Tous les personnages, monstres, illustrations et nombres de ce dépôt sont **provisoires et non canoniques**.
 > Ce dépôt est indépendant du système Foundry du JDR (`Warwiren/Val-serra`), qui n'est pas modifié.
 
-![Forêt V07B — chemin principal, Aren et Ilya (caméra P30, Forward+)](docs/media/p4_9/cameras_occlusion/captures/chemin_30_forwardplus.jpg)
+> Médias des étapes P4.9 à P5.3-B V2 : retirés du projet actif en P6 (`docs/P6_INVENTAIRE.md`), disponibles sous
+> l'étiquette Git `archive/avant-p6` et dans les branches d'origine.
 
 ## Ce qui est jouable
 
@@ -26,18 +27,15 @@ C'est un **banc d'essai** (interface de test visible, pas de quête ni de combat
 — exploration, dialogue avec le garde, combat au tour par tour contre le Vorgane (475 PV de démonstration), retour —
 reste jouable en **F6** (`scenes/p4/avant_poste.tscn`, voir « Autres scènes »).
 
-| Avant-poste (F6) : combat | Avant-poste (F6) : plaine |
-|---|---|
-| ![Combat](docs/media/p4_9/demo/combat.jpg) | ![Plaine](docs/media/p4_9/demo/plaine_vorgane_x2-5.jpg) |
 
 Étape en cours : **P4.9** — forêt V07B, inclinaisons et occlusion, navigation libre (V08A), locomotion V09A en essai
-([comparaison V08 / V09A](docs/media/p4_9/v09a/comparaison_v08_v09a.mp4)), **V09B.5 : nouvelles marche et course
-d'Aren en comparaison** (touches B / T / P, [vidéo comparative](docs/media/p4_9/v09b5/comparaison_p48_v09b5.mp4)),
-**V09B.6 : gabarit 64 px et plan de redessin pose par pose** ([fiches et vidéo](docs/media/p4_9/v09b6/)). Rapport
-[`docs/P4_9_V07B.md`](docs/P4_9_V07B.md) ; vidéos : [exploration libre](docs/media/p4_9/v08a/exploration_libre_forwardplus.mp4),
-[inclinaisons et occlusion](docs/media/p4_9/cameras_occlusion/videos/angles_et_occlusion_forwardplus.mp4) ;
-[comparatif 30° / 27° / 24°](docs/media/p4_9/cameras_occlusion/comparatif_6_captures_forwardplus.jpg),
-[masque de collision avant / après](docs/media/p4_9/v08a/masque_avant_apres.jpg).
+(comparaison V08 / V09A), **V09B.5 : nouvelles marche et course
+d'Aren en comparaison** (touches B / T / P, vidéo comparative),
+**V09B.6 : gabarit 64 px et plan de redessin pose par pose** (fiches et vidéo). Rapport
+[`docs/P4_9_V07B.md`](docs/P4_9_V07B.md) ; vidéos : exploration libre,
+inclinaisons et occlusion ;
+comparatif 30° / 27° / 24°,
+masque de collision avant / après.
 Étapes précédentes : `docs/HISTORIQUE.md`.
 
 ## Lancer le jeu (Godot 4.7.2 obligatoire)
