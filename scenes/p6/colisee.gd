@@ -1436,14 +1436,30 @@ func _mur_continu(id: String, pivot: Node3D, r: Rect2, h0: float, hv: float, mpi
 	var haut: Array = []
 	var h_mid := minf(hv, 3.0)
 	haut.append(_box_mesh(_rect_center(r, lip, h_mid), Vector3(r.size.x, h_mid - lip, r.size.y), mpierre, pivot))
+	var mcap: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(1.12, 1.1, 1.08), true) if _hab != null else _tinted("pierre", Color(1.12, 1.1, 1.14), true)
 	if hv > 3.05:
-		# partie haute des intérieurs : même pierre, assombrie (elle se perd dans l'ombre au-dessus des lanternes)
-		var msombre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.42, 0.38, 0.38), true) if _hab != null else _tinted("pierre", Color(0.4, 0.38, 0.4), true)
-		haut.append(_box_mesh(_rect_center(r, 3.0, hv), Vector3(r.size.x, hv - 3.0, r.size.y), msombre, pivot))
+		# P6.2-D : partie haute en deux assises (moins brutale qu'un aplat sombre), corniche, chaperon de pierre au sommet
+		# (et non plus une tranche noire de maquette), pilastres aux extrémités des murs longs (angles, piédroits)
+		var mmoyen: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.6, 0.56, 0.55), true) if _hab != null else _tinted("pierre", Color(0.58, 0.56, 0.58), true)
+		var msombre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.4, 0.36, 0.36), true) if _hab != null else _tinted("pierre", Color(0.4, 0.38, 0.4), true)
+		var hm := minf(4.3, hv)
+		haut.append(_box_mesh(_rect_center(r, 3.0, hm), Vector3(r.size.x, hm - 3.0, r.size.y), mmoyen, pivot))
+		if hv > hm + 0.05:
+			haut.append(_box_mesh(_rect_center(r, hm, hv), Vector3(r.size.x, hv - hm, r.size.y), msombre, pivot))
+			haut.append(_box_mesh(_rect_center(r.grow(0.03), hm - 0.04, hm + 0.06), Vector3(r.size.x + 0.06, 0.1, r.size.y + 0.06), mmoyen, pivot))
 		# corniche à la jonction (lecture des proportions : un étage, pas un mur infini)
 		haut.append(_box_mesh(_rect_center(r.grow(0.05), 2.95, 3.12), Vector3(r.size.x + 0.1, 0.17, r.size.y + 0.1), mpierre, pivot))
-	var mcap: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(1.12, 1.1, 1.08), true) if _hab != null else _tinted("pierre", Color(1.12, 1.1, 1.14), true)
-	haut.append(_box_mesh(_rect_center(r.grow(0.06), hv, hv + 0.12), Vector3(r.size.x + 0.12, 0.12, r.size.y + 0.12), mcap if hv <= 3.05 else _mat_coupe(), pivot))
+		haut.append(_box_mesh(_rect_center(r.grow(0.08), hv, hv + 0.16), Vector3(r.size.x + 0.16, 0.16, r.size.y + 0.16), msombre, pivot))
+		var long := maxf(r.size.x, r.size.y)
+		if long > 2.5:
+			var le_long_x := r.size.x > r.size.y
+			for t in [0.0, 1.0]:
+				var c := r.get_center()
+				var bout := Vector2(lerpf(r.position.x + 0.2, r.end.x - 0.2, t), c.y) if le_long_x else Vector2(c.x, lerpf(r.position.y + 0.2, r.end.y - 0.2, t))
+				var sz := Vector3(0.4, 0.0, r.size.y + 0.16) if le_long_x else Vector3(r.size.x + 0.16, 0.0, 0.4)
+				haut.append(_box_mesh(Vector3(bout.x, (lip + hv) * 0.5, bout.y), Vector3(sz.x, hv - lip, sz.z), mmoyen, pivot))
+	else:
+		haut.append(_box_mesh(_rect_center(r.grow(0.06), hv, hv + 0.12), Vector3(r.size.x + 0.12, 0.12, r.size.y + 0.12), mcap, pivot))
 	if _hab != null:
 		_box_mesh(_rect_center(r.grow(0.05), h0, 0.3), Vector3(r.size.x + 0.1, 0.3, r.size.y + 0.1), _hab.mat(Habillage.PIERRE, 1.2, Habillage.C_CALCAIRE * Color(0.72, 0.7, 0.7)), pivot)
 	var coupe := _box_mesh(_rect_center(r.grow(0.07), lip - 0.01, lip + 0.05), Vector3(r.size.x + 0.14, 0.06, r.size.y + 0.14), _mat_coupe(), pivot)
@@ -1484,7 +1500,15 @@ func _linteaux() -> void:
 			haut.append(_box_mesh(_rect_center(r, lb, 3.0), Vector3(r.size.x, 3.0 - lb, r.size.y), mclair, pivot))
 			var msombre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.42, 0.38, 0.38), true) if _hab != null else mp
 			haut.append(_box_mesh(_rect_center(r, 3.0, lh), Vector3(r.size.x, lh - 3.0, r.size.y), msombre, pivot))
-		var arc := false
+		var arc := lh < 3.5
+		if arc:
+			# P6.2-D : arc de la bouche = fin de la voûte du tunnel : sommiers sous le bandeau (profil d'arc), et un volume
+			# d'occultation (sans collision) : s'il passe devant Aren, une trouée locale s'ouvre dans la pierre (système
+			# d'occlusion validé de la forêt) au lieu de faire disparaître tout l'arc
+			for sx in [r.position.x + 0.35, r.end.x - 0.35]:
+				haut.append(_box_mesh(Vector3(sx, lb - 0.2, r.get_center().y), Vector3(0.7, 0.4, r.size.y), mp, pivot))
+				haut.append(_box_mesh(Vector3(sx + (0.18 if sx < r.get_center().x else -0.18), lb - 0.5, r.get_center().y), Vector3(0.35, 0.3, r.size.y), mp, pivot))
+			_static_box(_rect_center(r, lb - 0.6, lh), Vector3(r.size.x, lh - lb + 0.6, r.size.y), L_OCC)
 		var coupe := _box_mesh(_rect_center(r, lb - 0.01, lb + 0.01), Vector3(0.01, 0.01, 0.01), _mat_coupe(), pivot)
 		_sect.declarer_mur(pivot, coupe, r, lb, lh, haut, null, arc)
 
