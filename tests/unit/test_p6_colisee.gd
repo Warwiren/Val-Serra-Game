@@ -504,6 +504,7 @@ func test_colisee_complet() -> void:
 	check(not vis.call(reserve), "infirmerie : la réserve voisine (sur le côté, fermée) n'est pas rendue")
 	sc.mettre_a_jour(Vector2(26, 51), true)
 	check(vis.call(salle), "vestiaires : la salle, entièrement derrière, reste rendue (cachée par le mur du fond)")
+	check(not vis.call(reserve), "vestiaires : la réserve, derrière mais hors de la largeur de la pièce, n'est pas rendue")
 	sc.mettre_a_jour(Vector2(26, 24), true)
 	check(sc.toits_visibles().has("S6") and sc.toits_visibles().has("S9"), "arène : coursive et sortie couvertes d'un toit (%s)" % str(sc.toits_visibles()))
 	check(not sc.toits_visibles().has("S5"), "arène : le tunnel est (voisin en vue) n'a pas de toit")

@@ -118,6 +118,8 @@ func _membres_emprise(e0: Rect2, retrait := true) -> Array:
 				dedans = true
 	if not dedans:
 		out.append(EXT)                    # dépasse des secteurs : appartient aussi au reste du niveau
+	if out.is_empty():
+		out.append(_proche(e0.get_center()))   # P6.2-D : posé sur la ligne d'un mur (bannière, bandeau de porte)
 	return out
 
 
@@ -336,9 +338,19 @@ func _derriere(m: Array) -> bool:
 	var loin_actif := -INF
 	for r in par_id[actif]["rects"]:
 		loin_actif = maxf(loin_actif, _prof_max(r, vers_fond))
+	# et dans la largeur de la pièce active (vue de la caméra) : sinon son mur du fond ne la cache pas
+	var lat := World25.cam_right()
+	var l2 := Vector2(lat.x, lat.z)
+	var g0 := INF
+	var g1 := -INF
+	for r in par_id[actif]["rects"]:
+		g0 = minf(g0, _prof_min(r, l2))
+		g1 = maxf(g1, _prof_max(r, l2))
 	for id in m:
 		for r in par_id[id]["rects"]:
 			if _prof_min(r, vers_fond) < loin_actif - 0.3:
+				return false
+			if _prof_min(r, l2) < g0 - 0.5 or _prof_max(r, l2) > g1 + 0.5:
 				return false
 	return true
 
