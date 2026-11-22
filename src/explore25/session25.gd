@@ -52,6 +52,7 @@ var _toast: Label
 var _toast_t := 0.0
 var _fade: ColorRect
 var interact_hint := ""
+var derniere_touche := Vector2.ZERO      # P6.2 : direction écran demandée à cette image (affichage des touches, vidéos)
 
 
 func _init(h: Node, a: String) -> void:
@@ -333,6 +334,7 @@ func process(delta: float) -> void:
 		sdir = _pilot_dir(delta)
 	if dialogue_open:
 		sdir = Vector2.ZERO
+	derniere_touche = sdir
 	var dir: Vector2 = World25.input_to_plan(sdir)
 	var on_ramp: bool = world.surface_at(Vector2(hero.x, hero.y), hero.z).get("ramp", false)
 	var asd: Dictionary = world.assist(dir, on_ramp)

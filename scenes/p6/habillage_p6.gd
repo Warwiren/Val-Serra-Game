@@ -379,7 +379,7 @@ func vestiaires(r: Rect2) -> void:
 	var bois := mat(PLANCHES, 1.6, Color(0.78, 0.62, 0.5))
 	var bois_sombre := mat(PLANCHES, 1.6, Color(0.5, 0.38, 0.32))
 	# plancher plus chaleureux avec bordure de dalles
-	sc._box_mesh(Vector3(r.get_center().x, 0.004, r.get_center().y), Vector3(r.size.x, 0.008, r.size.y), mat(PLANCHES, 2.0, Color(0.72, 0.58, 0.48)))
+	sc._box_mesh(Vector3(r.get_center().x, 0.004, r.get_center().y), Vector3(r.size.x, 0.008, r.size.y), mat(PLANCHES, 2.0, Color(0.56, 0.5, 0.46)))
 	for e in [[r.position.x, r.position.y, r.size.x, 0.45], [r.position.x, r.end.y - 0.45, r.size.x, 0.45], [r.position.x, r.position.y, 0.45, r.size.y], [r.end.x - 0.45, r.position.y, 0.45, r.size.y]]:
 		sc._box_mesh(Vector3(e[0] + e[2] / 2.0, 0.012, e[1] + e[3] / 2.0), Vector3(e[2], 0.02, e[3]), mat(PAVES, 1.6, Color(0.8, 0.76, 0.74)))
 	# plinthes et poutre haute le long du mur nord (vu de face)
@@ -391,10 +391,7 @@ func vestiaires(r: Rect2) -> void:
 	for q in [Rect2(16.2, 46.6, 6.4, 0.6), Rect2(29.4, 46.6, 6.4, 0.6)]:
 		_casiers(q, 2.0, bois, bois_sombre)
 	_casiers_vertical(Rect2(16.1, 49.0, 0.6, 4.5), 2.0, bois, bois_sombre)
-	# tapis central, râtelier garni, accessoires peints
-	var tapis := uni(Color(0.3, 0.08, 0.1), 1.0)
-	sc._box_mesh(Vector3(26.0, 0.02, 51.4), Vector3(4.2, 0.02, 2.4), tapis)
-	sc._box_mesh(Vector3(26.0, 0.025, 51.4), Vector3(3.8, 0.02, 2.0), uni(Color(0.46, 0.12, 0.14), 1.0))
+	# râtelier garni, accessoires peints (P6.2 : tapis et lanternes sur pied retirés, axe central dégagé)
 	var fer := uni(Color(0.72, 0.74, 0.8), 0.35, 0.8)
 	for i in 7:
 		var z := 49.45 + i * 0.47
@@ -414,12 +411,9 @@ func vestiaires(r: Rect2) -> void:
 	sc._card("props/tont01_tonneau.png", Vector3(34.9, 0, 54.1), 0.9, {"anchor": 0.08, "blob": 0.8})
 	sc._card("props/cais01_caisse.png", Vector3(17.2, 0, 54.3), 1.05, {"anchor": 0.1, "blob": 0.9})
 	sc._card("props/sac01_sacs.png", Vector3(18.3, 0, 54.5), 0.9, {"anchor": 0.08})
-	sc._card("props/bois02_buches.png", Vector3(33.4, 0, 47.6), 1.4, {"anchor": 0.12})
+	sc._card("props/bois02_buches.png", Vector3(34.9, 0, 48.15), 1.1, {"anchor": 0.12})
 	sc._card("props/bann02_bleue.png", Vector3(24.0, 0, 46.65), 1.0, {"anchor": 0.05})
 	sc._card("props/bann02_bleue.png", Vector3(28.0, 0, 46.65), 1.0, {"anchor": 0.05})
-	for x in [18.0, 34.0]:
-		sc._card("props/lant01_lanterne.png", Vector3(x, 0, 47.0), 0.8, {"anchor": 0.05, "emit": 1.4})
-	sc._light(Vector3(26.0, 2.2, 50.0), 1.1, 9.0, Color(1.0, 0.75, 0.48))
 
 
 func _casiers(q: Rect2, h: float, bois: Material, sombre: Material) -> void:

@@ -132,7 +132,6 @@ def colisee():
         ("casiers_no", [16.2, 46.6, 22.6, 47.2], 2.0), ("casiers_ne", [29.4, 46.6, 35.8, 47.2], 2.0),
         ("casiers_o", [16.1, 49.0, 16.7, 53.5], 2.0),
         ("banc_v1", [19.0, 50.2, 22.4, 50.75], 0.45), ("banc_v2", [29.6, 50.2, 33.0, 50.75], 0.45),
-        ("banc_v3", [19.0, 53.0, 22.4, 53.55], 0.45),
         ("ratelier_v", [34.9, 49.2, 35.7, 52.6], 1.6), ("mannequin_v", [31.6, 53.3, 32.4, 54.1], 1.7),
         ("coffre_v", [16.4, 54.0, 17.6, 54.8], 0.8),
         # salle d'attente : bancs latéraux, râtelier
@@ -207,7 +206,19 @@ def colisee():
             {"id": "sortie", "nom": "Sortie est", "rect": PIECES["couloir_sortie"][0]},
         ],
         "camera_vue_dessus": [8.0, 6.0, 66.0, 57.0],
-        "lumieres": [[18.0, 47.3, 2.2], [34.0, 47.3, 2.2], [21.0, 38.0, 2.2], [31.0, 38.0, 2.2],
+        # P6.2 — secteurs de visibilité (prototype : vestiaires et salle d'attente ; le reste = « EXT », affiché comme avant)
+        "secteurs": [
+            {"id": "S1", "nom": "Vestiaires", "rects": [PIECES["vestiaires"][0]], "voisins": ["P12"], "fond": "sombre", "plafond_h": 3.4},
+            {"id": "P12", "nom": "Passage des vestiaires", "rects": [PIECES["passage_vestiaires"][0]], "voisins": ["S1", "S2"],
+             "fond": "sombre", "plafond_h": 3.2, "camera": False},
+            {"id": "S2", "nom": "Salle d'attente", "rects": [PIECES["salle_attente"][0]], "voisins": ["P12", "S3"], "fond": "sombre", "plafond_h": 3.4},
+            {"id": "S3", "nom": "Tunnel des combattants", "rects": [[24.5, 32.0, 27.5, 37.5]], "voisins": ["S2", "EXT"], "fond": "ciel",
+             "plafond_h": 2.9, "camera": False},
+        ],
+        # [x, y, h, dx, dz] : applique murale ; (dx, dz) = décalage de la lumière vers la pièce (P6.2 : murs latéraux
+        # et mur du fond des vestiaires, plus aucune lumière plaquée devant les casiers)
+        "lumieres": [[16.2, 48.3, 2.3, 0.7, 0.0], [35.8, 54.0, 2.3, -0.7, 0.0], [23.4, 46.55, 2.5, 0.0, 0.6], [28.6, 46.55, 2.5, 0.0, 0.6],
+                     [20.25, 38.6, 2.3, 0.7, 0.0], [31.75, 38.6, 2.3, -0.7, 0.0], [26.0, 37.55, 2.6, 0.0, 0.6],
                      [45.0, 12.6, 2.6], [55.0, 12.6, 2.6], [47.0, 35.6, 2.0], [60.0, 22.0, 2.2]],
     }
     zone = {

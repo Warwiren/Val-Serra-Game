@@ -25,6 +25,7 @@ const QUALITE_OMBRE_DEFAUT := 2
 const PNJ_R := 0.35
 const AnimV09B5 = preload("res://src/explore25/anim_v09b5.gd")
 const Habillage = preload("res://scenes/p6/habillage_p6.gd")
+const Secteurs = preload("res://src/explore25/secteurs25.gd")
 ## P6.1 — réglages de caméra comparés (touche C) : [nom, préréglage, indice de zoom (0 : ×2, 1 : ×2,5, 2 : ×3)]
 const CAMS_P6 := {"A": ["P30", 1], "B": ["P30", 2], "C": ["P24", 2]}
 const CAMS_P6_ORDRE := ["A", "B", "C"]
@@ -61,6 +62,10 @@ var cam_p6 := "C"
 @export var azimut_initial := 0.0
 var aren_variante := "foret"
 var _anim_aren: RefCounted
+var _sect                                  # P6.2 : visibilité par secteurs (null si la zone n'en déclare pas)
+var _lueur_tunnel: MeshInstance3D
+var _bornes_but := Rect2()
+var _amb_but := -1.0
 var habillage := true                       # P6.1 : pilote d'habillage (touche H : pilote / blockout P6)
 var _hab
 
@@ -97,6 +102,7 @@ func _ready() -> void:
 	_build_tilt()
 	_env()
 	RenderingServer.directional_soft_shadow_filter_set_quality(QUALITE_OMBRE)
+	RenderingServer.positional_soft_shadow_filter_set_quality(QUALITE_OMBRE)   # P6.2 : lanternes à ombres douces
 	cam = Camera3D.new()
 	cam.projection = Camera3D.PROJECTION_ORTHOGONAL
 	cam.keep_aspect = Camera3D.KEEP_HEIGHT
@@ -153,6 +159,7 @@ func _exit_tree() -> void:
 	super._exit_tree()
 	World25.yaw = World25.YAW
 	RenderingServer.directional_soft_shadow_filter_set_quality(QUALITE_OMBRE_DEFAUT)
+	RenderingServer.positional_soft_shadow_filter_set_quality(QUALITE_OMBRE_DEFAUT)
 
 
 # ------------------------------------------------------------------------------------------------ interface
@@ -360,12 +367,21 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	if _hab != null:
 		_hab.lumiere(_env_res, _sun)
 	_portes_fermees.clear()
+	_sect = Secteurs.new(_p6["secteurs"]) if (_p6.has("secteurs") and not _cli.has("sans_secteurs")) else null
 	for e in world.elements:
 		_build(e)
 	_build_p6()
 	_spawn_pnj()
 	_build_overlay()
 	s.set_world(world, arrive)
+	if _sect != null:
+		for n in [_overlay, _labels]:
+			if n != null:
+				n.set_meta("hors_secteurs", true)
+		_sect.plafonds(root)
+		_lueur_tunnel = _lueur_fin_de_tunnel()
+		_sect.classer(self, root)
+		_maj_secteur(true)
 	teleport(s.hero, s.companion)
 	apply_options()
 	_title.text = _p6.get("nom", "")
@@ -433,12 +449,26 @@ func _build_bloc_p6(e: Dictionary) -> void:
 			h1 = h0 + 1.7                       # rendu à la hauteur des gradins sud (collision inchangée : 2,6 m)
 			size.y = h1 - h0
 		var mpierre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE, tall) if _hab != null else _surf("pierre", tall)
-		var mi := _box_mesh(_rect_center(r, h0, h1), size, mpierre)
+		# P6.2 : maillages du mur sous un pivot à l'origine (le mur s'abaisse vers le sol quand il est coupé) ;
+		# la collision (sb) reste dans l'instance, jamais modifiée
+		var pivot := Node3D.new()
+		pivot.name = id
+		pivot.set_meta("xz", r.get_center())
+		pivot.set_meta("mur", true)
+		root.add_child(pivot)
+		var mi := _box_mesh(_rect_center(r, h0, h1), size, mpierre, pivot)
 		fade_nodes[sb] = [mi]
 		var mcap: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(1.12, 1.1, 1.08), tall) if _hab != null else _tinted("pierre", Color(1.12, 1.1, 1.14), tall)
-		_box_mesh(_rect_center(r.grow(0.06), h1, h1 + 0.12), Vector3(r.size.x + 0.12, 0.12, r.size.y + 0.12), mcap)
+		_box_mesh(_rect_center(r.grow(0.06), h1, h1 + 0.12), Vector3(r.size.x + 0.12, 0.12, r.size.y + 0.12), mcap, pivot)
 		if _hab != null:
-			_box_mesh(_rect_center(r.grow(0.05), h0, 0.3), Vector3(r.size.x + 0.1, 0.3, r.size.y + 0.1), _hab.mat(Habillage.PIERRE, 1.2, Habillage.C_CALCAIRE * Color(0.72, 0.7, 0.7)))
+			_box_mesh(_rect_center(r.grow(0.05), h0, 0.3), Vector3(r.size.x + 0.1, 0.3, r.size.y + 0.1), _hab.mat(Habillage.PIERRE, 1.2, Habillage.C_CALCAIRE * Color(0.72, 0.7, 0.7)), pivot)
+		if _sect != null:
+			# tranche sombre du mur coupé (vue en coupe, comme une maquette tranchée) : affichée seulement si coupé
+			var coupe := _box_mesh(_rect_center(r.grow(0.07), Secteurs.LIP - 0.01, Secteurs.LIP + 0.05), Vector3(r.size.x + 0.14, 0.06, r.size.y + 0.14), _mat_coupe())
+			coupe.set_meta("xz", r.get_center())
+			coupe.set_meta("mur", true)
+			coupe.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			_sect.declarer_mur(pivot, coupe, r, h0, h1)
 		return
 	var nom := id.trim_prefix("meuble_")
 	var bois := _surf("bois")
@@ -503,7 +533,10 @@ func _build_p6() -> void:
 	if _hab != null:
 		_hab.exterieur(world.decor)
 		if _p6.get("zone", "") == "colisee":
+			var avant := root.get_child_count()
 			_hab.vestiaires(Rect2(16.0, 46.5, 20.0, 8.5))
+			for i in range(avant, root.get_child_count()):
+				root.get_child(i).set_meta("secteur", "S1")     # décor composé pour les vestiaires
 	if _p6.has("arene"):
 		_build_arene(_p6["arene"])
 	for pid in _p6.get("pieces_fermees", {}):
@@ -515,14 +548,24 @@ func _build_p6() -> void:
 		_build_porte(p)
 	for l in _p6.get("lumieres", []):
 		var pos := Vector3(l[0], l[2], l[1])
-		_light(pos + Vector3(0, 0, 0.6), 1.3, 6.5)
+		var interieur: bool = _sect != null and _sect.secteur_en(Vector2(l[0], l[1])) != Secteurs.EXT
+		# P6.2 : dans les secteurs couverts, lanternes plus fortes, à ombres douces (la lumière du soleil est coupée)
+		var dl: Vector3 = Vector3(l[3], 0, l[4]) if l.size() >= 5 else Vector3(0, 0, 0.6)
+		_light(pos + dl, 2.4 if interieur else 1.3, 8.0 if interieur else 6.5)
+		if interieur:
+			var ol: OmniLight3D = _lights[-1][0]
+			ol.shadow_enabled = true
+			ol.light_size = 0.12
+			ol.shadow_bias = 0.06
+			ol.omni_attenuation = 1.6
 		_halo(pos, 1.1, 0.45)
-		_box_mesh(pos + Vector3(0, -0.15, 0.1), Vector3(0.18, 0.3, 0.18), _tinted("bois", Color(0.6, 0.5, 0.4)))
+		_box_mesh(pos + Vector3(0, -0.15, 0) + dl * 0.15, Vector3(0.18, 0.3, 0.18), _tinted("bois", Color(0.6, 0.5, 0.4)))
 	if _p6.get("zone", "") == "colisee":
-		_banniere(Vector3(26.0, 0.0, 46.3), Color(0.25, 0.32, 0.75))          # vestiaires, mur nord (côté porte)
-		_banniere(Vector3(21.0, 0.0, 46.3), Color(0.25, 0.32, 0.75))
-		_banniere(Vector3(31.0, 0.0, 46.3), Color(0.25, 0.32, 0.75))
-		_banniere(Vector3(26.0, 0.0, 54.95), Color(0.72, 0.6, 0.25), 1.6)      # bannière de la Guilde (sud, basse)
+		if _hab == null:                      # P6.2 : avec l'habillage, bannières peintes de part et d'autre de la porte
+			_banniere(Vector3(26.0, 0.0, 46.3), Color(0.25, 0.32, 0.75))          # vestiaires, mur nord (côté porte)
+			_banniere(Vector3(21.0, 0.0, 46.3), Color(0.25, 0.32, 0.75))
+			_banniere(Vector3(31.0, 0.0, 46.3), Color(0.25, 0.32, 0.75))
+			_banniere(Vector3(26.0, 0.0, 54.95), Color(0.72, 0.6, 0.25), 1.6)      # bannière de la Guilde (sud, basse)
 		_banniere(Vector3(45.0, 0.0, 11.75), Color(0.72, 0.18, 0.22))
 		_banniere(Vector3(55.0, 0.0, 11.75), Color(0.72, 0.18, 0.22))
 	else:
@@ -950,6 +993,8 @@ func _physics_process(delta: float) -> void:
 	if _switching or world == null or _bloque:
 		return
 	_pnj_step(delta)
+	_suivi_secteur(delta)
+	_afficher_touches()
 	_suivi_zones()
 	_commandant_auto()
 	if _cli.has("quitter_fin") and s.pilot_done and s.pilot_name == "p6_apres" and not _dialog.is_open() and not s.dialogue_open:
@@ -1083,3 +1128,116 @@ func _decor_combat() -> void:
 	img.save_png(ProjectSettings.globalize_path(out).path_join("arene_colisee.png"))
 	print("P6 décor de combat : ", out.path_join("arene_colisee.png"), " ", img.get_size())
 	get_tree().quit()
+
+
+# ------------------------------------------------------------------------------------------------ secteurs (P6.2)
+var _m_coupe: StandardMaterial3D
+
+
+## Tranche des murs coupés : pierre sombre, comme la coupe d'une maquette (on ne croit pas pouvoir marcher dessus).
+func _mat_coupe() -> StandardMaterial3D:
+	if _m_coupe == null:
+		_m_coupe = StandardMaterial3D.new()
+		_m_coupe.albedo_color = Color(0.09, 0.075, 0.07)
+		_m_coupe.roughness = 1.0
+	return _m_coupe
+
+
+## Lumière de l'arène au bout du tunnel, vue depuis la salle d'attente tant que l'arène n'est pas affichée.
+func _lueur_fin_de_tunnel() -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	var qm := QuadMesh.new()
+	qm.size = Vector2(3.0, 2.5)
+	mi.mesh = qm
+	var m := StandardMaterial3D.new()
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.albedo_color = Color(0.92, 0.78, 0.55)
+	m.emission_enabled = true
+	m.emission = Color(0.9, 0.72, 0.45)
+	m.emission_energy_multiplier = 0.35
+	mi.material_override = m
+	mi.position = Vector3(26.0, 1.25, 31.9)
+	var l := OmniLight3D.new()                     # le jour de l'arène éclaire le bout du tunnel
+	l.light_color = Color(1.0, 0.88, 0.7)
+	l.light_energy = 1.4
+	l.omni_range = 6.0
+	l.position = Vector3(0, 0.6, 1.4)
+	mi.add_child(l)
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mi.set_meta("hors_secteurs", true)
+	root.add_child(mi)
+	return mi
+
+
+## Applique le secteur actif : visibilité (module Secteurs), lueur du tunnel, ambiance et limites de caméra.
+func _maj_secteur(immediat := false) -> void:
+	if _sect == null:
+		return
+	var change: bool = _sect.mettre_a_jour(Vector2(s.hero.x, s.hero.y), immediat)
+	if not change and not immediat:
+		return
+	if _lueur_tunnel != null:
+		_lueur_tunnel.visible = _sect.est_visible("S3") and not _sect.est_visible(Secteurs.EXT)
+	var sombre: bool = _sect.fond() == "sombre"
+	if sombre:
+		_env_res.background_mode = Environment.BG_COLOR
+		_env_res.background_color = Color(0.022, 0.018, 0.026)
+	elif _hab != null:
+		_env_res.background_mode = Environment.BG_SKY
+	_amb_but = 0.3 if sombre else (0.62 if _hab != null else 0.85)
+	if immediat:
+		_env_res.ambient_light_energy = _amb_but
+	var cr: Rect2 = _sect.camera_rect()
+	_bornes_but = world.camera_bounds() if cr.size == Vector2.ZERO else _bornes_ecran(cr)
+	if immediat:
+		s.cam.bounds = _bornes_but
+	_log("secteur", {"secteur": _sect.actif, "visibles": _sect.visibles, "murs_coupes": _sect.murs_coupes().size()})
+
+
+## Rectangle du plan -> limites écran (px natifs) : sol et hauts de murs (3,4 m), petite marge.
+func _bornes_ecran(r: Rect2) -> Rect2:
+	var b := Rect2(World25.screen(Vector3(r.position.x, r.position.y, 0.0)), Vector2.ZERO)
+	for x in [r.position.x - 0.5, r.end.x + 0.5]:
+		for y in [r.position.y - 0.5, r.end.y + 0.5]:
+			for hh in [0.0, 3.4]:
+				b = b.expand(World25.screen(Vector3(x, y, hh)))
+	return b.grow(10.0)
+
+
+func _suivi_secteur(delta: float) -> void:
+	if _sect == null:
+		return
+	_maj_secteur()
+	var k := 1.0 - exp(-5.0 * delta)
+	var b: Rect2 = s.cam.bounds
+	s.cam.bounds = Rect2(b.position.lerp(_bornes_but.position, k), b.size.lerp(_bornes_but.size, k))
+	if _amb_but >= 0.0:
+		_env_res.ambient_light_energy = lerpf(_env_res.ambient_light_energy, _amb_but, k)
+
+
+var _touches: Label
+const FLECHES := {Vector2i(0, -1): "↑", Vector2i(0, 1): "↓", Vector2i(-1, 0): "←", Vector2i(1, 0): "→",
+	Vector2i(1, -1): "↑ →", Vector2i(-1, -1): "↑ ←", Vector2i(1, 1): "↓ →", Vector2i(-1, 1): "↓ ←"}
+
+
+## Vidéos de circulation (-- --touches) : touches de déplacement utilisées à l'image, secteur actif.
+func _afficher_touches() -> void:
+	if not _cli.has("touches"):
+		return
+	if _touches == null:
+		_touches = Label.new()
+		_touches.add_theme_font_size_override("font_size", 26)
+		_touches.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+		_touches.add_theme_constant_override("outline_size", 8)
+		_touches.position = Vector2(24, 640)
+		s.hud.add_child(_touches)
+	var d: Vector2 = s.derniere_touche
+	var k := Vector2i(int(signf(d.x)), int(signf(d.y)))
+	var t: String = FLECHES.get(k, "—")
+	if k != Vector2i.ZERO and (force_run or Input.is_physical_key_pressed(KEY_SHIFT)):
+		t += "  + Maj (course)"
+	_touches.text = "Touches : %s      ·      %s" % [t, _sect.nom_actif() if _sect != null else ""]
+
+
+func secteur_actif() -> String:
+	return _sect.actif if _sect != null else ""

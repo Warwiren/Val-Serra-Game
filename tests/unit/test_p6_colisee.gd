@@ -244,6 +244,89 @@ func test_tutoriel_imperdable_garde_fou() -> void:
 		check_eq(b.get_combatant("commandant").hp, 500, "60 tours (%s) : commandant intact" % ",".join(PackedStringArray(jeu)))
 
 
+## P6.2 — visibilité par secteurs (module réutilisable src/explore25/secteurs25.gd), sur les données du Colisée,
+## caméra du Colisée (azimut 0°, plongée 24°).
+func test_secteurs_visibilite() -> void:
+	var Secteurs = load("res://src/explore25/secteurs25.gd")
+	var yaw0: float = World25.yaw
+	var p0: float = World25.pitch
+	World25.yaw = 0.0
+	World25.pitch = deg_to_rad(24.0)
+	var z: Dictionary = _json(ZONE)
+	var sc = Secteurs.new(z["ajustements"]["p6"]["secteurs"])
+	check_eq(sc.secteur_en(Vector2(26, 51)), "S1", "vestiaires = S1")
+	check_eq(sc.secteur_en(Vector2(26, 45.5)), "P12", "passage = P12")
+	check_eq(sc.secteur_en(Vector2(26, 41)), "S2", "salle d'attente = S2")
+	check_eq(sc.secteur_en(Vector2(26, 34)), "S3", "tunnel = S3")
+	check_eq(sc.secteur_en(Vector2(26, 23)), "EXT", "arène = reste du niveau (hors prototype)")
+	# murs : pivots déclarés depuis les données
+	var murs := {}
+	for o in z["ajustements"]["obstacles"]:
+		if not str(o["id"]).begins_with("cmur_"):
+			continue
+		var pv := Node3D.new()
+		pv.name = o["id"]
+		var q: Array = o["rect"]
+		var cp := Node3D.new()
+		pv.add_child(cp)
+		sc.declarer_mur(pv, cp, Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1]), 0.0, float(o["haut"]))
+		murs[o["id"]] = pv
+	sc.mettre_a_jour(Vector2(26, 51), true)
+	var c1: Array = sc.murs_coupes()
+	check(c1.has("cmur_vestiaires_s0"), "vestiaires : mur sud (premier plan) coupé")
+	check(not c1.any(func(n): return str(n).begins_with("cmur_vestiaires_n") or str(n).begins_with("cmur_vestiaires_o") or str(n).begins_with("cmur_vestiaires_e")),
+		"vestiaires : murs du fond et des côtés entiers")
+	check(murs["cmur_vestiaires_n0"].scale.y == 1.0, "vestiaires : mur du fond pleine hauteur")
+	sc.mettre_a_jour(Vector2(26, 41), true)
+	var c2: Array = sc.murs_coupes()
+	check(c2.has("cmur_salle_attente_s0") and c2.has("cmur_vestiaires_n0") and c2.has("cmur_vestiaires_n1"),
+		"salle : murs qui la cachent coupés (son mur sud, mur nord des vestiaires)")
+	check(not c2.any(func(n): return str(n).begins_with("cmur_salle_attente_n") or str(n).begins_with("cmur_salle_attente_o") or str(n).begins_with("cmur_salle_attente_e")),
+		"salle : murs du fond et des côtés entiers")
+	check(is_equal_approx(murs["cmur_salle_attente_s0"].scale.y, Secteurs.LIP / 1.0) and is_equal_approx(murs["cmur_vestiaires_n0"].scale.y, Secteurs.LIP / 3.0),
+		"murs coupés réduits au muret de 0,5 m (collision non concernée)")
+	sc.mettre_a_jour(Vector2(26, 23), true)
+	check(sc.murs_coupes().is_empty(), "hors prototype : aucun mur coupé (comportement P6.1)")
+	# groupes de visibilité
+	var racine := Node3D.new()
+	var mk := func(p: Vector2, meta := {}) -> Node3D:
+		var n := Node3D.new()
+		n.set_meta("xz", p)
+		for k in meta:
+			n.set_meta(k, meta[k])
+		racine.add_child(n)
+		return n
+	var deco_s1: Node3D = mk.call(Vector2(26, 51))
+	var deco_s2: Node3D = mk.call(Vector2(26, 41))
+	var mur_vest_n: Node3D = mk.call(Vector2(20.05, 46.3), {"mur": true})
+	var mur_passage: Node3D = mk.call(Vector2(24.3, 45.5), {"mur": true})
+	var arene: Node3D = mk.call(Vector2(26, 23))
+	var exterieur: Node3D = mk.call(Vector2(70, 10))
+	var poutre_s1: Node3D = mk.call(Vector2(26, 46.46), {"secteur": "S1"})
+	sc.classer(null, racine)
+	var vis := func(n: Node3D) -> bool: return n.get_parent().visible
+	sc.mettre_a_jour(Vector2(26, 51), true)
+	check(vis.call(deco_s1) and not vis.call(deco_s2), "depuis les vestiaires : la salle n'est pas affichée")
+	check(not vis.call(arene) and not vis.call(exterieur), "depuis les vestiaires : ni l'arène ni l'extérieur")
+	sc.mettre_a_jour(Vector2(26, 41), true)
+	check(vis.call(deco_s2) and not vis.call(deco_s1), "depuis la salle : les vestiaires ne sont pas affichés")
+	check(not vis.call(poutre_s1), "décor attribué aux vestiaires masqué depuis la salle (poutre, bannières)")
+	check(not vis.call(mur_vest_n), "depuis la salle : mur nord des vestiaires masqué (il cachait la salle en P6.1)")
+	check(vis.call(mur_passage), "depuis la salle : mur latéral du passage conservé (frontière passage / vestiaires)")
+	check(not vis.call(arene) and not vis.call(exterieur), "depuis la salle : ni l'arène ni l'extérieur")
+	sc.mettre_a_jour(Vector2(26, 34), true)
+	check(vis.call(arene), "depuis le tunnel : l'arène se révèle")
+	check(sc.camera_rect() == Rect2(), "tunnel : pas de limite de caméra propre")
+	sc.mettre_a_jour(Vector2(26, 51), true)
+	check(sc.camera_rect() == Rect2(16, 46.5, 20, 8.5), "vestiaires : limites de caméra = la pièce")
+	check_eq(sc.fond(), "sombre", "vestiaires : fond intérieur sombre")
+	racine.free()
+	for k in murs:
+		murs[k].free()
+	World25.yaw = yaw0
+	World25.pitch = p0
+
+
 func test_etapes_du_tutoriel() -> void:
 	var t: Dictionary = _json(TUTO)
 	var hunters: Dictionary = BattleFactory.load_json("res://data/combat/hunters.json")

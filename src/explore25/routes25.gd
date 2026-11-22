@@ -136,6 +136,41 @@ static func route(name: String) -> Array:
 				out.append({"do": "wait", "t": 1.4})
 				out.append({"do": "snap", "id": p[0]})
 			return out
+		"p6_pieces":
+			# P6.2 — prototype des deux pièces : centre, angles, murs, porte, passage, salle, tunnel (captures)
+			var pts := [["01_vestiaires_centre", 26.0, 51.0], ["02_vestiaires_angle_no", 17.2, 48.0], ["03_vestiaires_angle_se", 34.6, 54.4],
+				["04_vestiaires_mur_sud", 26.0, 54.6], ["05_vestiaires_porte", 26.0, 47.0], ["06_passage", 26.0, 45.5],
+				["07_salle_entree", 26.0, 43.8], ["08_salle_centre", 26.0, 41.0], ["09_salle_angle_no", 21.5, 38.2],
+				["10_salle_angle_se", 30.4, 44.0], ["11_salle_vers_tunnel", 26.0, 38.2], ["12_tunnel", 26.0, 34.5]]
+			var out := [{"do": "wait", "t": 1.2}]
+			for p in pts:
+				out.append(_warp(p[1], p[2], 0.0))
+				out.append({"do": "wait", "t": 1.3})
+				out.append({"do": "snap", "id": p[0]})
+			return out
+		"p6_video_pieces":
+			# P6.2 — vidéo du prototype : vestiaires (murs, PNJ, porte) -> salle d'attente (murs, PNJ) -> tunnel, puis retour en
+			# courant jusqu'au fond des vestiaires ; marche et course, transitions dans les deux sens
+			return [
+				_warp(26.0, 52.5, 0.0),
+				{"do": "wait", "t": 1.5},
+				_go(17.4, 52.5, "vestiaires : vers l'ouest (devant la recrue)", 0.3),
+				_go(17.4, 48.2, "vestiaires : le long des casiers ouest", 0.3),
+				_go(26.0, 48.1, "vestiaires : devant les casiers nord", 0.3),
+				{"do": "wait", "t": 0.6},
+				_go(26.0, 45.5, "porte et passage", 0.25),
+				_go(26.0, 43.8, "entrée de la salle d'attente", 0.25),
+				_go(22.6, 43.7, "salle : angle sud-ouest", 0.3),
+				_go(22.6, 38.6, "salle : le long du mur ouest", 0.3),
+				_go(29.5, 43.9, "salle : vers l'angle sud-est", 0.35),
+				_go(26.0, 38.4, "salle : vers le tunnel", 0.3),
+				_go(26.0, 34.8, "tunnel : l'arène se révèle", 0.3),
+				{"do": "wait", "t": 1.0},
+				{"do": "push", "id": "retour en courant", "dir": Vector2(0, 1), "t": 5.5, "run": true, "expect": {}},
+				{"do": "push", "id": "vestiaires : vers l'est en courant", "dir": Vector2(1, 0), "t": 1.6, "run": true, "expect": {}},
+				{"do": "push", "id": "vestiaires : vers l'ouest", "dir": Vector2(-1, 0), "t": 2.4, "expect": {}},
+				{"do": "wait", "t": 1.0},
+			]
 		"p6_captures":
 			return [
 				{"do": "wait", "t": 1.5},
