@@ -432,6 +432,10 @@ func vestiaires(r: Rect2) -> void:
 			sc._au_mur.append(sc.modele("fp/Peg_Rack", Vector3(px, 1.75, 46.52), 0.0, 1.0))
 		sc.modele("fp/Barrel", Vector3(34.9, 0, 54.1), 0.0, 1.0)
 		sc.modele("fp/Stool", Vector3(21.0, 0, 51.4), 0.3, 1.0)
+		if sc.has_method("_solide_rond"):
+			var dy: float = sc._dy_sud                       # bloc sud décalé (longueur du tunnel)
+			sc._solide_rond(Vector2(34.9, 54.1 + dy), 0.36, 0.9)
+			sc._solide_rond(Vector2(21.0, 51.4 + dy), 0.26, 0.6)
 		sc._card("props/bois02_buches.png", Vector3(34.9, 0, 48.15), 1.1, {"anchor": 0.12})
 		return
 	for i in 7:

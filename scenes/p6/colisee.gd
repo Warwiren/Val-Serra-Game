@@ -311,6 +311,15 @@ func _scene_commandant() -> void:
 	root.add_child(sp)
 	_props_commandant = [modele("fp/WeaponStand", Vector3(p.x + 1.4, 0.0, p.y - 1.3), -0.35, 0.9),
 		modele("fp/Chest_Wood", Vector3(p.x - 1.5, 0.0, p.y - 1.2), 0.3, 0.8)]
+	# accessoires solides (comme le mobilier des données) : Aren ne les traverse pas
+	_solide_rond(Vector2(p.x + 1.4, p.y - 1.3), 0.55, 1.1)
+	_solide_rond(Vector2(p.x - 1.5, p.y - 1.2), 0.5, 0.7)
+
+
+## P6.3 : obstacle rond pour un accessoire posé par la scène (modèle logique + physique), même principe que les PNJ.
+func _solide_rond(c: Vector2, r: float, h: float) -> void:
+	_obstacle_cyl(World25.g3(Vector3(c.x, c.y, 0.0)), r, h)
+	world.solids.append({"id": "accessoire_%d_%d" % [int(c.x * 10), int(c.y * 10)], "kind": "circle", "c": c, "r": r, "h0": 0.0, "h1": h})
 
 
 func _spawn_pnj() -> void:
@@ -674,6 +683,7 @@ func _build_p6() -> void:
 		if _hab != null:
 			for bx in [45.9, 54.1]:
 				_au_mur.append(modele("fp/Banner_1_Cloth", Vector3(bx, 2.75, 12.08), 0.0, 0.9))
+			# P6.3 (extension) : bancs et tonneaux de la coursive = mobilier des DONNÉES (collision comprise)
 		else:
 			_banniere(Vector3(45.6, 0.0, 12.06), Color(0.72, 0.18, 0.22))
 			_banniere(Vector3(54.4, 0.0, 12.06), Color(0.72, 0.18, 0.22))
@@ -1660,6 +1670,9 @@ func _meuble_modele(nom: String, r: Rect2) -> bool:
 	elif nom.begins_with("caisses"):
 		modele("fp/Crate_Wooden", p + Vector3(-0.45, 0, 0.3), 0.2, 0.85)
 		modele("fp/Crate_Wooden", p + Vector3(0.55, 0, -0.2), -0.15, 0.7)
+	elif nom.begins_with("table"):
+		modele("fp/Table_Large", p, rot, Vector3(maxf(r.size.x, r.size.y) / 2.85, 0.95, minf(r.size.x, r.size.y) / 1.1))
+		modele("fp/Stool", p + Vector3(-0.25, 0, 0.3), 0.4, 0.95)          # sous le bord de la table (dans son emprise)
 	elif nom.begins_with("tonneaux"):
 		modele("fp/Barrel", p + Vector3(-0.35, 0, 0), 0.0, 1.0)
 		modele("fp/Barrel", p + Vector3(0.45, 0, 0.1), 0.6, 0.95)

@@ -194,6 +194,9 @@ def _colisee_base():
         # infirmerie : deux lits, une table
         ("lit_1", [44.3, 37.2, 46.0, 38.2], 0.6), ("lit_2", [44.3, 39.4, 46.0, 40.4], 0.6),
         ("table_i", [48.0, 38.6, 49.2, 39.6], 0.8),
+        # P6.3 : coursive — bancs contre les murs, tonneaux près de la réserve (hors des axes de circulation)
+        ("banc_c1", [44.2, 16.2, 44.75, 19.0], 0.45), ("banc_c2", [55.25, 27.2, 55.8, 30.0], 0.45),
+        ("tonneaux_c", [54.5, 32.7, 55.9, 33.6], 1.0),
         # réserve (vue à travers le mur bas) : caisses
         ("caisses_r", [51.0, 38.6, 53.2, 40.6], 1.2), ("tonneaux_r", [54.0, 35.6, 55.6, 36.8], 1.0),
     ]
