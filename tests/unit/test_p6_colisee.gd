@@ -269,7 +269,10 @@ func test_secteurs_visibilite() -> void:
 	check_eq(sc.secteur_en(Vector2(26, 41)), "S2", "salle d'attente = S2")
 	check_eq(sc.secteur_en(Vector2(26, 34)), "S3", "tunnel = S3")
 	check_eq(sc.secteur_en(Vector2(26, 23)), "S4", "arène = zone ouverte S4 (P6.2-C : référence des coupes)")
-	check_eq(sc.secteur_en(Vector2(50, 23)), "EXT", "coursive = reste du niveau (hors prototype)")
+	check_eq(sc.secteur_en(Vector2(50, 23)), "S6", "coursive = S6 (P6.2-D : Colisée complet)")
+	check_eq(sc.secteur_en(Vector2(41, 23)), "S5", "tunnel est = S5")
+	check_eq(sc.secteur_en(Vector2(60, 23)), "S9", "couloir de sortie = S9")
+	check_eq(sc.secteur_en(Vector2(4, 4)), "EXT", "hors du bâtiment = reste du niveau")
 	# murs : pivots déclarés depuis les données
 	var murs := {}
 	for o in z["ajustements"]["obstacles"]:
@@ -296,8 +299,8 @@ func test_secteurs_visibilite() -> void:
 		"salle : murs du fond et des côtés entiers")
 	check(is_equal_approx(murs["cmur_salle_attente_s0"].scale.y, Secteurs.LIP / 1.0) and is_equal_approx(murs["cmur_vestiaires_n0"].scale.y, Secteurs.LIP / 3.0),
 		"murs coupés réduits au muret de 0,5 m (collision non concernée)")
-	sc.mettre_a_jour(Vector2(50, 23), true)
-	check(sc.murs_coupes().is_empty(), "hors prototype (coursive) : aucun mur coupé (comportement P6.1)")
+	sc.mettre_a_jour(Vector2(4, 4), true)
+	check(sc.murs_coupes().is_empty(), "hors du bâtiment : aucun mur coupé (comportement P6.1)")
 	# groupes de visibilité
 	var racine := Node3D.new()
 	var mk := func(p: Vector2, meta := {}) -> Node3D:
@@ -471,3 +474,48 @@ func test_tunnel_variantes() -> void:
 		var e: Dictionary = z["ajustements"]["entree"]
 		check(is_equal_approx(float(e["xy"][1]), 50.6 + v[1]), "%s : départ dans les vestiaires décalés" % v[0])
 	check_eq(str(_json(ZONE_RETENUE)["ajustements"]["p6"]["decalage_sud"]["tunnel"]), "B", "colisee.json = tunnel retenu (B, 8,5 m)")
+
+
+## P6.2-D : règles étendues au Colisée complet (mode B).
+func test_colisee_complet() -> void:
+	var Secteurs = load("res://src/explore25/secteurs25.gd")
+	var yaw0: float = World25.yaw
+	World25.yaw = 0.0                   # azimut du Colisée
+	var sc = Secteurs.new(_json(ZONE)["ajustements"]["p6"]["secteurs"], "continu")
+	var racine := Node3D.new()
+	var mk := func(p: Vector2, meta := {}) -> Node3D:
+		var n := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = Vector3(0.6, 0.6, 0.6)
+		n.mesh = bm
+		n.position = Vector3(p.x, 0.3, p.y)
+		for k in meta:
+			n.set_meta(k, meta[k])
+		racine.add_child(n)
+		return n
+	var reserve: Node3D = mk.call(Vector2(52, 38))
+	var salle: Node3D = mk.call(Vector2(26, 41))
+	var arene: Node3D = mk.call(Vector2(26, 20))
+	sc.plafonds(racine, 6.1)
+	sc.classer(null, racine)
+	var vis := func(n: Node3D) -> bool: return n.get_parent().visible
+	sc.mettre_a_jour(Vector2(46.6, 38), true)
+	check_eq(sc.actif, "S7", "infirmerie active")
+	check(not vis.call(reserve), "infirmerie : la réserve voisine (sur le côté, fermée) n'est pas rendue")
+	sc.mettre_a_jour(Vector2(26, 51), true)
+	check(vis.call(salle), "vestiaires : la salle, entièrement derrière, reste rendue (cachée par le mur du fond)")
+	sc.mettre_a_jour(Vector2(26, 24), true)
+	check(sc.toits_visibles().has("S6") and sc.toits_visibles().has("S9"), "arène : coursive et sortie couvertes d'un toit (%s)" % str(sc.toits_visibles()))
+	check(not sc.toits_visibles().has("S5"), "arène : le tunnel est (voisin en vue) n'a pas de toit")
+	check(not sc.toits_visibles().has("S2") and not sc.toits_visibles().has("S1"), "arène : pas de toit sur les pièces situées devant")
+	sc.mettre_a_jour(Vector2(50, 23), true)
+	check(sc.toits_visibles().is_empty(), "coursive : aucun toit affiché depuis un intérieur")
+	var v0: float = sc.voile_ext_pour(Vector2(44.3, 23))
+	var v1: float = sc.voile_ext_pour(Vector2(45.5, 23))
+	var v2: float = sc.voile_ext_pour(Vector2(48, 23))
+	check(v0 < 0.1 and v1 > 0.2 and v1 < 0.8 and v2 == 1.0, "coursive : l'arène s'efface selon la distance au tunnel est (%.2f / %.2f / %.2f)" % [v0, v1, v2])
+	sc.mettre_a_jour(Vector2(41, 23), true)
+	check_eq(sc.voile_ext_pour(Vector2(41, 23)), 0.0, "tunnel est : l'arène reste en vue")
+	check(is_instance_valid(arene), "arène classée")
+	racine.free()
+	World25.yaw = yaw0

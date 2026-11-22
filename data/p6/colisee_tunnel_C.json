@@ -3093,9 +3093,99 @@
      "fond": "sombre",
      "plafond_h": 3.2,
      "camera": false
+    },
+    {
+     "id": "S6",
+     "nom": "Coursive",
+     "rects": [
+      [
+       44.0,
+       12.0,
+       56.0,
+       34.0
+      ]
+     ],
+     "voisins": [
+      "S5",
+      "S7",
+      "S9"
+     ],
+     "fond": "sombre",
+     "plafond_h": 3.6,
+     "camera": false,
+     "voile_pos": [
+      "x",
+      44.2,
+      46.8
+     ]
+    },
+    {
+     "id": "S7",
+     "nom": "Infirmerie",
+     "rects": [
+      [
+       45.5,
+       34.0,
+       47.5,
+       35.0
+      ],
+      [
+       44.0,
+       35.0,
+       49.5,
+       41.0
+      ]
+     ],
+     "voisins": [
+      "S6"
+     ],
+     "fond": "sombre",
+     "plafond_h": 3.2,
+     "camera": false
+    },
+    {
+     "id": "S8",
+     "nom": "Réserve",
+     "rects": [
+      [
+       50.5,
+       35.0,
+       56.0,
+       41.0
+      ]
+     ],
+     "voisins": [],
+     "fond": "sombre",
+     "plafond_h": 3.2,
+     "camera": false
+    },
+    {
+     "id": "S9",
+     "nom": "Couloir de sortie",
+     "rects": [
+      [
+       56.0,
+       21.5,
+       65.0,
+       24.5
+      ]
+     ],
+     "voisins": [
+      "S6"
+     ],
+     "fond": "sombre",
+     "plafond_h": 3.4,
+     "camera": false
     }
    ],
    "jours": [
+    [
+     64.4,
+     23.0,
+     2.2,
+     1.5,
+     6.5
+    ],
     [
      38.8,
      23.0,

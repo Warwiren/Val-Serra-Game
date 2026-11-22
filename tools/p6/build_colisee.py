@@ -283,9 +283,19 @@ def _colisee_base():
             # depuis la coursive) ; couloir de sortie vers la ville
             {"id": "S5", "nom": "Tunnel est", "rects": [[38.5, 21.5, 44.0, 24.5]], "voisins": ["S4", "S6", "EXT"], "fond": "sombre",
              "plafond_h": 3.2, "camera": False},
+            {"id": "S6", "nom": "Coursive", "rects": [PIECES["coursive"][0]], "voisins": ["S5", "S7", "S9"], "fond": "sombre",
+             "plafond_h": 3.6, "camera": False,
+             # l'arène, vue par la bouche du tunnel est, s'efface à mesure qu'Aren s'éloigne du seuil (pas de bascule)
+             "voile_pos": ["x", 44.2, 46.8]},
+            {"id": "S7", "nom": "Infirmerie", "rects": [[45.5, 34.0, 47.5, 35.0], PIECES["infirmerie"][0]], "voisins": ["S6"],
+             "fond": "sombre", "plafond_h": 3.2, "camera": False},
+            {"id": "S8", "nom": "Réserve", "rects": [PIECES_FERMEES["reserve"][0]], "voisins": [], "fond": "sombre",
+             "plafond_h": 3.2, "camera": False},
+            {"id": "S9", "nom": "Couloir de sortie", "rects": [PIECES["couloir_sortie"][0]], "voisins": ["S6"], "fond": "sombre",
+             "plafond_h": 3.4, "camera": False},
         ],
         # P6.2-D : lumière du jour aux bouches vers l'extérieur [x, y, h, énergie, portée] (tunnel sud : voir la scène)
-        "jours": [[38.8, 23.0, 2.2, 1.2, 5.5]],
+        "jours": [[64.4, 23.0, 2.2, 1.5, 6.5], [38.8, 23.0, 2.2, 1.2, 5.5]],
         # [x, y, h, dx, dz] : applique murale ; (dx, dz) = décalage de la lumière vers la pièce (P6.2 : murs latéraux
         # et mur du fond des vestiaires, plus aucune lumière plaquée devant les casiers)
         "lumieres": [[16.2, 48.3, 2.3, 0.7, 0.0], [35.8, 54.0, 2.3, -0.7, 0.0], [23.4, 46.55, 2.5, 0.0, 0.6], [28.6, 46.55, 2.5, 0.0, 0.6],
