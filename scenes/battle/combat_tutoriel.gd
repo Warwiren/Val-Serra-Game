@@ -199,6 +199,9 @@ func _montrer_etape() -> void:
 	guide.montrer(et["texte"], et.get("cibles", []), m)
 	_trace.append({"type": "etape", "id": et["id"], "tour": _tour, "mode": m, "cibles": et.get("cibles", []),
 		"rects": guide.rects().map(func(r): return [roundi(r.position.x), roundi(r.position.y), roundi(r.size.x), roundi(r.size.y)])})
+	if OS.get_cmdline_user_args().has("--tuto-passer-auto"):
+		_demo_saut()
+		return
 	if _cli_auto:
 		_auto_etape(et)
 
@@ -342,6 +345,19 @@ func _auto_etape(et: Dictionary) -> void:
 	_refresh_selection()
 	await _wait(0.6 if not OS.get_cmdline_user_args().has("--tuto-rapide") else 0.05)
 	_confirm()
+
+
+## Démonstration filmée du saut : Échap après la première explication, confirmation, « Oui ».
+func _demo_saut() -> void:
+	if _trace.any(func(e): return e["type"] == "demande_saut"):
+		return
+	await _wait(2.5)
+	_echap()
+	await _wait(1.0)
+	_confirm_box._sel = 0
+	_confirm_box._maj()
+	await _wait(1.2)
+	_confirm_box._repondre(true)
 
 
 func _auto_turn() -> void:

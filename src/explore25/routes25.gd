@@ -171,6 +171,8 @@ static func route(name: String) -> Array:
 				{"do": "push", "id": "vestiaires : vers l'ouest", "dir": Vector2(-1, 0), "t": 2.4, "expect": {}},
 				{"do": "wait", "t": 1.0},
 			]
+		"p6_attente":
+			return [{"do": "wait", "t": 9.0}]
 		"p6_captures":
 			return [
 				{"do": "wait", "t": 1.5},
