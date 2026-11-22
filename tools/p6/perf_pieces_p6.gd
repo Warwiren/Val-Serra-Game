@@ -1,7 +1,7 @@
 extends SceneTree
 ## P6.2 — coût de rendu par pièce (appels de dessin, primitives, objets rendus), avec ou sans secteurs.
 ##   godot --path . --rendering-method forward_plus --script res://tools/p6/perf_pieces_p6.gd [-- --sans_secteurs]
-const POS := [["vestiaires", Vector3(26, 51, 0)], ["passage", Vector3(26, 45.5, 0)], ["salle d'attente", Vector3(26, 41, 0)], ["tunnel", Vector3(26, 34.5, 0)]]
+const POS := [["vestiaires", Vector3(26, 51, 0)], ["passage", Vector3(26, 45.5, 0)], ["salle d'attente", Vector3(26, 41, 0)], ["tunnel", Vector3(26, 34.5, 0)], ["sortie du tunnel", Vector3(26, 32.4, 0)], ["arène (entrée)", Vector3(26, 29, 0)]]
 var z
 var i := 0
 var n := 0
