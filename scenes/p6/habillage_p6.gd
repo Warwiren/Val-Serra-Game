@@ -319,6 +319,14 @@ func _colonne(base: Vector3, h: float, m: Material) -> void:
 
 
 func _banniere_podium(p: Vector3, an: float, _c: Vector2, _rx: float, _ry: float, col: Color) -> void:
+	if sc.has_method("modele"):
+		# P6.3 : vraie bannière d'étoffe (Quaternius), pendue sous le chaperon du podium, tournée vers le centre ; seule
+		# l'étoffe prend la couleur (plus de plaque carrée plaquée sur la pierre)
+		var vers := Vector3(_c.x - p.x, 0.0, _c.y - p.z).normalized()
+		var q := p + vers * 0.06 + Vector3(0, 1.5, 0)
+		var tis := Color(col.r * 1.6, col.g * 1.6, col.b * 1.6)
+		sc.modele("fp/Banner_2_Cloth", q, atan2(vers.x, vers.z), 0.7, tis, {"teinte_tissu": true})
+		return
 	var tissu := uni(col, 1.0)
 	tissu.cull_mode = BaseMaterial3D.CULL_DISABLED
 	var b: MeshInstance3D = sc._box_mesh(p + Vector3(0, 0.95, 0), Vector3(0.9, 0.95, 0.03), tissu)
@@ -416,6 +424,16 @@ func vestiaires(r: Rect2) -> void:
 	_casiers_vertical(Rect2(16.1, 49.0, 0.6, 4.5), 2.0, bois, bois_sombre)
 	# râtelier garni, accessoires peints (P6.2 : tapis et lanternes sur pied retirés, axe central dégagé)
 	var fer := uni(Color(0.72, 0.74, 0.8), 0.35, 0.8)
+	if sc.has_method("modele"):
+		# P6.3 : râtelier, coffre et caisses = modèles (données) ; ici : bannières de la porte, patères, tonneau
+		for bx in [24.0, 28.0]:
+			sc._au_mur.append(sc.modele("fp/Banner_2_Cloth", Vector3(bx, 2.6, 46.58), 0.0, 0.78))
+		for px in [19.4, 32.6]:
+			sc._au_mur.append(sc.modele("fp/Peg_Rack", Vector3(px, 1.75, 46.52), 0.0, 1.0))
+		sc.modele("fp/Barrel", Vector3(34.9, 0, 54.1), 0.0, 1.0)
+		sc.modele("fp/Stool", Vector3(21.0, 0, 51.4), 0.3, 1.0)
+		sc._card("props/bois02_buches.png", Vector3(34.9, 0, 48.15), 1.1, {"anchor": 0.12})
+		return
 	for i in 7:
 		var z := 49.45 + i * 0.47
 		sc._box_mesh(Vector3(35.1, 0.95, z), Vector3(0.05, 1.5, 0.08), fer)

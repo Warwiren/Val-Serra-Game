@@ -290,6 +290,26 @@ func groupe() -> Array:
 	return actors.keys().filter(func(k): return not str(k).begins_with("pnj_"))
 
 
+## P6.3 : mise en valeur du commandant (avant le tutoriel et après) : lumière chaude dirigée, râtelier derrière lui.
+func _scene_commandant() -> void:
+	if _hab == null or not _pnj.has("commandant"):
+		return
+	var p: Vector2 = _pnj["commandant"]["p"]
+	var sp := SpotLight3D.new()
+	sp.light_color = Color(1.0, 0.88, 0.66)
+	sp.light_energy = 2.2
+	sp.spot_range = 9.0
+	sp.spot_angle = 16.0
+	sp.spot_attenuation = 0.6
+	sp.shadow_enabled = true
+	sp.position = Vector3(p.x, 6.5, p.y + 2.6)
+	sp.look_at_from_position(sp.position, Vector3(p.x, 0.6, p.y), Vector3.UP)
+	sp.set_meta("hors_secteurs", true)
+	root.add_child(sp)
+	modele("fp/WeaponStand", Vector3(p.x + 1.4, 0.0, p.y - 1.3), -0.35, 0.9)
+	modele("fp/Chest_Wood", Vector3(p.x - 1.5, 0.0, p.y - 1.2), 0.3, 0.8)
+
+
 func _spawn_pnj() -> void:
 	_pnj.clear()
 	var zone_id: String = _p6.get("zone", "colisee")
@@ -380,6 +400,7 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	fade_nodes.clear()
 	_faded.clear()
 	_lights.clear()
+	_au_mur.clear()
 	_monster = null
 	_rng.seed = 6061
 	world = World25.load_world(file, m)
@@ -405,6 +426,7 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 		_build(e)
 	_build_p6()
 	_spawn_pnj()
+	_scene_commandant()
 	_build_overlay()
 	s.set_world(world, arrive)
 	if _sect != null:
@@ -418,6 +440,10 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 			_lueur_tunnel = null
 			_jour_du_tunnel()
 		_sect.classer(self, root)
+		for n in _au_mur:
+			if n != null and is_instance_valid(n):
+				_sect.attacher(n, Vector2(n.global_position.x, n.global_position.z))
+		_au_mur.clear()
 		_maj_secteur(true)
 		if _sect.mode != "echelle":
 			_sect.voile_ext = -1.0
@@ -489,7 +515,7 @@ func _build_bloc_p6(e: Dictionary) -> void:
 		if _hab != null and id.begins_with("cmur_tunnel_sud"):
 			h1 = h0 + 1.7                       # rendu à la hauteur des gradins sud (collision inchangée : 2,6 m)
 			size.y = h1 - h0
-		var mpierre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE, tall) if _hab != null else _surf("pierre", tall)
+		var mpierre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE, tall, true) if _hab != null else _surf("pierre", tall)
 		# P6.2 : maillages du mur sous un pivot à l'origine ; la collision (sb) reste dans l'instance, jamais modifiée
 		var pivot := Node3D.new()
 		pivot.name = id
@@ -531,6 +557,8 @@ func _build_bloc_p6(e: Dictionary) -> void:
 		return
 	var nom := id.trim_prefix("meuble_")
 	var bois := _surf("bois")
+	if _hab != null and _meuble_modele(nom, r):
+		return                                  # P6.3 : modèle Quaternius (collision des données inchangée)
 	if nom.begins_with("casiers"):
 		_box_mesh(_rect_center(r, h0, h1), size, _tinted("bois", Color(0.85, 0.72, 0.62)))
 		var along_x := r.size.x > r.size.y
@@ -626,8 +654,13 @@ func _build_p6() -> void:
 			ol.light_size = 0.12
 			ol.shadow_bias = 0.06
 			ol.omni_attenuation = 1.6
-		_halo(pos, 1.1, 0.45)
-		_box_mesh(pos + Vector3(0, -0.15, 0) + dl * 0.15, Vector3(0.18, 0.3, 0.18), _tinted("bois", Color(0.6, 0.5, 0.4)))
+		_halo(pos + dl * 0.75, 1.1, 0.45)
+		if _hab != null:
+			# P6.3 : lanterne murale (Quaternius) au lieu d'un cube : potence au mur, lanterne au bout, sous la lumière
+			var kl := 0.48
+			_au_mur.append(modele("fp/Lantern_Wall", pos - Vector3(0, 0.95 * kl, 0) - dl.normalized() * 0.02, atan2(dl.x, dl.z), kl))
+		else:
+			_box_mesh(pos + Vector3(0, -0.15, 0) + dl * 0.15, Vector3(0.18, 0.3, 0.18), _tinted("bois", Color(0.6, 0.5, 0.4)))
 	if _p6.get("zone", "") == "colisee":
 		if _hab == null:                      # P6.2 : avec l'habillage, bannières peintes de part et d'autre de la porte
 			_banniere(Vector3(26.0, 0.0, 46.3 + _dy_sud), Color(0.25, 0.32, 0.75))          # vestiaires, mur nord (côté porte)
@@ -635,8 +668,12 @@ func _build_p6() -> void:
 			_banniere(Vector3(31.0, 0.0, 46.3 + _dy_sud), Color(0.25, 0.32, 0.75))
 			_banniere(Vector3(26.0, 0.0, 54.95 + _dy_sud), Color(0.72, 0.6, 0.25), 1.6)      # bannière de la Guilde (sud, basse)
 		# P6.3 : bannières de la coursive sur la face intérieure du mur nord (elles étaient prises dans le mur)
-		_banniere(Vector3(45.6, 0.0, 12.06), Color(0.72, 0.18, 0.22))
-		_banniere(Vector3(54.4, 0.0, 12.06), Color(0.72, 0.18, 0.22))
+		if _hab != null:
+			for bx in [45.9, 54.1]:
+				_au_mur.append(modele("fp/Banner_1_Cloth", Vector3(bx, 2.75, 12.08), 0.0, 0.9))
+		else:
+			_banniere(Vector3(45.6, 0.0, 12.06), Color(0.72, 0.18, 0.22))
+			_banniere(Vector3(54.4, 0.0, 12.06), Color(0.72, 0.18, 0.22))
 	else:
 		_banniere(Vector3(27.6, 0.0, 6.5), Color(0.72, 0.6, 0.25), 1.8)       # panneau de la Guilde (provisoire)
 
@@ -689,6 +726,8 @@ func _build_porte(p: Dictionary) -> void:
 			_box_mesh(c, Vector3(0.06, 2.6, 0.06), fer)
 		for hh in [0.5, 1.4, 2.3]:
 			_box_mesh(_rect_center(r, hh - 0.04, hh + 0.04), Vector3(r.size.x, 0.08, r.size.y) + (Vector3(0, 0, 0.04) if along_x else Vector3(0.04, 0, 0)), fer)
+	elif _hab != null:
+		_porte_habillee(r)
 	else:
 		_box_mesh(_rect_center(r, 0.0, 2.6), Vector3(r.size.x, 2.6, r.size.y), _tinted("bois", Color(0.72, 0.5, 0.42)))
 		var c2 := r.get_center()
@@ -1457,8 +1496,8 @@ func _mur_continu(id: String, pivot: Node3D, r: Rect2, h0: float, hv: float, mpi
 	if hv > 3.05:
 		# P6.2-D : partie haute en deux assises (moins brutale qu'un aplat sombre), corniche, chaperon de pierre au sommet
 		# (et non plus une tranche noire de maquette), pilastres aux extrémités des murs longs (angles, piédroits)
-		var mmoyen: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.6, 0.56, 0.55), true) if _hab != null else _tinted("pierre", Color(0.58, 0.56, 0.58), true)
-		var msombre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.4, 0.36, 0.36), true) if _hab != null else _tinted("pierre", Color(0.4, 0.38, 0.4), true)
+		var mmoyen: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.6, 0.56, 0.55), true, true) if _hab != null else _tinted("pierre", Color(0.58, 0.56, 0.58), true)
+		var msombre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.4, 0.36, 0.36), true, true) if _hab != null else _tinted("pierre", Color(0.4, 0.38, 0.4), true)
 		var hm := minf(4.3, hv)
 		haut.append(_box_mesh(_rect_center(r, 3.0, hm), Vector3(r.size.x, hm - 3.0, r.size.y), mmoyen, pivot))
 		if hv > hm + 0.05:
@@ -1522,12 +1561,139 @@ func _linteaux() -> void:
 			# P6.2-D : arc de la bouche = fin de la voûte du tunnel : sommiers sous le bandeau (profil d'arc), et un volume
 			# d'occultation (sans collision) : s'il passe devant Aren, une trouée locale s'ouvre dans la pierre (système
 			# d'occlusion validé de la forêt) au lieu de faire disparaître tout l'arc
-			for sx in [r.position.x + 0.35, r.end.x - 0.35]:
-				haut.append(_box_mesh(Vector3(sx, lb - 0.2, r.get_center().y), Vector3(0.7, 0.4, r.size.y), mp, pivot))
-				haut.append(_box_mesh(Vector3(sx + (0.18 if sx < r.get_center().x else -0.18), lb - 0.5, r.get_center().y), Vector3(0.35, 0.3, r.size.y), mp, pivot))
+			# P6.3 : arc segmentaire en claveaux (plus une poutre droite) : naissances sur les murs du tunnel à 2,3 m,
+			# clé à 2,95 m ; claveaux de pierre claire, clé légèrement saillante
+			haut.clear()
+			for ch in pivot.get_children():
+				ch.queue_free()
+			var cx := r.get_center().x
+			var demi := r.size.x * 0.5
+			var fl := 0.65                                        # flèche de l'arc
+			var rr := (demi * demi + fl * fl) / (2.0 * fl)        # rayon de l'arc segmentaire
+			var a0 := asin(demi / rr)
+			var nv := 9
+			for i in nv:
+				var t := -a0 + 2.0 * a0 * (i + 0.5) / nv
+				var px := cx + rr * sin(t)
+				var py := 2.3 - (rr - fl) + rr * cos(t)
+				var cle := i == nv / 2
+				var v := _box_mesh(Vector3(px, py + 0.12, r.get_center().y), Vector3(2.0 * rr * sin(a0) / nv * 0.94, 0.42 if cle else 0.36, r.size.y + (0.08 if cle else 0.0)), mclair if cle else mp, pivot)
+				v.rotation.z = -t
+				haut.append(v)
+			for sx in [r.position.x + 0.2, r.end.x - 0.2]:
+				haut.append(_box_mesh(Vector3(sx, 2.25, r.get_center().y), Vector3(0.5, 0.14, r.size.y + 0.1), mclair, pivot))
 			_static_box(_rect_center(r, lb - 0.6, lh), Vector3(r.size.x, lh - lb + 0.6, r.size.y), L_OCC)
 		var coupe := _box_mesh(_rect_center(r, lb - 0.01, lb + 0.01), Vector3(0.01, 0.01, 0.01), _mat_coupe(), pivot)
 		_sect.declarer_mur(pivot, coupe, r, lb, lh, haut, null, arc)
+
+
+# ------------------------------------------------------------------------------------------------ P6.3 modèles
+const QUAT := "res://art/p63/quaternius/"   # sélection Quaternius (CC0), voir art/p63/quaternius/SOURCES.md
+var _qcache := {}
+var _au_mur: Array = []                     # P6.3 : modèles fixés aux murs (suivent leur coupe)
+var _qmat := {}
+
+
+## Instancie un modèle de la sélection Quaternius (« fp/Bench », « mv/Door_8_Round »…) : position monde, rotation
+## autour de y, échelle (nombre ou Vector3), teinte facultative (matériaux dupliqués une fois par teinte), métas.
+func modele(chemin: String, pos: Vector3, rot_y := 0.0, k: Variant = 1.0, teinte := Color.WHITE, meta := {}) -> Node3D:
+	if not _qcache.has(chemin):
+		_qcache[chemin] = load(QUAT + chemin + ".gltf")
+	var ps: PackedScene = _qcache[chemin]
+	if ps == null:
+		return null
+	var n: Node3D = ps.instantiate()
+	n.position = pos
+	n.rotation.y = rot_y
+	n.scale = k if k is Vector3 else Vector3.ONE * float(k)
+	n.set_meta("xz", Vector2(pos.x, pos.z))
+	for kk in meta:
+		n.set_meta(kk, meta[kk])
+	var pile: Array = [n]
+	while not pile.is_empty():
+		var c = pile.pop_back()
+		for e in c.get_children():
+			pile.append(e)
+		if c is MeshInstance3D:
+			var mi := c as MeshInstance3D
+			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+			if teinte != Color.WHITE and mi.mesh != null:
+				for si in mi.mesh.get_surface_count():
+					var m0: Material = mi.get_active_material(si)
+					if m0 is BaseMaterial3D and (m0.resource_name == "" or "Banner" in m0.resource_name or "Cloth" in m0.resource_name or not meta.get("teinte_tissu", false)):
+						var cle := "%s|%s" % [m0.get_instance_id(), teinte]
+						if not _qmat.has(cle):
+							var m1 := (m0 as BaseMaterial3D).duplicate() as BaseMaterial3D
+							m1.albedo_color = (m0 as BaseMaterial3D).albedo_color * teinte
+							_qmat[cle] = m1
+						mi.set_surface_override_material(si, _qmat[cle])
+	root.add_child(n)
+	return n
+
+
+## P6.3 : mobilier des données remplacé par un modèle (même emprise ; la collision reste celle des données).
+func _meuble_modele(nom: String, r: Rect2) -> bool:
+	var c := r.get_center()
+	var long_x := r.size.x >= r.size.y
+	var rot := 0.0 if long_x else PI / 2.0
+	var p := Vector3(c.x, 0.0, c.y)
+	if nom.begins_with("banc"):
+		var lg := maxf(r.size.x, r.size.y)
+		modele("fp/Bench", p, rot, Vector3(lg / 2.78, 0.9, 1.0))
+	elif nom.begins_with("ratelier"):
+		var lg2 := maxf(r.size.x, r.size.y)
+		var n := maxi(1, int(round(lg2 / 1.5)))
+		for i in n:
+			var t := (i + 0.5) / n
+			var q := Vector3(lerpf(r.position.x, r.end.x, t), 0.0, c.y) if long_x else Vector3(c.x, 0.0, lerpf(r.position.y, r.end.y, t))
+			modele("fp/WeaponStand", q, rot, 0.85)
+	elif nom.begins_with("mannequin"):
+		modele("fp/Dummy", p, 0.0, 0.92)
+	elif nom.begins_with("coffre"):
+		modele("fp/Chest_Wood", p, 0.0, minf(1.0, r.size.x / 1.28))
+	elif nom.begins_with("caisses"):
+		modele("fp/Crate_Wooden", p + Vector3(-0.45, 0, 0.3), 0.2, 0.85)
+		modele("fp/Crate_Wooden", p + Vector3(0.55, 0, -0.2), -0.15, 0.7)
+	elif nom.begins_with("tonneaux"):
+		modele("fp/Barrel", p + Vector3(-0.35, 0, 0), 0.0, 1.0)
+		modele("fp/Barrel", p + Vector3(0.45, 0, 0.1), 0.6, 0.95)
+	else:
+		return false
+	return true
+
+
+## P6.3 : porte fermée habillée (encadrement cintré en pierre + vantaux de bois ferré), dans l'épaisseur du mur.
+func _porte_habillee(r: Rect2) -> void:
+	var le_long_x := r.size.x >= r.size.y
+	var w := r.size.x if le_long_x else r.size.y
+	var c := r.get_center()
+	# face intérieure : vers le centre de la pièce praticable la plus proche
+	var dir := Vector2(0, 1)
+	for sx in [Vector2(0, 1), Vector2(0, -1), Vector2(1, 0), Vector2(-1, 0)]:
+		if (le_long_x and sx.x != 0.0) or (not le_long_x and sx.y != 0.0):
+			continue
+		if not world.surface_at(c + sx * 1.0, 0.0).is_empty():     # sol de la pièce (les meubles ne comptent pas)
+			dir = sx
+	var rot := atan2(dir.x, dir.y)
+	# contre la face intérieure du mur (épaisseur 0,4 m) : sinon le mur continu cache la porte
+	var d3 := Vector3(dir.x, 0, dir.y)
+	if dir.y < -0.5:
+		# mur côté caméra (abaissé pour la lisibilité) : vantaux coupés à la hauteur du mur, sans encadrement
+		var ax := Vector3(cos(rot), 0, -sin(rot))
+		for side in [-1.0, 1.0]:
+			var bd: Vector3 = Vector3(c.x, 0, c.y) + ax * float(side) * w * 0.5 + d3 * 0.22
+			modele("mv/Door_8_Round", bd, rot, Vector3(-float(side) * w * 0.5 / 1.15, 1.0 / 2.36, 1.0))
+		return
+	var cadre := modele("mv/DoorFrame_Round_Brick", Vector3(c.x, 0, c.y) + d3 * 0.1, rot, Vector3((w + 0.5) / 1.6, 1.0, 1.0), Color(1.05, 1.0, 0.95))
+	_au_mur.append(cadre)
+	var lw := w * 0.5
+	var axe := Vector3(cos(rot), 0, -sin(rot))
+	for side in [-1.0, 1.0]:
+		var bord: Vector3 = Vector3(c.x, 0, c.y) + axe * float(side) * lw
+		var k := Vector3(-float(side) * lw / 1.15, 0.98, 1.0)
+		_au_mur.append(modele("mv/Door_8_Round", bord + d3 * 0.22, rot, k))
+	if cadre != null:
+		cadre.set_meta("porte", true)
 
 
 ## P6.3 : tranche de gradins devant le tunnel est (maillages construits par l'habillage) : coupée quand Aren est dans le
@@ -1577,6 +1743,23 @@ func _entree_tunnel() -> void:
 		return
 	var z: float = vt.get("entree", 37.5)
 	var b: Array = vt["bouche"]
+	if _hab != null:
+		# P6.3 : transition lumineuse — deux torches à l'entrée côté salle (chaud), la pénombre au milieu, le jour au bout
+		for side in [[float(b[0]), PI / 2.0], [float(b[1]), -PI / 2.0]]:
+			var tp := Vector3(side[0], 1.95, z - 1.4)
+			var t := modele("fp/Torch_Metal", tp, side[1], 1.1)
+			_au_mur.append(t)
+			if t != null:
+				t.set_meta("secteur", "S3")
+			var l := OmniLight3D.new()
+			l.light_color = Color(1.0, 0.62, 0.3)
+			l.light_energy = 1.1
+			l.omni_range = 4.2
+			l.omni_attenuation = 1.6
+			l.position = tp + Vector3(0.35 if side[1] > 0 else -0.35, 0.35, 0)
+			l.set_meta("secteur", "S3")
+			root.add_child(l)
+			_halo(l.position, 0.6, 0.5)
 	var mp: Material = _hab.mat(Habillage.PIERRE, 1.2, Habillage.C_CALCAIRE * Color(1.1, 1.06, 1.0), true) if _hab != null else _surf("pierre", true)
 	for x in [float(b[0]) - 0.15, float(b[1]) + 0.15]:
 		var pivot := Node3D.new()

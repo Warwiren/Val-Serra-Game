@@ -573,6 +573,32 @@ func _haut(w: Dictionary, t: float) -> void:
 	cp.transparency = 1.0 - t
 
 
+## P6.3 : un élément fixé à un mur (lanterne, porte, bannière) suit sa coupe : ses maillages rejoignent la partie
+## haute du mur le plus proche (sinon il flotterait au-dessus d'un muret).
+func attacher(n: Node3D, p: Vector2) -> bool:
+	var best: Dictionary = {}
+	var dmin := 0.5
+	for w in _murs:
+		if float(w["h1"]) - float(w["h0"]) < 0.75 or not (w.get("seulement", []) as Array).is_empty():
+			continue
+		var r: Rect2 = w["rect"]
+		var q := Vector2(clampf(p.x, r.position.x, r.end.x), clampf(p.y, r.position.y, r.end.y))
+		var d := p.distance_to(q)
+		if d < dmin:
+			dmin = d
+			best = w
+	if best.is_empty():
+		return false
+	var pile: Array = [n]
+	while not pile.is_empty():
+		var c = pile.pop_back()
+		for e in c.get_children():
+			pile.append(e)
+		if c is GeometryInstance3D:
+			(best["haut"] as Array).append(c)
+	return true
+
+
 func murs_coupes() -> Array:
 	return _murs.filter(func(w): return w["coupe_on"]).map(func(w): return w["pivot"].name)
 
