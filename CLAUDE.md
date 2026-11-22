@@ -140,6 +140,14 @@
   aux PNJ, au décor de l'habillage et aux parcours « p6 » par `Routes.sud`). Vue du tunnel par la seule position d'Aren
   (masque fermé au seuil salle / tunnel). Arche de la bouche jamais coupée (trouée locale). Gradins sud-est abaissés à
   l'affichage. Décor du combat tutoriel non régénéré (combat hors périmètre).
+- **P6.3 (branche `p6-3-colisee-art`, `docs/P6_3_COLISEE_ART.md`)** : P6.2-D validé comme base technique le 22/11/2026.
+  Habillage EN ATTENTE de validation : sélection Quaternius CC0 (`art/p63/quaternius/`, 15 modèles, textures 1024²,
+  licences et `SOURCES.md` ; ne pas importer les packs entiers), placée par `colisee.modele()` ; mobilier des données
+  remplacé par les modèles (collisions des données inchangées), accessoires posés par la scène = obstacle rond
+  (`_solide_rond`) : aucun relief visible traversable (`tools/p6/reliefs_p6.gd`). Éléments muraux attachés à la coupe de
+  leur mur (`Secteurs.attacher`) ; sols = groupes « SOL: » (devant, derrière, visibles). Luminaires sans ombre portée.
+  Décor du combat tutoriel régénéré (ancien : `arene_colisee_p6.png`). Le quartier de ville n'est PAS à développer : il
+  sera repensé à partir d'un plan séparé.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.

@@ -43,8 +43,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p6-2d-colisee-complet`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p6-2d-colisee-complet`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p6-3-colisee-art`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p6-3-colisee-art`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -98,6 +98,10 @@ masque de collision avant / après.
    fermés, tunnel sud de **8,5 m** proposé avec vue par la bouche et découverte au débouché, arche et murs hauts revus,
    arène, tunnel est, coursive, infirmerie, réserve et sortie est en intérieurs, caméra continue partout). Longueurs
    du tunnel à comparer en F6 : `colisee_tunnel_A_6_5m.tscn` / `_B_8_5m` / `_C_9_5m`. Rapport : `docs/P6_2D_COLISEE_COMPLET.md`.
+   **Branche `p6-3-colisee-art`** : F5 inchangé ; `colisee.tscn` (F6) = Colisée **habillé** (pilote artistique étendu) :
+   mobilier, lanternes, portes et bannières Quaternius (CC0, sélection de 15 modèles, `art/p63/quaternius/`), arc en
+   claveaux et torches du tunnel sud, fausse marche et bannières corrigées, décor du combat tutoriel actualisé.
+   Rapport : `docs/P6_3_COLISEE_ART.md`.
 
 ### Commandes — forêt V07B (F5)
 
