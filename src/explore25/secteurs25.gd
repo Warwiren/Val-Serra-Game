@@ -263,8 +263,21 @@ func _groupe_montre(g: Dictionary) -> bool:
 	var m: Array = g["membres"]
 	if m.has(EXTERIEUR):
 		return mode == "echelle" or fond() != "sombre"
-	if mode != "echelle" and (g.get("mur", false) or m.has(EXT)):
-		return true                         # continu : structure persistante ; le reste du niveau : voile progressif
+	if mode != "echelle" and g.get("mur", false):
+		# P6.2-D : depuis une pièce intérieure, on ne voit que les murs des pièces visibles ; ceux des pièces situées
+		# devant restent (muret, structure) ; ceux du reste du niveau suivent le voile ; ceux d'une pièce non visible
+		# située DERRIÈRE ne sont plus rendus (leurs hauts dépassaient au-dessus des murs de la pièce active)
+		if fond() != "sombre":
+			return true
+		var sect: Array = m.filter(func(x): return x != EXT)
+		if sect.is_empty():
+			return true                     # reste du niveau : voile (regler_voile_ext)
+		for x in sect:
+			if visibles.has(x):
+				return true
+		return _devant(sect)
+	if mode != "echelle" and m.has(EXT):
+		return true                         # continu : le reste du niveau suit le voile progressif
 	for x in m:
 		if visibles.has(x):
 			return true
@@ -338,9 +351,16 @@ func regler_voile_ext(t: float) -> void:
 	voile_ext = t
 	for k in _groupes:
 		var g: Dictionary = _groupes[k]
-		if (g["membres"] as Array).has(EXT) and not g.get("mur", false):
+		var mb: Array = g["membres"]
+		var mur_ext: bool = g.get("mur", false) and mb == [EXT]
+		if mb.has(EXT) and (not g.get("mur", false) or mur_ext):
 			_transparence(g, t)
 			(g["node"] as Node3D).visible = t < 0.999
+			if mur_ext:
+				# murs du reste du niveau (P6.2-D) : un mur coupé garde sa partie haute effacée
+				for w in _murs:
+					if w["coupe_on"] and (g["node"] as Node3D).is_ancestor_of(w["pivot"]):
+						_haut(w, 1.0)
 
 
 ## Valeur cible du voile de l'extérieur pour la position p (données : « revele_ext » [prof. masqué, prof. visible]).

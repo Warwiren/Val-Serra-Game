@@ -237,6 +237,15 @@ static func route(name: String) -> Array:
 			# P6.2-C — retour de l'arène dans le tunnel : fond sombre et vue recadrée par la bouche dès l'entrée
 			return [_warp(26.0, 28.0, 0.0), {"do": "wait", "t": 1.5}, _go(26.0, 34.0, "retour dans le tunnel", 0.2),
 				{"do": "wait", "t": 0.25}, {"do": "snap", "id": "retour_tunnel_0s25"}]
+		"p6_vestiaires_captures":
+			# P6.2-D — vestiaires : centre, quatre coins, portes (fermeture des lignes de vue)
+			var outv: Array = []
+			for c in [["v1_centre", 26.0, 51.0], ["v2_coin_no", 17.4, 47.4], ["v3_coin_ne", 34.6, 47.4], ["v4_coin_so", 17.4, 54.2],
+					["v5_coin_se", 34.6, 54.2], ["v6_porte_nord", 26.0, 47.0], ["v7_porte_rue", 17.2, 51.9], ["v8_droite", 33.5, 51.0]]:
+				outv.append(_warp(c[1], c[2], 0.0))
+				outv.append({"do": "wait", "t": 1.4})
+				outv.append({"do": "snap", "id": c[0]})
+			return outv
 		"p6_captures":
 			return [
 				{"do": "wait", "t": 1.5},
