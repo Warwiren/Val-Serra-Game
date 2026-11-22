@@ -1,130 +1,375 @@
 {
- "_note": "P6 — dialogues PROVISOIRES du Colisée (passe narrative à venir, non canoniques). Chaque dialogue a des variantes ; la scène prend la première dont l'état « a_partir_de » est atteint (lues dans l'ordre). Étapes : {who, text, expr} ou {choice: [{label, then}], prompt}. who = « heros » ou « pnj » (le PNJ qui parle). effet : consigne_arene | lancer_tutoriel | (rien).",
+ "_note": "P6 — dialogues PROVISOIRES du Colisée (passe narrative à venir, non canoniques). Chaque dialogue a des variantes ; la scène prend la première dont l'état « a_partir_de » est atteint (lues dans l'ordre). Étapes : {who, text, expr} ou {choice: [{label, then}], prompt}. who = « heros » ou « pnj » (le PNJ qui parle). effet : consigne_arene | lancer_tutoriel | (rien). Une réponse peut porter un « effet » (P6.2 : passer_tutoriel).",
  "dialogues": {
   "garde_vestiaires": [
-   {"a_partir_de": "tutorial_completed", "etapes": [
-    {"who": "pnj", "text": "Alors, cette évaluation ? Vu votre mine, le commandant a dû être content."},
-    {"who": "heros", "text": "Il m'envoie à la Guilde chercher mon badge.", "expr": "souriant"},
-    {"who": "pnj", "text": "Sortie est, par la coursive. Bonne route, Chasseur."}
-   ]},
-   {"a_partir_de": "tutorial_available", "etapes": [
-    {"who": "pnj", "text": "Vous êtes encore là ? L'arène, c'est tout droit, par la salle d'attente. Le commandant n'aime pas attendre."}
-   ]},
-   {"a_partir_de": "intro_not_started", "effet": "consigne_arene", "etapes": [
-    {"who": "pnj", "text": "Ah, vous voilà enfin ! Dépêchez-vous, le commandant vous attend dans l'arène."},
-    {"who": "pnj", "text": "Vous ne voudriez tout de même pas être en retard pour votre évaluation ?"},
-    {"who": "heros", "text": "J'y vais tout de suite.", "expr": "determine"},
-    {"who": "pnj", "text": "Par le couloir au nord, puis la salle d'attente. Bonne chance, recrue."}
-   ]}
+   {
+    "a_partir_de": "tutorial_completed",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "Alors, cette évaluation ? Vu votre mine, le commandant a dû être content."
+     },
+     {
+      "who": "heros",
+      "text": "Il m'envoie à la Guilde chercher mon badge.",
+      "expr": "souriant"
+     },
+     {
+      "who": "pnj",
+      "text": "Sortie est, par la coursive. Bonne route, Chasseur."
+     }
+    ]
+   },
+   {
+    "a_partir_de": "tutorial_available",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "Vous êtes encore là ? L'arène, c'est tout droit, par la salle d'attente. Le commandant n'aime pas attendre."
+     }
+    ]
+   },
+   {
+    "a_partir_de": "intro_not_started",
+    "effet": "consigne_arene",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "Ah, vous voilà enfin ! Dépêchez-vous, le commandant vous attend dans l'arène."
+     },
+     {
+      "who": "pnj",
+      "text": "Vous ne voudriez tout de même pas être en retard pour votre évaluation ?"
+     },
+     {
+      "who": "heros",
+      "text": "J'y vais tout de suite.",
+      "expr": "determine"
+     },
+     {
+      "who": "pnj",
+      "text": "Par le couloir au nord, puis la salle d'attente. Bonne chance, recrue."
+     }
+    ]
+   }
   ],
   "recrue_vestiaires": [
-   {"a_partir_de": "tutorial_completed", "etapes": [
-    {"who": "pnj", "text": "Tu en reviens déjà ? Et tu tiens debout ! Bon… c'est peut-être moins terrible qu'on le dit."}
-   ]},
-   {"a_partir_de": "intro_not_started", "etapes": [
-    {"who": "pnj", "text": "Je resserre ces sangles pour la troisième fois… Tu crois que le commandant regarde aussi l'équipement ?"},
-    {"who": "heros", "text": "Il regardera surtout comment on s'en sert.", "expr": "souriant"}
-   ]}
+   {
+    "a_partir_de": "tutorial_completed",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "Tu en reviens déjà ? Et tu tiens debout ! Bon… c'est peut-être moins terrible qu'on le dit."
+     }
+    ]
+   },
+   {
+    "a_partir_de": "intro_not_started",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "Je resserre ces sangles pour la troisième fois… Tu crois que le commandant regarde aussi l'équipement ?"
+     },
+     {
+      "who": "heros",
+      "text": "Il regardera surtout comment on s'en sert.",
+      "expr": "souriant"
+     }
+    ]
+   }
   ],
   "chasseur_nerveux": [
-   {"a_partir_de": "intro_not_started", "etapes": [
-    {"who": "pnj", "text": "J'espère ne pas tomber sur le commandant le plus sévère…"}
-   ]}
+   {
+    "a_partir_de": "intro_not_started",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "J'espère ne pas tomber sur le commandant le plus sévère…"
+     }
+    ]
+   }
   ],
   "chasseuse_confiante": [
-   {"a_partir_de": "tutorial_completed", "etapes": [
-    {"who": "pnj", "text": "On t'a entendu depuis ici. Pas mal du tout. À mon tour, maintenant."}
-   ]},
-   {"a_partir_de": "intro_not_started", "etapes": [
-    {"who": "pnj", "text": "Détends-toi. Une évaluation, ce n'est qu'un combat où personne ne veut vraiment te blesser."}
-   ]}
+   {
+    "a_partir_de": "tutorial_completed",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "On t'a entendu depuis ici. Pas mal du tout. À mon tour, maintenant."
+     }
+    ]
+   },
+   {
+    "a_partir_de": "intro_not_started",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "Détends-toi. Une évaluation, ce n'est qu'un combat où personne ne veut vraiment te blesser."
+     }
+    ]
+   }
   ],
   "chasseur_attente": [
-   {"a_partir_de": "intro_not_started", "etapes": [
-    {"who": "pnj", "text": "On raconte que l'évaluation est moins facile qu'elle n'en a l'air."}
-   ]}
+   {
+    "a_partir_de": "intro_not_started",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "On raconte que l'évaluation est moins facile qu'elle n'en a l'air."
+     }
+    ]
+   }
   ],
   "commandant": [
-   {"a_partir_de": "tutorial_completed", "etapes": [
-    {"who": "pnj", "text": "La Guilde se trouve en ville, par la sortie est de la coursive. Ne la faites pas attendre."}
-   ]},
-   {"a_partir_de": "intro_not_started", "effet": "lancer_tutoriel", "etapes": [
-    {"who": "pnj", "text": "Vous êtes donc la nouvelle recrue ? Bienvenue."},
-    {"who": "pnj", "text": "Avant de vous laisser rejoindre les autres Chasseurs, nous allons vérifier que vous connaissez les bases du combat."},
-    {"prompt": "Que répondre au commandant ?", "choice": [
-     {"label": "« Je suis prêt. »", "then": [
-      {"who": "heros", "text": "Je suis prêt.", "expr": "determine"},
-      {"who": "pnj", "text": "J'aime cette assurance. Voyons si elle est méritée."}
-     ]},
-     {"label": "« En quoi consiste cette épreuve ? »", "then": [
-      {"who": "heros", "text": "En quoi consiste cette épreuve ?", "expr": "concentre"},
-      {"who": "pnj", "text": "Un échange d'entraînement. Je vous expliquerai chaque élément au fil du combat : observez, puis agissez."}
-     ]},
-     {"label": "« Vous comptez vraiment vous battre contre moi ? »", "then": [
-      {"who": "heros", "text": "Vous comptez vraiment vous battre contre moi ?", "expr": "surpris"},
-      {"who": "pnj", "text": "Rassurez-vous : je retiendrai mes coups. Les vôtres, en revanche, ne me toucheront pas."}
-     ]}
-    ]},
-    {"who": "pnj", "text": "En garde, recrue."}
-   ]}
+   {
+    "a_partir_de": "tutorial_completed",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "La Guilde se trouve en ville, par la sortie est de la coursive. Ne la faites pas attendre."
+     }
+    ]
+   },
+   {
+    "a_partir_de": "intro_not_started",
+    "effet": "lancer_tutoriel",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "Vous êtes donc la nouvelle recrue ? Bienvenue."
+     },
+     {
+      "who": "pnj",
+      "text": "Avant de vous laisser rejoindre les autres Chasseurs, nous allons vérifier que vous connaissez les bases du combat."
+     },
+     {
+      "prompt": "Que répondre au commandant ?",
+      "choice": [
+       {
+        "label": "« Je suis prêt. »",
+        "then": [
+         {
+          "who": "heros",
+          "text": "Je suis prêt.",
+          "expr": "determine"
+         },
+         {
+          "who": "pnj",
+          "text": "J'aime cette assurance. Voyons si elle est méritée."
+         }
+        ]
+       },
+       {
+        "label": "« En quoi consiste cette épreuve ? »",
+        "then": [
+         {
+          "who": "heros",
+          "text": "En quoi consiste cette épreuve ?",
+          "expr": "concentre"
+         },
+         {
+          "who": "pnj",
+          "text": "Un échange d'entraînement. Je vous expliquerai chaque élément au fil du combat : observez, puis agissez."
+         }
+        ]
+       },
+       {
+        "label": "« Vous comptez vraiment vous battre contre moi ? »",
+        "then": [
+         {
+          "who": "heros",
+          "text": "Vous comptez vraiment vous battre contre moi ?",
+          "expr": "surpris"
+         },
+         {
+          "who": "pnj",
+          "text": "Rassurez-vous : je retiendrai mes coups. Les vôtres, en revanche, ne me toucheront pas."
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "who": "pnj",
+      "text": "Alors, recrue : on commence l'entraînement ?"
+     },
+     {
+      "prompt": "Commencer l'évaluation ?",
+      "choice": [
+       {
+        "label": "« Commencer l'entraînement »",
+        "then": [
+         {
+          "who": "heros",
+          "text": "Commençons.",
+          "expr": "determine"
+         },
+         {
+          "who": "pnj",
+          "text": "En garde, recrue."
+         }
+        ]
+       },
+       {
+        "label": "« Passer le tutoriel »",
+        "effet": "passer_tutoriel",
+        "then": [
+         {
+          "who": "heros",
+          "text": "Je connais déjà les bases du combat.",
+          "expr": "concentre"
+         },
+         {
+          "who": "pnj",
+          "text": "Très bien. Je vous dispense de l'exercice : vous en savez assez pour la suite."
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
   ],
   "commandant_fin": [
-   {"a_partir_de": "intro_not_started", "etapes": [
-    {"who": "pnj", "text": "Votre évaluation est terminée."},
-    {"who": "pnj", "text": "Rendez-vous à la Guilde pour récupérer votre badge de Chasseur. Vous pourrez y recevoir vos premières affectations."},
-    {"who": "heros", "text": "Merci, commandant. J'y vais.", "expr": "souriant"}
-   ]}
+   {
+    "a_partir_de": "intro_not_started",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "Votre évaluation est terminée."
+     },
+     {
+      "who": "pnj",
+      "text": "Rendez-vous à la Guilde pour récupérer votre badge de Chasseur. Vous pourrez y recevoir vos premières affectations."
+     },
+     {
+      "who": "heros",
+      "text": "Merci, commandant. J'y vais.",
+      "expr": "souriant"
+     }
+    ]
+   }
   ],
   "garde_grille": [
-   {"a_partir_de": "tutorial_completed", "etapes": [
-    {"who": "pnj", "text": "La grille est levée. La coursive mène à la sortie est, vers la ville."}
-   ]},
-   {"a_partir_de": "intro_not_started", "etapes": [
-    {"who": "pnj", "text": "Cette grille donne sur la coursive. Elle reste fermée jusqu'à la fin de votre évaluation."}
-   ]}
+   {
+    "a_partir_de": "tutorial_completed",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "La grille est levée. La coursive mène à la sortie est, vers la ville."
+     }
+    ]
+   },
+   {
+    "a_partir_de": "intro_not_started",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "Cette grille donne sur la coursive. Elle reste fermée jusqu'à la fin de votre évaluation."
+     }
+    ]
+   }
   ],
   "chasseur_reussi": [
-   {"a_partir_de": "intro_not_started", "etapes": [
-    {"who": "pnj", "text": "Ça y est, j'ai réussi ! Il ne me reste plus qu'à récupérer mon badge à la Guilde."}
-   ]}
+   {
+    "a_partir_de": "intro_not_started",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "Ça y est, j'ai réussi ! Il ne me reste plus qu'à récupérer mon badge à la Guilde."
+     }
+    ]
+   }
   ],
   "chasseuse_echouee": [
-   {"a_partir_de": "intro_not_started", "etapes": [
-    {"who": "pnj", "text": "Je pensais être prête… Je ferai mieux la prochaine fois."},
-    {"who": "heros", "text": "Il y aura une prochaine fois. Courage.", "expr": "neutre"}
-   ]}
+   {
+    "a_partir_de": "intro_not_started",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "Je pensais être prête… Je ferai mieux la prochaine fois."
+     },
+     {
+      "who": "heros",
+      "text": "Il y aura une prochaine fois. Courage.",
+      "expr": "neutre"
+     }
+    ]
+   }
   ],
   "chasseur_commentaire": [
-   {"a_partir_de": "intro_not_started", "etapes": [
-    {"who": "pnj", "text": "Le commandant m'a fait recommencer ma garde trois fois. « Regardez la frise, recrue ! »"},
-    {"who": "pnj", "text": "Il avait raison : quand on voit venir le coup, on a le temps de s'y préparer."}
-   ]}
+   {
+    "a_partir_de": "intro_not_started",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "Le commandant m'a fait recommencer ma garde trois fois. « Regardez la frise, recrue ! »"
+     },
+     {
+      "who": "pnj",
+      "text": "Il avait raison : quand on voit venir le coup, on a le temps de s'y préparer."
+     }
+    ]
+   }
   ],
   "garde_loge": [
-   {"a_partir_de": "intro_not_started", "etapes": [
-    {"who": "pnj", "text": "La loge officielle est réservée aux autorités. Circulez, s'il vous plaît."}
-   ]}
+   {
+    "a_partir_de": "intro_not_started",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "La loge officielle est réservée aux autorités. Circulez, s'il vous plaît."
+     }
+    ]
+   }
   ],
   "garde_gradins": [
-   {"a_partir_de": "intro_not_started", "etapes": [
-    {"who": "pnj", "text": "Les gradins sont réservés au public. Les combattants doivent emprunter les couloirs prévus."}
-   ]}
+   {
+    "a_partir_de": "intro_not_started",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "Les gradins sont réservés au public. Les combattants doivent emprunter les couloirs prévus."
+     }
+    ]
+   }
   ],
   "soigneuse": [
-   {"a_partir_de": "intro_not_started", "etapes": [
-    {"who": "pnj", "text": "Pas une égratignure ? Le commandant a dû être d'humeur clémente. Revenez si vous vous blessez en ville."}
-   ]}
+   {
+    "a_partir_de": "intro_not_started",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "Pas une égratignure ? Le commandant a dû être d'humeur clémente. Revenez si vous vous blessez en ville."
+     }
+    ]
+   }
   ],
   "garde_sortie": [
-   {"a_partir_de": "intro_not_started", "etapes": [
-    {"who": "pnj", "text": "La sortie est donne sur le quartier du Colisée. La Guilde est au bout de la grande rue."},
-    {"who": "pnj", "text": "Une fois dehors, on ne rentre plus avant la fin des évaluations du jour."}
-   ]}
+   {
+    "a_partir_de": "intro_not_started",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "La sortie est donne sur le quartier du Colisée. La Guilde est au bout de la grande rue."
+     },
+     {
+      "who": "pnj",
+      "text": "Une fois dehors, on ne rentre plus avant la fin des évaluations du jour."
+     }
+    ]
+   }
   ],
   "habitant_quartier": [
-   {"a_partir_de": "intro_not_started", "etapes": [
-    {"who": "pnj", "text": "Encore une recrue qui sort du Colisée ? La Guilde, c'est tout droit. Vous ne pouvez pas la manquer."}
-   ]}
+   {
+    "a_partir_de": "intro_not_started",
+    "etapes": [
+     {
+      "who": "pnj",
+      "text": "Encore une recrue qui sort du Colisée ? La Guilde, c'est tout droit. Vous ne pouvez pas la manquer."
+     }
+    ]
+   }
   ]
  }
 }

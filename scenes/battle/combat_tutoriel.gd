@@ -13,6 +13,7 @@ const Guide = preload("res://src/tutorial/guide_interface.gd")
 const CommandantView = preload("res://src/presentation/commandant_view.gd")
 const Progression = preload("res://src/game/progression.gd")
 const GardeFou = preload("res://src/tutorial/garde_fou.gd")
+const Confirmation = preload("res://src/tutorial/confirmation.gd")
 const ETAPES := "res://data/p6/tutoriel_colisee.json"
 const MONSTRE := "res://data/combat/monster_commandant.json"
 const DECOR := "res://art/p6/combat/arene_colisee.png"
@@ -31,6 +32,9 @@ var _trace: Array = []                    # déroulé (tests, rapport) : étapes
 var _hp_min := 999999
 var _cli_auto := false
 var _attaque_base := 0
+var _confirm_box
+var _bouton_passer: Button
+var _saute := false
 
 
 func _ready() -> void:
@@ -56,6 +60,17 @@ func _ready() -> void:
 	guide.portrait_id = _def.get("portrait", "pnj")
 	guide.advanced.connect(_suite)
 	guide.escape_pressed.connect(_echap)
+	# P6.2 : passer le tutoriel (bouton visible + Échap), avec confirmation (« Non » par défaut)
+	_bouton_passer = Button.new()
+	_bouton_passer.text = "Passer le tutoriel  (Échap)"
+	_bouton_passer.focus_mode = Control.FOCUS_NONE
+	_bouton_passer.position = Vector2(16, 70)
+	_bouton_passer.add_theme_font_size_override("font_size", 14)
+	_bouton_passer.pressed.connect(_echap)
+	calque.add_child(_bouton_passer)
+	_confirm_box = Confirmation.new()
+	calque.add_child(_confirm_box)
+	_confirm_box.repondu.connect(_on_confirmation)
 	battle.start()
 	_trace.append({"type": "debut", "groupe": battle.hunters().map(func(h): return h.id), "adversaire": monster_id})
 	await get_tree().create_timer(0.4).timeout
@@ -219,7 +234,7 @@ func _confirm() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _termine:
+	if _termine or _confirm_box.est_ouverte():
 		return
 	if not _attend_action:
 		return                              # explication en cours : le guide a la main
@@ -235,8 +250,26 @@ func _cycle_target(dir: int) -> void:
 
 
 func _echap() -> void:
-	guide.interjection(_def["interjections"]["quitter"])
-	_trace.append({"type": "quitter_refuse"})
+	if _termine or _confirm_box.est_ouverte():
+		return
+	_trace.append({"type": "demande_saut"})
+	_confirm_box.ouvrir("Passer le tutoriel ?\nL'évaluation sera considérée comme terminée (aucune récompense).", "Oui, passer", "Non, continuer")
+
+
+func _on_confirmation(oui: bool) -> void:
+	_trace.append({"type": "saut_confirme" if oui else "saut_annule"})
+	if oui:
+		_saute = true
+		_terminer()
+	elif guide.visible:
+		guide.interjection(_def["interjections"]["quitter"])
+
+
+## Échap quand le guide est masqué (animations entre deux tours) : même demande de confirmation.
+func _input(e: InputEvent) -> void:
+	if e is InputEventKey and e.pressed and not e.echo and e.keycode == KEY_ESCAPE and not _termine and not _confirm_box.est_ouverte():
+		get_viewport().set_input_as_handled()
+		_echap()
 
 
 ## Sécurité : le combat ne peut pas se terminer « normalement » ; si cela arrivait, on clôt l'évaluation quand même.
@@ -254,23 +287,26 @@ func _terminer() -> void:
 	for et in _etapes:
 		if et.get("fin", false):
 			fin_txt = et["texte"]
-	if guide.mode == "" and fin_txt != "":
+	if _saute:
+		fin_txt = _def["interjections"].get("saut", fin_txt)
+		guide.montrer(fin_txt, [], "action")
+	elif guide.mode == "" and fin_txt != "":
 		guide.montrer(fin_txt, [], "suite")
-	_trace.append({"type": "fin", "resultat": Progression.RESULTAT_TUTORIEL, "pv_heros": battle.get_combatant("heros").hp,
+	_bouton_passer.visible = false
+	_trace.append({"type": "fin", "saute": _saute, "resultat": Progression.RESULTAT_TUTORIEL, "pv_heros": battle.get_combatant("heros").hp,
 		"pv_commandant": battle.get_combatant(monster_id).hp, "etat_combat": battle.state})
-	await _wait(0.6)
+	await _wait(1.6 if _saute else 0.6)
 	guide.masquer()
 	hud.banner("Évaluation terminée", Color("#f2c978"), 1.0)
-	# résultat spécifique : ni victoire ni défaite, aucune récompense, potions inchangées
-	GameState.last_battle_result = Progression.RESULTAT_TUTORIEL
-	GameState.from_zone = false
 	if OS.get_cmdline_user_args().has("--tuto-trace"):
 		print("P6 TUTORIEL ", JSON.stringify(_trace))
 	await _wait(1.3)
 	if OS.get_cmdline_user_args().has("--tuto-quit"):
 		get_tree().quit()
 		return
-	GameState.goto(GameState.explore_return if GameState.explore_return != "" else Progression.SCENE_COLISEE, 0.5)
+	# conclusion commune (fin normale, saut pendant le combat, saut dans le dialogue) : résultat « tutorial_completed »,
+	# ni victoire ni défaite, aucune récompense, potions inchangées, retour au Colisée
+	Progression.conclure_tutoriel()
 
 
 func trace() -> Array:
@@ -284,6 +320,8 @@ func etape_courante() -> String:
 # ---------------------------------------------------------------------------- démonstration automatique
 ## Joue l'étape comme un joueur (démo vidéo, tests) : lit, puis choisit l'action demandée et confirme.
 func _auto_etape(et: Dictionary) -> void:
+	if _termine:
+		return
 	var rapide := OS.get_cmdline_user_args().has("--tuto-rapide")
 	var id: String = et["id"]
 	while not rapide and not guide.texte_complet():

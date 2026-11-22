@@ -6,6 +6,7 @@ extends Control
 ## Portraits : source unique src/proto/portraits.gd (expression par réplique, repli sur « neutre »).
 
 signal closed
+signal choisi(choix: Dictionary)        # P6.2 : réponse choisie (la scène peut y lire un « effet »)
 
 const UI = preload("res://src/presentation/ui_style.gd")
 const Portraits = preload("res://src/proto/portraits.gd")
@@ -129,6 +130,7 @@ func advance() -> void:
 
 func pick(i: int) -> void:
 	var c: Dictionary = _choices[i]
+	choisi.emit(c)
 	_choices = []
 	_draw_choices()
 	_queue = c.get("then", []).duplicate(true) + _queue

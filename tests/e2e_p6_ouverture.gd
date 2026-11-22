@@ -89,13 +89,19 @@ func _run() -> void:
 	_check(c.battle.get_combatant("commandant") != null, "adversaire : le commandant de la Guilde")
 	var t1: bool = await _attendre(func(): return c.etape_courante() == "presentation" and c.guide.visible, 900)
 	_check(t1, "tutoriel : première explication affichée")
-	# Échap : on ne quitte pas l'évaluation
+	# Échap : demande de confirmation ; « Non » (Échap de nouveau) laisse le joueur dans le combat
 	var ev := InputEventKey.new()
 	ev.keycode = KEY_ESCAPE
 	ev.pressed = true
 	root.push_input(ev)
 	await _frames(3)
-	_check(c.trace().any(func(e): return e["type"] == "quitter_refuse"), "Échap pendant le tutoriel : refusé par une réplique")
+	_check(c._confirm_box.est_ouverte(), "Échap pendant le tutoriel : confirmation demandée")
+	var ev2 := InputEventKey.new()
+	ev2.keycode = KEY_ESCAPE
+	ev2.pressed = true
+	root.push_input(ev2)
+	await _frames(3)
+	_check(not c._confirm_box.est_ouverte() and c.trace().any(func(e): return e["type"] == "saut_annule"), "« Non » : le tutoriel continue")
 	_check(current_scene == c, "le joueur reste dans le combat")
 	# déroulé joué par le guide en mode démonstration (avec une action non prévue au premier essai)
 	c._cli_auto = true

@@ -83,3 +83,16 @@ static func reinitialiser() -> void:
 ## Instantané sérialisable (sauvegarde, rapport de test).
 static func instantane() -> Dictionary:
 	return {CLE_ETAT: etat(), CLE_OBJECTIF: objectif(), CLE_COLISEE_ROUVERT: _gs().flags.get(CLE_COLISEE_ROUVERT, false)}
+
+
+## CONCLUSION COMMUNE du tutoriel (P6.2) : utilisée par la fin normale du combat, par le saut pendant le combat et par
+## le saut dans le dialogue du commandant. Elle produit exactement le même retour : résultat « tutorial_completed »
+## (ni victoire ni défaite, aucune récompense), puis chargement du Colisée, qui applique l'état, l'objectif, la
+## position devant le commandant et son dialogue de fin (scenes/p6/colisee.gd, branche « retour du tutoriel »).
+static func conclure_tutoriel(scene_retour := "") -> void:
+	var gs := _gs()
+	var retour := scene_retour if scene_retour != "" else (str(gs.explore_return) if str(gs.explore_return) != "" else SCENE_COLISEE)
+	gs.last_battle_result = RESULTAT_TUTORIEL
+	gs.from_zone = false
+	gs.explore_return = retour
+	gs.goto(retour, 0.5)

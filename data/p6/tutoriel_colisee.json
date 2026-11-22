@@ -125,6 +125,7 @@
  ],
  "interjections": {
   "quitter": "L'évaluation n'est pas terminée, recrue. On ne quitte pas l'arène en plein combat.",
-  "attendre": "Écoutez d'abord. Appuyez sur Entrée ou cliquez pour continuer."
+  "attendre": "Écoutez d'abord. Appuyez sur Entrée ou cliquez pour continuer.",
+  "saut": "Très bien, nous en resterons là. Vous connaissez l'essentiel : le reste viendra avec l'expérience."
  }
 }

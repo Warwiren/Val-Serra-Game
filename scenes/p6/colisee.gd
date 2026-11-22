@@ -92,6 +92,7 @@ func _ready() -> void:
 	s.build_hud()
 	s._help.text = "Flèches / ZQSD : marcher  ·  Maj : courir  ·  E / Entrée : parler, examiner  ·  Molette : zoom  ·  C : caméra  ·  B : Aren  ·  H : habillage  ·  F1 : infos"
 	_build_ui()
+	_dialog.choisi.connect(_on_choix)
 	_build_ui_p6()
 	_build_tilt()
 	_env()
@@ -830,6 +831,39 @@ func _on_dialog_closed() -> void:
 		"lancer_tutoriel":
 			if qui == "commandant" and not Progression.au_moins(Progression.TUTORIAL_IN_PROGRESS):
 				_lancer_tutoriel()
+		"passer_tutoriel":
+			if qui == "commandant" and not Progression.au_moins(Progression.TUTORIAL_IN_PROGRESS):
+				_passer_tutoriel()
+
+
+## Démonstration / tests : réponse automatique. Les réponses à effet (passer le tutoriel) ne sont prises que sur demande
+## (-- --passer_tutoriel) ; sinon --choix=N parmi les réponses ordinaires.
+func _choix_auto(choix: Array) -> int:
+	var ordinaires: Array = []
+	for i in choix.size():
+		if choix[i].has("effet"):
+			if _cli.has("passer_tutoriel"):
+				return i
+		else:
+			ordinaires.append(i)
+	if ordinaires.is_empty():
+		return 0
+	return ordinaires[clampi(int(_cli.get("choix", 0)), 0, ordinaires.size() - 1)]
+
+
+## P6.2 — réponse choisie dans un dialogue : une réponse peut remplacer l'effet du dialogue (ex. passer le tutoriel).
+func _on_choix(c: Dictionary) -> void:
+	if c.has("effet"):
+		_effet = str(c["effet"])
+		_log("choix", {"effet": _effet})
+
+
+## P6.2 — saut du tutoriel depuis le dialogue : même conclusion que la fin du combat (Progression.conclure_tutoriel).
+func _passer_tutoriel() -> void:
+	_bloque = true
+	s.dialogue_open = true
+	_log("tutoriel_passe", {"moment": "dialogue"})
+	Progression.conclure_tutoriel(scene_file_path)
 
 
 func _lancer_tutoriel() -> void:
@@ -909,7 +943,7 @@ func _physics_process(delta: float) -> void:
 		if _auto_dialog_t > 0.5:
 			_auto_dialog_t = 0.0
 			if _dialog.showing_choice():
-				_dialog.pick(clampi(int(_cli.get("choix", 0)), 0, 2))
+				_dialog.pick(_choix_auto(_dialog._choices))
 			else:
 				_dialog.advance()
 	super._physics_process(delta)

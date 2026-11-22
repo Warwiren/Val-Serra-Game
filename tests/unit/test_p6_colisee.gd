@@ -130,14 +130,18 @@ func test_pnj_et_dialogues() -> void:
 	# le commandant : choix de réponses (3) qui aboutissent tous au tutoriel
 	var cmd: Dictionary = dia["commandant"][-1]
 	check_eq(cmd.get("effet", ""), "lancer_tutoriel", "commandant : le dialogue lance le tutoriel")
-	var choix: Array = []
+	var choix_tous: Array = []
 	for st in cmd["etapes"]:
 		if st.has("choice"):
-			choix = st["choice"]
+			choix_tous.append(st["choice"])
+	check_eq(choix_tous.size(), 2, "commandant : deux moments de choix (réponse, puis commencer / passer)")
+	var choix: Array = choix_tous[0]
 	check_eq(choix.size(), 3, "commandant : trois réponses au choix")
 	for c in choix:
 		check(c["then"].size() >= 2, "réponse « %s » : réplique adaptée du commandant" % c["label"])
-	check(cmd["etapes"][-1]["who"] == "pnj", "commandant : réplique commune après le choix")
+	var dec: Array = choix_tous[1]
+	check(dec.size() == 2 and not dec[0].has("effet") and dec[1].get("effet", "") == "passer_tutoriel",
+		"commandant : « Commencer l'entraînement » / « Passer le tutoriel » (effet passer_tutoriel)")
 	check_eq(dia["garde_vestiaires"][-1].get("effet", ""), "consigne_arene", "garde des vestiaires : donne l'objectif")
 
 
