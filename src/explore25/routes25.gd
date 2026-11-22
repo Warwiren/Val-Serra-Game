@@ -296,6 +296,18 @@ static func _route_base(name: String) -> Array:
 				outv.append({"do": "wait", "t": 1.4})
 				outv.append({"do": "snap", "id": c[0]})
 			return outv
+		"p6_complet_captures":
+			# P6.2-D — Colisée complet : arène, tunnel est, coursive, accès secondaires, sortie est (après le tutoriel)
+			var outc: Array = []
+			for c in [["c01_arene_centre", 26.0, 24.0], ["c02_arene_ouest", 16.5, 23.0], ["c03_arene_est", 35.5, 23.0],
+					["c04_arene_nord", 26.0, 16.5], ["c05_tunnel_est_entree", 39.5, 23.0], ["c06_tunnel_est_milieu", 41.5, 23.0],
+					["c07_coursive_ouest", 45.5, 23.0], ["c08_coursive_centre", 50.0, 23.0], ["c09_coursive_nord_loge", 50.0, 13.4],
+					["c10_coursive_sud", 50.0, 32.6], ["c11_infirmerie", 46.6, 37.8], ["c12_reserve_porte", 53.0, 33.2],
+					["c13_gradins_est_porte", 54.8, 16.0], ["c14_sortie_couloir", 59.5, 23.0], ["c15_sortie_porte", 63.0, 23.0]]:
+				outc.append(_warp(c[1], c[2], 0.0))
+				outc.append({"do": "wait", "t": 1.5})
+				outc.append({"do": "snap", "id": c[0]})
+			return outc
 		"p6_captures":
 			return [
 				{"do": "wait", "t": 1.5},

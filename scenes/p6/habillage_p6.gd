@@ -202,7 +202,11 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 		var a1 := TAU * (i + 1) / n
 		var am := (a0 + a1) / 2.0
 		var sud := maxf(0.0, sin(am))
-		var k_h := lerpf(1.0, 0.42, sud)
+		# P6.2-D : gradins sud-est abaissés aussi (entre le tunnel est et le sud) : vus de la caméra, ils couvraient le
+		# tunnel est et Aren qui y passe (affichage seulement : aucune collision)
+		var deg := rad_to_deg(fposmod(am, TAU))
+		var se := smoothstep(4.0, 16.0, deg) * (1.0 - smoothstep(60.0, 80.0, deg))
+		var k_h := lerpf(1.0, 0.42, maxf(sud, se))
 		if _dans_tunnel(c, rx + ep + prof * 0.5, ry + ep + prof * 0.5, am, tunnels) or _dans_tunnel(c, rx + ep * 0.5, ry + ep * 0.5, am, tunnels) or _dans_tunnel(c, rx + ep + prof - 0.2, ry + ep + prof - 0.2, am, tunnels):
 			continue
 		var allee := fposmod(rad_to_deg(am), 30.0) < 2.6

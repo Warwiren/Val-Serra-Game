@@ -57,6 +57,8 @@ func _init(defs: Array, m := "continu") -> void:
 			"ouverte": bool(d.get("zone_ouverte", false))}
 		if d.has("revele_ext"):
 			s["revele"] = d["revele_ext"]
+		if d.has("voile_pos"):
+			s["voile_pos"] = d["voile_pos"]
 		secteurs.append(s)
 		par_id[d["id"]] = s
 
@@ -231,6 +233,37 @@ func plafonds(racine: Node3D, h_min := 0.0) -> void:
 			mi.set_meta("hors_secteurs", true)
 			mi.name = "Plafond_" + s["id"]
 			racine.add_child(mi)
+			if s["fond"] == "sombre" and mode != "echelle":
+				# P6.2-D : toiture visible depuis l'extérieur à ciel ouvert (arène) quand la pièce n'est pas en vue :
+				# un bâtiment couvert, pas un sol vu par-dessus les murs
+				var toit := MeshInstance3D.new()
+				var tb := BoxMesh.new()
+				tb.size = Vector3(rr.size.x, 0.18, rr.size.y)
+				toit.mesh = tb
+				toit.position = Vector3(rr.get_center().x, h + 0.32, rr.get_center().y)
+				toit.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+				toit.material_override = _mat_toit()
+				toit.set_meta("hors_secteurs", true)
+				toit.name = "Toit_" + s["id"]
+				toit.visible = false
+				racine.add_child(toit)
+				_toits.append({"node": toit, "membres": [s["id"]], "montre": false, "tween": null, "geos": [toit], "lum": [], "toit": true})
+
+
+var _toits: Array = []
+var _mat_toit_cache: StandardMaterial3D
+
+
+func _mat_toit() -> StandardMaterial3D:
+	if _mat_toit_cache == null:
+		_mat_toit_cache = StandardMaterial3D.new()
+		_mat_toit_cache.albedo_color = Color(0.36, 0.22, 0.18)
+		_mat_toit_cache.roughness = 1.0
+	return _mat_toit_cache
+
+
+func toits_visibles() -> Array:
+	return _toits.filter(func(t): return t["montre"]).map(func(t): return t["membres"][0])
 
 
 ## Secteur qui serait actif en p (sans rien changer) : la scène s'en sert en mode « porte » pour lancer son fondu.
@@ -256,6 +289,9 @@ func mettre_a_jour(p: Vector2, immediat := false) -> bool:
 		_basculer(g, _groupe_montre(g), instant)
 	for w in _murs:
 		_couper(w, _doit_couper(w), instant)
+	for t in _toits:
+		var id: String = t["membres"][0]
+		_basculer(t, fond() != "sombre" and not visibles.has(id) and not _devant([id]), instant)
 	return true
 
 
@@ -285,7 +321,26 @@ func _groupe_montre(g: Dictionary) -> bool:
 		return false
 	# continu / porte : une pièce non visible n'est masquée que si elle est DEVANT la pièce active (sinon les murs
 	# hauts la cachent déjà : rien ne doit disparaître sous les yeux du joueur)
+	if fond() == "sombre":
+		# P6.2-D : depuis un intérieur, seule une pièce entièrement DERRIÈRE reste rendue (cachée par le mur du fond) ; une
+		# pièce voisine sur le côté (réserve vue de l'infirmerie) n'est cachée par rien : elle n'est pas rendue
+		return _derriere(m)
 	return not _devant(m)
+
+
+## Les secteurs `m` sont-ils entièrement plus loin que la pièce active (au-delà de son mur du fond) ?
+func _derriere(m: Array) -> bool:
+	if actif == EXT or m.has(EXT):
+		return false
+	var vers_fond := -World25.toward_cam()
+	var loin_actif := -INF
+	for r in par_id[actif]["rects"]:
+		loin_actif = maxf(loin_actif, _prof_max(r, vers_fond))
+	for id in m:
+		for r in par_id[id]["rects"]:
+			if _prof_min(r, vers_fond) < loin_actif - 0.3:
+				return false
+	return true
 
 
 ## Les secteurs `m` sont-ils entièrement du côté de la caméra par rapport à la pièce active ?
@@ -371,6 +426,11 @@ func voile_ext_pour(p: Vector2) -> float:
 	if s.has("revele"):
 		var r: Array = s["revele"]
 		return clampf((p.y - r[1]) / (r[0] - r[1]), 0.0, 1.0)
+	if s.has("voile_pos"):
+		# P6.2-D : voile selon la position le long d'un axe ["x" | "y", coord. visible, coord. masquée] (continu, sans seuil)
+		var vp: Array = s["voile_pos"]
+		var c: float = p.x if vp[0] == "x" else p.y
+		return clampf((c - float(vp[1])) / (float(vp[2]) - float(vp[1])), 0.0, 1.0)
 	return 0.0 if visibles.has(EXT) else 1.0
 
 

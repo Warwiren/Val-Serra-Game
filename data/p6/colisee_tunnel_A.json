@@ -3067,12 +3067,42 @@
      ],
      "voisins": [
       "S3",
+      "S5",
       "EXT"
      ],
      "fond": "ciel",
      "zone_ouverte": true,
      "camera": false
+    },
+    {
+     "id": "S5",
+     "nom": "Tunnel est",
+     "rects": [
+      [
+       38.5,
+       21.5,
+       44.0,
+       24.5
+      ]
+     ],
+     "voisins": [
+      "S4",
+      "S6",
+      "EXT"
+     ],
+     "fond": "sombre",
+     "plafond_h": 3.2,
+     "camera": false
     }
+   ],
+   "jours": [
+    [
+     38.8,
+     23.0,
+     2.2,
+     1.2,
+     5.5
+    ]
    ],
    "lumieres": [
     [

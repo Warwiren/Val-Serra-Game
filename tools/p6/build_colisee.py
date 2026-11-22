@@ -276,9 +276,16 @@ def _colisee_base():
              "plafond_h": 3.1, "camera": False},
             # P6.2-C : l'arène, « zone ouverte » : pièce de référence pour les coupes (les murs du bâtiment situés devant
             # perdent leur partie haute) ; son décor reste celui du niveau (EXT)
-            {"id": "S4", "nom": "Arène", "rects": [[13.5, 14.0, 38.5, 32.0]], "voisins": ["S3", "EXT"], "fond": "ciel",
+            {"id": "S4", "nom": "Arène", "rects": [[13.5, 14.0, 38.5, 32.0]], "voisins": ["S3", "S5", "EXT"], "fond": "ciel",
              "zone_ouverte": True, "camera": False},
+            # P6.2-D : reste du Colisée. Tunnel est = passage couvert sous les gradins (l'arène et la coursive restent en vue
+            # à ses deux bouts) ; coursive = galerie intérieure ; infirmerie ; réserve (fermée : jamais active, vue en coupe
+            # depuis la coursive) ; couloir de sortie vers la ville
+            {"id": "S5", "nom": "Tunnel est", "rects": [[38.5, 21.5, 44.0, 24.5]], "voisins": ["S4", "S6", "EXT"], "fond": "sombre",
+             "plafond_h": 3.2, "camera": False},
         ],
+        # P6.2-D : lumière du jour aux bouches vers l'extérieur [x, y, h, énergie, portée] (tunnel sud : voir la scène)
+        "jours": [[38.8, 23.0, 2.2, 1.2, 5.5]],
         # [x, y, h, dx, dz] : applique murale ; (dx, dz) = décalage de la lumière vers la pièce (P6.2 : murs latéraux
         # et mur du fond des vestiaires, plus aucune lumière plaquée devant les casiers)
         "lumieres": [[16.2, 48.3, 2.3, 0.7, 0.0], [35.8, 54.0, 2.3, -0.7, 0.0], [23.4, 46.55, 2.5, 0.0, 0.6], [28.6, 46.55, 2.5, 0.0, 0.6],

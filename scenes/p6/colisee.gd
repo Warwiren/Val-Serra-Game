@@ -1325,6 +1325,18 @@ func _suivi_secteur(delta: float) -> void:
 		_env_res.background_color = _env_res.background_color.lerp(_fond_but, k)
 		if _sect.a_ciel_ouvert() and vue_tunnel_amount < 0.01 and _hab != null:
 			_env_res.background_mode = Environment.BG_SKY     # P6.2-D : ciel réel une fois la vue du tunnel effacée
+	if _sect.mode != "echelle" and _sect.fond() == "sombre" and _sect.actif != "S3":
+		# P6.2-D : près d'un seuil vers l'arène (tunnel est, coursive), la lumière ambiante dépend de la distance à l'arène,
+		# pas du changement de pièce : rien ne change d'un coup au franchissement
+		var dmin := INF
+		for sd in _sect.secteurs:
+			if sd["ouverte"]:
+				for r in sd["rects"]:
+					var rr: Rect2 = r
+					var hp2 := Vector2(s.hero.x, s.hero.y)
+					dmin = minf(dmin, hp2.distance_to(Vector2(clampf(hp2.x, rr.position.x, rr.end.x), clampf(hp2.y, rr.position.y, rr.end.y))))
+		if dmin < 3.0:
+			_env_res.ambient_light_energy = lerpf(0.62 if _hab != null else 0.85, 0.42, smoothstep(0.0, 3.0, dmin))
 	if vue_tunnel_amount > 0.0 and _sect.actif in ["S3", "S4"]:
 		# P6.2-D : lumière ambiante liée à la position dans le tunnel (pas de bascule au seuil de l'arène)
 		_env_res.ambient_light_energy = lerpf(0.62 if _hab != null else 0.85, 0.42, vue_tunnel_amount)
@@ -1555,6 +1567,16 @@ func _jour_du_tunnel() -> void:
 	l.position = Vector3(26.0, 2.0, 31.2)
 	l.set_meta("hors_secteurs", true)
 	root.add_child(l)
+	# P6.2-D : autres bouches vers le jour (sortie est vers la ville, tunnel est côté arène)
+	for j in _p6.get("jours", []):
+		var lj := OmniLight3D.new()
+		lj.light_color = Color(1.0, 0.92, 0.78)
+		lj.light_energy = float(j[3])
+		lj.omni_range = float(j[4])
+		lj.omni_attenuation = 1.4
+		lj.position = Vector3(j[0], j[2], j[1])
+		lj.set_meta("hors_secteurs", true)
+		root.add_child(lj)
 
 
 ## Mode C : bref fondu sombre, nouvelle pièce appliquée d'un coup, caméra recalée, retour de l'image.
