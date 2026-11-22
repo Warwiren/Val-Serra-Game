@@ -46,6 +46,72 @@ func mat(path: String, tile: float, tint: Color, hole := false, antitile := fals
 	return m
 
 
+## P6.3.1 : matériau en « UV du maillage » (les UV sont déjà en mètres / tuile, calculés par _rq / _rt).
+func mat_uv(path: String, tint: Color, hole := false, eclat := 1.0) -> ShaderMaterial:
+	var k := "uv|%s|%s|%s|%s" % [path, tint, hole, eclat]
+	if _mats.has(k):
+		return _mats[k]
+	var m := ShaderMaterial.new()
+	m.shader = SURF_SH
+	m.set_shader_parameter("tex", load(path))
+	m.set_shader_parameter("uv_mode", 1.0)
+	m.set_shader_parameter("tint", tint * eclat if eclat != 1.0 else tint)
+	m.set_shader_parameter("hole", 1.0 if hole else 0.0)
+	m.set_shader_parameter("macro", 0.06)
+	_mats[k] = m
+	return m
+
+
+var _arcs := {}
+
+
+## Longueur d'arc (m) sur l'ellipse (rx, ry) de l'angle 0 à a (table de 720 pas, a dans [0, 2π]).
+func _arc_s(rx: float, ry: float, a: float) -> float:
+	var k := "%.3f|%.3f" % [rx, ry]
+	if not _arcs.has(k):
+		var t := PackedFloat32Array()
+		t.resize(721)
+		var acc := 0.0
+		var prev := Vector2(rx, 0.0)
+		for i in range(1, 721):
+			var aa := TAU * i / 720.0
+			var p := Vector2(rx * cos(aa), ry * sin(aa))
+			acc += p.distance_to(prev)
+			prev = p
+			t[i] = acc
+		_arcs[k] = t
+	var tab: PackedFloat32Array = _arcs[k]
+	var f := clampf(a / TAU * 720.0, 0.0, 720.0)
+	var i0 := int(floor(f))
+	var i1 := mini(i0 + 1, 720)
+	return lerpf(tab[i0], tab[i1], f - i0)
+
+
+## Face verticale d'anneau, UV métriques : u = longueur d'arc / tuile, v = hauteur / tuile (blocs horizontaux).
+func _rq(c: Vector2, rx: float, ry: float, a0: float, a1: float, h0: float, h1: float, tuile := 0.0) -> Array:
+	var t := tuile if tuile > 0.0 else 1.8
+	var p0 := Vector3(c.x + rx * cos(a0), h0, c.y + ry * sin(a0))
+	var p1 := Vector3(c.x + rx * cos(a1), h0, c.y + ry * sin(a1))
+	var s0 := _arc_s(rx, ry, a0) / t
+	var s1 := _arc_s(rx, ry, a1) / t
+	return [[p0, Vector3(p0.x, h1, p0.z), Vector3(p1.x, h1, p1.z), p1], [Vector2(s0, -h0 / t), Vector2(s0, -h1 / t), Vector2(s1, -h1 / t), Vector2(s1, -h0 / t)]]
+
+
+## Dessus d'anneau, UV métriques le long de l'arc ; planches : les lames suivent l'arc (u radial, v = arc).
+func _rt(c: Vector2, rx0: float, ry0: float, rx1: float, ry1: float, a0: float, a1: float, h: float, planches := false) -> Array:
+	var t := 1.2 if planches else 1.8
+	var p0 := Vector3(c.x + rx0 * cos(a0), h, c.y + ry0 * sin(a0))
+	var p1 := Vector3(c.x + rx0 * cos(a1), h, c.y + ry0 * sin(a1))
+	var q1 := Vector3(c.x + rx1 * cos(a1), h, c.y + ry1 * sin(a1))
+	var q0 := Vector3(c.x + rx1 * cos(a0), h, c.y + ry1 * sin(a0))
+	var s0 := _arc_s(rx0, ry0, a0) / t
+	var s1 := _arc_s(rx0, ry0, a1) / t
+	var w := (rx1 - rx0) / t
+	if planches:
+		return [[p0, q0, q1, p1], [Vector2(0, s0), Vector2(w, s0), Vector2(w, s1), Vector2(0, s1)]]
+	return [[p0, q0, q1, p1], [Vector2(s0, 0), Vector2(s0, w), Vector2(s1, w), Vector2(s1, 0)]]
+
+
 func uni(c: Color, rough := 0.9, metal := 0.0) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
 	m.albedo_color = c
@@ -147,6 +213,12 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 	var pierre_claire := mat(PIERRE, 2.4, C_CALCAIRE * Color(1.1, 1.08, 1.06), true)
 	var pierre_sombre := mat(PIERRE, 2.4, C_CALCAIRE * Color(0.78, 0.76, 0.76), true)
 	var bois := mat(PLANCHES, 1.6, Color(0.62, 0.5, 0.44))
+	# P6.3.1 : anneaux (podium, gradins, enceinte, colonnade) en UV MÉTRIQUES qui suivent la courbe (_rq / _rt) et
+	# matériaux distincts : la projection « UV monde » faisait pivoter et étirer les briques sur les faces courbes
+	var u_pierre := mat_uv(PIERRE, C_CALCAIRE, true)                                       # contremarches, enceinte
+	var u_dalle := mat_uv(PIERRE, C_CALCAIRE * Color(1.12, 1.1, 1.08), true, 0.9)          # dessus des marches, chaperon
+	var u_bois := mat_uv(PLANCHES, Color(0.62, 0.5, 0.44), true)                           # assises (planches le long de l'arc)
+	var u_esc := mat_uv(PIERRE, C_CALCAIRE * Color(0.9, 0.86, 0.84), true, 0.75)          # escaliers
 	# sable
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -171,11 +243,11 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 		var a1 := TAU * (i + 1) / n
 		if _dans_tunnel(c, rx + ep * 0.5, ry + ep * 0.5, (a0 + a1) / 2.0, tunnels):
 			continue
-		podium.append(sc._ring_quad(c, rx, ry, a0, a1, 0.0, ah, 0.0))
-		chaperon.append(sc._ring_top(c, rx - 0.14, ry - 0.14, rx + ep + 0.05, ry + ep + 0.05, a0, a1, ah + 0.14))
-		chaperon.append(sc._ring_quad(c, rx - 0.14, ry - 0.14, a0, a1, ah, ah + 0.14, 0.0))
-	sc._faces(podium, pierre)
-	sc._faces(chaperon, pierre_claire)
+		podium.append(_rq(c, rx, ry, a0, a1, 0.0, ah, 0.0))
+		chaperon.append(_rt(c, rx - 0.14, ry - 0.14, rx + ep + 0.05, ry + ep + 0.05, a0, a1, ah + 0.14))
+		chaperon.append(_rq(c, rx - 0.14, ry - 0.14, a0, a1, ah, ah + 0.14, 0.0))
+	sc._faces(podium, u_pierre)
+	sc._faces(chaperon, u_dalle)
 	var k := 0
 	for i in range(0, 360, 12):
 		var an := deg_to_rad(i + 6)
@@ -226,28 +298,28 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 			var r1 := rx + ep + prof * (kk + 1) / rangs
 			var hk := (ah + 0.25 + 0.55 * (kk + 1)) * k_h + (1.0 - k_h) * 0.4
 			var hprev := ah + 0.14 if kk == 0 else (ah + 0.25 + 0.55 * kk) * k_h + (1.0 - k_h) * 0.4
-			cm_.append(sc._ring_quad(c, r0, ry + (r0 - rx), a0, a1, hprev, hk, 0.0))
+			cm_.append(_rq(c, r0, ry + (r0 - rx), a0, a1, hprev, hk, 0.0))
 			if allee:
-				es_.append(sc._ring_top(c, r0, ry + (r0 - rx), r1, ry + (r1 - rx), a0, a1, hk))
+				es_.append(_rt(c, r0, ry + (r0 - rx), r1, ry + (r1 - rx), a0, a1, hk))
 			else:
-				ma_.append(sc._ring_top(c, r0, ry + (r0 - rx), r1, ry + (r1 - rx), a0, a1, hk))
+				ma_.append(_rt(c, r0, ry + (r0 - rx), r1, ry + (r1 - rx), a0, a1, hk))
 				var rs := r0 + 0.08
-				as_.append(sc._ring_top(c, rs, ry + (rs - rx), rs + 0.34, ry + (rs + 0.34 - rx), a0, a1, hk + 0.07))
-				as_.append(sc._ring_quad(c, rs, ry + (rs - rx), a0, a1, hk, hk + 0.07, 0.0))
+				as_.append(_rt(c, rs, ry + (rs - rx), rs + 0.34, ry + (rs + 0.34 - rx), a0, a1, hk + 0.07, true))
+				as_.append(_rq(c, rs, ry + (rs - rx), a0, a1, hk, hk + 0.07, 0.0))
 		var rl := rx + ep + prof
 		var htop := (ah + 0.25 + 0.55 * rangs) * k_h + (1.0 - k_h) * 0.4
-		cm_.append(sc._ring_quad(c, rl, ry + (rl - rx), a1, a0, 0.0, htop + 0.7, 0.0))
-		cm_.append(sc._ring_top(c, rl, ry + (rl - rx), rl + 0.5, ry + (rl + 0.5 - rx), a0, a1, htop + 0.7))
-		cm_.append(sc._ring_quad(c, rl, ry + (rl - rx), a0, a1, htop, htop + 0.7, 0.0))
-	sc._faces(contremarches, pierre)
-	var mg: MeshInstance3D = sc._faces(marches, pierre_claire)
+		cm_.append(_rq(c, rl, ry + (rl - rx), a1, a0, 0.0, htop + 0.7, 0.0))
+		cm_.append(_rt(c, rl, ry + (rl - rx), rl + 0.5, ry + (rl + 0.5 - rx), a0, a1, htop + 0.7))
+		cm_.append(_rq(c, rl, ry + (rl - rx), a0, a1, htop, htop + 0.7, 0.0))
+	sc._faces(contremarches, u_pierre)
+	var mg: MeshInstance3D = sc._faces(marches, u_dalle)
 	mg.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-	sc._faces(assises, bois)
-	sc._faces(escaliers, mat(PIERRE, 1.2, C_CALCAIRE * Color(0.9, 0.86, 0.84), true))
+	sc._faces(assises, u_bois)
+	sc._faces(escaliers, u_esc)
 	if not t_contre.is_empty() and sc.has_method("tranche_gradins"):
-		var ms: Array = [sc._faces(t_contre, pierre), sc._faces(t_marches, pierre_claire), sc._faces(t_assises, bois)]
+		var ms: Array = [sc._faces(t_contre, u_pierre), sc._faces(t_marches, u_dalle), sc._faces(t_assises, u_bois)]
 		if not t_esc.is_empty():
-			ms.append(sc._faces(t_esc, mat(PIERRE, 1.2, C_CALCAIRE * Color(0.9, 0.86, 0.84), true)))
+			ms.append(sc._faces(t_esc, u_esc))
 		sc.tranche_gradins(ms)
 	# colonnade haute (moitié nord, derrière l'arène) : colonnes et architrave
 	var rl2 := rx + ep + prof + 0.25
@@ -260,9 +332,9 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 	for i in range(-168, -18, 4):
 		var a0 := deg_to_rad(i)
 		var a1 := deg_to_rad(i + 4)
-		archi.append(sc._ring_quad(c, rl2 - 0.3, ry + (rl2 - 0.3 - rx), a0, a1, htop_n + 2.3, htop_n + 2.75, 0.0))
-		archi.append(sc._ring_top(c, rl2 - 0.3, ry + (rl2 - 0.3 - rx), rl2 + 0.3, ry + (rl2 + 0.3 - rx), a0, a1, htop_n + 2.75))
-	sc._faces(archi, pierre_claire)
+		archi.append(_rq(c, rl2 - 0.3, ry + (rl2 - 0.3 - rx), a0, a1, htop_n + 2.3, htop_n + 2.75, 0.0))
+		archi.append(_rt(c, rl2 - 0.3, ry + (rl2 - 0.3 - rx), rl2 + 0.3, ry + (rl2 + 0.3 - rx), a0, a1, htop_n + 2.75))
+	sc._faces(archi, u_dalle)
 	# accès combattants : arcs à claveaux, grille relevée visible
 	for t in tunnels:
 		if (t as Rect2).size.x > (t as Rect2).size.y:      # tunnel est (vu de côté) ; au sud, un arc masquerait l'arène
@@ -416,9 +488,16 @@ func vestiaires(r: Rect2) -> void:
 	var porte := Vector2(24.5, 27.5)
 	for seg in [Vector2(r.position.x, porte.x), Vector2(porte.y, r.end.x)]:
 		sc._box_mesh(Vector3((seg.x + seg.y) * 0.5, 0.18, r.position.y - 0.02), Vector3(seg.y - seg.x, 0.36, 0.1), plinthe)
-	sc._box_mesh(Vector3(r.get_center().x, 2.82, r.position.y - 0.04), Vector3(r.size.x + 0.8, 0.22, 0.2), bois_sombre)
+	# P6.3.1 : poutre haute interrompue au droit de la porte (elle traversait l'ouverture et restait en l'air quand le
+	# mur nord est coupé) ; poutre et poteaux suivent la coupe du mur nord
+	for seg in [Vector2(r.position.x - 0.4, porte.x), Vector2(porte.y, r.end.x + 0.4)]:
+		var pt: MeshInstance3D = sc._box_mesh(Vector3((seg.x + seg.y) * 0.5, 2.82, r.position.y - 0.04), Vector3(seg.y - seg.x, 0.22, 0.2), bois_sombre)
+		if sc.get("_au_mur") != null:
+			sc._au_mur.append(pt)
 	for x in [r.position.x + 2.0, r.get_center().x - 3.6, r.get_center().x + 3.6, r.end.x - 2.0]:
-		sc._box_mesh(Vector3(x, 1.42, r.position.y - 0.02), Vector3(0.24, 2.84, 0.16), bois_sombre)
+		var po: MeshInstance3D = sc._box_mesh(Vector3(x, 1.42, r.position.y - 0.02), Vector3(0.24, 2.84, 0.16), bois_sombre)
+		if sc.get("_au_mur") != null:
+			sc._au_mur.append(po)
 	# casiers à portes (sur l'emprise des casiers des données)
 	for q in [Rect2(16.2, 46.6, 6.4, 0.6), Rect2(29.4, 46.6, 6.4, 0.6)]:
 		_casiers(q, 2.0, bois, bois_sombre)

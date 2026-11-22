@@ -91,6 +91,8 @@ func _ready() -> void:
 	_cli = parse_cli()
 	variante = "B"
 	cam_p6 = str(_cli.get("cam_p6", cam_p6)).to_upper()
+	_diag_on = _cli.has("diag")
+	eblouissement = str(_cli.get("eblouissement", eblouissement))
 	if not CAMS_P6.has(cam_p6):
 		cam_p6 = "C"
 	cam_mode = CAMS_P6[cam_p6][0]
@@ -291,6 +293,50 @@ func groupe() -> Array:
 
 
 var _props_commandant: Array = []
+
+
+# ------------------------------------------------------------------------------------------------ P6.3.1 diagnostic
+var _diag: Label
+var _diag_on := false
+
+
+## Mode de diagnostic (outil de développement, touche F10 ou -- --diag) : secteur actif, groupes rendus / masqués,
+## murs coupés, éléments translucides, position d'Aren. N'agit sur rien : lecture seule.
+func _maj_diag() -> void:
+	if not _diag_on or _sect == null:
+		if _diag != null:
+			_diag.visible = false
+		return
+	if _diag == null:
+		_diag = Label.new()
+		_diag.add_theme_font_size_override("font_size", 13)
+		_diag.add_theme_color_override("font_color", Color(1, 1, 0.75))
+		_diag.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+		_diag.add_theme_constant_override("outline_size", 4)
+		_diag.position = Vector2(12, 96)
+		var cl := CanvasLayer.new()
+		cl.layer = 60
+		add_child(cl)
+		cl.add_child(_diag)
+	_diag.visible = true
+	var rendus: Array = []
+	var masques: Array = []
+	var transl := 0
+	for k in _sect._groupes:
+		var g: Dictionary = _sect._groupes[k]
+		if (g["node"] as Node3D).visible:
+			rendus.append(k)
+		else:
+			masques.append(k)
+		for geo in g["geos"]:
+			if is_instance_valid(geo) and (geo as GeometryInstance3D).transparency > 0.001 and (geo as GeometryInstance3D).transparency < 0.999 and (geo as Node3D).is_visible_in_tree():
+				transl += 1
+	rendus.sort()
+	masques.sort()
+	_diag.text = "DIAG  Aren (%.1f, %.1f)  actif %s  en vue %s  voile %.2f\nrendus (%d) : %s\nmasqués (%d) : %s\nmurs coupés (%d) : %s\ntranslucides : %d   toits : %s" % [
+		s.hero.x, s.hero.y, _sect.actif, str(_sect.visibles), _sect.voile_ext, rendus.size(), ", ".join(PackedStringArray(rendus)),
+		masques.size(), ", ".join(PackedStringArray(masques)), _sect.murs_coupes().size(), ", ".join(PackedStringArray(_sect.murs_coupes().map(func(x): return str(x)))),
+		transl, str(_sect.toits_visibles())]
 
 
 ## P6.3 : mise en valeur du commandant (avant le tutoriel et après) : lumière chaude dirigée, râtelier derrière lui.
@@ -540,10 +586,17 @@ func _build_bloc_p6(e: Dictionary) -> void:
 			var hv := h1
 			var garde := id.begins_with("cmur_tunnel_sud")
 			var interieur := false
+			var n_int := 0
 			for m in _sect._membres_emprise(r, false):
 				if _sect.par_id.has(m) and _sect.par_id[m]["fond"] == "sombre":
 					interieur = true
+					n_int += 1
 			if interieur and tall:
+				hv = H_VIS
+			if (n_int >= 2 or id.begins_with("cmur_coursive_s")) and not garde:
+				# P6.3.1 : cloison entre deux intérieurs (coursive / infirmerie, réserve) : basse pour la pièce dont elle est
+				# le mur côté caméra, mais c'est le mur du FOND de l'autre : rendue sur toute la hauteur (collision
+				# inchangée) ; la coupe la réduit en muret quand elle est devant la pièce active
 				hv = H_VIS
 			if garde:
 				# P6.2-C : le tunnel passe sous les gradins ; ses murs (prolongés à 6 m en P6.2-B parce qu'ils touchent la
@@ -1071,6 +1124,9 @@ func _switch(t: Dictionary) -> void:
 
 # ------------------------------------------------------------------------------------------------ boucle
 func _unhandled_input(e: InputEvent) -> void:
+	if e is InputEventKey and e.pressed and not e.echo and (e as InputEventKey).keycode == KEY_F10:
+		_diag_on = not _diag_on                # P6.3.1 : diagnostic de visibilité (outil de développement)
+		return
 	if _switching or _bloque:
 		return
 	if _dialog.is_open():
@@ -1124,6 +1180,7 @@ func _physics_process(delta: float) -> void:
 	_pnj_step(delta)
 	_suivi_secteur(delta)
 	_afficher_touches()
+	_maj_diag()
 	_suivi_zones()
 	_commandant_auto()
 	if _cli.has("quitter_fin") and s.pilot_done and s.pilot_name in ["p6_apres", "p6_video_complet_apres"] and not _dialog.is_open() and not s.dialogue_open:
@@ -1405,6 +1462,7 @@ func _suivi_secteur(delta: float) -> void:
 var _vue_tunnel: MeshInstance3D
 var vue_tunnel_amount := 0.0                 # mesure / tests
 var vue_tunnel_ferme := 0.0
+var eblouissement := "discret"               # P6.3.1 : -- --eblouissement=actuel|aucun|discret
 
 
 ## P6.2-C : vue depuis le tunnel. Un point de l'arène n'est affiché que si la ligne de vue d'Aren passe par la bouche du
@@ -1451,6 +1509,7 @@ func _maj_vue_tunnel() -> void:
 		mat.set_shader_parameter("portee", e["portee"])
 		mat.set_shader_parameter("eblouit", e["eblouit"])
 		mat.set_shader_parameter("couleur", Color(0.05, 0.04, 0.045))
+		mat.set_shader_parameter("jour", Color(0.96, 0.88, 0.72) if eblouissement == "actuel" else Color(0.86, 0.72, 0.5))
 
 
 ## P6.2-D : état de la vue du tunnel pour une position (fonction pure : tests, mesures). Dépend de la seule position
@@ -1467,8 +1526,18 @@ func vue_tunnel_etat(hp: Vector2) -> Dictionary:
 	var a := (1.0 - smoothstep(float(cx[1]), float(cx[2]), absf(hp.x - float(cx[0])))) * smoothstep(float(vt["libre"]), float(vt["plein"]), hp.y)
 	a *= 1.0 - smoothstep(entree + 0.6, entree + 1.0, hp.y)
 	var prog := 1.0 - clampf((hp.y - z0) / maxf(entree - z0, 0.1), 0.0, 1.0)
-	return {"amount": a, "ferme": smoothstep(entree - 0.9, entree - 0.4, hp.y), "portee": 8.0 * pow(prog, 1.5),
-		"eblouit": lerpf(0.8, 0.4, prog), "progression": prog}
+	# P6.3.1 : éblouissement « actuel » (P6.2-D / P6.3 : nappe claire), « aucun » (lignes de vue seules) ou « discret »
+	# (proposé : léger voile chaud, portée plus longue : le commandant et le sable restent lisibles, pas de trou blanc)
+	var eb := 0.0
+	var portee := 8.0 * pow(prog, 1.5)
+	match eblouissement:
+		"actuel":
+			eb = lerpf(0.8, 0.4, prog)
+		"discret":
+			eb = lerpf(0.32, 0.12, prog)
+			portee = 6.0 + 8.0 * prog
+	return {"amount": a, "ferme": smoothstep(entree - 0.9, entree - 0.4, hp.y), "portee": portee,
+		"eblouit": eb, "progression": prog}
 
 
 var _touches: Label
@@ -1698,13 +1767,6 @@ func _porte_habillee(r: Rect2) -> void:
 	var rot := atan2(dir.x, dir.y)
 	# contre la face intérieure du mur (épaisseur 0,4 m) : sinon le mur continu cache la porte
 	var d3 := Vector3(dir.x, 0, dir.y)
-	if dir.y < -0.5:
-		# mur côté caméra (abaissé pour la lisibilité) : vantaux coupés à la hauteur du mur, sans encadrement
-		var ax := Vector3(cos(rot), 0, -sin(rot))
-		for side in [-1.0, 1.0]:
-			var bd: Vector3 = Vector3(c.x, 0, c.y) + ax * float(side) * w * 0.5 + d3 * 0.22
-			modele("mv/Door_8_Round", bd, rot, Vector3(-float(side) * w * 0.5 / 1.15, 1.0 / 2.36, 1.0))
-		return
 	var cadre := modele("mv/DoorFrame_Round_Brick", Vector3(c.x, 0, c.y) + d3 * 0.1, rot, Vector3((w + 0.5) / 1.6, 1.0, 1.0), Color(1.05, 1.0, 0.95))
 	_au_mur.append(cadre)
 	var lw := w * 0.5
@@ -1717,35 +1779,36 @@ func _porte_habillee(r: Rect2) -> void:
 		cadre.set_meta("porte", true)
 
 
-## P6.3 : tranche de gradins devant le tunnel est (maillages construits par l'habillage) : coupée quand Aren est dans le
-## tunnel est (S5), entière ailleurs. Aucune collision (les gradins n'en ont pas : seul le podium bloque).
+## P6.3 / P6.3.1 : tranche de gradins devant le tunnel est (maillages construits par l'habillage). P6.3 la coupait
+## quand Aren était dans le tunnel est : l'enceinte paraissait trouée et le sol de dessous visible. P6.3.1 : elle n'est
+## JAMAIS coupée (enceinte continue) ; un volume d'occultation sans collision ouvre la trouée locale tramée (système
+## validé en forêt) quand elle passe devant Aren. Aucune collision (les gradins n'en ont pas : seul le podium bloque).
 func tranche_gradins(meshes: Array) -> void:
-	if _sect == null or _sect.mode == "echelle":
-		return
-	var pivot := Node3D.new()
-	pivot.name = "tranche_gradins_se"
-	pivot.set_meta("mur", true)
-	root.add_child(pivot)
-	var haut: Array = []
 	var aabb := AABB()
 	var premier := true
 	for m in meshes:
 		var mi := m as MeshInstance3D
 		if mi == null:
 			continue
-		mi.reparent(pivot)
-		haut.append(mi)
 		var a := mi.get_aabb()
 		aabb = a if premier else aabb.merge(a)
 		premier = false
-	pivot.set_meta("xz", Vector2(aabb.get_center().x, aabb.get_center().z))
-	# dallage sous la tranche : une fois coupée, on voit un sol (une coupe), pas le vide
-	var ms: Material = _hab.mat(Habillage.PAVES, 1.6, Color(0.62, 0.58, 0.6)) if _hab != null else _tinted("paves", Color(0.6, 0.58, 0.62))
-	var dal := _box_mesh(Vector3(aabb.get_center().x, -0.04, aabb.get_center().z), Vector3(aabb.size.x, 0.1, aabb.size.z), ms)
-	dal.set_meta("xz", Vector2(aabb.get_center().x, aabb.get_center().z))
-	var coupe := _box_mesh(Vector3(aabb.get_center().x, 0.01, aabb.get_center().z), Vector3(0.01, 0.01, 0.01), _mat_coupe(), pivot)
-	_sect.declarer_mur(pivot, coupe, Rect2(aabb.position.x, aabb.position.z, aabb.size.x, aabb.size.z), 0.0, aabb.end.y, haut, null, false, ["S5"])
-
+	if premier:
+		return
+	# volume découpé en tranches radiales grossières : il suit l'anneau au lieu de couvrir le tunnel et l'arène
+	var arene: Dictionary = _p6.get("arene", {})
+	if arene.is_empty():
+		return
+	var c := Vector2(arene["centre"][0], arene["centre"][1])
+	var rx: float = float(arene["rayons"][0]) + float(arene["anneau_ep"])
+	var ry: float = float(arene["rayons"][1]) + float(arene["anneau_ep"])
+	var prof: float = arene["gradins_prof"]
+	for deg in range(4, 46, 6):
+		var am := deg_to_rad(deg + 3.0)
+		var r_mid := 0.5 * prof
+		var p := Vector2(c.x + (rx + r_mid) * cos(am), c.y + (ry + r_mid) * sin(am))
+		var sb := _static_box(Vector3(p.x, aabb.end.y * 0.5, p.y), Vector3(prof * 0.9, aabb.end.y, 1.6), L_OCC)
+		sb.rotation.y = -atan2(ry * sin(am), rx * cos(am))
 
 ## P6.2-D : naissance de la voûte du tunnel (passage couvert vu en coupe) : deux ressauts vers l'intérieur au sommet du
 ## mur, assombris ; le passage d'Aren (axe, 2,2 m de large) reste dégagé à l'écran.

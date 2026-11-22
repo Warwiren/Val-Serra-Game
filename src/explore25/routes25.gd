@@ -392,6 +392,53 @@ static func _route_base(name: String) -> Array:
 			return outg
 		"p6_porte_vestiaires":
 			return [_warp(26.0, 48.6, 0.0), {"do": "wait", "t": 1.5}, {"do": "snap", "id": "porte"}]
+		"p6_defauts_631":
+			# P6.3.1 — positions exactes des anomalies relevées sur la vidéo P6.3 (captures annotées du créateur)
+			var outd: Array = []
+			for c in [["d1_vestiaires_passage", 26.0, 47.0], ["d1b_passage_seuil", 26.0, 45.4], ["d2_tunnel_sud_milieu", 26.0, 34.4],
+					["d3_gradins_courbes", 26.0, 28.4], ["d4_tunnel_est_depuis_arene", 36.4, 23.6], ["d4b_tunnel_est_interieur", 41.4, 23.0],
+					["d5_coursive_raccord", 44.9, 23.4], ["d6_infirmerie", 46.6, 36.0], ["d6b_infirmerie_porte", 46.6, 34.6]]:
+				outd.append(_warp(c[1], c[2], 0.0))
+				outd.append({"do": "wait", "t": 1.6})
+				outd.append({"do": "snap", "id": c[0]})
+			return outd
+		"p6_infirmerie_diag":
+			return [_warp(46.6, 36.0, 0.0), {"do": "wait", "t": 1.6}, {"do": "snap", "id": "inf"}]
+		"p6_video_631":
+			# P6.3.1 — contrôle en mouvement : vestiaires -> salle -> tunnel sud -> arène -> tunnel est -> coursive ->
+			# infirmerie -> coursive, allers-retours aux seuils, passages près des murs
+			return [
+				_warp(26.0, 51.5, 0.0),
+				{"do": "wait", "t": 1.0},
+				_go(24.0, 49.7, "vestiaires : vers le nord", 0.3),
+				_go(17.6, 49.7, "vestiaires : coin nord-ouest (près du mur)", 0.3),
+				_go(26.0, 47.2, "vers la porte nord", 0.25),
+				_go(26.0, 45.6, "passage", 0.2),
+				_go(26.0, 47.0, "retour au seuil des vestiaires", 0.2),
+				_go(26.0, 43.6, "salle d'attente", 0.2),
+				_go(21.2, 41.0, "salle : près du mur ouest", 0.3),
+				_go(26.0, 38.6, "vers le tunnel", 0.25),
+				_go(26.0, 34.5, "tunnel sud : milieu", 0.2),
+				_go(26.0, 36.8, "retour vers l'entrée du tunnel", 0.2),
+				_go(26.0, 30.2, "débouché dans l'arène", 0.2),
+				_go(26.0, 33.0, "de nouveau dans le tunnel", 0.2),
+				_go(26.0, 26.0, "arène", 0.25),
+				_go(34.0, 25.5, "arène : vers le tunnel est (gradins sud-est)", 0.3),
+				_go(36.6, 23.0, "arène : axe du tunnel est", 0.3),
+				_go(41.2, 23.0, "tunnel est : milieu", 0.25),
+				_go(37.0, 23.0, "retour dans l'arène", 0.25),
+				_go(44.8, 23.0, "coursive : seuil", 0.25),
+				_go(44.8, 30.0, "coursive : le long du mur ouest", 0.3),
+				_go(46.6, 33.6, "porte de l'infirmerie", 0.25),
+				_go(46.6, 37.0, "infirmerie", 0.25),
+				_go(47.2, 40.4, "infirmerie : fond (près du mur)", 0.3),
+				_go(46.6, 34.6, "infirmerie : porte", 0.25),
+				_go(46.6, 33.0, "coursive", 0.25),
+				_go(46.6, 35.2, "de nouveau l'infirmerie", 0.2),
+				_go(50.0, 28.0, "coursive", 0.3),
+				_go(55.0, 31.0, "coursive : coin sud-est (près de la réserve)", 0.3),
+				{"do": "wait", "t": 1.0},
+			]
 		"p6_captures":
 			return [
 				{"do": "wait", "t": 1.5},
