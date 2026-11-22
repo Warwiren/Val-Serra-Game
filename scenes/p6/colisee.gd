@@ -453,7 +453,8 @@ func _build(e: Dictionary) -> void:
 				_box_mesh(_rect_center(r, e["h"] - th, e["h"] - 0.01), Vector3(r.size.x, th - 0.01, r.size.y), _tinted("paves", Color(0.5, 0.48, 0.55)))
 			else:
 				var d: Array = SOLS.get(sol, SOLS["paves"])
-				_box_mesh(_rect_center(r, e["h"] - th, e["h"]), Vector3(r.size.x, th, r.size.y), _tinted(d[0], d[1]))
+				var ms := _box_mesh(_rect_center(r, e["h"] - th, e["h"]), Vector3(r.size.x, th, r.size.y), _tinted(d[0], d[1]))
+				ms.set_meta("sol", true)          # P6.3 : structure (une pièce vue en coupe garde son sol)
 		"block":
 			_build_bloc_p6(e)
 		"gate":
@@ -608,7 +609,8 @@ func _build_p6() -> void:
 		var q: Array = _p6["pieces_fermees"][pid]["rect"]
 		var r := Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1])
 		var d: Array = SOLS.get(_p6["pieces_fermees"][pid]["sol"], SOLS["paves"])
-		_box_mesh(_rect_center(r, -0.3, 0.0), Vector3(r.size.x, 0.3, r.size.y), _tinted(d[0], d[1] * Color(0.7, 0.7, 0.75)))
+		var mf := _box_mesh(_rect_center(r, -0.3, 0.0), Vector3(r.size.x, 0.3, r.size.y), _tinted(d[0], d[1] * Color(0.7, 0.7, 0.75)))
+		mf.set_meta("sol", true)
 	for p in _p6.get("portes", []):
 		_build_porte(p)
 	for l in _p6.get("lumieres", []):
@@ -632,8 +634,9 @@ func _build_p6() -> void:
 			_banniere(Vector3(21.0, 0.0, 46.3 + _dy_sud), Color(0.25, 0.32, 0.75))
 			_banniere(Vector3(31.0, 0.0, 46.3 + _dy_sud), Color(0.25, 0.32, 0.75))
 			_banniere(Vector3(26.0, 0.0, 54.95 + _dy_sud), Color(0.72, 0.6, 0.25), 1.6)      # bannière de la Guilde (sud, basse)
-		_banniere(Vector3(45.0, 0.0, 11.75), Color(0.72, 0.18, 0.22))
-		_banniere(Vector3(55.0, 0.0, 11.75), Color(0.72, 0.18, 0.22))
+		# P6.3 : bannières de la coursive sur la face intérieure du mur nord (elles étaient prises dans le mur)
+		_banniere(Vector3(45.6, 0.0, 12.06), Color(0.72, 0.18, 0.22))
+		_banniere(Vector3(54.4, 0.0, 12.06), Color(0.72, 0.18, 0.22))
 	else:
 		_banniere(Vector3(27.6, 0.0, 6.5), Color(0.72, 0.6, 0.25), 1.8)       # panneau de la Guilde (provisoire)
 
@@ -662,7 +665,9 @@ func _build_porte(p: Dictionary) -> void:
 	mark.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mark.albedo_color = col
 	var mr := r.grow(0.06)
-	_box_mesh(Vector3(mr.get_center().x, 0.012, mr.get_center().y), Vector3(mr.size.x, 0.02, mr.size.y), mark)
+	if _hab == null:
+		# marque au sol aux couleurs du plan : lecture du blockout seulement (P6.3 : pas avec l'habillage)
+		_box_mesh(Vector3(mr.get_center().x, 0.012, mr.get_center().y), Vector3(mr.size.x, 0.02, mr.size.y), mark)
 	if ouverte:
 		if p.get("type", "") == "grille":
 			_box_mesh(_rect_center(r, 2.5, 2.7), Vector3(r.size.x, 0.2, r.size.y), _tinted("pierre", Color(0.6, 0.6, 0.66)))
@@ -1523,6 +1528,32 @@ func _linteaux() -> void:
 			_static_box(_rect_center(r, lb - 0.6, lh), Vector3(r.size.x, lh - lb + 0.6, r.size.y), L_OCC)
 		var coupe := _box_mesh(_rect_center(r, lb - 0.01, lb + 0.01), Vector3(0.01, 0.01, 0.01), _mat_coupe(), pivot)
 		_sect.declarer_mur(pivot, coupe, r, lb, lh, haut, null, arc)
+
+
+## P6.3 : tranche de gradins devant le tunnel est (maillages construits par l'habillage) : coupée quand Aren est dans le
+## tunnel est (S5), entière ailleurs. Aucune collision (les gradins n'en ont pas : seul le podium bloque).
+func tranche_gradins(meshes: Array) -> void:
+	if _sect == null or _sect.mode == "echelle":
+		return
+	var pivot := Node3D.new()
+	pivot.name = "tranche_gradins_se"
+	pivot.set_meta("mur", true)
+	root.add_child(pivot)
+	var haut: Array = []
+	var aabb := AABB()
+	var premier := true
+	for m in meshes:
+		var mi := m as MeshInstance3D
+		if mi == null:
+			continue
+		mi.reparent(pivot)
+		haut.append(mi)
+		var a := mi.get_aabb()
+		aabb = a if premier else aabb.merge(a)
+		premier = false
+	pivot.set_meta("xz", Vector2(aabb.get_center().x, aabb.get_center().z))
+	var coupe := _box_mesh(Vector3(aabb.get_center().x, 0.01, aabb.get_center().z), Vector3(0.01, 0.01, 0.01), _mat_coupe(), pivot)
+	_sect.declarer_mur(pivot, coupe, Rect2(aabb.position.x, aabb.position.z, aabb.size.x, aabb.size.z), 0.0, aabb.end.y, haut, null, false, ["S5"])
 
 
 ## P6.2-D : naissance de la voûte du tunnel (passage couvert vu en coupe) : deux ressauts vers l'intérieur au sommet du

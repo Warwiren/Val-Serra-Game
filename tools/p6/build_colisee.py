@@ -261,7 +261,10 @@ def _colisee_base():
         "linteaux": [[24.5, 46.1, 27.5, 46.5], [24.5, 44.5, 27.5, 44.9], [24.5, 37.1, 27.5, 37.5],
                      # P6.2-C : arc de la bouche du tunnel côté arène [x0, y0, x1, y1, bas, haut] (bas : il encadre la vue
                      # vers le commandant sans couper le sable ; coupé dès qu'Aren est dans l'arène)
-                     [24.1, 31.6, 27.9, 32.0, 2.3, 3.1]],
+                     [24.1, 31.6, 27.9, 32.0, 2.3, 3.1],
+                     # P6.3 : ouvertures des murs prolongés du reste du bâtiment (au-dessus : un trou noir jusqu'à 6 m)
+                     [49.0, 11.6, 51.0, 12.0], [56.0, 15.0, 56.4, 17.0], [43.6, 21.5, 44.0, 24.5],
+                     [56.0, 21.5, 56.4, 24.5], [65.0, 21.5, 65.4, 24.5]],
         # P6.2-C : vue depuis le tunnel = lignes de vue réelles à travers sa bouche (voir src/p6/vue_tunnel.gdshader)
         "vue_tunnel": {"bouche": [24.5, 27.5, 32.0], "interieur": [[15.5, 37.0, 36.5, 56.0], [24.0, 31.95, 28.0, 37.6]],
                        "plein": 32.0, "libre": 29.6, "couloir_x": [26.0, 2.0, 4.0]},

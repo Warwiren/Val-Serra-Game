@@ -178,7 +178,9 @@ func classer(hote: Node, racine: Node3D) -> void:
 					traverses.append("%s %s" % [n.name, str(m)])
 		m.sort()
 		var k := "|".join(PackedStringArray(m))
-		var mur: bool = n.has_meta("mur") and mode != "echelle"
+		# P6.3 : les sols des pièces sont de la structure, comme les murs (une pièce située devant, vue en coupe, garde
+		# son sol au lieu de laisser un vide noir entre ses murets)
+		var mur: bool = (n.has_meta("mur") or n.has_meta("sol")) and mode != "echelle"
 		if mur:
 			k = "MUR:" + k                        # structure : groupes à part, jamais masqués en continu
 		if not _groupes.has(k):
@@ -210,8 +212,10 @@ func _collecter(g: Dictionary) -> void:
 ## `occ` = occulteur du moteur (désactivé dès que le mur s'efface).
 ## `garde` (P6.2-C) : mur porteur d'un passage (tunnel) ; il n'est jamais coupé parce qu'il est « devant » la pièce
 ## active, seulement s'il en cache réellement le sol.
-func declarer_mur(pivot: Node3D, coupe: Node3D, rect: Rect2, h0: float, h1: float, haut: Array = [], occ: Node3D = null, garde := false) -> void:
-	_murs.append({"pivot": pivot, "coupe": coupe, "rect": rect, "h0": h0, "h1": h1, "haut": haut, "occ": occ, "coupe_on": false, "tween": null, "garde": garde})
+## `seulement` (P6.3) : si non vide, l'élément n'est coupé QUE lorsque la pièce active en fait partie (tranche de gradins
+## devant le tunnel est : coupée dans le tunnel, entière vue de l'arène).
+func declarer_mur(pivot: Node3D, coupe: Node3D, rect: Rect2, h0: float, h1: float, haut: Array = [], occ: Node3D = null, garde := false, seulement: Array = []) -> void:
+	_murs.append({"pivot": pivot, "coupe": coupe, "rect": rect, "h0": h0, "h1": h1, "haut": haut, "occ": occ, "coupe_on": false, "tween": null, "garde": garde, "seulement": seulement})
 	coupe.visible = false
 	stats["murs"] = _murs.size()
 
@@ -381,6 +385,8 @@ func _prof_max(r: Rect2, d: Vector2) -> float:
 ## Un mur est coupé seulement s'il cache réellement le sol du secteur actif depuis la caméra : son ombre portée vers
 ## l'arrière-plan (hauteur affichée / tan(plongée)) recoupe le secteur.
 func _doit_couper(w: Dictionary) -> bool:
+	if not (w.get("seulement", []) as Array).is_empty():
+		return (w["seulement"] as Array).has(actif)
 	var h: float = w["h1"] - w["h0"]
 	if actif == EXT or h <= H_MIN_COUPE:
 		return false

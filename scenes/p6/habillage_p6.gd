@@ -197,6 +197,12 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 	var marches: Array = []
 	var assises: Array = []
 	var escaliers: Array = []
+	# P6.3 : tranche de gradins au sud du tunnel est, en maillages séparés : vue de la caméra, elle couvre le passage ;
+	# elle s'estompe seulement quand Aren est dans le tunnel est (coupe), et reste entière vue de l'arène
+	var t_contre: Array = []
+	var t_marches: Array = []
+	var t_assises: Array = []
+	var t_esc: Array = []
 	for i in n:
 		var a0 := TAU * i / n
 		var a1 := TAU * (i + 1) / n
@@ -210,29 +216,39 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 		if _dans_tunnel(c, rx + ep + prof * 0.5, ry + ep + prof * 0.5, am, tunnels) or _dans_tunnel(c, rx + ep * 0.5, ry + ep * 0.5, am, tunnels) or _dans_tunnel(c, rx + ep + prof - 0.2, ry + ep + prof - 0.2, am, tunnels):
 			continue
 		var allee := fposmod(rad_to_deg(am), 30.0) < 2.6
+		var tranche := deg >= 2.0 and deg <= 46.0
+		var cm_: Array = t_contre if tranche else contremarches
+		var ma_: Array = t_marches if tranche else marches
+		var as_: Array = t_assises if tranche else assises
+		var es_: Array = t_esc if tranche else escaliers
 		for kk in rangs:
 			var r0 := rx + ep + prof * kk / rangs
 			var r1 := rx + ep + prof * (kk + 1) / rangs
 			var hk := (ah + 0.25 + 0.55 * (kk + 1)) * k_h + (1.0 - k_h) * 0.4
 			var hprev := ah + 0.14 if kk == 0 else (ah + 0.25 + 0.55 * kk) * k_h + (1.0 - k_h) * 0.4
-			contremarches.append(sc._ring_quad(c, r0, ry + (r0 - rx), a0, a1, hprev, hk, 0.0))
+			cm_.append(sc._ring_quad(c, r0, ry + (r0 - rx), a0, a1, hprev, hk, 0.0))
 			if allee:
-				escaliers.append(sc._ring_top(c, r0, ry + (r0 - rx), r1, ry + (r1 - rx), a0, a1, hk))
+				es_.append(sc._ring_top(c, r0, ry + (r0 - rx), r1, ry + (r1 - rx), a0, a1, hk))
 			else:
-				marches.append(sc._ring_top(c, r0, ry + (r0 - rx), r1, ry + (r1 - rx), a0, a1, hk))
+				ma_.append(sc._ring_top(c, r0, ry + (r0 - rx), r1, ry + (r1 - rx), a0, a1, hk))
 				var rs := r0 + 0.08
-				assises.append(sc._ring_top(c, rs, ry + (rs - rx), rs + 0.34, ry + (rs + 0.34 - rx), a0, a1, hk + 0.07))
-				assises.append(sc._ring_quad(c, rs, ry + (rs - rx), a0, a1, hk, hk + 0.07, 0.0))
+				as_.append(sc._ring_top(c, rs, ry + (rs - rx), rs + 0.34, ry + (rs + 0.34 - rx), a0, a1, hk + 0.07))
+				as_.append(sc._ring_quad(c, rs, ry + (rs - rx), a0, a1, hk, hk + 0.07, 0.0))
 		var rl := rx + ep + prof
 		var htop := (ah + 0.25 + 0.55 * rangs) * k_h + (1.0 - k_h) * 0.4
-		contremarches.append(sc._ring_quad(c, rl, ry + (rl - rx), a1, a0, 0.0, htop + 0.7, 0.0))
-		contremarches.append(sc._ring_top(c, rl, ry + (rl - rx), rl + 0.5, ry + (rl + 0.5 - rx), a0, a1, htop + 0.7))
-		contremarches.append(sc._ring_quad(c, rl, ry + (rl - rx), a0, a1, htop, htop + 0.7, 0.0))
+		cm_.append(sc._ring_quad(c, rl, ry + (rl - rx), a1, a0, 0.0, htop + 0.7, 0.0))
+		cm_.append(sc._ring_top(c, rl, ry + (rl - rx), rl + 0.5, ry + (rl + 0.5 - rx), a0, a1, htop + 0.7))
+		cm_.append(sc._ring_quad(c, rl, ry + (rl - rx), a0, a1, htop, htop + 0.7, 0.0))
 	sc._faces(contremarches, pierre)
 	var mg: MeshInstance3D = sc._faces(marches, pierre_claire)
 	mg.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	sc._faces(assises, bois)
 	sc._faces(escaliers, mat(PIERRE, 1.2, C_CALCAIRE * Color(0.9, 0.86, 0.84), true))
+	if not t_contre.is_empty() and sc.has_method("tranche_gradins"):
+		var ms: Array = [sc._faces(t_contre, pierre), sc._faces(t_marches, pierre_claire), sc._faces(t_assises, bois)]
+		if not t_esc.is_empty():
+			ms.append(sc._faces(t_esc, mat(PIERRE, 1.2, C_CALCAIRE * Color(0.9, 0.86, 0.84), true)))
+		sc.tranche_gradins(ms)
 	# colonnade haute (moitié nord, derrière l'arène) : colonnes et architrave
 	var rl2 := rx + ep + prof + 0.25
 	var htop_n := ah + 0.25 + 0.55 * rangs + 0.7
@@ -387,7 +403,10 @@ func vestiaires(r: Rect2) -> void:
 	for e in [[r.position.x, r.position.y, r.size.x, 0.45], [r.position.x, r.end.y - 0.45, r.size.x, 0.45], [r.position.x, r.position.y, 0.45, r.size.y], [r.end.x - 0.45, r.position.y, 0.45, r.size.y]]:
 		sc._box_mesh(Vector3(e[0] + e[2] / 2.0, 0.012, e[1] + e[3] / 2.0), Vector3(e[2], 0.02, e[3]), mat(PAVES, 1.6, Color(0.8, 0.76, 0.74)))
 	# plinthes et poutre haute le long du mur nord (vu de face)
-	sc._box_mesh(Vector3(r.get_center().x, 0.18, r.position.y - 0.02), Vector3(r.size.x, 0.36, 0.1), plinthe)
+	# P6.3 : plinthe interrompue au droit de la porte nord (elle formait une « marche » de 36 cm qu'Aren traversait)
+	var porte := Vector2(24.5, 27.5)
+	for seg in [Vector2(r.position.x, porte.x), Vector2(porte.y, r.end.x)]:
+		sc._box_mesh(Vector3((seg.x + seg.y) * 0.5, 0.18, r.position.y - 0.02), Vector3(seg.y - seg.x, 0.36, 0.1), plinthe)
 	sc._box_mesh(Vector3(r.get_center().x, 2.82, r.position.y - 0.04), Vector3(r.size.x + 0.8, 0.22, 0.2), bois_sombre)
 	for x in [r.position.x + 2.0, r.get_center().x - 3.6, r.get_center().x + 3.6, r.end.x - 2.0]:
 		sc._box_mesh(Vector3(x, 1.42, r.position.y - 0.02), Vector3(0.24, 2.84, 0.16), bois_sombre)
