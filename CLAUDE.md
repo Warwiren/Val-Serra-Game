@@ -120,6 +120,12 @@
   seulement », collisions jamais touchées) — prototype vestiaires / passage / salle / tunnel EN ATTENTE de validation ;
   ne pas l'étendre à l'arène ni à la coursive sans accord. Saut du tutoriel : `Progression.conclure_tutoriel()`
   (conclusion commune), test `tests/e2e_p6_saut_tutoriel.gd`.
+- **P6.2-B (branche `p6-2b-transitions-interieurs`, `docs/P6_2B_TRANSITIONS.md`)** : le créateur a refusé les pièces
+  qui descendent / remontent (mode A conservé en comparaison, touche J). Mode B « continu » proposé (EN ATTENTE) : aucune
+  géométrie ne bouge ; murs = structure persistante (groupes « MUR: », prolongés à 6 m dans les intérieurs, linteaux) ;
+  seules les pièces DEVANT la pièce active et l'extérieur s'estompent sur place ; arène révélée selon la position
+  (`revele_ext`) ; seuils stables (0,4 m) ; occultation du moteur activée dans le Colisée. Mode C (fondu de porte)
+  réservé aux vraies portes fermées. Ne pas généraliser à l'arène ni à la coursive sans accord.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.

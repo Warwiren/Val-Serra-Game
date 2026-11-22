@@ -43,8 +43,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p6-2-colisee-circulation-visibilite`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p6-2-colisee-circulation-visibilite`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p6-2b-transitions-interieurs`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p6-2b-transitions-interieurs`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -87,6 +87,9 @@ masque de collision avant / après.
    **azimut 0° validé le 22/11/2026** (`colisee.tscn` et `colisee_azimut0.tscn` ; ancienne référence 20° : `colisee_azimut20.tscn`).
    **Étape B** : vestiaires et salle d'attente en vrais intérieurs (visibilité par secteurs, murs de premier plan coupés,
    lanternes à ombres douces), tutoriel qu'on peut passer (dialogue du commandant, ou Échap en combat avec confirmation). Rapport et nouveau plan : `docs/P6_2_CIRCULATION_VISIBILITE.md`.
+   **Branche `p6-2b-transitions-interieurs`** : F5 inchangé ; `colisee.tscn` (F6) démarre avec les transitions
+   **continues** (mode B : architecture persistante, estompage sur place) ; **touche J** : A (P6.2) / B / C (fondu de porte).
+   Rapport : `docs/P6_2B_TRANSITIONS.md`.
 
 ### Commandes — forêt V07B (F5)
 
@@ -118,7 +121,7 @@ masque de collision avant / après.
 | **E** / Entrée / Espace | parler, examiner ; faire avancer le dialogue ; ↑ / ↓ puis E : choisir une réponse |
 | **Molette** (ou PgPréc / PgSuiv) | zoom ×2 / ×2,5 / ×3 |
 | En combat tutoriel | Entrée / Espace / clic : suite de l'explication ; puis commandes habituelles du combat ; Échap : refusé |
-| **C** / **B** / **H** | caméra (A / B / C) ; apparence d'Aren (forêt / P4.8) ; habillage (pilote / blockout) |
+| **C** / **B** / **H** / **J** | caméra (A / B / C) ; apparence d'Aren (forêt / P4.8) ; habillage (pilote / blockout) ; transitions des intérieurs (A / B / C) |
 | **P** | parcours automatique (avant ou après le tutoriel) ; **F1** : informations |
 
 ### Commandes — démo de l'avant-poste (F6)
