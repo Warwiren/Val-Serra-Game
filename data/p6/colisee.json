@@ -2941,8 +2941,44 @@
      37.1,
      27.5,
      37.5
+    ],
+    [
+     24.1,
+     31.6,
+     27.9,
+     32.0,
+     2.3,
+     3.1
     ]
    ],
+   "vue_tunnel": {
+    "bouche": [
+     24.5,
+     27.5,
+     32.0
+    ],
+    "interieur": [
+     [
+      15.5,
+      37.0,
+      36.5,
+      56.0
+     ],
+     [
+      24.0,
+      31.95,
+      28.0,
+      37.6
+     ]
+    ],
+    "plein": 32.0,
+    "libre": 29.6,
+    "couloir_x": [
+     26.0,
+     2.0,
+     4.0
+    ]
+   },
    "secteurs": [
     {
      "id": "S1",
@@ -2996,11 +3032,7 @@
       "S3"
      ],
      "fond": "sombre",
-     "plafond_h": 3.4,
-     "revele_ext": [
-      43.5,
-      38.2
-     ]
+     "plafond_h": 3.4
     },
     {
      "id": "S3",
@@ -3017,8 +3049,27 @@
       "S2",
       "EXT"
      ],
+     "fond": "sombre",
+     "plafond_h": 3.1,
+     "camera": false
+    },
+    {
+     "id": "S4",
+     "nom": "Arène",
+     "rects": [
+      [
+       13.5,
+       14.0,
+       38.5,
+       32.0
+      ]
+     ],
+     "voisins": [
+      "S3",
+      "EXT"
+     ],
      "fond": "ciel",
-     "plafond_h": 2.9,
+     "zone_ouverte": true,
      "camera": false
     }
    ],

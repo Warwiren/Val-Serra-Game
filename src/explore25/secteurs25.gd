@@ -53,7 +53,8 @@ func _init(defs: Array, m := "continu") -> void:
 		for q in d["rects"]:
 			rs.append(Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1]))
 		var s := {"id": d["id"], "nom": d.get("nom", d["id"]), "rects": rs, "voisins": d.get("voisins", []),
-			"fond": d.get("fond", "sombre"), "plafond_h": float(d.get("plafond_h", 0.0)), "camera": bool(d.get("camera", true))}
+			"fond": d.get("fond", "sombre"), "plafond_h": float(d.get("plafond_h", 0.0)), "camera": bool(d.get("camera", true)),
+			"ouverte": bool(d.get("zone_ouverte", false))}
 		if d.has("revele_ext"):
 			s["revele"] = d["revele_ext"]
 		secteurs.append(s)
@@ -79,7 +80,7 @@ func secteur_stable(p: Vector2) -> String:
 
 func _membres(p: Vector2) -> Array:
 	var out: Array = []
-	for s in secteurs:
+	for s in _pieces():
 		for r in s["rects"]:
 			if (r as Rect2).grow(MARGE).has_point(p):
 				out.append(s["id"])
@@ -91,7 +92,7 @@ func _membres(p: Vector2) -> Array:
 
 ## Décor ordinaire (point) : le secteur qui le contient (marge de 0,3 m), sinon EXT.
 func _proche(p: Vector2) -> String:
-	for s in secteurs:
+	for s in _pieces():
 		for r in s["rects"]:
 			if (r as Rect2).grow(0.3).has_point(p):
 				return s["id"]
@@ -103,19 +104,25 @@ func _membres_emprise(e0: Rect2, retrait := true) -> Array:
 	var out: Array = []
 	# un sol qui touche une limite n'y entre pas (retrait de 0,1 m) ; les murs, minces, gardent leur emprise exacte
 	var e := e0.grow(-0.1) if (retrait and e0.size.x > 0.3 and e0.size.y > 0.3) else e0
-	for s in secteurs:
+	for s in _pieces():
 		for r in s["rects"]:
 			if (r as Rect2).grow(0.05).intersects(e):
 				out.append(s["id"])
 				break
 	var dedans := false
-	for s in secteurs:
+	for s in _pieces():
 		for r in s["rects"]:
 			if (r as Rect2).grow(0.3).encloses(e):
 				dedans = true
 	if not dedans:
 		out.append(EXT)                    # dépasse des secteurs : appartient aussi au reste du niveau
 	return out
+
+
+## Secteurs qui rangent le décor : tous sauf les « zones ouvertes » (P6.2-C : l'arène sert de pièce de référence pour
+## les coupes et la stabilité, mais son décor reste celui du reste du niveau, EXT).
+func _pieces() -> Array:
+	return secteurs.filter(func(s): return not s["ouverte"])
 
 
 func _emprise(n: Node3D) -> Rect2:
@@ -197,8 +204,10 @@ func _collecter(g: Dictionary) -> void:
 
 ## Mur escamotable : maillages sous `pivot` (à l'origine) ; `haut` = maillages au-dessus du muret (mode continu) ;
 ## `occ` = occulteur du moteur (désactivé dès que le mur s'efface).
-func declarer_mur(pivot: Node3D, coupe: Node3D, rect: Rect2, h0: float, h1: float, haut: Array = [], occ: Node3D = null) -> void:
-	_murs.append({"pivot": pivot, "coupe": coupe, "rect": rect, "h0": h0, "h1": h1, "haut": haut, "occ": occ, "coupe_on": false, "tween": null})
+## `garde` (P6.2-C) : mur porteur d'un passage (tunnel) ; il n'est jamais coupé parce qu'il est « devant » la pièce
+## active, seulement s'il en cache réellement le sol.
+func declarer_mur(pivot: Node3D, coupe: Node3D, rect: Rect2, h0: float, h1: float, haut: Array = [], occ: Node3D = null, garde := false) -> void:
+	_murs.append({"pivot": pivot, "coupe": coupe, "rect": rect, "h0": h0, "h1": h1, "haut": haut, "occ": occ, "coupe_on": false, "tween": null, "garde": garde})
 	coupe.visible = false
 	stats["murs"] = _murs.size()
 
@@ -295,9 +304,11 @@ func _doit_couper(w: Dictionary) -> bool:
 	var h: float = w["h1"] - w["h0"]
 	if actif == EXT or h <= H_MIN_COUPE:
 		return false
+	if w.get("garde", false) and par_id[actif]["ouverte"]:
+		return false                        # P6.2-C : depuis l'arène, le tunnel garde ses murs (minces, axe de la vue)
 	var r: Rect2 = w["rect"]
 	var vers_fond := -World25.toward_cam()
-	if mode != "echelle":
+	if mode != "echelle" and not w.get("garde", false):
 		# continu : un mur haut entièrement DEVANT la pièce active (entre elle et la caméra) perd aussi sa partie haute
 		# (pas de grande masse sombre au premier plan) ; il reste son muret
 		var proche := INF
@@ -316,7 +327,13 @@ func _doit_couper(w: Dictionary) -> bool:
 ## (révélation progressive de l'arène depuis la salle d'attente, sans déclenchement brusque).
 func regler_voile_ext(t: float) -> void:
 	t = clampf(t, 0.0, 1.0)
-	if mode == "echelle" or absf(t - voile_ext) < 0.002:
+	# P6.2-C : extrémités exactes. Un voile résiduel (0,002) laissait l'arène dans la passe transparente : rendu plus cher,
+	# et aucune profondeur écrite (la vue depuis le tunnel s'appuie sur la profondeur)
+	if t < 0.004:
+		t = 0.0
+	elif t > 0.996:
+		t = 1.0
+	if mode == "echelle" or t == voile_ext:
 		return
 	voile_ext = t
 	for k in _groupes:
@@ -355,6 +372,11 @@ func camera_rect() -> Rect2:
 
 func fond() -> String:
 	return "ciel" if (actif == EXT or actif == "") else par_id[actif]["fond"]
+
+
+## Le secteur actif est-il à ciel ouvert (EXT ou zone ouverte) ? La scène y rend le vrai ciel.
+func a_ciel_ouvert() -> bool:
+	return actif == EXT or actif == "" or par_id[actif]["ouverte"]
 
 
 func nom_actif() -> String:

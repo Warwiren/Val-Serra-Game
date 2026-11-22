@@ -196,6 +196,43 @@ static func route(name: String) -> Array:
 				_go(26.0, 33.0, "tunnel : découverte de l'arène", 0.25),
 				{"do": "wait", "t": 2.0},
 			]
+		"p6_tunnel":
+			# P6.2-C — trajet continu, vitesse réelle (12 étapes demandées) : vestiaires -> salle -> tunnel -> arène -> retour
+			return [
+				_warp(26.0, 51.0, 0.0),
+				{"do": "wait", "t": 1.5},
+				_go(26.0, 47.3, "1-2 vestiaires : approche de la porte nord", 0.2),
+				{"do": "wait", "t": 0.6},
+				_go(26.0, 43.9, "3-4 passage puis arrêt juste après le seuil de la salle", 0.15),
+				{"do": "wait", "t": 1.5},
+				_go(26.0, 45.3, "5 pas en arrière (dans le passage)", 0.15),
+				{"do": "wait", "t": 0.8},
+				_go(26.0, 43.6, "5 de nouveau le seuil", 0.15),
+				{"do": "wait", "t": 0.6},
+				_go(26.0, 38.2, "6 traversée de la salle", 0.2),
+				_go(26.0, 36.6, "7 entrée dans le tunnel", 0.2),
+				_go(26.0, 34.7, "8 arrêt au milieu du tunnel", 0.15),
+				{"do": "wait", "t": 2.0},
+				_go(26.0, 32.6, "9 vers la sortie du tunnel", 0.15),
+				{"do": "wait", "t": 0.8},
+				_go(26.0, 30.4, "9 sortie dans l'arène", 0.2),
+				{"do": "wait", "t": 0.8},
+				_go(26.0, 22.6, "10 jusqu'au commandant", 0.2),
+				{"do": "wait", "t": 1.5},
+				_go(26.0, 30.0, "11 retour vers le tunnel", 0.2),
+				_go(26.0, 34.0, "12 de nouveau dans le tunnel", 0.2),
+				{"do": "wait", "t": 1.5},
+			]
+		"p6_tunnel_captures":
+			# P6.2-C — captures de comparaison : salle, milieu du tunnel, sortie du tunnel, seuil, arène
+			var out: Array = []
+			for c in [["1_salle", 26.0, 40.6], ["2_salle_fond", 26.0, 38.4], ["3_tunnel_milieu", 26.0, 34.7],
+					["4_tunnel_sortie", 26.0, 32.4], ["5_seuil_arene", 26.0, 31.0], ["6_arene_entree", 26.0, 29.0],
+					["7_arene", 26.0, 25.5], ["8_commandant", 26.0, 22.6]]:
+				out.append(_warp(c[1], c[2], 0.0))
+				out.append({"do": "wait", "t": 1.6})
+				out.append({"do": "snap", "id": c[0]})
+			return out
 		"p6_captures":
 			return [
 				{"do": "wait", "t": 1.5},

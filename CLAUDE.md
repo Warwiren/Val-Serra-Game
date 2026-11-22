@@ -126,6 +126,13 @@
   seules les pièces DEVANT la pièce active et l'extérieur s'estompent sur place ; arène révélée selon la position
   (`revele_ext`) ; seuils stables (0,4 m) ; occultation du moteur activée dans le Colisée. Mode C (fondu de porte)
   réservé aux vraies portes fermées. Ne pas généraliser à l'arène ni à la coursive sans accord.
+- **P6.2-C (branche `p6-2c-tunnel-visibilite`, `docs/P6_2C_TUNNEL_VISIBILITE.md`)** : EN ATTENTE de validation. Caméra du
+  Colisée en B / C : limites COMMUNES au bâtiment (plus de limites par pièce : bonds mesurés par
+  `tools/p6/camera_continuite_p6.gd`, 0 attendu). Arène invisible depuis la salle ; tunnel = intérieur S3, arène vue par
+  lignes de vue à travers la bouche (`src/p6/vue_tunnel.gdshader`, masque d'affichage seulement), découverte à la sortie ;
+  arène = « zone ouverte » S4 (référence des coupes, décor resté EXT) ; murs du tunnel à 3,1 m, jamais coupés ; arc bas
+  à la bouche. Le voile du niveau doit atteindre 0 / 1 exactement (sinon passe transparente). Packs Quaternius (CC0) :
+  non importés, pilote limité après validation seulement.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.

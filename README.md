@@ -43,8 +43,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p6-2b-transitions-interieurs`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p6-2b-transitions-interieurs`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p6-2c-tunnel-visibilite`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p6-2c-tunnel-visibilite`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -90,6 +90,10 @@ masque de collision avant / après.
    **Branche `p6-2b-transitions-interieurs`** : F5 inchangé ; `colisee.tscn` (F6) démarre avec les transitions
    **continues** (mode B : architecture persistante, estompage sur place) ; **touche J** : A (P6.2) / B / C (fondu de porte).
    Rapport : `docs/P6_2B_TRANSITIONS.md`.
+   **Branche `p6-2c-tunnel-visibilite`** : F5 inchangé ; `colisee.tscn` (F6), mode B : **caméra sans bonds** (limites
+   communes au bâtiment), **arène invisible depuis la salle**, vue **cadrée par la bouche du tunnel** (lignes de vue
+   réelles), découverte de l'arène **à la sortie**, plus de grands murs devant Aren dans l'arène. Rapport :
+   `docs/P6_2C_TUNNEL_VISIBILITE.md` ; mesure de continuité : `tools/p6/camera_continuite_p6.gd`.
 
 ### Commandes — forêt V07B (F5)
 

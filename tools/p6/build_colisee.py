@@ -207,17 +207,26 @@ def colisee():
         ],
         "camera_vue_dessus": [8.0, 6.0, 66.0, 57.0],
         # P6.2-B — linteaux des portes intérieures (décor : encadrement, structure continue au-dessus de 2,7 m)
-        "linteaux": [[24.5, 46.1, 27.5, 46.5], [24.5, 44.5, 27.5, 44.9], [24.5, 37.1, 27.5, 37.5]],
+        "linteaux": [[24.5, 46.1, 27.5, 46.5], [24.5, 44.5, 27.5, 44.9], [24.5, 37.1, 27.5, 37.5],
+                     # P6.2-C : arc de la bouche du tunnel côté arène [x0, y0, x1, y1, bas, haut] (bas : il encadre la vue
+                     # vers le commandant sans couper le sable ; coupé dès qu'Aren est dans l'arène)
+                     [24.1, 31.6, 27.9, 32.0, 2.3, 3.1]],
+        # P6.2-C : vue depuis le tunnel = lignes de vue réelles à travers sa bouche (voir src/p6/vue_tunnel.gdshader)
+        "vue_tunnel": {"bouche": [24.5, 27.5, 32.0], "interieur": [[15.5, 37.0, 36.5, 56.0], [24.0, 31.95, 28.0, 37.6]],
+                       "plein": 32.0, "libre": 29.6, "couloir_x": [26.0, 2.0, 4.0]},
         # P6.2 — secteurs de visibilité (prototype : vestiaires et salle d'attente ; le reste = « EXT », affiché comme avant)
         "secteurs": [
             {"id": "S1", "nom": "Vestiaires", "rects": [PIECES["vestiaires"][0]], "voisins": ["P12"], "fond": "sombre", "plafond_h": 3.4},
             {"id": "P12", "nom": "Passage des vestiaires", "rects": [PIECES["passage_vestiaires"][0]], "voisins": ["S1", "S2"],
              "fond": "sombre", "plafond_h": 3.2, "camera": False},
-            {"id": "S2", "nom": "Salle d'attente", "rects": [PIECES["salle_attente"][0]], "voisins": ["P12", "S3"], "fond": "sombre", "plafond_h": 3.4,
-             # P6.2-B : l'arène se révèle progressivement en approchant du tunnel (masquée à y >= 43,5, visible à y <= 38,2)
-             "revele_ext": [43.5, 38.2]},
-            {"id": "S3", "nom": "Tunnel des combattants", "rects": [[24.5, 32.0, 27.5, 37.5]], "voisins": ["S2", "EXT"], "fond": "ciel",
-             "plafond_h": 2.9, "camera": False},
+            {"id": "S2", "nom": "Salle d'attente", "rects": [PIECES["salle_attente"][0]], "voisins": ["P12", "S3"], "fond": "sombre", "plafond_h": 3.4},
+            # P6.2-C : le tunnel est un intérieur (sombre, couvert) ; l'arène n'y est vue qu'à travers sa bouche
+            {"id": "S3", "nom": "Tunnel des combattants", "rects": [[24.5, 32.0, 27.5, 37.5]], "voisins": ["S2", "EXT"], "fond": "sombre",
+             "plafond_h": 3.1, "camera": False},
+            # P6.2-C : l'arène, « zone ouverte » : pièce de référence pour les coupes (les murs du bâtiment situés devant
+            # perdent leur partie haute) ; son décor reste celui du niveau (EXT)
+            {"id": "S4", "nom": "Arène", "rects": [[13.5, 14.0, 38.5, 32.0]], "voisins": ["S3", "EXT"], "fond": "ciel",
+             "zone_ouverte": True, "camera": False},
         ],
         # [x, y, h, dx, dz] : applique murale ; (dx, dz) = décalage de la lumière vers la pièce (P6.2 : murs latéraux
         # et mur du fond des vestiaires, plus aucune lumière plaquée devant les casiers)

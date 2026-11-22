@@ -258,7 +258,8 @@ func test_secteurs_visibilite() -> void:
 	check_eq(sc.secteur_en(Vector2(26, 45.5)), "P12", "passage = P12")
 	check_eq(sc.secteur_en(Vector2(26, 41)), "S2", "salle d'attente = S2")
 	check_eq(sc.secteur_en(Vector2(26, 34)), "S3", "tunnel = S3")
-	check_eq(sc.secteur_en(Vector2(26, 23)), "EXT", "arène = reste du niveau (hors prototype)")
+	check_eq(sc.secteur_en(Vector2(26, 23)), "S4", "arène = zone ouverte S4 (P6.2-C : référence des coupes)")
+	check_eq(sc.secteur_en(Vector2(50, 23)), "EXT", "coursive = reste du niveau (hors prototype)")
 	# murs : pivots déclarés depuis les données
 	var murs := {}
 	for o in z["ajustements"]["obstacles"]:
@@ -285,8 +286,8 @@ func test_secteurs_visibilite() -> void:
 		"salle : murs du fond et des côtés entiers")
 	check(is_equal_approx(murs["cmur_salle_attente_s0"].scale.y, Secteurs.LIP / 1.0) and is_equal_approx(murs["cmur_vestiaires_n0"].scale.y, Secteurs.LIP / 3.0),
 		"murs coupés réduits au muret de 0,5 m (collision non concernée)")
-	sc.mettre_a_jour(Vector2(26, 23), true)
-	check(sc.murs_coupes().is_empty(), "hors prototype : aucun mur coupé (comportement P6.1)")
+	sc.mettre_a_jour(Vector2(50, 23), true)
+	check(sc.murs_coupes().is_empty(), "hors prototype (coursive) : aucun mur coupé (comportement P6.1)")
 	# groupes de visibilité
 	var racine := Node3D.new()
 	var mk := func(p: Vector2, meta := {}) -> Node3D:
@@ -371,12 +372,41 @@ func test_secteurs_continu() -> void:
 	check(vis.call(mur_vest), "B, salle : le mur des vestiaires reste (muret)")
 	check(vis.call(banc), "B : élément à cheval sur deux pièces conservé")
 	check(sc.traverses.size() >= 1, "B : éléments à cheval sur plusieurs secteurs relevés (%d)" % sc.traverses.size())
-	var v_entree: float = sc.voile_ext_pour(Vector2(26, 44.0))
-	var v_milieu: float = sc.voile_ext_pour(Vector2(26, 41.0))
-	var v_tunnel: float = sc.voile_ext_pour(Vector2(26, 38.0))
-	check(v_entree > 0.99 and v_milieu > 0.2 and v_milieu < 0.8 and v_tunnel < 0.01, "B, salle : arène révélée progressivement (%.2f / %.2f / %.2f)" % [v_entree, v_milieu, v_tunnel])
+	# P6.2-C : plus aucune révélation depuis la salle ; dans le tunnel, l'arène n'est vue qu'à travers sa bouche (masque de
+	# lignes de vue de la scène, testé dans test_vue_tunnel)
+	for y in [44.0, 41.0, 38.0]:
+		check(sc.voile_ext_pour(Vector2(26, y)) == 1.0, "B, salle (y %.0f) : arène masquée" % y)
 	sc.mettre_a_jour(Vector2(26, 34), true)
-	check(sc.voile_ext_pour(Vector2(26, 34)) == 0.0, "B, tunnel : arène entièrement visible")
+	check(sc.voile_ext_pour(Vector2(26, 34)) == 0.0, "B, tunnel : arène rendue (vue limitée par la bouche)")
+	sc.regler_voile_ext(0.5)
+	sc.regler_voile_ext(0.0013)
+	check(sc.voile_ext == 0.0, "voile : extrémité exacte (pas de résidu laissant l'arène en passe transparente)")
+	# arène S4 : les murs du bâtiment devant (salle, linteaux) perdent leur partie haute ; jamais ceux du tunnel
+	sc.mettre_a_jour(Vector2(26, 28), true)
+	check_eq(sc.actif, "S4", "arène active (zone ouverte)")
+	check_eq(sc.voile_ext_pour(Vector2(26, 28)), 0.0, "arène : visible")
+	check(sc.a_ciel_ouvert(), "arène : ciel ouvert")
+	var sc2 = Secteurs.new(_json(ZONE)["ajustements"]["p6"]["secteurs"], "continu")
+	var murs_t := {}
+	for d in [["salle_nord", Rect2(19.6, 37.1, 4.9, 0.4), 6.0, false], ["tunnel_o", Rect2(24.1, 32.0, 0.4, 5.5), 3.1, true],
+			["arc_bouche", Rect2(24.1, 31.6, 3.8, 0.4), 3.1, false]]:
+		var pv := Node3D.new()
+		pv.name = d[0]
+		var cp := MeshInstance3D.new()
+		pv.add_child(cp)
+		var haut := MeshInstance3D.new()
+		pv.add_child(haut)
+		sc2.declarer_mur(pv, cp, d[1], 2.3 if d[0] == "arc_bouche" else 0.0, d[2], [haut], null, d[3])
+		murs_t[d[0]] = pv
+	sc2.mettre_a_jour(Vector2(26, 28), true)
+	var cc: Array = sc2.murs_coupes()
+	check(cc.has("salle_nord") and cc.has("arc_bouche"), "arène : mur nord de la salle et arc de la bouche coupés (%s)" % str(cc))
+	check(not cc.has("tunnel_o"), "arène : les murs du tunnel restent entiers")
+	sc2.mettre_a_jour(Vector2(26, 34.7), true)
+	cc = sc2.murs_coupes()
+	check(cc.has("salle_nord") and not cc.has("tunnel_o") and not cc.has("arc_bouche"), "tunnel : mur de la salle coupé, murs et arc du tunnel entiers (%s)" % str(cc))
+	for k in murs_t:
+		murs_t[k].free()
 	# stabilité au seuil : depuis le passage, un petit pas dans la porte des vestiaires ne rebascule pas
 	sc.mettre_a_jour(Vector2(26, 45.5), true)
 	check_eq(sc.actif, "P12", "passage actif")

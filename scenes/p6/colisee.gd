@@ -67,6 +67,8 @@ var _auto_p6_t := 0.0
 const TRANSITIONS := {"A": "echelle", "B": "continu", "C": "porte"}
 const TRANSITIONS_LABEL := {"A": "A — P6.2 (pièces qui descendent / remontent)", "B": "B — continu (architecture persistante, estompage sur place)", "C": "C — porte (bref fondu sombre au franchissement)"}
 const H_VIS := 6.0                           # hauteur AFFICHÉE des murs d'intérieur en B / C (collision inchangée)
+const H_TUNNEL := 3.1                        # P6.2-C : murs du tunnel à hauteur de voûte (et non H_VIS), jamais coupés
+const VueTunnel := preload("res://src/p6/vue_tunnel.gdshader")
 const PORTES_C := [["P12", "S1"]]          # mode C : seuils traités comme de vraies portes (fondu)
 var transitions := "B"
 var _fondu_porte := false
@@ -293,6 +295,9 @@ func _spawn_pnj() -> void:
 		var tc: Array = d.get("teinte", [1.0, 1.0, 1.0])
 		(a["main"].material_override as ShaderMaterial).set_shader_parameter("tint", Color(CHAR_TINT.r * tc[0], CHAR_TINT.g * tc[1], CHAR_TINT.b * tc[2]))
 		var p := Vector2(d["xy"][0], d["xy"][1])
+		if _sect != null:
+			# P6.2-C : un PNJ appartient à la pièce où il se tient (son emprise de sprite débordait sur le reste du niveau)
+			a["node"].set_meta("secteur", _sect._proche(p))
 		root.add_child(a["node"])
 		a["node"].position = World25.g3(Vector3(p.x, p.y, 0.0))
 		var rg: Array = d.get("regard", [0, 1])
@@ -480,13 +485,18 @@ func _build_bloc_p6(e: Dictionary) -> void:
 			# P6.2-B : muret (persistant) + partie haute (estompée si elle cache la pièce active) ; murs d'intérieur
 			# prolongés jusqu'à H_VIS (structure continue : ils cachent les pièces voisines sans que rien ne disparaisse)
 			var hv := h1
+			var garde := id.begins_with("cmur_tunnel_sud")
 			var interieur := false
 			for m in _sect._membres_emprise(r, false):
 				if _sect.par_id.has(m) and _sect.par_id[m]["fond"] == "sombre":
 					interieur = true
 			if interieur and tall:
 				hv = H_VIS
-			_mur_continu(id, pivot, r, h0, hv, mpierre, sb)
+			if garde:
+				# P6.2-C : le tunnel passe sous les gradins ; ses murs (prolongés à 6 m en P6.2-B parce qu'ils touchent la
+				# salle) restent à hauteur de voûte : ils encadrent la vue sans dresser de grandes lames devant l'arène
+				hv = H_TUNNEL
+			_mur_continu(id, pivot, r, h0, hv, mpierre, sb, garde)
 			return
 		var mi := _box_mesh(_rect_center(r, h0, h1), size, mpierre, pivot)
 		fade_nodes[sb] = [mi]
@@ -1241,7 +1251,7 @@ func _maj_secteur(immediat := false) -> void:
 			_env_res.background_mode = Environment.BG_SKY
 	else:
 		# P6.2-B : le fond glisse (intérieur sombre chaud <-> jour), jamais de bascule brusque
-		if _sect.actif == Secteurs.EXT and _hab != null:
+		if _sect.a_ciel_ouvert() and _hab != null:
 			_env_res.background_mode = Environment.BG_SKY
 		else:
 			if _env_res.background_mode != Environment.BG_COLOR:
@@ -1253,7 +1263,11 @@ func _maj_secteur(immediat := false) -> void:
 	_amb_but = 0.42 if sombre else (0.62 if _hab != null else 0.85)
 	if immediat:
 		_env_res.ambient_light_energy = _amb_but
-	var cr: Rect2 = _sect.camera_rect()
+	# P6.2-C : en B / C, limites COMMUNES à tout le bâtiment (celles du niveau). Les limites par pièce (P6.2) faisaient
+	# sauter la caméra à chaque seuil : une pièce plus petite que la vue fige le centre sur son milieu, la suivante le
+	# relâche, et le changement de limites déplaçait la caméra même Aren arrêté (mesure : tools/p6/camera_continuite_p6.gd).
+	# Le mode A garde ses limites par pièce, pour comparaison.
+	var cr: Rect2 = _sect.camera_rect() if _sect.mode == "echelle" else Rect2()
 	_bornes_but = world.camera_bounds() if cr.size == Vector2.ZERO else _bornes_ecran(cr)
 	if immediat:
 		s.cam.bounds = _bornes_but
@@ -1284,6 +1298,56 @@ func _suivi_secteur(delta: float) -> void:
 		_sect.regler_voile_ext(lerpf(_sect.voile_ext, v, 1.0 - exp(-8.0 * delta)) if absf(v - _sect.voile_ext) > 0.01 else v)
 	if _sect.mode != "echelle" and _env_res.background_mode == Environment.BG_COLOR:
 		_env_res.background_color = _env_res.background_color.lerp(_fond_but, k)
+	_maj_vue_tunnel()
+
+
+var _vue_tunnel: MeshInstance3D
+var vue_tunnel_amount := 0.0                 # mesure / tests
+
+
+## P6.2-C : vue depuis le tunnel. Un point de l'arène n'est affiché que si la ligne de vue d'Aren passe par la bouche du
+## tunnel (src/p6/vue_tunnel.gdshader). Le cône s'ouvre à mesure qu'Aren avance ; en sortant (de « plein » à « libre »),
+## le masque s'efface : sable, gradins, loge et enceinte se découvrent selon la position, sans déclencheur.
+func _maj_vue_tunnel() -> void:
+	var vt: Dictionary = _p6.get("vue_tunnel", {})
+	if vt.is_empty() or _sect == null or _sect.mode == "echelle":
+		if _vue_tunnel != null:
+			_vue_tunnel.visible = false
+		return
+	if _vue_tunnel == null:
+		_vue_tunnel = MeshInstance3D.new()
+		_vue_tunnel.name = "VueTunnel"
+		var q := QuadMesh.new()
+		q.size = Vector2(1, 1)
+		_vue_tunnel.mesh = q
+		_vue_tunnel.custom_aabb = AABB(Vector3(-1.0e5, -1.0e5, -1.0e5), Vector3(2.0e5, 2.0e5, 2.0e5))
+		_vue_tunnel.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var m := ShaderMaterial.new()
+		m.shader = VueTunnel
+		m.render_priority = Material.RENDER_PRIORITY_MAX
+		var b: Array = vt["bouche"]
+		m.set_shader_parameter("bouche", Vector3(b[0], b[1], b[2]))
+		var ins: Array = vt["interieur"]
+		m.set_shader_parameter("interieur0", Vector4(ins[0][0], ins[0][1], ins[0][2], ins[0][3]))
+		m.set_shader_parameter("interieur1", Vector4(ins[1][0], ins[1][1], ins[1][2], ins[1][3]))
+		_vue_tunnel.material_override = m
+		_vue_tunnel.set_meta("hors_secteurs", true)
+		cam.add_child(_vue_tunnel)
+		_vue_tunnel.position = Vector3(0, 0, -1.0)
+	var hp := Vector2(s.hero.x, s.hero.y)
+	var cx: Array = vt["couloir_x"]
+	var a := 0.0
+	if _sect.actif in ["S2", "S3", "S4"]:
+		a = (1.0 - smoothstep(float(cx[1]), float(cx[2]), absf(hp.x - float(cx[0])))) * smoothstep(float(vt["libre"]), float(vt["plein"]), hp.y)
+	vue_tunnel_amount = a
+	_vue_tunnel.visible = a > 0.001
+	if _vue_tunnel.visible:
+		var mat := _vue_tunnel.material_override as ShaderMaterial
+		var b2: Array = vt["bouche"]
+		mat.set_shader_parameter("eye", Vector2(clampf(hp.x, float(b2[0]) + 0.1, float(b2[1]) - 0.1), hp.y))
+		mat.set_shader_parameter("amount", a)
+		var fc: Color = _env_res.background_color if _env_res.background_mode == Environment.BG_COLOR else Color(0.05, 0.04, 0.045)
+		mat.set_shader_parameter("couleur", Color(fc.r, fc.g, fc.b))
 
 
 var _touches: Label
@@ -1316,7 +1380,7 @@ func secteur_actif() -> String:
 
 # ------------------------------------------------------------------------------------------------ P6.2-B
 ## Mur en deux parties : muret persistant (0 -> LIP) et partie haute (LIP -> hv) ; tranche sombre ; occulteur du moteur.
-func _mur_continu(id: String, pivot: Node3D, r: Rect2, h0: float, hv: float, mpierre: Material, sb: StaticBody3D) -> void:
+func _mur_continu(id: String, pivot: Node3D, r: Rect2, h0: float, hv: float, mpierre: Material, sb: StaticBody3D, garde := false) -> void:
 	var lip: float = Secteurs.LIP
 	var bas := _box_mesh(_rect_center(r, h0, lip), Vector3(r.size.x, lip - h0, r.size.y), mpierre, pivot)
 	fade_nodes[sb] = [bas]
@@ -1343,7 +1407,7 @@ func _mur_continu(id: String, pivot: Node3D, r: Rect2, h0: float, hv: float, mpi
 		occ.occluder = bo
 		occ.position = _rect_center(r, lip, hv)
 		pivot.add_child(occ)
-	_sect.declarer_mur(pivot, coupe, r, h0, hv, haut, occ)
+	_sect.declarer_mur(pivot, coupe, r, h0, hv, haut, occ, garde)
 
 
 ## Linteaux des portes intérieures (au-dessus de 2,7 m, jusqu'au haut des murs) : encadrements lisibles, structure
@@ -1354,17 +1418,25 @@ func _linteaux() -> void:
 	var mp: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE, true) if _hab != null else _surf("pierre", true)
 	for q in _p6.get("linteaux", []):
 		var r := Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1])
+		var lb: float = q[4] if q.size() > 5 else 2.7       # P6.2-C : arc bas à la bouche du tunnel [.., bas, haut]
+		var lh: float = q[5] if q.size() > 5 else H_VIS
 		var pivot := Node3D.new()
 		pivot.name = "linteau_%d_%d" % [int(r.position.x * 10), int(r.position.y * 10)]
 		pivot.set_meta("xz", r.get_center())
 		pivot.set_meta("mur", true)
 		root.add_child(pivot)
 		var haut: Array = []
-		haut.append(_box_mesh(_rect_center(r, 2.7, 3.0), Vector3(r.size.x, 0.3, r.size.y), _hab.mat(Habillage.PIERRE, 1.2, Habillage.C_CALCAIRE * Color(1.1, 1.06, 1.0), true) if _hab != null else mp, pivot))
-		var msombre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.42, 0.38, 0.38), true) if _hab != null else mp
-		haut.append(_box_mesh(_rect_center(r, 3.0, H_VIS), Vector3(r.size.x, H_VIS - 3.0, r.size.y), msombre, pivot))
-		var coupe := _box_mesh(_rect_center(r, 2.69, 2.71), Vector3(0.01, 0.01, 0.01), _mat_coupe(), pivot)
-		_sect.declarer_mur(pivot, coupe, r, 2.7, H_VIS, haut, null)
+		var mclair: Material = _hab.mat(Habillage.PIERRE, 1.2, Habillage.C_CALCAIRE * Color(1.1, 1.06, 1.0), true) if _hab != null else mp
+		if lh < 3.5:
+			# arc de la bouche : un bandeau de pierre claire et son chaperon, sans masse sombre au-dessus
+			haut.append(_box_mesh(_rect_center(r, lb, lh), Vector3(r.size.x, lh - lb, r.size.y), mp, pivot))
+			haut.append(_box_mesh(_rect_center(r.grow(0.06), lh, lh + 0.12), Vector3(r.size.x + 0.12, 0.12, r.size.y + 0.12), mclair, pivot))
+		else:
+			haut.append(_box_mesh(_rect_center(r, lb, 3.0), Vector3(r.size.x, 3.0 - lb, r.size.y), mclair, pivot))
+			var msombre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.42, 0.38, 0.38), true) if _hab != null else mp
+			haut.append(_box_mesh(_rect_center(r, 3.0, lh), Vector3(r.size.x, lh - 3.0, r.size.y), msombre, pivot))
+		var coupe := _box_mesh(_rect_center(r, lb - 0.01, lb + 0.01), Vector3(0.01, 0.01, 0.01), _mat_coupe(), pivot)
+		_sect.declarer_mur(pivot, coupe, r, lb, lh, haut, null)
 
 
 ## P6.2-B : la lumière du jour de l'arène entre par le bout du tunnel (une vraie source, pas un panneau).
