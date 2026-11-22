@@ -324,7 +324,8 @@ func _banniere_podium(p: Vector3, an: float, _c: Vector2, _rx: float, _ry: float
 		# l'étoffe prend la couleur (plus de plaque carrée plaquée sur la pierre)
 		var vers := Vector3(_c.x - p.x, 0.0, _c.y - p.z).normalized()
 		var q := p + vers * 0.06 + Vector3(0, 1.5, 0)
-		var tis := Color(col.r * 1.6, col.g * 1.6, col.b * 1.6)
+		# l'étoffe d'origine est sombre : la teinte est fortement relevée pour garder les couleurs de la Guilde lisibles
+		var tis := Color(col.r * 3.4 + 0.25, col.g * 2.4 + 0.1, col.b * 1.5)       # étoffe d'origine bleutée : canal par canal
 		sc.modele("fp/Banner_2_Cloth", q, atan2(vers.x, vers.z), 0.7, tis, {"teinte_tissu": true})
 		return
 	var tissu := uni(col, 1.0)

@@ -379,6 +379,19 @@ static func _route_base(name: String) -> Array:
 				_go(62.5, 23.0, "sortie est", 0.2),
 				{"do": "wait", "t": 1.0},
 			]
+		"p6_gros_plans":
+			# P6.3 — gros plans : bannières depuis plusieurs positions, porte nord des vestiaires (ancienne fausse marche)
+			var outg: Array = []
+			for c in [["g1_porte_vestiaires", 26.0, 48.6], ["g2_bannieres_porte_gauche", 23.0, 48.4],
+					["g3_coursive_bannieres_ouest", 46.6, 13.4], ["g4_coursive_bannieres_est", 53.4, 13.4],
+					["g5_podium_nord", 22.0, 16.2], ["g6_podium_ouest", 15.8, 21.0], ["g7_podium_est", 36.4, 26.0],
+					["g8_commandant", 26.0, 23.4]]:
+				outg.append(_warp(c[1], c[2], 0.0))
+				outg.append({"do": "wait", "t": 1.5})
+				outg.append({"do": "snap", "id": c[0]})
+			return outg
+		"p6_porte_vestiaires":
+			return [_warp(26.0, 48.6, 0.0), {"do": "wait", "t": 1.5}, {"do": "snap", "id": "porte"}]
 		"p6_captures":
 			return [
 				{"do": "wait", "t": 1.5},

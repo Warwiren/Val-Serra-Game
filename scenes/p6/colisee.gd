@@ -527,7 +527,7 @@ func _build_bloc_p6(e: Dictionary) -> void:
 		if _hab != null and id.begins_with("cmur_tunnel_sud"):
 			h1 = h0 + 1.7                       # rendu à la hauteur des gradins sud (collision inchangée : 2,6 m)
 			size.y = h1 - h0
-		var mpierre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE, tall, true) if _hab != null else _surf("pierre", tall)
+		var mpierre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE, tall) if _hab != null else _surf("pierre", tall)
 		# P6.2 : maillages du mur sous un pivot à l'origine ; la collision (sb) reste dans l'instance, jamais modifiée
 		var pivot := Node3D.new()
 		pivot.name = id
@@ -1512,8 +1512,8 @@ func _mur_continu(id: String, pivot: Node3D, r: Rect2, h0: float, hv: float, mpi
 	if hv > 3.05:
 		# P6.2-D : partie haute en deux assises (moins brutale qu'un aplat sombre), corniche, chaperon de pierre au sommet
 		# (et non plus une tranche noire de maquette), pilastres aux extrémités des murs longs (angles, piédroits)
-		var mmoyen: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.6, 0.56, 0.55), true, true) if _hab != null else _tinted("pierre", Color(0.58, 0.56, 0.58), true)
-		var msombre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.4, 0.36, 0.36), true, true) if _hab != null else _tinted("pierre", Color(0.4, 0.38, 0.4), true)
+		var mmoyen: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.6, 0.56, 0.55), true) if _hab != null else _tinted("pierre", Color(0.58, 0.56, 0.58), true)
+		var msombre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.4, 0.36, 0.36), true) if _hab != null else _tinted("pierre", Color(0.4, 0.38, 0.4), true)
 		var hm := minf(4.3, hv)
 		haut.append(_box_mesh(_rect_center(r, 3.0, hm), Vector3(r.size.x, hm - 3.0, r.size.y), mmoyen, pivot))
 		if hv > hm + 0.05:
@@ -1632,7 +1632,9 @@ func modele(chemin: String, pos: Vector3, rot_y := 0.0, k: Variant = 1.0, teinte
 			pile.append(e)
 		if c is MeshInstance3D:
 			var mi := c as MeshInstance3D
-			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+			# luminaires : pas d'ombre portée (leur cage entourait la source et l'éteignait)
+			var lum := chemin.contains("Lantern") or chemin.contains("Torch")
+			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF if lum else GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 			if teinte != Color.WHITE and mi.mesh != null:
 				for si in mi.mesh.get_surface_count():
 					var m0: Material = mi.get_active_material(si)

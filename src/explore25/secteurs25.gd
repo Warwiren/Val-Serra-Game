@@ -182,12 +182,12 @@ func classer(hote: Node, racine: Node3D) -> void:
 		# son sol au lieu de laisser un vide noir entre ses murets)
 		var mur: bool = (n.has_meta("mur") or n.has_meta("sol")) and mode != "echelle"
 		if mur:
-			k = "MUR:" + k                        # structure : groupes à part, jamais masqués en continu
+			k = ("SOL:" if n.has_meta("sol") and not n.has_meta("mur") else "MUR:") + k                        # structure : groupes à part, jamais masqués en continu
 		if not _groupes.has(k):
 			var gn := Node3D.new()
 			gn.name = "Secteurs_" + k.replace("|", "_")
 			racine.add_child(gn)
-			_groupes[k] = {"node": gn, "membres": m, "montre": true, "tween": null, "geos": [], "lum": [], "mur": mur}
+			_groupes[k] = {"node": gn, "membres": m, "montre": true, "tween": null, "geos": [], "lum": [], "mur": mur, "sol": n.has_meta("sol") and not n.has_meta("mur")}
 		n.reparent(_groupes[k]["node"], n.is_inside_tree())
 		stats["elements"] += 1
 	for k in _groupes:
@@ -317,6 +317,8 @@ func _groupe_montre(g: Dictionary) -> bool:
 		for x in sect:
 			if visibles.has(x):
 				return true
+		if g.get("sol", false):
+			return _devant(sect) or _derriere(sect)     # sol vu en coupe devant, ou par une ouverture derrière
 		return _devant(sect)
 	if mode != "echelle" and m.has(EXT):
 		return true                         # continu : le reste du niveau suit le voile progressif
