@@ -206,12 +206,16 @@ def colisee():
             {"id": "sortie", "nom": "Sortie est", "rect": PIECES["couloir_sortie"][0]},
         ],
         "camera_vue_dessus": [8.0, 6.0, 66.0, 57.0],
+        # P6.2-B — linteaux des portes intérieures (décor : encadrement, structure continue au-dessus de 2,7 m)
+        "linteaux": [[24.5, 46.1, 27.5, 46.5], [24.5, 44.5, 27.5, 44.9], [24.5, 37.1, 27.5, 37.5]],
         # P6.2 — secteurs de visibilité (prototype : vestiaires et salle d'attente ; le reste = « EXT », affiché comme avant)
         "secteurs": [
             {"id": "S1", "nom": "Vestiaires", "rects": [PIECES["vestiaires"][0]], "voisins": ["P12"], "fond": "sombre", "plafond_h": 3.4},
             {"id": "P12", "nom": "Passage des vestiaires", "rects": [PIECES["passage_vestiaires"][0]], "voisins": ["S1", "S2"],
              "fond": "sombre", "plafond_h": 3.2, "camera": False},
-            {"id": "S2", "nom": "Salle d'attente", "rects": [PIECES["salle_attente"][0]], "voisins": ["P12", "S3"], "fond": "sombre", "plafond_h": 3.4},
+            {"id": "S2", "nom": "Salle d'attente", "rects": [PIECES["salle_attente"][0]], "voisins": ["P12", "S3"], "fond": "sombre", "plafond_h": 3.4,
+             # P6.2-B : l'arène se révèle progressivement en approchant du tunnel (masquée à y >= 43,5, visible à y <= 38,2)
+             "revele_ext": [43.5, 38.2]},
             {"id": "S3", "nom": "Tunnel des combattants", "rects": [[24.5, 32.0, 27.5, 37.5]], "voisins": ["S2", "EXT"], "fond": "ciel",
              "plafond_h": 2.9, "camera": False},
         ],

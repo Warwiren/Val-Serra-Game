@@ -173,6 +173,29 @@ static func route(name: String) -> Array:
 			]
 		"p6_attente":
 			return [{"do": "wait", "t": 9.0}]
+		"p6_video_transitions":
+			# P6.2-B — même trajet pour comparer les modes A / B / C : centre des vestiaires, porte nord, seuil, arrêt au
+			# milieu du passage, retour, nouvelle entrée dans la salle, approche du tunnel, découverte de l'arène
+			return [
+				_warp(26.0, 51.0, 0.0),
+				{"do": "wait", "t": 2.0},
+				_go(26.0, 47.4, "vestiaires : approche de la porte nord", 0.25),
+				{"do": "wait", "t": 0.8},
+				_go(26.0, 45.6, "seuil franchi : milieu du passage", 0.2),
+				{"do": "wait", "t": 2.5},
+				_go(26.0, 46.3, "petit pas en arrière (dans la porte)", 0.15),
+				{"do": "wait", "t": 1.0},
+				_go(26.0, 45.0, "de nouveau en avant", 0.15),
+				{"do": "wait", "t": 1.0},
+				_go(26.0, 49.5, "retour dans les vestiaires", 0.25),
+				{"do": "wait", "t": 1.5},
+				_go(26.0, 43.0, "nouvelle entrée dans la salle d'attente", 0.25),
+				{"do": "wait", "t": 1.0},
+				_go(26.0, 38.4, "approche du tunnel", 0.25),
+				{"do": "wait", "t": 0.8},
+				_go(26.0, 33.0, "tunnel : découverte de l'arène", 0.25),
+				{"do": "wait", "t": 2.0},
+			]
 		"p6_captures":
 			return [
 				{"do": "wait", "t": 1.5},

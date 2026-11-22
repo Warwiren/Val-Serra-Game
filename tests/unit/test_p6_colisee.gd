@@ -253,7 +253,7 @@ func test_secteurs_visibilite() -> void:
 	World25.yaw = 0.0
 	World25.pitch = deg_to_rad(24.0)
 	var z: Dictionary = _json(ZONE)
-	var sc = Secteurs.new(z["ajustements"]["p6"]["secteurs"])
+	var sc = Secteurs.new(z["ajustements"]["p6"]["secteurs"], "echelle")      # mode A (P6.2), conservé en comparaison
 	check_eq(sc.secteur_en(Vector2(26, 51)), "S1", "vestiaires = S1")
 	check_eq(sc.secteur_en(Vector2(26, 45.5)), "P12", "passage = P12")
 	check_eq(sc.secteur_en(Vector2(26, 41)), "S2", "salle d'attente = S2")
@@ -323,6 +323,68 @@ func test_secteurs_visibilite() -> void:
 	racine.free()
 	for k in murs:
 		murs[k].free()
+	World25.yaw = yaw0
+	World25.pitch = p0
+
+
+## P6.2-B — mode B « continu » : architecture persistante, aucune pièce derrière masquée, pièces devant estompées,
+## arène révélée selon la position, seuil stable, éléments à cheval sur deux pièces.
+func test_secteurs_continu() -> void:
+	var Secteurs = load("res://src/explore25/secteurs25.gd")
+	var yaw0: float = World25.yaw
+	var p0: float = World25.pitch
+	World25.yaw = 0.0
+	World25.pitch = deg_to_rad(24.0)
+	var z: Dictionary = _json(ZONE)
+	var sc = Secteurs.new(z["ajustements"]["p6"]["secteurs"], "continu")
+	check_eq(sc.mode, "continu", "mode B par défaut du Colisée")
+	var racine := Node3D.new()
+	var mk := func(p: Vector2, meta := {}) -> Node3D:
+		var n := Node3D.new()
+		n.set_meta("xz", p)
+		for k in meta:
+			n.set_meta(k, meta[k])
+		racine.add_child(n)
+		return n
+	var deco_s1: Node3D = mk.call(Vector2(26, 51), {"secteur": "S1"})
+	var deco_s2: Node3D = mk.call(Vector2(26, 41), {"secteur": "S2"})
+	var mur_vest: Node3D = mk.call(Vector2(20, 46.3), {"mur": true})
+	var arene: Node3D = mk.call(Vector2(26, 23))
+	var ext: Node3D = mk.call(Vector2(70, 10), {"exterieur": true})
+	# élément à cheval sur la salle et le passage (emprise) : appartient aux deux
+	var banc := MeshInstance3D.new()
+	var bm := BoxMesh.new()
+	bm.size = Vector3(1, 0.4, 3)
+	banc.mesh = bm
+	banc.position = Vector3(26, 0.2, 44.5)
+	racine.add_child(banc)
+	sc.classer(null, racine)
+	var vis := func(n: Node3D) -> bool: return n.get_parent().visible
+	sc.mettre_a_jour(Vector2(26, 51), true)
+	check(vis.call(deco_s2), "B, vestiaires : la salle (derrière) reste rendue, cachée par les murs hauts")
+	check(not vis.call(ext), "B, vestiaires : l'extérieur est masqué")
+	check(vis.call(mur_vest), "B : les murs ne sont jamais masqués")
+	sc.regler_voile_ext(sc.voile_ext_pour(Vector2(26, 51)))
+	check(not vis.call(arene), "B, vestiaires : l'arène est voilée")
+	sc.mettre_a_jour(Vector2(26, 41), true)
+	check(not vis.call(deco_s1), "B, salle : les vestiaires (devant, côté caméra) sont estompés")
+	check(vis.call(mur_vest), "B, salle : le mur des vestiaires reste (muret)")
+	check(vis.call(banc), "B : élément à cheval sur deux pièces conservé")
+	check(sc.traverses.size() >= 1, "B : éléments à cheval sur plusieurs secteurs relevés (%d)" % sc.traverses.size())
+	var v_entree: float = sc.voile_ext_pour(Vector2(26, 44.0))
+	var v_milieu: float = sc.voile_ext_pour(Vector2(26, 41.0))
+	var v_tunnel: float = sc.voile_ext_pour(Vector2(26, 38.0))
+	check(v_entree > 0.99 and v_milieu > 0.2 and v_milieu < 0.8 and v_tunnel < 0.01, "B, salle : arène révélée progressivement (%.2f / %.2f / %.2f)" % [v_entree, v_milieu, v_tunnel])
+	sc.mettre_a_jour(Vector2(26, 34), true)
+	check(sc.voile_ext_pour(Vector2(26, 34)) == 0.0, "B, tunnel : arène entièrement visible")
+	# stabilité au seuil : depuis le passage, un petit pas dans la porte des vestiaires ne rebascule pas
+	sc.mettre_a_jour(Vector2(26, 45.5), true)
+	check_eq(sc.actif, "P12", "passage actif")
+	sc.mettre_a_jour(Vector2(26, 46.7))
+	check_eq(sc.actif, "P12", "stabilité : à 0,2 m dans les vestiaires, le passage reste actif")
+	sc.mettre_a_jour(Vector2(26, 47.2))
+	check_eq(sc.actif, "S1", "au-delà de la zone de stabilité : vestiaires")
+	racine.free()
 	World25.yaw = yaw0
 	World25.pitch = p0
 

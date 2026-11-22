@@ -63,6 +63,14 @@ var cam_p6 := "C"
 var aren_variante := "foret"
 var _anim_aren: RefCounted
 var _auto_p6_t := 0.0
+## P6.2-B : mode de transition des intérieurs (touche J, -- --transitions=A|B|C) ; B (continu) par défaut
+const TRANSITIONS := {"A": "echelle", "B": "continu", "C": "porte"}
+const TRANSITIONS_LABEL := {"A": "A — P6.2 (pièces qui descendent / remontent)", "B": "B — continu (architecture persistante, estompage sur place)", "C": "C — porte (bref fondu sombre au franchissement)"}
+const H_VIS := 6.0                           # hauteur AFFICHÉE des murs d'intérieur en B / C (collision inchangée)
+const PORTES_C := [["P12", "S1"]]          # mode C : seuils traités comme de vraies portes (fondu)
+var transitions := "B"
+var _fondu_porte := false
+var _fond_but := Color(0.022, 0.018, 0.026)
 var _sect                                  # P6.2 : visibilité par secteurs (null si la zone n'en déclare pas)
 var _lueur_tunnel: MeshInstance3D
 var _bornes_but := Rect2()
@@ -79,6 +87,9 @@ func _ready() -> void:
 		cam_p6 = "C"
 	cam_mode = CAMS_P6[cam_p6][0]
 	habillage = str(_cli.get("habillage", "pilote")) != "blockout"
+	transitions = str(_cli.get("transitions", transitions)).to_upper()
+	if not TRANSITIONS.has(transitions):
+		transitions = "B"
 	aren_variante = str(_cli.get("aren", aren_variante))
 	if not AREN_VARIANTES.has(aren_variante):
 		aren_variante = "foret"
@@ -96,7 +107,7 @@ func _ready() -> void:
 	_apply_variante()
 	s.arch = "P6 — Colisée · " + CAMS_P6_LABEL[cam_p6]
 	s.build_hud()
-	s._help.text = "Flèches / ZQSD : marcher  ·  Maj : courir  ·  E / Entrée : parler, examiner  ·  Molette : zoom  ·  C : caméra  ·  B : Aren  ·  H : habillage  ·  F1 : infos"
+	s._help.text = "Flèches / ZQSD : marcher  ·  Maj : courir  ·  E / Entrée : parler, examiner  ·  Molette : zoom  ·  C : caméra  ·  B : Aren  ·  H : habillage  ·  J : transitions  ·  F1 : infos"
 	_build_ui()
 	_dialog.choisi.connect(_on_choix)
 	_build_ui_p6()
@@ -159,6 +170,7 @@ func _ready() -> void:
 func _exit_tree() -> void:
 	super._exit_tree()
 	World25.yaw = World25.YAW
+	get_viewport().use_occlusion_culling = false
 	RenderingServer.directional_soft_shadow_filter_set_quality(QUALITE_OMBRE_DEFAUT)
 	RenderingServer.positional_soft_shadow_filter_set_quality(QUALITE_OMBRE_DEFAUT)
 
@@ -368,7 +380,8 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	if _hab != null:
 		_hab.lumiere(_env_res, _sun)
 	_portes_fermees.clear()
-	_sect = Secteurs.new(_p6["secteurs"]) if (_p6.has("secteurs") and not _cli.has("sans_secteurs")) else null
+	_sect = Secteurs.new(_p6["secteurs"], TRANSITIONS[transitions]) if (_p6.has("secteurs") and not _cli.has("sans_secteurs")) else null
+	get_viewport().use_occlusion_culling = _sect != null and _sect.mode != "echelle"   # murs hauts = occulteurs
 	for e in world.elements:
 		_build(e)
 	_build_p6()
@@ -379,10 +392,17 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 		for n in [_overlay, _labels]:
 			if n != null:
 				n.set_meta("hors_secteurs", true)
-		_sect.plafonds(root)
-		_lueur_tunnel = _lueur_fin_de_tunnel()
+		_sect.plafonds(root, H_VIS + 0.1 if _sect.mode != "echelle" else 0.0)
+		if _sect.mode == "echelle":
+			_lueur_tunnel = _lueur_fin_de_tunnel()
+		else:
+			_lueur_tunnel = null
+			_jour_du_tunnel()
 		_sect.classer(self, root)
 		_maj_secteur(true)
+		if _sect.mode != "echelle":
+			_sect.voile_ext = -1.0
+			_sect.regler_voile_ext(_sect.voile_ext_pour(Vector2(s.hero.x, s.hero.y)))
 	teleport(s.hero, s.companion)
 	apply_options()
 	_title.text = _p6.get("nom", "")
@@ -450,13 +470,24 @@ func _build_bloc_p6(e: Dictionary) -> void:
 			h1 = h0 + 1.7                       # rendu à la hauteur des gradins sud (collision inchangée : 2,6 m)
 			size.y = h1 - h0
 		var mpierre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE, tall) if _hab != null else _surf("pierre", tall)
-		# P6.2 : maillages du mur sous un pivot à l'origine (le mur s'abaisse vers le sol quand il est coupé) ;
-		# la collision (sb) reste dans l'instance, jamais modifiée
+		# P6.2 : maillages du mur sous un pivot à l'origine ; la collision (sb) reste dans l'instance, jamais modifiée
 		var pivot := Node3D.new()
 		pivot.name = id
 		pivot.set_meta("xz", r.get_center())
 		pivot.set_meta("mur", true)
 		root.add_child(pivot)
+		if _sect != null and _sect.mode != "echelle":
+			# P6.2-B : muret (persistant) + partie haute (estompée si elle cache la pièce active) ; murs d'intérieur
+			# prolongés jusqu'à H_VIS (structure continue : ils cachent les pièces voisines sans que rien ne disparaisse)
+			var hv := h1
+			var interieur := false
+			for m in _sect._membres_emprise(r, false):
+				if _sect.par_id.has(m) and _sect.par_id[m]["fond"] == "sombre":
+					interieur = true
+			if interieur and tall:
+				hv = H_VIS
+			_mur_continu(id, pivot, r, h0, hv, mpierre, sb)
+			return
 		var mi := _box_mesh(_rect_center(r, h0, h1), size, mpierre, pivot)
 		fade_nodes[sb] = [mi]
 		var mcap: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(1.12, 1.1, 1.08), tall) if _hab != null else _tinted("pierre", Color(1.12, 1.1, 1.14), tall)
@@ -531,8 +562,12 @@ func _build_bloc_p6(e: Dictionary) -> void:
 
 
 func _build_p6() -> void:
+	_linteaux()
 	if _hab != null:
+		var n0 := root.get_child_count()
 		_hab.exterieur(world.decor)
+		for i in range(n0, root.get_child_count()):
+			root.get_child(i).set_meta("exterieur", true)      # parvis, bâtiments lointains
 		if _p6.get("zone", "") == "colisee":
 			var avant := root.get_child_count()
 			_hab.vestiaires(Rect2(16.0, 46.5, 20.0, 8.5))
@@ -964,6 +999,11 @@ func _unhandled_input(e: InputEvent) -> void:
 		s.cam.set_index(CAMS_P6[cam_p6][1], false)
 		s.toast("Caméra " + CAMS_P6_LABEL[cam_p6], 2.5)
 		return
+	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_J:
+		transitions = {"A": "B", "B": "C", "C": "A"}[transitions]
+		_reload_here()
+		s.toast("Transitions : " + TRANSITIONS_LABEL[transitions], 2.8)
+		return
 	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_H:
 		habillage = not habillage
 		_reload_here()
@@ -1176,17 +1216,40 @@ func _lueur_fin_de_tunnel() -> MeshInstance3D:
 func _maj_secteur(immediat := false) -> void:
 	if _sect == null:
 		return
+	if _sect.mode == "porte" and not immediat:
+		var nx: String = _sect.prochain(Vector2(s.hero.x, s.hero.y))
+		if nx != _sect.actif and not _fondu_porte:
+			var paire := [nx, _sect.actif]
+			paire.sort()
+			if PORTES_C.has(paire):
+				_fondu_porte = true
+				_passer_porte()
+				return
+	if _fondu_porte:
+		return
 	var change: bool = _sect.mettre_a_jour(Vector2(s.hero.x, s.hero.y), immediat)
 	if not change and not immediat:
 		return
 	if _lueur_tunnel != null:
 		_lueur_tunnel.visible = _sect.est_visible("S3") and not _sect.est_visible(Secteurs.EXT)
 	var sombre: bool = _sect.fond() == "sombre"
-	if sombre:
-		_env_res.background_mode = Environment.BG_COLOR
-		_env_res.background_color = Color(0.022, 0.018, 0.026)
-	elif _hab != null:
-		_env_res.background_mode = Environment.BG_SKY
+	if _sect.mode == "echelle":
+		if sombre:
+			_env_res.background_mode = Environment.BG_COLOR
+			_env_res.background_color = Color(0.022, 0.018, 0.026)
+		elif _hab != null:
+			_env_res.background_mode = Environment.BG_SKY
+	else:
+		# P6.2-B : le fond glisse (intérieur sombre chaud <-> jour), jamais de bascule brusque
+		if _sect.actif == Secteurs.EXT and _hab != null:
+			_env_res.background_mode = Environment.BG_SKY
+		else:
+			if _env_res.background_mode != Environment.BG_COLOR:
+				_env_res.background_mode = Environment.BG_COLOR
+				_env_res.background_color = Color(0.36, 0.43, 0.6)
+			_fond_but = Color(0.05, 0.04, 0.045) if sombre else Color(0.36, 0.43, 0.6)
+			if immediat:
+				_env_res.background_color = _fond_but
 	_amb_but = 0.42 if sombre else (0.62 if _hab != null else 0.85)
 	if immediat:
 		_env_res.ambient_light_energy = _amb_but
@@ -1202,7 +1265,7 @@ func _bornes_ecran(r: Rect2) -> Rect2:
 	var b := Rect2(World25.screen(Vector3(r.position.x, r.position.y, 0.0)), Vector2.ZERO)
 	for x in [r.position.x - 0.5, r.end.x + 0.5]:
 		for y in [r.position.y - 0.5, r.end.y + 0.5]:
-			for hh in [0.0, 3.4]:
+			for hh in [0.0, 3.4 if (_sect == null or _sect.mode == "echelle") else 4.2]:
 				b = b.expand(World25.screen(Vector3(x, y, hh)))
 	return b.grow(10.0)
 
@@ -1216,6 +1279,11 @@ func _suivi_secteur(delta: float) -> void:
 	s.cam.bounds = Rect2(b.position.lerp(_bornes_but.position, k), b.size.lerp(_bornes_but.size, k))
 	if _amb_but >= 0.0:
 		_env_res.ambient_light_energy = lerpf(_env_res.ambient_light_energy, _amb_but, k)
+	if _sect.mode != "echelle":
+		var v: float = _sect.voile_ext_pour(Vector2(s.hero.x, s.hero.y))
+		_sect.regler_voile_ext(lerpf(_sect.voile_ext, v, 1.0 - exp(-8.0 * delta)) if absf(v - _sect.voile_ext) > 0.01 else v)
+	if _sect.mode != "echelle" and _env_res.background_mode == Environment.BG_COLOR:
+		_env_res.background_color = _env_res.background_color.lerp(_fond_but, k)
 
 
 var _touches: Label
@@ -1244,3 +1312,78 @@ func _afficher_touches() -> void:
 
 func secteur_actif() -> String:
 	return _sect.actif if _sect != null else ""
+
+
+# ------------------------------------------------------------------------------------------------ P6.2-B
+## Mur en deux parties : muret persistant (0 -> LIP) et partie haute (LIP -> hv) ; tranche sombre ; occulteur du moteur.
+func _mur_continu(id: String, pivot: Node3D, r: Rect2, h0: float, hv: float, mpierre: Material, sb: StaticBody3D) -> void:
+	var lip: float = Secteurs.LIP
+	var bas := _box_mesh(_rect_center(r, h0, lip), Vector3(r.size.x, lip - h0, r.size.y), mpierre, pivot)
+	fade_nodes[sb] = [bas]
+	var haut: Array = []
+	var h_mid := minf(hv, 3.0)
+	haut.append(_box_mesh(_rect_center(r, lip, h_mid), Vector3(r.size.x, h_mid - lip, r.size.y), mpierre, pivot))
+	if hv > 3.05:
+		# partie haute des intérieurs : même pierre, assombrie (elle se perd dans l'ombre au-dessus des lanternes)
+		var msombre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.42, 0.38, 0.38), true) if _hab != null else _tinted("pierre", Color(0.4, 0.38, 0.4), true)
+		haut.append(_box_mesh(_rect_center(r, 3.0, hv), Vector3(r.size.x, hv - 3.0, r.size.y), msombre, pivot))
+		# corniche à la jonction (lecture des proportions : un étage, pas un mur infini)
+		haut.append(_box_mesh(_rect_center(r.grow(0.05), 2.95, 3.12), Vector3(r.size.x + 0.1, 0.17, r.size.y + 0.1), mpierre, pivot))
+	var mcap: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(1.12, 1.1, 1.08), true) if _hab != null else _tinted("pierre", Color(1.12, 1.1, 1.14), true)
+	haut.append(_box_mesh(_rect_center(r.grow(0.06), hv, hv + 0.12), Vector3(r.size.x + 0.12, 0.12, r.size.y + 0.12), mcap if hv <= 3.05 else _mat_coupe(), pivot))
+	if _hab != null:
+		_box_mesh(_rect_center(r.grow(0.05), h0, 0.3), Vector3(r.size.x + 0.1, 0.3, r.size.y + 0.1), _hab.mat(Habillage.PIERRE, 1.2, Habillage.C_CALCAIRE * Color(0.72, 0.7, 0.7)), pivot)
+	var coupe := _box_mesh(_rect_center(r.grow(0.07), lip - 0.01, lip + 0.05), Vector3(r.size.x + 0.14, 0.06, r.size.y + 0.14), _mat_coupe(), pivot)
+	coupe.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var occ: OccluderInstance3D = null
+	if hv > 2.0 and r.size.x * r.size.y > 0.5:
+		occ = OccluderInstance3D.new()
+		var bo := BoxOccluder3D.new()
+		bo.size = Vector3(maxf(r.size.x - 0.1, 0.1), hv - lip, maxf(r.size.y - 0.1, 0.1))
+		occ.occluder = bo
+		occ.position = _rect_center(r, lip, hv)
+		pivot.add_child(occ)
+	_sect.declarer_mur(pivot, coupe, r, h0, hv, haut, occ)
+
+
+## Linteaux des portes intérieures (au-dessus de 2,7 m, jusqu'au haut des murs) : encadrements lisibles, structure
+## continue. Décor seul (aucune collision) ; ils s'estompent comme les murs s'ils cachent la pièce active.
+func _linteaux() -> void:
+	if _sect == null or _sect.mode == "echelle":
+		return
+	var mp: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE, true) if _hab != null else _surf("pierre", true)
+	for q in _p6.get("linteaux", []):
+		var r := Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1])
+		var pivot := Node3D.new()
+		pivot.name = "linteau_%d_%d" % [int(r.position.x * 10), int(r.position.y * 10)]
+		pivot.set_meta("xz", r.get_center())
+		pivot.set_meta("mur", true)
+		root.add_child(pivot)
+		var haut: Array = []
+		haut.append(_box_mesh(_rect_center(r, 2.7, 3.0), Vector3(r.size.x, 0.3, r.size.y), _hab.mat(Habillage.PIERRE, 1.2, Habillage.C_CALCAIRE * Color(1.1, 1.06, 1.0), true) if _hab != null else mp, pivot))
+		var msombre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.42, 0.38, 0.38), true) if _hab != null else mp
+		haut.append(_box_mesh(_rect_center(r, 3.0, H_VIS), Vector3(r.size.x, H_VIS - 3.0, r.size.y), msombre, pivot))
+		var coupe := _box_mesh(_rect_center(r, 2.69, 2.71), Vector3(0.01, 0.01, 0.01), _mat_coupe(), pivot)
+		_sect.declarer_mur(pivot, coupe, r, 2.7, H_VIS, haut, null)
+
+
+## P6.2-B : la lumière du jour de l'arène entre par le bout du tunnel (une vraie source, pas un panneau).
+func _jour_du_tunnel() -> void:
+	var l := OmniLight3D.new()
+	l.light_color = Color(1.0, 0.9, 0.74)
+	l.light_energy = 1.6
+	l.omni_range = 7.0
+	l.omni_attenuation = 1.4
+	l.position = Vector3(26.0, 2.0, 31.2)
+	l.set_meta("hors_secteurs", true)
+	root.add_child(l)
+
+
+## Mode C : bref fondu sombre, nouvelle pièce appliquée d'un coup, caméra recalée, retour de l'image.
+func _passer_porte() -> void:
+	var tw: Tween = s.fade_to(0.85, 0.14)
+	await tw.finished
+	_sect.mettre_a_jour(Vector2(s.hero.x, s.hero.y), true)
+	_fondu_porte = false
+	_maj_secteur(true)
+	s.fade_to(0.0, 0.22)
