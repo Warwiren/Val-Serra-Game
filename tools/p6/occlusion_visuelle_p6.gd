@@ -10,11 +10,12 @@ const PIECES := {"S1 vestiaires": Rect2(16, 46.5, 20, 8.5), "P12 passage": Rect2
 
 
 func _initialize() -> void:
-	for cfg in [["P6.1 (azimut 20°, sans secteurs)", 20.0, false], ["P6.2 (azimut 0°, secteurs)", 0.0, true]]:
+	for cfg in [["P6.1 (azimut 20°, sans secteurs)", 20.0, false, "echelle"], ["P6.2 A (azimut 0°, secteurs, échelle)", 0.0, true, "echelle"],
+			["P6.2-B B (continu, murs d'intérieur de 6 m)", 0.0, true, "continu"]]:
 		World25.yaw = deg_to_rad(cfg[1])
 		World25.pitch = deg_to_rad(24.0)
 		var w = World25.load_world("res://data/p6/colisee.json", "instance")
-		var sc = Secteurs.new(w.adj["p6"]["secteurs"])
+		var sc = Secteurs.new(w.adj["p6"]["secteurs"], cfg[3])
 		var pivots := {}
 		var solides: Array = []
 		for o in w.adj["obstacles"]:
@@ -24,6 +25,10 @@ func _initialize() -> void:
 			var q: Array = o["rect"]
 			var r := Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1])
 			var so := {"id": id, "rect": r, "h": float(o["haut"]), "mur": id.begins_with("cmur_")}
+			if so["mur"] and cfg[3] == "continu" and so["h"] > 1.5:
+				for m in sc._membres_emprise(r, false):
+					if sc.par_id.has(m) and sc.par_id[m]["fond"] == "sombre":
+						so["h"] = 6.0                     # hauteur affichée des murs d'intérieur en mode B
 			if so["mur"]:
 				var pv := Node3D.new()
 				var cp := Node3D.new()
@@ -70,9 +75,12 @@ func _cache(p: Vector2, solides: Array, sc, secteurs: bool) -> bool:
 		for so in solides:
 			var h: float = so["h"]
 			if secteurs:
-				var membres: Array = sc._membres(so["rect"].get_center()) if so["mur"] else [sc._proche(so["rect"].get_center())]
-				if not membres.any(func(m): return sc.est_visible(m)):
-					continue
+				if sc.mode == "echelle" or not so["mur"]:
+					var membres: Array = sc._membres(so["rect"].get_center()) if so["mur"] else [sc._proche(so["rect"].get_center())]
+					if sc.mode == "echelle" and not membres.any(func(m): return sc.est_visible(m)):
+						continue
+					if sc.mode != "echelle" and not so["mur"] and sc._devant(membres) and not membres.any(func(m): return sc.est_visible(m)):
+						continue
 				if so["mur"] and (so["pivot"] as Node3D).scale.y < 1.0:
 					h = Secteurs.LIP
 			if _touche(o, dir, so["rect"].grow(0.02), h):
