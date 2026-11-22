@@ -290,6 +290,9 @@ func groupe() -> Array:
 	return actors.keys().filter(func(k): return not str(k).begins_with("pnj_"))
 
 
+var _props_commandant: Array = []
+
+
 ## P6.3 : mise en valeur du commandant (avant le tutoriel et après) : lumière chaude dirigée, râtelier derrière lui.
 func _scene_commandant() -> void:
 	if _hab == null or not _pnj.has("commandant"):
@@ -306,8 +309,8 @@ func _scene_commandant() -> void:
 	sp.look_at_from_position(sp.position, Vector3(p.x, 0.6, p.y), Vector3.UP)
 	sp.set_meta("hors_secteurs", true)
 	root.add_child(sp)
-	modele("fp/WeaponStand", Vector3(p.x + 1.4, 0.0, p.y - 1.3), -0.35, 0.9)
-	modele("fp/Chest_Wood", Vector3(p.x - 1.5, 0.0, p.y - 1.2), 0.3, 0.8)
+	_props_commandant = [modele("fp/WeaponStand", Vector3(p.x + 1.4, 0.0, p.y - 1.3), -0.35, 0.9),
+		modele("fp/Chest_Wood", Vector3(p.x - 1.5, 0.0, p.y - 1.2), 0.3, 0.8)]
 
 
 func _spawn_pnj() -> void:
@@ -1228,6 +1231,9 @@ func _decor_combat() -> void:
 	for k in actors:
 		if str(k).begins_with("pnj"):
 			(actors[k]["node"] as Node3D).visible = false
+	for n in _props_commandant:
+		if n != null and is_instance_valid(n):
+			(n as Node3D).visible = false       # P6.3 : le combat se joue là où se tient le commandant
 	cam.projection = Camera3D.PROJECTION_PERSPECTIVE
 	cam.fov = 46.0
 	cam.position = Vector3(26.0, 3.1, 31.2)
