@@ -133,6 +133,13 @@
   arène = « zone ouverte » S4 (référence des coupes, décor resté EXT) ; murs du tunnel à 3,1 m, jamais coupés ; arc bas
   à la bouche. Le voile du niveau doit atteindre 0 / 1 exactement (sinon passe transparente). Packs Quaternius (CC0) :
   non importés, pilote limité après validation seulement.
+- **P6.2-D (branche `p6-2d-colisee-complet`, `docs/P6_2D_COLISEE_COMPLET.md`)** : EN ATTENTE de validation. Système B
+  étendu à tout le Colisée (secteurs S5 tunnel est, S6 coursive, S7 infirmerie, S8 réserve, S9 sortie ; toits des
+  intérieurs vus de l'arène ; pièces latérales non rendues depuis un intérieur). Tunnel sud de longueur paramétrable
+  (`TUNNEL_RETENU` dans `tools/p6/build_colisee.py`, B = 8,5 m proposé ; bloc sud décalé par `decalage_sud`, appliqué
+  aux PNJ, au décor de l'habillage et aux parcours « p6 » par `Routes.sud`). Vue du tunnel par la seule position d'Aren
+  (masque fermé au seuil salle / tunnel). Arche de la bouche jamais coupée (trouée locale). Gradins sud-est abaissés à
+  l'affichage. Décor du combat tutoriel non régénéré (combat hors périmètre).
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.

@@ -7,6 +7,7 @@ extends SceneTree
 ## Un BOND est une image où la caméra va nettement plus vite qu'Aren ou change brutalement de vitesse ; le suivi normal
 ## (lissage, zone morte) reste sous ces seuils. Seuils volontairement prudents, rappelés dans la sortie.
 const V_MARGE := 1.0        # m/s au-delà de la vitesse d'Aren (lissage : la caméra peut rattraper un peu)
+const V_MARCHE := 2.6       # P6.2-D : et au-delà de la marche (2,2 m/s) : le rattrapage lissé après un arrêt n'est pas un bond
 const ACC_MAX := 30.0       # m/s² au-delà de l'accélération d'Aren lui-même (ses départs / arrêts sont instantanés)
 const ECRAN_PX := 6.0       # déplacement d'Aren à l'écran en une image, au-delà de son propre mouvement
 var z
@@ -63,7 +64,7 @@ func _physics_process(delta: float) -> bool:
 		var d_ecr := ecr.distance_to(ecr_prev)
 		var bond := ""
 		if t > 0.6:                                 # mise en place
-			if v.length() > vh + V_MARGE and v.length() > 1.5:
+			if v.length() > vh + V_MARGE and v.length() > V_MARCHE:
 				bond = "vitesse"
 			elif acc > acc_h + ACC_MAX:
 				bond = "acceleration"
@@ -103,9 +104,9 @@ func _physics_process(delta: float) -> bool:
 		var fh := FileAccess.open(csv, FileAccess.WRITE)
 		if fh != null:
 			fh.store_string("\n".join(lignes) + "\n")
-		print("CAMERA P6.2-C : %d images, %.1f s, %d bonds ; vitesse max %.2f m/s, accélération max %.1f m/s², recul caméra %.3f–%.3f m (zoom), déplacement écran max %.1f px/image, dérive à l'arrêt %.3f m" % [
+		print("CAMERA : %d images, %.1f s, %d bonds ; vitesse max %.2f m/s, accélération max %.1f m/s², recul caméra %.3f–%.3f m (zoom), déplacement écran max %.1f px/image, dérive à l'arrêt %.3f m" % [
 			lignes.size() - 1, t, bonds.size(), v_max, acc_max, dist_min, dist_max, ecran_max, arret_derive])
-		print("  seuils : vitesse > Aren + %.1f m/s, accélération > %.0f m/s², Aren déplacé de > %.0f px à l'écran sans bouger, distance ±0,05 m" % [V_MARGE, ACC_MAX, ECRAN_PX])
+		print("  seuils : vitesse > Aren + %.1f m/s et > %.1f m/s, accélération > %.0f m/s² au-delà d'Aren, Aren déplacé de > %.0f px à l'écran sans bouger, recul ±0,05 m" % [V_MARGE, V_MARCHE, ACC_MAX, ECRAN_PX])
 		for b in bonds.slice(0, 40):
 			print("  BOND " + b)
 		print("  bloqués : %s" % str(s.m.get("stuck", [])))

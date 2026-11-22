@@ -31,10 +31,16 @@ func _initialize() -> void:
 				continue
 			var q: Array = p["rect"]
 			w.solids.append({"id": p["id"], "kind": "rect", "rect": Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1]), "h0": 0.0, "h1": 2.6})
+		var dy := float(w.adj["p6"].get("decalage_sud", {}).get("dy", 0.0))   # P6.2-D : longueur du tunnel
 		for t in TRONCONS:
 			for dec in DECALAGES:
 				var start: Vector2 = t[1] + (Vector2(dec, 0) if t[2].y != 0 else Vector2(0, dec))
-				var r := _simule(w, start, t[2], t[3])
+				if start.y >= 37.0 and start.x <= 37.0:
+					start.y += dy
+				var fin: Array = t[3].duplicate()
+				if fin[0] == "y<" and float(fin[1]) >= 37.0:
+					fin[1] = float(fin[1]) + dy
+				var r := _simule(w, start, t[2], fin)
 				var k := "%s|%d" % [t[0], int(yaw_deg)]
 				if not res.has(k):
 					res[k] = []

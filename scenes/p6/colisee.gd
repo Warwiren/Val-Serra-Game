@@ -1069,7 +1069,7 @@ func _physics_process(delta: float) -> void:
 	_afficher_touches()
 	_suivi_zones()
 	_commandant_auto()
-	if _cli.has("quitter_fin") and s.pilot_done and s.pilot_name == "p6_apres" and not _dialog.is_open() and not s.dialogue_open:
+	if _cli.has("quitter_fin") and s.pilot_done and s.pilot_name in ["p6_apres", "p6_video_complet_apres"] and not _dialog.is_open() and not s.dialogue_open:
 		_cli.erase("quitter_fin")
 		await get_tree().create_timer(1.5).timeout
 		get_tree().quit()                      # démonstration filmée : fin du parcours

@@ -43,8 +43,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p6-2c-tunnel-visibilite`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p6-2c-tunnel-visibilite`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p6-2d-colisee-complet`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p6-2d-colisee-complet`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -94,6 +94,10 @@ masque de collision avant / après.
    communes au bâtiment), **arène invisible depuis la salle**, vue **cadrée par la bouche du tunnel** (lignes de vue
    réelles), découverte de l'arène **à la sortie**, plus de grands murs devant Aren dans l'arène. Rapport :
    `docs/P6_2C_TUNNEL_VISIBILITE.md` ; mesure de continuité : `tools/p6/camera_continuite_p6.gd`.
+   **Branche `p6-2d-colisee-complet`** : F5 inchangé ; `colisee.tscn` (F6) = **Colisée complet** traité (vestiaires
+   fermés, tunnel sud de **8,5 m** proposé avec vue par la bouche et découverte au débouché, arche et murs hauts revus,
+   arène, tunnel est, coursive, infirmerie, réserve et sortie est en intérieurs, caméra continue partout). Longueurs
+   du tunnel à comparer en F6 : `colisee_tunnel_A_6_5m.tscn` / `_B_8_5m` / `_C_9_5m`. Rapport : `docs/P6_2D_COLISEE_COMPLET.md`.
 
 ### Commandes — forêt V07B (F5)
 
@@ -150,6 +154,9 @@ masque de collision avant / après.
 |---|---|
 | `scenes/p6/colisee.tscn` | **P6 — ouverture du jeu** : Colisée de Val'Serra, tutoriel, sortie vers la ville |
 | `scenes/p6/colisee_azimut20.tscn` | P6.2 — le Colisée avec l'ancienne caméra à azimut 20° (comparaison ; `colisee.tscn` = 0°, validé) |
+| `scenes/p6/colisee_tunnel_A_6_5m.tscn` | P6.2-D — tunnel sud de 6,5 m (longueur de P6, comparaison) |
+| `scenes/p6/colisee_tunnel_B_8_5m.tscn` | P6.2-D — tunnel sud de 8,5 m (proposé ; = `colisee.tscn`) |
+| `scenes/p6/colisee_tunnel_C_9_5m.tscn` | P6.2-D — tunnel sud de 9,5 m (comparaison) |
 | `scenes/battle/combat_tutoriel.tscn` | P6 — combat tutoriel seul (retourne au Colisée à la fin) |
 | `scenes/p4/avant_poste.tscn` | **démo complète de l'avant-poste** (F5 jusqu'en P4.8) : exploration, dialogue, combat, retour |
 | `scenes/p4/comparaison_camera_B28.tscn` | la démo de l'avant-poste avec l'ancienne caméra orthographique 28° (B28), pour comparer |

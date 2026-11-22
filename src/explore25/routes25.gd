@@ -308,6 +308,77 @@ static func _route_base(name: String) -> Array:
 				outc.append({"do": "wait", "t": 1.5})
 				outc.append({"do": "snap", "id": c[0]})
 			return outc
+		"p6_video_complet_avant":
+			# P6.2-D — vidéo du Colisée complet, 1re partie (avant le tutoriel) : vestiaires -> salle -> tunnel sud (arrêt
+			# au milieu) -> arène -> retour dans le tunnel -> arène -> commandant (tutoriel passé au dialogue)
+			return [
+				{"do": "wait", "t": 1.0},
+				_go(26.0, 47.6, "vestiaires : porte nord", 0.25),
+				_go(26.0, 45.6, "passage", 0.25),
+				_go(26.0, 41.2, "salle d'attente", 0.25),
+				{"do": "wait", "t": 0.8},
+				_go(26.0, 36.0, "tunnel sud : entrée", 0.25),
+				_go(26.0, 34.6, "tunnel sud : milieu", 0.2),
+				{"do": "wait", "t": 1.5},
+				_go(26.0, 30.2, "débouché dans l'arène", 0.25),
+				{"do": "wait", "t": 0.8},
+				_go(26.0, 34.0, "retour dans le tunnel sud", 0.25),
+				{"do": "wait", "t": 1.0},
+				_go(26.0, 29.5, "de nouveau l'arène", 0.25),
+				_go(26.0, 23.1, "devant le commandant", 0.45),
+				{"do": "talk", "id": "commandant"},
+				{"do": "wait", "t": 14.0},
+			]
+		"p6_video_complet_apres":
+			# P6.2-D — 2e partie (après le tutoriel) : arène -> tunnel est (aller, retour, aller) -> coursive -> infirmerie
+			# (porte) -> sortie est -> quartier
+			return [
+				{"do": "wait", "t": 7.0},
+				_go(33.0, 23.0, "arène vers l'est", 0.3),
+				_go(41.2, 23.0, "tunnel est : milieu", 0.25),
+				{"do": "wait", "t": 1.0},
+				_go(36.5, 23.0, "retour dans l'arène", 0.25),
+				{"do": "wait", "t": 0.8},
+				_go(44.8, 23.0, "coursive : entrée", 0.25),
+				_go(50.0, 23.0, "coursive : centre", 0.3),
+				_go(46.6, 33.3, "porte de l'infirmerie", 0.3),
+				{"do": "wait", "t": 0.8},
+				_go(50.0, 26.0, "coursive", 0.3),
+				_go(55.0, 23.2, "coursive (est)", 0.3),
+				_go(58.5, 23.2, "couloir de sortie", 0.3),
+				_go(62.5, 23.2, "sortie est", 0.3),
+				{"do": "go", "to": Vector2(64.4, 23.0), "tol": 0.25, "id": "porte de la ville", "exit": true},
+				{"do": "wait", "t": 1.5},
+				_go(10.0, 8.0, "quartier", 0.3),
+				{"do": "wait", "t": 1.5},
+			]
+		"p6_traversee":
+			# P6.2-D — traversée complète d'un seul tenant (après le tutoriel), avec arrêts et demi-tours aux seuils : mesure
+			# de la continuité de la caméra (tools/p6/camera_continuite_p6.gd)
+			return [
+				_warp(26.0, 51.0, 0.0),
+				{"do": "wait", "t": 1.2},
+				_go(26.0, 43.9, "salle : juste après le seuil", 0.15),
+				{"do": "wait", "t": 1.0},
+				_go(26.0, 45.3, "pas en arrière", 0.15),
+				_go(26.0, 41.0, "salle", 0.2),
+				_go(26.0, 34.6, "tunnel sud : milieu", 0.15),
+				{"do": "wait", "t": 1.2},
+				_go(26.0, 30.0, "arène", 0.2),
+				_go(26.0, 33.5, "retour dans le tunnel", 0.2),
+				_go(26.0, 24.0, "arène : centre", 0.2),
+				_go(41.2, 24.0, "tunnel est : milieu", 0.2),
+				{"do": "wait", "t": 1.0},
+				_go(37.0, 24.0, "retour dans l'arène", 0.2),
+				_go(45.0, 24.0, "coursive : seuil", 0.15),
+				{"do": "wait", "t": 0.8},
+				_go(50.0, 23.0, "coursive", 0.2),
+				_go(57.5, 23.0, "couloir de sortie : seuil", 0.15),
+				{"do": "wait", "t": 0.8},
+				_go(55.5, 23.0, "pas en arrière (coursive)", 0.15),
+				_go(62.5, 23.0, "sortie est", 0.2),
+				{"do": "wait", "t": 1.0},
+			]
 		"p6_captures":
 			return [
 				{"do": "wait", "t": 1.5},
