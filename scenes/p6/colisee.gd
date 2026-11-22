@@ -1254,10 +1254,12 @@ func _maj_secteur(immediat := false) -> void:
 		if _sect.a_ciel_ouvert() and _hab != null:
 			_env_res.background_mode = Environment.BG_SKY
 		else:
-			if _env_res.background_mode != Environment.BG_COLOR:
-				_env_res.background_mode = Environment.BG_COLOR
-				_env_res.background_color = Color(0.36, 0.43, 0.6)
 			_fond_but = Color(0.05, 0.04, 0.045) if sombre else Color(0.36, 0.43, 0.6)
+			if _env_res.background_mode != Environment.BG_COLOR:
+				# P6.2-C : en revenant du ciel ouvert, le fond part directement de la teinte de la pièce (dans le tunnel,
+				# il est sous le masque de vue : un ciel bleu y restait une seconde)
+				_env_res.background_mode = Environment.BG_COLOR
+				_env_res.background_color = _fond_but
 			if immediat:
 				_env_res.background_color = _fond_but
 	_amb_but = 0.42 if sombre else (0.62 if _hab != null else 0.85)

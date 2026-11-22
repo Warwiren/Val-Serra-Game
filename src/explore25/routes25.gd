@@ -233,6 +233,10 @@ static func route(name: String) -> Array:
 				out.append({"do": "wait", "t": 1.6})
 				out.append({"do": "snap", "id": c[0]})
 			return out
+		"p6_retour_tunnel":
+			# P6.2-C — retour de l'arène dans le tunnel : fond sombre et vue recadrée par la bouche dès l'entrée
+			return [_warp(26.0, 28.0, 0.0), {"do": "wait", "t": 1.5}, _go(26.0, 34.0, "retour dans le tunnel", 0.2),
+				{"do": "wait", "t": 0.25}, {"do": "snap", "id": "retour_tunnel_0s25"}]
 		"p6_captures":
 			return [
 				{"do": "wait", "t": 1.5},
