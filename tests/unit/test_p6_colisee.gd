@@ -6,7 +6,10 @@ extends "res://tests/test_case.gd"
 const World25 = preload("res://src/explore25/world25.gd")
 const Progression = preload("res://src/game/progression.gd")
 const AutoPolicy = preload("res://src/combat/auto_policy.gd")
-const ZONE := "res://data/p6/colisee.json"
+## P6.2-D : la géométrie de référence des tests est celle du tunnel de 6,5 m (variante A, coordonnées d'origine) ; le
+## décalage des variantes (dont colisee.json) est vérifié par test_tunnel_variantes.
+const ZONE := "res://data/p6/colisee_tunnel_A.json"
+const ZONE_RETENUE := "res://data/p6/colisee.json"
 const QUARTIER := "res://data/p6/quartier_initial.json"
 const PNJ := "res://data/p6/pnj_colisee.json"
 const DIALOGUES := "res://data/p6/dialogues_colisee.json"
@@ -114,6 +117,8 @@ func test_pnj_et_dialogues() -> void:
 	var dia: Dictionary = _json(DIALOGUES)["dialogues"]
 	var w = World25.load_world(ZONE, "instance")
 	var wq = World25.load_world(QUARTIER, "instance")
+	var dsud: Dictionary = _json(ZONE_RETENUE)["ajustements"]["p6"]["decalage_sud"]
+	var wr = World25.load_world(ZONE_RETENUE, "instance")
 	var ids := {}
 	for d in pnj:
 		check(not ids.has(d["id"]), "PNJ %s : identifiant unique" % d["id"])
@@ -121,6 +126,11 @@ func test_pnj_et_dialogues() -> void:
 		check(dia.has(d["dialogue"]), "PNJ %s : dialogue « %s » défini" % [d["id"], d["dialogue"]])
 		var ww = wq if d["zone"] == "quartier" else w
 		check(not ww.stand(Vector2(d["xy"][0], d["xy"][1]), 0.0).is_empty(), "PNJ %s : posé sur un sol libre" % d["id"])
+		if d["zone"] != "quartier":
+			var q := Vector2(d["xy"][0], d["xy"][1])
+			if q.x >= dsud["x"][0] and q.x <= dsud["x"][1] and q.y >= dsud["y"]:
+				q.y += float(dsud["dy"])
+			check(not wr.stand(q, 0.0).is_empty(), "PNJ %s : posé sur un sol libre (tunnel retenu %s)" % [d["id"], dsud["tunnel"]])
 		check(d.get("teinte", [1, 1, 1]) != [0.87, 0.79, 0.69], "PNJ %s : pas la silhouette d'Aren" % d["id"])
 	for k in ["garde_vestiaires", "commandant", "chasseur_nerveux", "chasseuse_confiante", "chasseur_reussi", "chasseuse_echouee", "garde_gradins"]:
 		check(ids.has(k), "PNJ attendu : " + k)
@@ -389,7 +399,7 @@ func test_secteurs_continu() -> void:
 	var sc2 = Secteurs.new(_json(ZONE)["ajustements"]["p6"]["secteurs"], "continu")
 	var murs_t := {}
 	for d in [["salle_nord", Rect2(19.6, 37.1, 4.9, 0.4), 6.0, false], ["tunnel_o", Rect2(24.1, 32.0, 0.4, 5.5), 3.1, true],
-			["arc_bouche", Rect2(24.1, 31.6, 3.8, 0.4), 3.1, false]]:
+			["arc_bouche", Rect2(24.1, 31.6, 3.8, 0.4), 3.1, true]]:
 		var pv := Node3D.new()
 		pv.name = d[0]
 		var cp := MeshInstance3D.new()
@@ -400,8 +410,8 @@ func test_secteurs_continu() -> void:
 		murs_t[d[0]] = pv
 	sc2.mettre_a_jour(Vector2(26, 28), true)
 	var cc: Array = sc2.murs_coupes()
-	check(cc.has("salle_nord") and cc.has("arc_bouche"), "arène : mur nord de la salle et arc de la bouche coupés (%s)" % str(cc))
-	check(not cc.has("tunnel_o"), "arène : les murs du tunnel restent entiers")
+	check(cc.has("salle_nord"), "arène : mur nord de la salle coupé (%s)" % str(cc))
+	check(not cc.has("tunnel_o") and not cc.has("arc_bouche"), "arène : murs et arc du tunnel entiers (P6.2-D : trouée locale si l'arc passe devant Aren)")
 	sc2.mettre_a_jour(Vector2(26, 34.7), true)
 	cc = sc2.murs_coupes()
 	check(cc.has("salle_nord") and not cc.has("tunnel_o") and not cc.has("arc_bouche"), "tunnel : mur de la salle coupé, murs et arc du tunnel entiers (%s)" % str(cc))
@@ -438,3 +448,26 @@ func test_etapes_du_tutoriel() -> void:
 	trie.sort()
 	check_eq(tours, trie, "étapes dans l'ordre des tours")
 	check(t["etapes"][-1].get("fin", false), "la dernière étape clôt le tutoriel")
+
+
+## P6.2-D : variantes de longueur du tunnel sud (A 6,5 m, B 8,5 m, C 9,5 m) : bloc sud décalé d'un seul tenant.
+func test_tunnel_variantes() -> void:
+	var a: Dictionary = _json("res://data/p6/colisee_tunnel_A.json")
+	var pa: Dictionary = a["ajustements"]["p6"]
+	for v in [["B", 2.0], ["C", 3.0]]:
+		var z: Dictionary = _json("res://data/p6/colisee_tunnel_%s.json" % v[0])
+		var pz: Dictionary = z["ajustements"]["p6"]
+		check_eq(float(pz["decalage_sud"]["dy"]), v[1], "%s : décalage du bloc sud" % v[0])
+		for i in 3:
+			var ra: Array = pa["secteurs"][i]["rects"][0]
+			var rz: Array = pz["secteurs"][i]["rects"][0]
+			check(is_equal_approx(rz[1] - ra[1], v[1]) and is_equal_approx(rz[3] - ra[3], v[1]), "%s : pièce %s décalée d'un bloc" % [v[0], pz["secteurs"][i]["id"]])
+		var t: Array = pz["secteurs"][3]["rects"][0]
+		check(is_equal_approx(t[1], 32.0) and is_equal_approx(t[3] - t[1], 5.5 + v[1]), "%s : tunnel étiré, bouche inchangée" % v[0])
+		check(is_equal_approx(float(pz["vue_tunnel"]["entree"]), 37.5 + v[1]), "%s : entrée du tunnel dans la vue" % v[0])
+		var w = World25.load_world("res://data/p6/colisee_tunnel_%s.json" % v[0], "instance")
+		check(not w.stand(Vector2(26.0, 51.0 + v[1]), 0.0).is_empty() and not w.stand(Vector2(26.0, 34.0 + v[1]), 0.0).is_empty(),
+			"%s : vestiaires et tunnel praticables" % v[0])
+		var e: Dictionary = z["ajustements"]["entree"]
+		check(is_equal_approx(float(e["xy"][1]), 50.6 + v[1]), "%s : départ dans les vestiaires décalés" % v[0])
+	check_eq(str(_json(ZONE_RETENUE)["ajustements"]["p6"]["decalage_sud"]["tunnel"]), "B", "colisee.json = tunnel retenu (B, 8,5 m)")

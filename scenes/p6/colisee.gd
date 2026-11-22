@@ -17,6 +17,7 @@ extends "res://scenes/p4/avant_poste.gd"
 const Progression = preload("res://src/game/progression.gd")
 const UIS = preload("res://src/presentation/ui_style.gd")
 const ZONE_COLISEE := "res://data/p6/colisee.json"
+const Routes = preload("res://src/explore25/routes25.gd")
 const ZONE_QUARTIER := "res://data/p6/quartier_initial.json"
 const DIALOGUES_P6 := "res://data/p6/dialogues_colisee.json"
 const PNJ_P6 := "res://data/p6/pnj_colisee.json"
@@ -60,6 +61,11 @@ var _journal: Array = []                  # événements de la session (tests, r
 var cam_p6 := "C"
 ## P6.2 : azimut du Colisée validé le 22/11/2026 : 0° (colisee_azimut20.tscn : ancienne référence 20°) ; -- --azimut= l'emporte
 @export var azimut_initial := 0.0
+## P6.2-D : longueur du tunnel sud (comparaison) : "" = données par défaut (colisee.json), "A" 6,5 m, "B" 8,5 m, "C" 9,5 m.
+## -- --tunnel=A|B|C l'emporte ; le choix est gardé pour la session (retour du combat tutoriel).
+@export var tunnel_variante := ""
+static var _tunnel_session := ""
+var _dy_sud := 0.0
 var aren_variante := "foret"
 var _anim_aren: RefCounted
 var _auto_p6_t := 0.0
@@ -155,7 +161,12 @@ func _ready() -> void:
 			_cli["route"] = _cli["route_retour"]
 		else:
 			_cli.erase("route")
-	var zone := ZONE_QUARTIER if Progression.au_moins(Progression.COLISEUM_EXITED) else ZONE_COLISEE
+	if _cli.has("tunnel"):
+		_tunnel_session = str(_cli["tunnel"]).to_upper()
+	elif tunnel_variante != "" and not retour:
+		_tunnel_session = tunnel_variante
+	var zcol := ZONE_COLISEE if _tunnel_session == "" else "res://data/p6/colisee_tunnel_%s.json" % _tunnel_session
+	var zone := ZONE_QUARTIER if Progression.au_moins(Progression.COLISEUM_EXITED) else zcol
 	_load(_cli.get("instance", zone), "instance", arrive)
 	s.cam.set_index(CAMS_P6[cam_p6][1], false)
 	_apply_cli()
@@ -170,6 +181,7 @@ func _ready() -> void:
 
 
 func _exit_tree() -> void:
+	Routes.decalage_sud = {}
 	super._exit_tree()
 	World25.yaw = World25.YAW
 	get_viewport().use_occlusion_culling = false
@@ -294,7 +306,7 @@ func _spawn_pnj() -> void:
 		a["actor"].set_scale_k(a["k"])
 		var tc: Array = d.get("teinte", [1.0, 1.0, 1.0])
 		(a["main"].material_override as ShaderMaterial).set_shader_parameter("tint", Color(CHAR_TINT.r * tc[0], CHAR_TINT.g * tc[1], CHAR_TINT.b * tc[2]))
-		var p := Vector2(d["xy"][0], d["xy"][1])
+		var p: Vector2 = Routes.sud(Vector2(d["xy"][0], d["xy"][1]))   # P6.2-D : bloc sud décalé
 		if _sect != null:
 			# P6.2-C : un PNJ appartient à la pièce où il se tient (son emprise de sprite débordait sur le reste du niveau)
 			a["node"].set_meta("secteur", _sect._proche(p))
@@ -372,6 +384,8 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	_rng.seed = 6061
 	world = World25.load_world(file, m)
 	_p6 = world.adj.get("p6", {})
+	Routes.decalage_sud = _p6.get("decalage_sud", {})
+	_dy_sud = float(Routes.decalage_sud.get("dy", 0.0))
 	_interior = false
 	_sun.visible = true
 	_sun.light_energy = 1.0
@@ -497,6 +511,8 @@ func _build_bloc_p6(e: Dictionary) -> void:
 				# salle) restent à hauteur de voûte : ils encadrent la vue sans dresser de grandes lames devant l'arène
 				hv = H_TUNNEL
 			_mur_continu(id, pivot, r, h0, hv, mpierre, sb, garde)
+			if garde:
+				_naissance_voute(pivot, r, hv)
 			return
 		var mi := _box_mesh(_rect_center(r, h0, h1), size, mpierre, pivot)
 		fade_nodes[sb] = [mi]
@@ -573,6 +589,7 @@ func _build_bloc_p6(e: Dictionary) -> void:
 
 func _build_p6() -> void:
 	_linteaux()
+	_entree_tunnel()
 	if _hab != null:
 		var n0 := root.get_child_count()
 		_hab.exterieur(world.decor)
@@ -583,6 +600,8 @@ func _build_p6() -> void:
 			_hab.vestiaires(Rect2(16.0, 46.5, 20.0, 8.5))
 			for i in range(avant, root.get_child_count()):
 				root.get_child(i).set_meta("secteur", "S1")     # décor composé pour les vestiaires
+				if _dy_sud != 0.0 and root.get_child(i) is Node3D:
+					(root.get_child(i) as Node3D).position.z += _dy_sud      # P6.2-D : bloc sud décalé (longueur du tunnel)
 	if _p6.has("arene"):
 		_build_arene(_p6["arene"])
 	for pid in _p6.get("pieces_fermees", {}):
@@ -609,10 +628,10 @@ func _build_p6() -> void:
 		_box_mesh(pos + Vector3(0, -0.15, 0) + dl * 0.15, Vector3(0.18, 0.3, 0.18), _tinted("bois", Color(0.6, 0.5, 0.4)))
 	if _p6.get("zone", "") == "colisee":
 		if _hab == null:                      # P6.2 : avec l'habillage, bannières peintes de part et d'autre de la porte
-			_banniere(Vector3(26.0, 0.0, 46.3), Color(0.25, 0.32, 0.75))          # vestiaires, mur nord (côté porte)
-			_banniere(Vector3(21.0, 0.0, 46.3), Color(0.25, 0.32, 0.75))
-			_banniere(Vector3(31.0, 0.0, 46.3), Color(0.25, 0.32, 0.75))
-			_banniere(Vector3(26.0, 0.0, 54.95), Color(0.72, 0.6, 0.25), 1.6)      # bannière de la Guilde (sud, basse)
+			_banniere(Vector3(26.0, 0.0, 46.3 + _dy_sud), Color(0.25, 0.32, 0.75))          # vestiaires, mur nord (côté porte)
+			_banniere(Vector3(21.0, 0.0, 46.3 + _dy_sud), Color(0.25, 0.32, 0.75))
+			_banniere(Vector3(31.0, 0.0, 46.3 + _dy_sud), Color(0.25, 0.32, 0.75))
+			_banniere(Vector3(26.0, 0.0, 54.95 + _dy_sud), Color(0.72, 0.6, 0.25), 1.6)      # bannière de la Guilde (sud, basse)
 		_banniere(Vector3(45.0, 0.0, 11.75), Color(0.72, 0.18, 0.22))
 		_banniere(Vector3(55.0, 0.0, 11.75), Color(0.72, 0.18, 0.22))
 	else:
@@ -1251,7 +1270,7 @@ func _maj_secteur(immediat := false) -> void:
 			_env_res.background_mode = Environment.BG_SKY
 	else:
 		# P6.2-B : le fond glisse (intérieur sombre chaud <-> jour), jamais de bascule brusque
-		if _sect.a_ciel_ouvert() and _hab != null:
+		if _sect.a_ciel_ouvert() and _hab != null and vue_tunnel_amount < 0.01:
 			_env_res.background_mode = Environment.BG_SKY
 		else:
 			_fond_but = Color(0.05, 0.04, 0.045) if sombre else Color(0.36, 0.43, 0.6)
@@ -1295,16 +1314,25 @@ func _suivi_secteur(delta: float) -> void:
 	s.cam.bounds = Rect2(b.position.lerp(_bornes_but.position, k), b.size.lerp(_bornes_but.size, k))
 	if _amb_but >= 0.0:
 		_env_res.ambient_light_energy = lerpf(_env_res.ambient_light_energy, _amb_but, k)
+	_maj_vue_tunnel()
 	if _sect.mode != "echelle":
 		var v: float = _sect.voile_ext_pour(Vector2(s.hero.x, s.hero.y))
-		_sect.regler_voile_ext(lerpf(_sect.voile_ext, v, 1.0 - exp(-8.0 * delta)) if absf(v - _sect.voile_ext) > 0.01 else v)
+		if vue_tunnel_ferme >= 0.999:
+			_sect.regler_voile_ext(v)       # P6.2-D : seuil salle / tunnel franchi sous le masque fermé : jamais montré
+		else:
+			_sect.regler_voile_ext(lerpf(_sect.voile_ext, v, 1.0 - exp(-8.0 * delta)) if absf(v - _sect.voile_ext) > 0.01 else v)
 	if _sect.mode != "echelle" and _env_res.background_mode == Environment.BG_COLOR:
 		_env_res.background_color = _env_res.background_color.lerp(_fond_but, k)
-	_maj_vue_tunnel()
+		if _sect.a_ciel_ouvert() and vue_tunnel_amount < 0.01 and _hab != null:
+			_env_res.background_mode = Environment.BG_SKY     # P6.2-D : ciel réel une fois la vue du tunnel effacée
+	if vue_tunnel_amount > 0.0 and _sect.actif in ["S3", "S4"]:
+		# P6.2-D : lumière ambiante liée à la position dans le tunnel (pas de bascule au seuil de l'arène)
+		_env_res.ambient_light_energy = lerpf(0.62 if _hab != null else 0.85, 0.42, vue_tunnel_amount)
 
 
 var _vue_tunnel: MeshInstance3D
 var vue_tunnel_amount := 0.0                 # mesure / tests
+var vue_tunnel_ferme := 0.0
 
 
 ## P6.2-C : vue depuis le tunnel. Un point de l'arène n'est affiché que si la ligne de vue d'Aren passe par la bouche du
@@ -1337,19 +1365,38 @@ func _maj_vue_tunnel() -> void:
 		cam.add_child(_vue_tunnel)
 		_vue_tunnel.position = Vector3(0, 0, -1.0)
 	var hp := Vector2(s.hero.x, s.hero.y)
-	var cx: Array = vt["couloir_x"]
-	var a := 0.0
-	if _sect.actif in ["S2", "S3", "S4"]:
-		a = (1.0 - smoothstep(float(cx[1]), float(cx[2]), absf(hp.x - float(cx[0])))) * smoothstep(float(vt["libre"]), float(vt["plein"]), hp.y)
+	var e := vue_tunnel_etat(hp)
+	var a: float = e["amount"]
 	vue_tunnel_amount = a
+	vue_tunnel_ferme = e["ferme"]
 	_vue_tunnel.visible = a > 0.001
 	if _vue_tunnel.visible:
 		var mat := _vue_tunnel.material_override as ShaderMaterial
 		var b2: Array = vt["bouche"]
 		mat.set_shader_parameter("eye", Vector2(clampf(hp.x, float(b2[0]) + 0.1, float(b2[1]) - 0.1), hp.y))
 		mat.set_shader_parameter("amount", a)
-		var fc: Color = _env_res.background_color if _env_res.background_mode == Environment.BG_COLOR else Color(0.05, 0.04, 0.045)
-		mat.set_shader_parameter("couleur", Color(fc.r, fc.g, fc.b))
+		mat.set_shader_parameter("ferme", e["ferme"])
+		mat.set_shader_parameter("portee", e["portee"])
+		mat.set_shader_parameter("eblouit", e["eblouit"])
+		mat.set_shader_parameter("couleur", Color(0.05, 0.04, 0.045))
+
+
+## P6.2-D : état de la vue du tunnel pour une position (fonction pure : tests, mesures). Dépend de la seule position
+## d'Aren, pas du secteur actif. amount : présence du masque (1 dans le tunnel, s'efface sur les 2,4 m après la bouche,
+## nul au-delà d'un mètre dans la salle) ; ferme : masque complet au seuil salle / tunnel ; portee / eblouit : au-delà de
+## la portée (m depuis la bouche), la vue est noyée dans la lumière du jour.
+func vue_tunnel_etat(hp: Vector2) -> Dictionary:
+	var vt: Dictionary = _p6.get("vue_tunnel", {})
+	if vt.is_empty():
+		return {"amount": 0.0, "ferme": 0.0, "portee": 100.0, "eblouit": 0.0, "progression": 0.0}
+	var cx: Array = vt["couloir_x"]
+	var z0: float = vt["bouche"][2]
+	var entree: float = vt.get("entree", 37.5)
+	var a := (1.0 - smoothstep(float(cx[1]), float(cx[2]), absf(hp.x - float(cx[0])))) * smoothstep(float(vt["libre"]), float(vt["plein"]), hp.y)
+	a *= 1.0 - smoothstep(entree + 0.6, entree + 1.0, hp.y)
+	var prog := 1.0 - clampf((hp.y - z0) / maxf(entree - z0, 0.1), 0.0, 1.0)
+	return {"amount": a, "ferme": smoothstep(entree - 0.9, entree - 0.4, hp.y), "portee": 8.0 * pow(prog, 1.5),
+		"eblouit": lerpf(0.8, 0.4, prog), "progression": prog}
 
 
 var _touches: Label
@@ -1437,8 +1484,41 @@ func _linteaux() -> void:
 			haut.append(_box_mesh(_rect_center(r, lb, 3.0), Vector3(r.size.x, 3.0 - lb, r.size.y), mclair, pivot))
 			var msombre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.42, 0.38, 0.38), true) if _hab != null else mp
 			haut.append(_box_mesh(_rect_center(r, 3.0, lh), Vector3(r.size.x, lh - 3.0, r.size.y), msombre, pivot))
+		var arc := false
 		var coupe := _box_mesh(_rect_center(r, lb - 0.01, lb + 0.01), Vector3(0.01, 0.01, 0.01), _mat_coupe(), pivot)
-		_sect.declarer_mur(pivot, coupe, r, lb, lh, haut, null)
+		_sect.declarer_mur(pivot, coupe, r, lb, lh, haut, null, arc)
+
+
+## P6.2-D : naissance de la voûte du tunnel (passage couvert vu en coupe) : deux ressauts vers l'intérieur au sommet du
+## mur, assombris ; le passage d'Aren (axe, 2,2 m de large) reste dégagé à l'écran.
+func _naissance_voute(pivot: Node3D, r: Rect2, hv: float) -> void:
+	var vers := 1.0 if r.get_center().x < 26.0 else -1.0       # vers l'intérieur du tunnel
+	var face := r.end.x if vers > 0.0 else r.position.x
+	var m1: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.62, 0.58, 0.56), true) if _hab != null else _tinted("pierre", Color(0.6, 0.58, 0.6), true)
+	var m2: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.42, 0.38, 0.38), true) if _hab != null else _tinted("pierre", Color(0.4, 0.38, 0.4), true)
+	for k in 2:
+		var ep := 0.22 + 0.2 * k
+		var h0 := hv - 0.05 + 0.24 * k
+		var mi := _box_mesh(Vector3(face + vers * ep * 0.5, h0 + 0.12, r.get_center().y), Vector3(ep, 0.24, r.size.y), m1 if k == 0 else m2, pivot)
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+
+
+## P6.2-D : encadrement de l'entrée du tunnel côté salle (piédroits en saillie sous le linteau).
+func _entree_tunnel() -> void:
+	var vt: Dictionary = _p6.get("vue_tunnel", {})
+	if vt.is_empty() or _sect == null or _sect.mode == "echelle":
+		return
+	var z: float = vt.get("entree", 37.5)
+	var b: Array = vt["bouche"]
+	var mp: Material = _hab.mat(Habillage.PIERRE, 1.2, Habillage.C_CALCAIRE * Color(1.1, 1.06, 1.0), true) if _hab != null else _surf("pierre", true)
+	for x in [float(b[0]) - 0.15, float(b[1]) + 0.15]:
+		var pivot := Node3D.new()
+		pivot.name = "piedroit_%d" % int(x * 10)
+		pivot.set_meta("xz", Vector2(x, z + 0.12))
+		pivot.set_meta("mur", true)
+		root.add_child(pivot)
+		_box_mesh(Vector3(x, 1.4, z + 0.12), Vector3(0.3, 2.8, 0.25), mp, pivot)
+		_box_mesh(Vector3(x, 2.85, z + 0.14), Vector3(0.42, 0.14, 0.32), mp, pivot)
 
 
 ## P6.2-B : la lumière du jour de l'arène entre par le bout du tunnel (une vraie source, pas un panneau).

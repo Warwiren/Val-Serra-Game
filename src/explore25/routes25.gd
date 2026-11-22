@@ -18,7 +18,57 @@ static func _push(id: String, dir: Vector2, t: float, expect: Dictionary) -> Dic
 	return {"do": "push", "id": id, "dir": dir, "t": t, "expect": expect}
 
 
+## P6.2-D : décalage du bloc sud du Colisée (longueur du tunnel), réglé par la scène au chargement ; les parcours « p6 »
+## écrits pour le tunnel de 6,5 m sont décalés d'autant (x dans [x0, x1], y >= y0 : y + dy).
+static var decalage_sud := {}
+
+
 static func route(name: String) -> Array:
+	if name == "p6_tunnel_cmp":
+		# P6.2-D — comparaison des longueurs du tunnel : mêmes positions RELATIVES (salle, entrée, milieu, fin, débouché)
+		var dy := float(decalage_sud.get("dy", 0.0))
+		var e := 37.5 + dy
+		var out0: Array = []
+		for c in [["t1_salle", e + 3.0], ["t2_entree", e - 0.8], ["t3_milieu", (32.0 + e) * 0.5], ["t4_fin", 32.7],
+				["t5_debouche", 31.0], ["t6_arene", 29.0]]:
+			out0.append(_warp(26.0, c[1], 0.0))
+			out0.append({"do": "wait", "t": 1.5})
+			out0.append({"do": "snap", "id": c[0]})
+		return out0
+	var r := _route_base(name)
+	if not name.begins_with("p6") or decalage_sud.is_empty() or float(decalage_sud.get("dy", 0.0)) == 0.0:
+		return r
+	var out: Array = []
+	for st in r:
+		var d: Dictionary = (st as Dictionary).duplicate()
+		if d.has("to"):
+			d["to"] = sud(d["to"])
+		if d.has("expect") and d["do"] == "push" and out.size() > 0 and out[-1].get("do", "") == "warp":
+			# sonde : seuils exprimés dans le repère du tunnel de 6,5 m -> décalés avec le point de départ
+			var w0: Vector3 = r[out.size() - 1]["to"]
+			var dyw: float = (out[-1]["to"] as Vector3).y - w0.y
+			var ex: Dictionary = (d["expect"] as Dictionary).duplicate()
+			for k in ["min_y", "max_y"]:
+				if ex.has(k):
+					ex[k] = float(ex[k]) + dyw
+			d["expect"] = ex
+		out.append(d)
+	return out
+
+
+static func sud(v):
+	if decalage_sud.is_empty():
+		return v
+	var xs: Array = decalage_sud["x"]
+	var dy := float(decalage_sud["dy"])
+	if v is Vector2 and v.x >= xs[0] and v.x <= xs[1] and v.y >= float(decalage_sud["y"]):
+		return Vector2(v.x, v.y + dy)
+	if v is Vector3 and v.x >= xs[0] and v.x <= xs[1] and v.y >= float(decalage_sud["y"]):
+		return Vector3(v.x, v.y + dy, v.z)
+	return v
+
+
+static func _route_base(name: String) -> Array:
 	match name:
 		"p6_avant":
 			# P6 — ouverture, avant le tutoriel : vestiaires (garde) → salle d'attente → arène → commandant. Le

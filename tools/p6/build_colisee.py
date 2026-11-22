@@ -15,6 +15,11 @@ de petits blocs (podium de 1,4 m) qui suit l'ellipse ; les coins hors de l'annea
 (sable ovale, gradins, loge) est construit par la scène (scenes/p6/colisee.gd) à partir de la section « p6 ».
 
 Usage : python3 tools/p6/build_colisee.py
+
+P6.2-D : longueur du tunnel sud paramétrable. Le bloc sud (salle d'attente, passage, vestiaires, leur mobilier, leurs
+lumières) est décalé vers le sud de (longueur - 6,5) m ; le tunnel est étiré d'autant. La valeur est écrite dans les
+données (« decalage_sud ») : la scène l'applique aux PNJ et au décor posé par l'habillage, les parcours de test aussi.
+Variantes de comparaison : colisee_tunnel_A.json (6,5 m), _B (8,5 m), _C (9,5 m) ; colisee.json = longueur retenue.
 """
 import json
 import math
@@ -109,7 +114,53 @@ def anneau():
     return out
 
 
-def colisee():
+TUNNEL_REF = 6.5                # longueur du tunnel sud de P6 (y 31 -> 37,5, dont 5,5 m couverts au-delà de l'anneau)
+TUNNEL_VARIANTES = {"A": 6.5, "B": 8.5, "C": 9.5}
+TUNNEL_RETENU = "B"             # P6.2-D : proposition (8,5 m), comparaison A / C en F6 (docs/P6_2D_COLISEE_COMPLET.md)
+SUD_Y = 37.0                    # au-delà (vers le sud), entre x 15 et 37 : bloc sud décalé
+SUD_X = (15.0, 37.0)
+
+
+def _decaler(o, dy, cle=""):
+    """Décale le bloc sud de dy (rectangles entièrement au sud : déplacés ; à cheval : étirés ; points : déplacés)."""
+    if isinstance(o, dict):
+        return {k: _decaler(v, dy, k) for k, v in o.items()}
+    if isinstance(o, list):
+        nums = all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in o)
+        if nums and len(o) >= 4 and cle not in ("lumieres",) and SUD_X[0] <= o[0] <= SUD_X[1] and SUD_X[0] <= o[2] <= SUD_X[1] and o[3] > o[1]:
+            r = list(o)
+            if r[1] >= SUD_Y:
+                r[1] = round(r[1] + dy, 3)
+            if r[3] >= SUD_Y:
+                r[3] = round(r[3] + dy, 3)
+            return r
+        if nums and len(o) in (2, 3, 5) and SUD_X[0] <= o[0] <= SUD_X[1] and o[1] >= SUD_Y:
+            r = list(o)
+            r[1] = round(r[1] + dy, 3)
+            return r
+        return [_decaler(v, dy, cle if cle == "lumieres" else "") for v in o]
+    return o
+
+
+def colisee(variante=None):
+    variante = variante or TUNNEL_RETENU
+    dy = TUNNEL_VARIANTES[variante] - TUNNEL_REF
+    return _finir(_colisee_base(), dy, variante)
+
+
+def _finir(zone, dy, variante):
+    z = _decaler(zone, dy) if dy != 0.0 else zone
+    p6 = z["ajustements"]["p6"]
+    p6["decalage_sud"] = {"x": list(SUD_X), "y": SUD_Y, "dy": dy, "tunnel": variante, "longueur_m": TUNNEL_REF + dy}
+    p6["camera_vue_dessus"][3] = round(p6["camera_vue_dessus"][3] + dy, 3)
+    z["world"]["extent_m"][1] = round(z["world"]["extent_m"][1] + dy, 3)
+    z["ajustements"]["decor_marge"][3] = round(z["ajustements"]["decor_marge"][3] + dy, 3)
+    vt = p6["vue_tunnel"]
+    vt["entree"] = round(37.5 + dy, 3)
+    return z
+
+
+def _colisee_base():
     murs = []
     P = {k: v[0] for k, v in PIECES.items()}
     murs += murs_piece("vestiaires", P["vestiaires"], [("n", 24.5, 27.5)])
@@ -316,7 +367,9 @@ def quartier():
 def main():
     out = os.path.join(REPO, "data", "p6")
     os.makedirs(out, exist_ok=True)
-    for name, data in [("colisee.json", colisee()), ("quartier_initial.json", quartier())]:
+    sorties = [("colisee.json", colisee()), ("quartier_initial.json", quartier())]
+    sorties += [("colisee_tunnel_%s.json" % v, colisee(v)) for v in TUNNEL_VARIANTES]
+    for name, data in sorties:
         with open(os.path.join(out, name), "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=1)
             f.write("\n")
