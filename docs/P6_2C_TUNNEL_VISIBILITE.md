@@ -145,7 +145,18 @@ Ces tests ne valident pas l'aspect artistique.
 
 Coût de rendu, en appels de dessin, mesuré en **rendu logiciel lavapipe (pas une validation GPU)** :
 
-PERF_TABLE
+| Position | P6.2-B | **P6.2-C** |
+|---|---|---|
+| Vestiaires | 931 | 936 |
+| Passage | 784 | 796 |
+| Salle d'attente | 482 | **219** (arène plus rendue) |
+| Milieu du tunnel | 441 | **409** |
+| Sortie du tunnel | 431 | **398** |
+| Entrée de l'arène | 817 | **365** (bâtiment coupé, arène en passe opaque) |
+
+Mesures prises par `tools/p6/perf_pieces_p6.gd`, état `tutorial_completed`, même outil et même état des deux côtés.
+Elles ne sont pas comparables aux chiffres du rapport P6.2-B, pris dans un autre état. Le masque du tunnel ajoute un seul
+quad plein écran.
 
 ## 5. Limites
 
