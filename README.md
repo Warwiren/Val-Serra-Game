@@ -84,7 +84,9 @@ masque de collision avant / après.
    **l'apparence de la forêt** (V09B.5 + V4 ; touche **B** : P4.8), **pilote d'habillage** (touche **H** : blockout).
    Rapport : `docs/P6_1_CAMERA_ART.md`.
    **Branche `p6-2-colisee-circulation-visibilite` (étape A, plan de circulation)** : F5 inchangé ; Colisée en F6
-   **azimut 0° validé le 22/11/2026** (`colisee.tscn` et `colisee_azimut0.tscn` ; ancienne référence 20° : `colisee_azimut20.tscn`). Rapport et nouveau plan : `docs/P6_2_CIRCULATION_VISIBILITE.md`.
+   **azimut 0° validé le 22/11/2026** (`colisee.tscn` et `colisee_azimut0.tscn` ; ancienne référence 20° : `colisee_azimut20.tscn`).
+   **Étape B** : vestiaires et salle d'attente en vrais intérieurs (visibilité par secteurs, murs de premier plan coupés,
+   lanternes à ombres douces), tutoriel qu'on peut passer (dialogue du commandant, ou Échap en combat avec confirmation). Rapport et nouveau plan : `docs/P6_2_CIRCULATION_VISIBILITE.md`.
 
 ### Commandes — forêt V07B (F5)
 
@@ -160,6 +162,10 @@ godot --headless --path . --script res://tests/e2e_p4_retour.gd
 
 ```bash
 godot --headless --path . --script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide
+```
+
+```bash
+godot --headless --path . --script res://tests/e2e_p6_saut_tutoriel.gd
 ```
 
 ```bash

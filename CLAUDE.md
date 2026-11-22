@@ -113,6 +113,13 @@
   `scenes/p6/habillage_p6.gd` (touche H, ressources du dépôt seulement, décor sans collision). Garde-fou du tutoriel :
   `src/tutorial/garde_fou.gd` (attaque du commandant bornée, CombatCore inchangé). Aucun pack externe téléchargé
   (hôtes bloqués, licences non vérifiées).
+- **P6.2 (branche `p6-2-colisee-circulation-visibilite`, `docs/P6_2_CIRCULATION_VISIBILITE.md`)** : **azimut 0°
+  du Colisée validé par le créateur le 22/11/2026** (plongée 24°, champ 30°, ×3 ; `World25.yaw` réglable, remis à 20°
+  en quittant la scène ; forêt et avant-poste à 20°). Visibilité des intérieurs : `src/explore25/secteurs25.gd`
+  (secteurs en données, murs de premier plan coupés seulement s'ils cachent la pièce active, plafonds « ombres
+  seulement », collisions jamais touchées) — prototype vestiaires / passage / salle / tunnel EN ATTENTE de validation ;
+  ne pas l'étendre à l'arène ni à la coursive sans accord. Saut du tutoriel : `Progression.conclure_tutoriel()`
+  (conclusion commune), test `tests/e2e_p6_saut_tutoriel.gd`.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
-  `--script res://tests/e2e_p4_retour.gd`, `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
+  `--script res://tests/e2e_p4_retour.gd`, `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.

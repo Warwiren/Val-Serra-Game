@@ -1,4 +1,4 @@
-# P6.2 — Circulation et visibilité du Colisée : étape A (plan de circulation)
+# P6.2 — Circulation et visibilité du Colisée
 
 Branche **`p6-2-colisee-circulation-visibilite`**, depuis `p6-1-colisee-camera-art` (`6ca2c32`). Branches
 précédentes intactes. F5 inchangé. **Étape A seulement** : diagnostic, comparaison des solutions, nouveau plan,
@@ -151,3 +151,147 @@ Ce que je propose, sans système de portails :
    caméra, placement des objets, premier éclairage intérieur, vidéo de circulation et de visibilité.
 3. Le **saut du tutoriel** (étape D) ne touche pas à la géométrie : il peut être développé indépendamment, en parallèle
    de l'étape B, si vous le souhaitez.
+
+
+---
+
+# Étape B — Prototype vestiaires + salle d'attente (22/11/2026)
+
+Décisions du créateur appliquées :
+* **caméra du Colisée validée** : azimut 0°, plongée 24°, champ 30°, zoom ×3. `scenes/p6/colisee.tscn` et
+  `colisee_azimut0.tscn` démarrent ainsi ; `colisee_azimut20.tscn` garde l'ancienne référence pour comparer. La forêt
+  et l'avant-poste restent à 20° : l'azimut est remis à 20° en quittant la scène du Colisée.
+* **plan validé** : le passage entre les vestiaires et la salle d'attente fait 3 m, les accès sont alignés et le trajet
+  principal est dégagé.
+
+Médias : [`pieces_planche.jpg`](media/p6_2/pieces_planche.jpg) et `media/p6_2/piece_*.jpg` (12 positions),
+[`pieces_circulation_visibilite.mp4`](media/p6_2/pieces_circulation_visibilite.mp4),
+[`eclairage_avant_apres.jpg`](media/p6_2/eclairage_avant_apres.jpg),
+[`saut_tutoriel.mp4`](media/p6_2/saut_tutoriel.mp4).
+
+## 1. Système de visibilité par secteurs (réutilisable)
+
+Module `src/explore25/secteurs25.gd`, piloté par les données (`p6.secteurs` dans `data/p6/colisee.json`, généré par
+`tools/p6/build_colisee.py`). Pour un nouveau bâtiment, il suffit de déclarer des rectangles, des voisins et une ambiance.
+
+| Secteur | Pièce | Voisins affichés | Fond | Plafond d'ombre |
+|---|---|---|---|---|
+| S1 | Vestiaires | passage | sombre | 3,4 m |
+| P12 | Passage (3 m) | vestiaires, salle | sombre | 3,2 m |
+| S2 | Salle d'attente | passage, tunnel | sombre | 3,4 m |
+| S3 | Tunnel des combattants | salle, **arène** | ciel | 2,9 m |
+| EXT | Tout le reste (arène, coursive…) | tout, comme en P6.1 | — | — |
+
+Le module distingue les quatre cas demandés :
+
+1. **Murs visibles** depuis la pièce active : murs du fond et des côtés, en **pleine hauteur**.
+2. **Murs qui cachent la caméra** : un mur est coupé (réduit à un muret de 0,5 m coiffé d'une **tranche sombre**) seulement
+   si sa projection vers l'arrière-plan (hauteur / tan 24°) recouvre le sol de la pièce active. Ce n'est pas un
+   abaissement général : dans les vestiaires, seul le mur sud est coupé ; dans la salle, son mur sud et le mur nord
+   des vestiaires.
+3. **Murs et décor des secteurs non visibles** : leur groupe n'est plus rendu du tout. Le décor composé pour une pièce y est
+   rattaché explicitement (poutres, bannières, casiers) ; seuls les murs, qui sont des frontières, peuvent appartenir à
+   deux secteurs.
+4. **Collisions** : les corps physiques ne sont jamais déplacés, réduits ni masqués (vérifié par les sondes).
+
+Transitions : le groupe qui disparaît s'abaisse vers le sol et celui qui apparaît s'en élève, en 0,35 s ; les murs
+coupés descendent de la même façon. Rien ne disparaît d'un coup. Les limites de caméra glissent vers celles de la pièce,
+et l'ambiance (fond, lumière ambiante) suit.
+
+Résultats :
+* **Vestiaires** : la pièce entière, la recrue, le garde et la porte encadrée par deux bannières de la Guilde. Ni
+  l'arène, ni la salle, ni l'extérieur. La caméra est quasi fixe : la pièce tient dans le cadre.
+* **Passage** : les deux pièces se voient par l'ouverture ; Aren est visible dans l'embrasure.
+* **Salle d'attente** : la salle et ses trois Chasseurs. Les vestiaires disparaissent. Au fond, le tunnel et une lueur
+  chaude, la lumière de l'arène, qui donne la direction.
+* **Tunnel** : l'arène se révèle en grand, la salle reste derrière.
+
+**Occlusion visible d'Aren** (`tools/p6/occlusion_visuelle_p6.gd`, rayons du buste et de la tête vers la caméra contre
+ce qui est affiché) :
+
+| | P6.1 (20°, sans secteurs) | P6.2 |
+|---|---|---|
+| Vestiaires | 4 % | 2 % (derrière le râtelier et le mannequin ; le trou de visibilité prend le relais) |
+| Passage | 0 % | 0 % |
+| Salle d'attente | **36 %** | **0 %** |
+| Ensemble | 14,8 % | **1,2 %** |
+
+## 2. Éclairage intérieur
+
+* **Plafonds « ombres seulement »** au-dessus des pièces couvertes : invisibles pour la caméra, ils arrêtent le soleil. Ils
+  sont indépendants de l'affichage : un plafond n'est jamais masqué, il ne fait qu'ombrer.
+* **Lanternes murales** à ombres douces, avec la même qualité 4 que le soleil (aussi pour les lumières ponctuelles).
+  Elles sont posées contre les murs latéraux et de part et d'autre de la porte, plus aucune devant les casiers, et
+  produisent des flaques de lumière chaude, des coins plus sombres et des ombres du mobilier.
+* Ambiance intérieure plus basse que dehors (0,42 contre 0,62), fond sombre, plancher moins saturé.
+
+Avant / après au même endroit : [`eclairage_avant_apres.jpg`](media/p6_2/eclairage_avant_apres.jpg).
+
+## 3. Placement du décor des vestiaires
+
+Composition resserrée :
+* casiers contre les murs nord et ouest ;
+* deux bancs (le troisième, collé au mur sud, est retiré des données) ;
+* râtelier garni ; mannequin ;
+* coffre, caisse, sacs et tonneau dans les angles ; bûches déplacées entre les casiers et le râtelier.
+
+Retirés :
+* le tapis, qui encombrait l'axe ;
+* les lanternes sur pied, plantées dans les casiers ;
+* les carrés bleus du blockout et le bloc jaune au sud.
+
+Le garde reste bien visible à droite de la porte ; la sortie est encadrée par les bannières.
+
+## 4. Saut du tutoriel (commit séparé)
+
+* Dans le dialogue du commandant, après la réponse au choix : **« Commencer l'entraînement » / « Passer le
+  tutoriel »**. L'effet est porté par la réponse (`data/p6/dialogues_colisee.json`).
+* Pendant le combat : bouton **« Passer le tutoriel (Échap) »** et touche Échap → **confirmation** (`src/tutorial/
+  confirmation.gd`, « Non » sélectionné par défaut, ← → / Entrée / Échap / souris). « Non » : le tutoriel continue.
+* **Conclusion commune** `Progression.conclure_tutoriel()` pour les trois cas (fin normale, saut en combat, saut dans le
+  dialogue) : résultat `tutorial_completed`, retour au Colisée, puis le chemin habituel du retour (état, objectif Guilde,
+  Aren devant le commandant, dialogue de fin, accès ouverts).
+* CombatCore n'est pas modifié ; le commandant reste intact ; pas de victoire ni de défaite, pas de récompense.
+
+## 5. Tests et mesures
+
+| Vérification | Résultat |
+|---|---|
+| `tests/run_tests.gd` | **82 / 82** (+1 : secteurs) |
+| `tests/e2e_p6_ouverture.gd -- --tuto-rapide` | réussi (Échap → confirmation → « Non » : on reste en combat) |
+| `tests/e2e_p6_saut_tutoriel.gd` (nouveau) | réussi : saut dans le dialogue (aucun combat chargé) et en combat (confirmation), même état final, pas de relance |
+| Sondes P6 `p6_sondes` | 10 / 10 (collisions inchangées) |
+| Circulation à une touche (`tools/p6/circulation_p6.gd`) | 4 tronçons sur 4, 0 % de contact mural |
+| P4 : e2e, `p4` 29 / 29, `p4_sondes` 20 / 20 ; P5 ; forêt V09B.5, V09C, V11 ; P5.2 ; P5.3-B | réussis |
+| F5 | inchangé, se charge sans erreur |
+
+**Performances** (`tools/p6/perf_pieces_p6.gd`, rendu logiciel, à confirmer sur votre GPU) :
+
+| Position | Sans secteurs | Avec secteurs |
+|---|---|---|
+| Vestiaires | 825 appels de dessin · 29 k primitives | **347 · 7 k** |
+| Passage | 707 · 24 k | 611 · 7 k (deux pièces visibles) |
+| Salle d'attente | 638 · 23 k | **143 · 1 k** |
+| Tunnel | 470 · 21 k | 450 · 21 k (arène visible) |
+
+Les ombres des lanternes passent en mode « double paraboloïde » (2 passes au lieu de 6) ; seules celles du secteur
+affiché sont actives. Mémoire vidéo : 182 → 214 Mo (cartes d'ombres). Les transitions ne coûtent qu'une animation
+d'échelle par groupe.
+
+## 6. Limites et points à valider visuellement
+
+* La vidéo des pièces a été enregistrée juste avant le dernier réglage (ambiance 0,30 au lieu de 0,42) : le jeu est un
+  peu plus clair que la vidéo. Les captures sont à jour.
+* Au-dessus des murs du fond, c'est le noir (convention des intérieurs de vos références). Un haut de mur se perdant dans
+  l'ombre, ou un plafond visible en coupe, pourrait l'adoucir : à décider.
+* La lueur du tunnel est un simple panneau lumineux : à remplacer lors de la passe graphique.
+* Arène, coursive et sorties restent en « EXT » (comportement P6.1) jusqu'à votre validation : depuis l'arène, on voit
+  encore les pièces pilotes à l'ancienne.
+* Rendu logiciel uniquement : ombres douces, lumières et performances à vérifier sur GPU.
+
+## 7. Décisions attendues
+
+1. Valider la méthode sur les deux pièces : secteurs, murs coupés seulement s'ils cachent la pièce, tranche sombre,
+   plafonds d'ombre, transitions et éclairage.
+2. Le noir au-dessus des murs du fond : à garder, ou à traiter (haut de mur dans l'ombre) ?
+3. Ensuite, étape C : extension à l'arène, à la coursive et à la sortie, puis régénération du décor du combat tutoriel.

@@ -556,6 +556,7 @@ func _build_p6() -> void:
 		if interieur:
 			var ol: OmniLight3D = _lights[-1][0]
 			ol.shadow_enabled = true
+			ol.omni_shadow_mode = OmniLight3D.SHADOW_DUAL_PARABOLOID      # 2 passes au lieu de 6 (cube)
 			ol.light_size = 0.12
 			ol.shadow_bias = 0.06
 			ol.omni_attenuation = 1.6
@@ -1186,7 +1187,7 @@ func _maj_secteur(immediat := false) -> void:
 		_env_res.background_color = Color(0.022, 0.018, 0.026)
 	elif _hab != null:
 		_env_res.background_mode = Environment.BG_SKY
-	_amb_but = 0.3 if sombre else (0.62 if _hab != null else 0.85)
+	_amb_but = 0.42 if sombre else (0.62 if _hab != null else 0.85)
 	if immediat:
 		_env_res.ambient_light_energy = _amb_but
 	var cr: Rect2 = _sect.camera_rect()
