@@ -62,6 +62,7 @@ var cam_p6 := "C"
 @export var azimut_initial := 0.0
 var aren_variante := "foret"
 var _anim_aren: RefCounted
+var _auto_p6_t := 0.0
 var _sect                                  # P6.2 : visibilité par secteurs (null si la zone n'en déclare pas)
 var _lueur_tunnel: MeshInstance3D
 var _bornes_but := Rect2()
@@ -982,13 +983,14 @@ func _physics_process(delta: float) -> void:
 	if _bloque:
 		return
 	if _dialog.is_open() and (s.pilot.size() > 0 or GameState.autoplay):
-		_auto_dialog_t += delta
-		if _auto_dialog_t > 0.5:
-			_auto_dialog_t = 0.0
+		_auto_p6_t += delta
+		if _auto_p6_t > 0.5:
+			_auto_p6_t = 0.0
 			if _dialog.showing_choice():
 				_dialog.pick(_choix_auto(_dialog._choices))
 			else:
 				_dialog.advance()
+	_auto_dialog_t = -1.0e9                     # l'avancée automatique héritée de l'avant-poste ne doit pas choisir à notre place
 	super._physics_process(delta)
 	if _switching or world == null or _bloque:
 		return
