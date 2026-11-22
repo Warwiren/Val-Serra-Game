@@ -1739,6 +1739,10 @@ func tranche_gradins(meshes: Array) -> void:
 		aabb = a if premier else aabb.merge(a)
 		premier = false
 	pivot.set_meta("xz", Vector2(aabb.get_center().x, aabb.get_center().z))
+	# dallage sous la tranche : une fois coupée, on voit un sol (une coupe), pas le vide
+	var ms: Material = _hab.mat(Habillage.PAVES, 1.6, Color(0.62, 0.58, 0.6)) if _hab != null else _tinted("paves", Color(0.6, 0.58, 0.62))
+	var dal := _box_mesh(Vector3(aabb.get_center().x, -0.04, aabb.get_center().z), Vector3(aabb.size.x, 0.1, aabb.size.z), ms)
+	dal.set_meta("xz", Vector2(aabb.get_center().x, aabb.get_center().z))
 	var coupe := _box_mesh(Vector3(aabb.get_center().x, 0.01, aabb.get_center().z), Vector3(0.01, 0.01, 0.01), _mat_coupe(), pivot)
 	_sect.declarer_mur(pivot, coupe, Rect2(aabb.position.x, aabb.position.z, aabb.size.x, aabb.size.z), 0.0, aabb.end.y, haut, null, false, ["S5"])
 
