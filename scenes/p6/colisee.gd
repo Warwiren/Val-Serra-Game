@@ -787,7 +787,10 @@ func _build_p6() -> void:
 		var q: Array = _p6["pieces_fermees"][pid]["rect"]
 		var r := Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1])
 		var d: Array = SOLS.get(_p6["pieces_fermees"][pid]["sol"], SOLS["paves"])
-		var mf := _box_mesh(_rect_center(r, -0.3, 0.0), Vector3(r.size.x, 0.3, r.size.y), _tinted(d[0], d[1] * Color(0.7, 0.7, 0.75)))
+		var mfm: Material = _tinted(d[0], d[1] * Color(0.7, 0.7, 0.75))
+		if _hab != null and _hab.extension and _hab.p64:
+			mfm = _hab.mat_sol(pid)                    # P6.4.2 : plancher de la réserve (vu par la porte en coupe)
+		var mf := _box_mesh(_rect_center(r, -0.3, 0.0), Vector3(r.size.x, 0.3, r.size.y), mfm)
 		mf.set_meta("sol", true)
 	for p in _p6.get("portes", []):
 		_build_porte(p)
