@@ -373,6 +373,58 @@ static func _route_base(name: String) -> Array:
 				_go(62.8, 23.2, "sortie est", 0.3),
 				{"do": "wait", "t": 1.5},
 			]
+		"p6_video_643_avant":
+			# P6.4.3 — vidéo de validation, 1re partie : même parcours que P6.4.2 (vestiaires -> salle -> tunnel sud ->
+			# arène, aller-retour au débouché), puis vue générale de l'arène au zoom ×2, retour à ×3, commandant
+			return [
+				{"do": "wait", "t": 1.0},
+				_go(26.0, 47.6, "vestiaires : porte nord", 0.25),
+				_go(26.0, 45.6, "passage", 0.25),
+				_go(26.0, 41.2, "salle d'attente", 0.25),
+				{"do": "wait", "t": 0.8},
+				_go(26.0, 36.0, "tunnel sud : entrée", 0.25),
+				_go(26.0, 34.6, "tunnel sud : milieu", 0.2),
+				{"do": "wait", "t": 1.0},
+				_go(26.0, 30.2, "débouché dans l'arène", 0.25),
+				{"do": "wait", "t": 0.6},
+				_go(26.0, 34.0, "retour dans le tunnel sud", 0.25),
+				_go(26.0, 28.0, "de nouveau l'arène", 0.25),
+				{"do": "zoom", "i": 0, "smooth": true},
+				{"do": "wait", "t": 1.2},
+				_go(20.5, 25.5, "arène : vers les gradins ouest (×2)", 0.3),
+				_go(26.0, 26.5, "arène : centre (×2)", 0.3),
+				{"do": "zoom", "i": 2, "smooth": true},
+				{"do": "wait", "t": 0.8},
+				_go(26.0, 23.1, "devant le commandant", 0.45),
+				{"do": "talk", "id": "commandant"},
+				{"do": "wait", "t": 14.0},
+			]
+		"p6_video_643_apres":
+			# P6.4.3 — 2e partie (tutoriel passé) : gradins sud-est et bouche du tunnel est (×2 puis ×3), tunnel est,
+			# coursive, infirmerie (soigneuse), retour dans la coursive, sortie est
+			return [
+				{"do": "wait", "t": 7.0},
+				_go(30.0, 26.5, "arène : vers les gradins sud-est", 0.3),
+				{"do": "zoom", "i": 0, "smooth": true},
+				{"do": "wait", "t": 0.8},
+				_go(35.0, 23.0, "arène : bouche du tunnel est (×2)", 0.3),
+				{"do": "wait", "t": 0.8},
+				{"do": "zoom", "i": 2, "smooth": true},
+				_go(41.2, 23.0, "tunnel est : milieu", 0.25),
+				_go(44.8, 23.0, "coursive : entrée", 0.25),
+				_go(50.0, 25.0, "coursive : centre", 0.3),
+				_go(46.6, 33.3, "porte de l'infirmerie", 0.3),
+				_go(47.2, 37.4, "infirmerie : soigneuse", 0.3),
+				{"do": "talk", "id": "soigneuse"},
+				{"do": "wait", "t": 7.0},
+				_go(46.6, 33.0, "retour dans la coursive", 0.3),
+				_go(53.0, 32.6, "devant la réserve", 0.3),
+				{"do": "wait", "t": 0.6},
+				_go(55.0, 23.2, "coursive (est)", 0.3),
+				_go(58.5, 23.2, "couloir de sortie", 0.3),
+				_go(62.8, 23.2, "sortie est", 0.3),
+				{"do": "wait", "t": 1.5},
+			]
 		"p6_traversee":
 			# P6.2-D — traversée complète d'un seul tenant (après le tutoriel), avec arrêts et demi-tours aux seuils : mesure
 			# de la continuité de la caméra (tools/p6/camera_continuite_p6.gd)
@@ -532,6 +584,31 @@ static func _route_base(name: String) -> Array:
 				oute.append({"do": "wait", "t": 1.6})
 				oute.append({"do": "snap", "id": c[0]})
 			return oute
+		"p6_643_inspection":
+			# P6.4.3 — points de contrôle des P0 : tunnel sud, bouche du tunnel est (gradins, escaliers), coursive
+			var outi: Array = []
+			for c in [["i1_tunnel_milieu", 26.0, 34.4], ["i2_tunnel_fin", 26.0, 32.7], ["i3_arene_vers_est", 35.0, 23.0],
+					["i4_bouche_est", 37.4, 23.0], ["i5_tunnel_est", 40.0, 23.0], ["i6_coursive_seuil", 44.8, 23.0],
+					["i7_coursive_sud", 47.0, 31.0], ["i8_infirmerie", 46.6, 37.0]]:
+				outi.append(_warp(c[1], c[2], 0.0))
+				outi.append({"do": "wait", "t": 1.6})
+				outi.append({"do": "snap", "id": c[0]})
+			return outi
+		"p6_643_captures":
+			# P6.4.3 — captures artistiques (après le tutoriel, sans débogage) : arène générale ×2 et ×3, entrée principale,
+			# raccords gradins / coursive, salle d'attente, infirmerie
+			var outa: Array = [{"do": "zoom", "i": 2, "smooth": false}]
+			for c in [["a1_arene_x3", 26.0, 27.0, 2], ["a2_arene_x2", 26.0, 27.0, 0], ["a3_entree_x3", 26.0, 31.0, 2],
+					["a4_entree_x2", 26.0, 31.0, 0], ["a5_raccords_x3", 36.4, 23.0, 2], ["a6_raccords_x2", 36.4, 23.0, 0],
+					["a7_salle_x3", 26.0, 42.6, 2], ["a8_infirmerie_x3", 46.6, 37.6, 2], ["a9_coursive_x2", 49.5, 24.5, 0]]:
+				outa.append({"do": "zoom", "i": c[3], "smooth": false})
+				outa.append(_warp(c[1], c[2], 0.0))
+				outa.append({"do": "wait", "t": 1.6})
+				outa.append({"do": "snap", "id": c[0]})
+			return outa
+		"p6_643_ombres":
+			return [_warp(26.0, 27.0, 0.0), {"do": "wait", "t": 1.6}, {"do": "snap", "id": "o1_arene"},
+				_warp(46.6, 37.6, 0.0), {"do": "wait", "t": 1.6}, {"do": "snap", "id": "o2_infirmerie"}]
 		"p6_extension_coursive":
 			# P6.4.2 — cadrages de la coursive seuls (reprise après réglage des piliers)
 			var outk: Array = []
