@@ -627,6 +627,8 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 	for t in tunnels:
 		if (t as Rect2).size.x > (t as Rect2).size.y:      # tunnel est (vu de côté) ; au sud, un arc masquerait l'arène
 			_arc_tunnel(t as Rect2, pierre_claire, pierre_sombre)
+	if extension and p64:
+		_lumiere_arene_p642(c, rx, ry, tunnels)
 
 
 func _dans_tunnel(c: Vector2, rx: float, ry: float, an: float, tunnels: Array) -> bool:
@@ -696,6 +698,36 @@ func lumiere_coursive_p64() -> void:
 	lum_fixe(Vector3(45.2, 2.2, 23.0), 0.6, 3.2, Color(1.0, 0.78, 0.55))        # débouché du tunnel est
 	for z in [17.0, 23.0, 29.0]:
 		lum_fixe(Vector3(50.0, 3.2, z), 0.6, 4.2, Color(1.0, 0.86, 0.7))        # allée centrale
+
+
+## P6.4.2 : arène éclairée naturellement. Pas de lumière ajoutée sur le sable : seules les bouches des deux accès
+## combattants reçoivent une lueur chaude courte (lecture des passages depuis le centre), sans ombre.
+func _lumiere_arene_p642(c: Vector2, rx: float, ry: float, tunnels: Array) -> void:
+	for t in tunnels:
+		var tr := t as Rect2
+		var sud := tr.size.y > tr.size.x
+		var p := Vector3(tr.get_center().x, 2.3, tr.position.y + 0.6) if sud else Vector3(tr.position.x + 0.5, 2.3, tr.get_center().y)
+		lum_fixe(p, 0.55, 3.2, Color(1.0, 0.74, 0.46))
+
+
+## P6.4.2 : harmonisation lumineuse. Même logique que la coursive du second pilote : la lumière désigne les accès et
+## les axes de circulation, chaque pièce garde sa tonalité. Lumières fixes, sans ombre ni scintillement ; aucune ne
+## suit Aren. Vestiaires (chauds) et coursive : réglages des pilotes, inchangés.
+func lumiere_p642() -> void:
+	if not (extension and p64):
+		return
+	var dy: float = sc._dy_sud
+	# salle d'attente (intérieur) : les deux portes de service, et l'axe vers le tunnel, plus doux que les vestiaires
+	for x in [20.6, 31.4]:
+		lum_fixe(Vector3(x, 2.1, 41.0 + dy), 0.45, 2.6, Color(1.0, 0.72, 0.46))
+	lum_fixe(Vector3(26.0, 2.8, 41.6 + dy), 0.4, 4.6, Color(1.0, 0.82, 0.64))
+	# infirmerie : lumière plus blanche et calme au-dessus des lits (lieu de soins), porte vers la coursive
+	lum_fixe(Vector3(45.6, 2.7, 38.8), 0.5, 4.2, Color(0.94, 0.94, 0.9))
+	lum_fixe(Vector3(46.5, 2.1, 35.4), 0.4, 2.4, Color(1.0, 0.78, 0.55))
+	# réserve (vue en coupe) : une seule lueur faible et chaude, pièce fermée et poussiéreuse
+	lum_fixe(Vector3(53.2, 2.4, 37.8), 0.3, 3.6, Color(1.0, 0.7, 0.45))
+	# couloir de sortie : la porte de la coursive et le bout du couloir (le jour de la ville entre par la porte est)
+	lum_fixe(Vector3(57.4, 2.2, 23.0), 0.55, 2.8, Color(1.0, 0.74, 0.48))
 
 
 ## Hauteur du haut du mur de fond des gradins à l'angle a (même formule que la construction des gradins).

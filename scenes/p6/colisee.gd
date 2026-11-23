@@ -915,6 +915,7 @@ func _build_arene(a: Dictionary) -> void:
 		_hab.arene(a, tunnels)
 		_hab.loge(a["loge"])
 		_hab.lumiere_coursive_p64()
+		_hab.lumiere_p642()
 		return
 	var n := 120
 	# sable
