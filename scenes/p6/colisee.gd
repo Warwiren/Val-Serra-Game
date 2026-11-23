@@ -601,7 +601,10 @@ func _build(e: Dictionary) -> void:
 			_static_box(_rect_center(r, e["h"] - th, e["h"]), Vector3(r.size.x, th, r.size.y), L_FLOOR)
 			if sol == "sable":
 				# sous le sable ovale : dallage sombre (les coins sont sous les gradins)
-				_box_mesh(_rect_center(r, e["h"] - th, e["h"] - 0.01), Vector3(r.size.x, th - 0.01, r.size.y), _tinted("paves", Color(0.5, 0.48, 0.55)))
+				var msous: Material = _tinted("paves", Color(0.5, 0.48, 0.55))
+				if _hab != null and _hab.extension and _hab.p64:
+					msous = _hab.mz("dallage_tunnel", "arene", "monde", 1.0, false, Color(0.8, 0.78, 0.76))   # P6.4.2 : visible aux bouches
+				_box_mesh(_rect_center(r, e["h"] - th, e["h"] - 0.01), Vector3(r.size.x, th - 0.01, r.size.y), msous)
 			else:
 				var d: Array = SOLS.get(sol, SOLS["paves"])
 				var msol: Material = _hab.m64("dallage", "monde") if _hab != null and _hab.pilote_sol(id) else _tinted(d[0], d[1])
@@ -1383,6 +1386,10 @@ func _vue_dessus_p6() -> void:
 ## Décor du combat tutoriel : l'arène elle-même, vue depuis le sable (caméra de combat), sans personnages ni
 ## interface ; enregistré dans art/p6/combat/arene_colisee.png (1280 × 720), affiché 1:1 par la scène de combat.
 func _decor_combat() -> void:
+	# P6.4.2 : visibilité de l'ARÈNE (ciel, extérieur) quel que soit le point de départ (sinon : état des vestiaires)
+	s.warp_to(Vector3(26.0, 26.0, 0.0))
+	for i in 4:
+		await get_tree().process_frame
 	set_physics_process(false)
 	_tilt.visible = false
 	s.hud.visible = false

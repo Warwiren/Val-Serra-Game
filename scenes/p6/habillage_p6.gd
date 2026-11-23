@@ -466,6 +466,15 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 	var u_dalle := mat_uv(PIERRE, C_CALCAIRE * Color(1.12, 1.1, 1.08), true, 0.9)          # dessus des marches, chaperon
 	var u_bois := mat_uv(PLANCHES, Color(0.62, 0.5, 0.44), true)                           # assises (planches le long de l'arc)
 	var u_esc := mat_uv(PIERRE, C_CALCAIRE * Color(0.9, 0.86, 0.84), true, 0.75)          # escaliers
+	if extension and p64:
+		# P6.4.2 : tout l'anneau dans les matières de la portion pilote (plus de surfaces P6.3 à côté des nouvelles)
+		pierre_claire = mz("moulure", "arene", "monde", 1.0, true)
+		pierre_sombre = mz("contrefort", "arene", "monde", 1.0, true)
+		pierre = mz("mur", "arene", "monde", 1.0, true)
+		u_pierre = mz("gradin", "arene", "maillage", 1.8, true)
+		u_dalle = mz("dalle", "arene", "maillage", 1.8, true)
+		u_bois = mz("bois", "arene", "maillage", 1.8, true, Color(0.86, 0.88, 0.96))      # bois grisé par le soleil
+		u_esc = mz("dalle", "arene", "maillage", 1.8, true, Color(0.92, 0.9, 0.88))
 	# sable
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -500,9 +509,9 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 	sc._faces(podium, u_pierre)
 	sc._faces(chaperon, u_dalle)
 	if not p_podium.is_empty():
-		sc._faces(p_podium, m64("socle", "maillage", 1.8, true))
-		sc._faces(p_chap, m64("dalle", "maillage", 1.8, true))
-		sc._faces(p_chap_f, m64("moulure", "maillage", 1.8, true))
+		sc._faces(p_podium, mm("socle", "arene", "maillage", 1.8, true))
+		sc._faces(p_chap, mm("dalle", "arene", "maillage", 1.8, true))
+		sc._faces(p_chap_f, mm("moulure", "arene", "maillage", 1.8, true))
 	var k := 0
 	for i in range(0, 360, 12):
 		var an := deg_to_rad(i + 6)
@@ -551,7 +560,7 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 			continue
 		var allee := fposmod(rad_to_deg(am), 30.0) < 2.6
 		var tranche := deg >= 2.0 and deg <= 46.0
-		var pil := pilote_gradins(am)          # P6.4 : portion pilote (matériaux procéduraux)
+		var pil := pilote_gradins(am)          # P6.4 : portion pilote (matériaux procéduraux) ; P6.4.2 : tout l'anneau
 		var cm_: Array = t_contre if tranche else (p_contre if pil else contremarches)
 		var ma_: Array = t_marches if tranche else (p_marches if pil else marches)
 		var as_: Array = t_assises if tranche else (p_assises if pil else assises)
@@ -567,7 +576,7 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 			else:
 				ma_.append(_rt(c, r0, ry + (r0 - rx), r1, ry + (r1 - rx), a0, a1, hk))
 				var rs := r0 + 0.08
-				as_.append(_rt(c, rs, ry + (rs - rx), rs + 0.34, ry + (rs + 0.34 - rx), a0, a1, hk + 0.07, not pil))
+				as_.append(_rt(c, rs, ry + (rs - rx), rs + 0.34, ry + (rs + 0.34 - rx), a0, a1, hk + 0.07, not (pil or (tranche and extension))))
 				as_.append(_rq(c, rs, ry + (rs - rx), a0, a1, hk, hk + 0.07, 0.0))
 		var rl := rx + ep + prof
 		var htop := (ah + 0.25 + 0.55 * rangs) * k_h + (1.0 - k_h) * 0.4
@@ -581,13 +590,13 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 	sc._faces(escaliers, u_esc)
 	if not p_contre.is_empty():
 		# P6.4 : portion pilote (UV métriques de _rq / _rt : 1 unité = 1,8 m)
-		sc._faces(p_contre, m64("gradin", "maillage", 1.8, true))
-		var pm: MeshInstance3D = sc._faces(p_marches, m64("dalle", "maillage", 1.8, true))
+		sc._faces(p_contre, mm("gradin", "arene", "maillage", 1.8, true))
+		var pm: MeshInstance3D = sc._faces(p_marches, mm("dalle", "arene", "maillage", 1.8, true))
 		pm.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-		var pa: MeshInstance3D = sc._faces(p_assises, m64("bois", "maillage", 1.8, true))
+		var pa: MeshInstance3D = sc._faces(p_assises, u_bois if extension else m64("bois", "maillage", 1.8, true))
 		pa.name = "P64_assises"
 		if not p_esc.is_empty():
-			sc._faces(p_esc, m64("dalle", "maillage", 1.8, true, Color(0.92, 0.9, 0.88)))
+			sc._faces(p_esc, mm("dalle", "arene", "maillage", 1.8, true, Color(0.92, 0.9, 0.88)))
 	if not t_contre.is_empty() and sc.has_method("tranche_gradins"):
 		var ms: Array = [sc._faces(t_contre, u_pierre), sc._faces(t_marches, u_dalle), sc._faces(t_assises, u_bois)]
 		if not t_esc.is_empty():
@@ -606,7 +615,7 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 		var a1 := deg_to_rad(i + 4)
 		archi.append(_rq(c, rl2 - 0.3, ry + (rl2 - 0.3 - rx), a0, a1, htop_n + 2.3, htop_n + 2.75, 0.0))
 		archi.append(_rt(c, rl2 - 0.3, ry + (rl2 - 0.3 - rx), rl2 + 0.3, ry + (rl2 + 0.3 - rx), a0, a1, htop_n + 2.75))
-	sc._faces(archi, u_dalle)
+	sc._faces(archi, mz("moulure", "arene", "maillage", 1.8, true) if extension and p64 else u_dalle)
 	# P6.3.2 : écoinçons entre l'anneau des gradins et l'enveloppe rectangulaire du bâtiment
 	if p64 and galerie in ["A", "B"]:
 		_galerie_v2(galerie, a, tunnels, c, rx, ry, ep, prof, rangs, ah)
@@ -1373,7 +1382,7 @@ func _arc_tunnel(t: Rect2, m: Material, m2: Material) -> void:
 		var a1 := PI * (i + 1) / nseg
 		var am := (a0 + a1) / 2.0
 		var pos := c + axe * (-cos(am) * r) + Vector3(0, hp + 0.3 + sin(am) * r * 0.62, 0)
-		var seg: MeshInstance3D = sc._box_mesh(pos, Vector3(0.62, 0.42, 0.9) if sud else Vector3(0.9, 0.42, 0.62), m if i != nseg / 2 else mat(PIERRE, 2.4, C_OR * Color(1.2, 1.2, 1.2), true))
+		var seg: MeshInstance3D = sc._box_mesh(pos, Vector3(0.62, 0.42, 0.9) if sud else Vector3(0.9, 0.42, 0.62), m if i != nseg / 2 else (mz("moulure", "arene", "monde", 1.0, true, Color(1.12, 1.04, 0.86)) if extension and p64 else mat(PIERRE, 2.4, C_OR * Color(1.2, 1.2, 1.2), true)))
 		var ang := am - PI / 2.0
 		if sud:
 			seg.rotation.z = ang
@@ -1388,8 +1397,15 @@ func loge(lg: Dictionary) -> void:
 	var ls := Vector2(lg["taille"][0], lg["taille"][1])
 	var lh: float = lg["h"]
 	var pierre := mat(PIERRE, 2.4, C_CALCAIRE * Color(1.08, 1.04, 1.0), true)
-	sc._box_mesh(lc + Vector3(0, lh / 2.0, 0), Vector3(ls.x, lh, ls.y), pierre)
-	sc._box_mesh(lc + Vector3(0, lh + 0.08, 0.2), Vector3(ls.x + 0.4, 0.16, ls.y + 0.5), mat(PIERRE, 2.4, C_CALCAIRE * Color(1.2, 1.15, 1.1), true))
+	var dalle_loge: Material = mat(PIERRE, 2.4, C_CALCAIRE * Color(1.2, 1.15, 1.1), true)
+	var corps: Material = pierre
+	if extension and p64:
+		# P6.4.2 : la loge dans l'appareil de l'arène, plus soignée (moulures claires, corps en grand appareil)
+		pierre = mz("moulure", "arene", "monde", 1.0, true, Color(1.04, 1.02, 0.98))
+		dalle_loge = mz("dalle", "arene", "monde", 1.0, true)
+		corps = mz("contrefort", "arene", "monde", 1.0, true, Color(1.05, 1.03, 1.0))
+	sc._box_mesh(lc + Vector3(0, lh / 2.0, 0), Vector3(ls.x, lh, ls.y), corps)
+	sc._box_mesh(lc + Vector3(0, lh + 0.08, 0.2), Vector3(ls.x + 0.4, 0.16, ls.y + 0.5), dalle_loge)
 	# balustrade
 	for i in 11:
 		var x := -ls.x / 2.0 + 0.3 + (ls.x - 0.6) * i / 10.0
