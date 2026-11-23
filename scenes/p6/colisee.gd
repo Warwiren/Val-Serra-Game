@@ -19,6 +19,14 @@ const UIS = preload("res://src/presentation/ui_style.gd")
 const ZONE_COLISEE := "res://data/p6/colisee.json"
 const Routes = preload("res://src/explore25/routes25.gd")
 const ZONE_QUARTIER := "res://data/p6/quartier_initial.json"
+## P7.1 : blockout V0.1 du quartier central (plan directeur V0.5), PROTOTYPE NON VALIDÉ. Actif seulement dans la scène
+## F6 scenes/p7/ville_v05_blockout.tscn (ou -- --ville=v05) : la sortie est du Colisée y mène au lieu du quartier
+## provisoire, qui reste la destination par défaut du Colisée (aucune scène validée n'est remplacée).
+const ZONE_VILLE := "res://data/p7/ville_v05.json"
+const VilleBlockout := preload("res://scenes/p7/ville_blockout.gd")
+@export var ville_v05 := false
+var _ville_on := false
+var _ville
 const DIALOGUES_P6 := "res://data/p6/dialogues_colisee.json"
 const PNJ_P6 := "res://data/p6/pnj_colisee.json"
 const QUALITE_OMBRE := 4                  # ombres douces qualité 4 (référence P5.3 retenue)
@@ -168,6 +176,11 @@ func _ready() -> void:
 	_pnj_defs = JSON.parse_string(FileAccess.open(PNJ_P6, FileAccess.READ).get_as_text())["pnj"]
 	# outils de test : état de départ imposé (--etat=tutorial_completed, etc.), nouvelle partie (--neuf)
 	var retour: bool = GameState.explore_return == scene_file_path and GameState.last_battle_result != ""
+	_ville_on = ville_v05 or str(_cli.get("ville", "")) == "v05"
+	if ville_v05 and not _cli.has("etat") and not _cli.has("neuf") and not retour:
+		# P7.1 : la scène du blockout commence dans la ville, après le Colisée (objectif : la Guilde)
+		Progression.definir(Progression.COLISEUM_EXITED, true)
+		Progression.definir_objectif("guilde_badge")
 	# P6.4.2 : au retour du tutoriel (même processus), l'état imposé au lancement n'est pas réappliqué (vidéo continue)
 	if _cli.has("neuf") and not retour:
 		Progression.reinitialiser()
@@ -199,7 +212,7 @@ func _ready() -> void:
 	elif tunnel_variante != "" and not retour:
 		_tunnel_session = tunnel_variante
 	var zcol := ZONE_COLISEE if _tunnel_session == "" else "res://data/p6/colisee_tunnel_%s.json" % _tunnel_session
-	var zone := ZONE_QUARTIER if Progression.au_moins(Progression.COLISEUM_EXITED) else zcol
+	var zone := (ZONE_VILLE if _ville_on else ZONE_QUARTIER) if Progression.au_moins(Progression.COLISEUM_EXITED) else zcol
 	_load(_cli.get("instance", zone), "instance", arrive)
 	s.cam.set_index(CAMS_P6[cam_p6][1], false)
 	_apply_cli()
@@ -536,6 +549,7 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	_rng.seed = 6061
 	world = World25.load_world(file, m)
 	_p6 = world.adj.get("p6", {})
+	_ville = VilleBlockout.new(self) if _p6.get("zone", "") == "ville" else null
 	Routes.decalage_sud = _p6.get("decalage_sud", {})
 	_dy_sud = float(Routes.decalage_sud.get("dy", 0.0))
 	_interior = false
@@ -611,6 +625,8 @@ const SOLS := {
 
 
 func _build(e: Dictionary) -> void:
+	if _ville != null and _ville.construit(e):
+		return                                  # P7.1 : blockout de la ville (volumes neutres, collisions des données)
 	var id: String = e.get("id", "")
 	match e["type"]:
 		"floor":
@@ -791,7 +807,9 @@ func _build_bloc_p6(e: Dictionary) -> void:
 func _build_p6() -> void:
 	_linteaux()
 	_entree_tunnel()
-	if _hab != null:
+	if _ville != null:
+		_ville.decorer()
+	elif _hab != null:
 		var n0 := root.get_child_count()
 		_hab.exterieur(world.decor)
 		for i in range(n0, root.get_child_count()):
@@ -850,7 +868,7 @@ func _build_p6() -> void:
 		else:
 			_banniere(Vector3(45.6, 0.0, 12.06), Color(0.72, 0.18, 0.22))
 			_banniere(Vector3(54.4, 0.0, 12.06), Color(0.72, 0.18, 0.22))
-	else:
+	elif _ville == null:
 		_banniere(Vector3(27.6, 0.0, 6.5), Color(0.72, 0.6, 0.25), 1.8)       # panneau de la Guilde (provisoire)
 
 
@@ -1232,10 +1250,16 @@ func _switch(t: Dictionary) -> void:
 	if str(t.get("id", "")) == "sortie_est":
 		Progression.definir(Progression.COLISEUM_EXITED)
 		_log("sortie_colisee", {})
+		if _ville_on and str(t.get("to", "")) == ZONE_QUARTIER:
+			# P7.1 : la sortie du Colisée mène au parvis du blockout de la ville (devant l'entrée publique)
+			var aa: Array = JSON.parse_string(FileAccess.open(ZONE_VILLE, FileAccess.READ).get_as_text())["ajustements"]["p6"]["ville"]["arrivee_colisee"]
+			t = t.duplicate()
+			t["to"] = ZONE_VILLE
+			t["arrive"] = Vector3(aa[0], aa[1], aa[2])
 	super._switch(t)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	if _p6.get("zone", "") == "quartier":
+	if _p6.get("zone", "") in ["quartier", "ville"] and Progression.au_moins(Progression.COLISEUM_EXITED):
 		s.toast("Les portes du Colisée se referment derrière vous.", 3.0)
 
 

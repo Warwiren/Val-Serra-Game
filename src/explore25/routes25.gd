@@ -609,6 +609,76 @@ static func _route_base(name: String) -> Array:
 		"p6_643_ombres":
 			return [_warp(26.0, 27.0, 0.0), {"do": "wait", "t": 1.6}, {"do": "snap", "id": "o1_arene"},
 				_warp(46.6, 37.6, 0.0), {"do": "wait", "t": 1.6}, {"do": "snap", "id": "o2_infirmerie"}]
+		"p7_trajets":
+			# P7.1 — temps de trajet RÉELS du blockout (marche 2,2 m/s, clavier 8 directions, sans course ni téléport
+			# pendant la mesure) ; chaque tronçon démarre par un placement, la durée est l'écart entre ses deux points
+			return [
+				_warp(127.5, 129.5, 0.0), {"do": "wait", "t": 0.5}, _go(127.5, 129.6, "T1 départ guilde", 0.3),
+				_go(116.0, 129.5, "T1 parvis de la guilde", 0.4), _go(108.5, 131.0, "T1 avenue des Portes", 0.5),
+				_go(108.5, 155.0, "T1 arrivée porte sud", 0.4),
+				_warp(108.5, 155.0, 0.0), {"do": "wait", "t": 0.5}, _go(108.5, 154.9, "T2 départ porte sud", 0.3),
+				_go(108.5, 106.0, "T2 pied de l'escalier", 0.4), _go(108.5, 99.0, "T2 haut de l'escalier", 0.4),
+				_go(108.5, 65.0, "T2 entrée de la place", 0.5), _go(108.5, 57.0, "T2 arrivée grande place", 0.4),
+				_warp(108.5, 57.0, 1.0), {"do": "wait", "t": 0.5}, _go(108.5, 57.1, "T3 départ grande place", 0.3),
+				_go(88.0, 53.0, "T3 bord ouest de la place", 0.5), _go(65.0, 53.0, "T3 arrivée entrée du Colisée", 0.4),
+				_warp(108.5, 155.0, 0.0), {"do": "wait", "t": 0.5}, _go(108.5, 154.9, "T4 départ porte sud", 0.3),
+				_go(108.5, 129.5, "T4 avenue", 0.5), _go(127.5, 129.5, "T4 guilde", 0.4),
+				_go(116.0, 129.5, "T4 parvis", 0.5), _go(116.0, 119.0, "T4 rue des boutiques", 0.5),
+				_go(131.5, 119.0, "T4 ruelle de la forge", 0.4), _go(131.5, 106.0, "T4 rue haute des boutiques", 0.4),
+				_go(140.0, 106.0, "T4 forge-armurerie", 0.4), _go(108.5, 106.0, "T4 avenue (boutiques)", 0.5),
+				_go(108.5, 119.0, "T4 avenue (auberge)", 0.5), _go(88.0, 119.0, "T4 auberge-taverne", 0.4),
+				_go(108.5, 119.0, "T4 retour avenue", 0.5), _go(108.5, 155.0, "T4 retour porte sud", 0.4),
+				_warp(108.5, 57.0, 1.0), {"do": "wait", "t": 0.5}, _go(108.5, 57.1, "T5 départ place (boucle ouest)", 0.3),
+				_go(69.0, 53.0, "T5 parvis du Colisée", 0.5), _go(69.0, 85.0, "T5 rue des Combattants", 0.5),
+				_go(95.0, 85.0, "T5 marché (ouest)", 0.5), _go(108.5, 84.0, "T5 marché", 0.5),
+				_go(108.5, 57.0, "T5 retour place", 0.4),
+				_warp(108.5, 57.0, 1.0), {"do": "wait", "t": 0.5}, _go(108.5, 57.1, "T6 départ place (boucle est)", 0.3),
+				_go(130.0, 50.0, "T6 rue du Conseil", 0.5), _go(152.0, 50.0, "T6 angle rue est", 0.5),
+				_go(152.0, 85.0, "T6 rue est", 0.5), _go(128.0, 85.0, "T6 marché (est)", 0.5),
+				_go(108.5, 84.0, "T6 marché", 0.5), _go(108.5, 57.0, "T6 retour place", 0.4),
+				_warp(108.5, 57.0, 1.0), {"do": "wait", "t": 0.5}, _go(108.5, 57.1, "T7 départ place (château)", 0.3),
+				_go(100.0, 50.0, "T7 contour de la fontaine", 0.5), _go(108.5, 32.0, "T7 avenue haute", 0.5),
+				_go(108.5, 22.0, "T7 haut de l'escalier", 0.4), _go(108.5, 4.5, "T7 porte du château (fermée)", 0.6),
+				_warp(108.5, 57.0, 1.0), {"do": "wait", "t": 0.5}, _go(108.5, 57.1, "T8 départ place (quartier est)", 0.3),
+				_go(130.0, 50.0, "T8 rue du Conseil", 0.5), _go(152.0, 50.0, "T8 angle rue est", 0.5),
+				_go(152.0, 69.0, "T8 passage est", 0.5), _go(186.5, 69.0, "T8 porte du quartier est (fermée)", 0.7),
+				{"do": "wait", "t": 0.5},
+			]
+		"p7_vues":
+			# P7.1 — vues demandées (A arrivée sud, B place -> hôtel de ville, C parvis -> Colisée) et contrôles, ×3 et ×2
+			var outv: Array = []
+			for z in [[2, "x3"], [0, "x2"]]:
+				outv.append({"do": "zoom", "i": z[0], "smooth": false})
+				for c in [["A_arrivee_sud", 108.5, 150.0, 0.0], ["B_place_hotel_de_ville", 124.0, 60.0, 1.0],
+						["C_parvis_colisee", 76.0, 55.0, 1.0], ["D_guilde", 116.0, 132.0, 0.0], ["E_commerces", 112.0, 106.0, 0.0],
+						["F_marche", 108.5, 88.0, 1.0], ["G_escalier_avenue", 108.5, 107.0, 0.0], ["H_avenue_haute", 108.5, 28.5, 1.0],
+						["I_ruelle_ouest", 32.0, 141.0, 0.0], ["J_passage_est", 176.0, 69.0, 1.0]]:
+					outv.append(_warp(c[1], c[2], c[3]))
+					outv.append({"do": "wait", "t": 1.6})
+					outv.append({"do": "snap", "id": c[0] + "_" + z[1]})
+			return outv
+		"p7_video":
+			# P7.1 — vidéo continue (marche, ×3 avec passages à ×2) : arrivée sud, guilde, commerces, auberge, avenue, place,
+			# Colisée (parvis), boucle ouest, marché, boucle est, accès est, place, avenue haute, accès nord
+			return [
+				{"do": "wait", "t": 1.0},
+				{"do": "zoom", "i": 0, "smooth": true}, {"do": "wait", "t": 1.5}, {"do": "zoom", "i": 2, "smooth": true},
+				_go(108.5, 129.5, "avenue des Portes", 0.5), _go(127.5, 129.5, "guilde", 0.4),
+				_go(116.0, 129.5, "parvis de la guilde", 0.5), _go(116.0, 119.0, "rue des boutiques", 0.5),
+				_go(131.5, 119.0, "ruelle", 0.4), _go(131.5, 106.0, "rue haute des boutiques", 0.4), _go(140.0, 106.0, "forge-armurerie", 0.4),
+				_go(108.5, 106.0, "herboriste, objets", 0.5), _go(108.5, 119.0, "avenue", 0.5), _go(88.0, 119.0, "auberge-taverne", 0.4),
+				_go(108.5, 119.0, "avenue", 0.5), _go(108.5, 106.0, "pied de l'escalier", 0.4), _go(108.5, 92.0, "marché", 0.5),
+				{"do": "zoom", "i": 0, "smooth": true},
+				_go(108.5, 60.0, "grande place (×2)", 0.5), {"do": "wait", "t": 1.0},
+				{"do": "zoom", "i": 2, "smooth": true},
+				_go(88.0, 53.0, "vers le parvis", 0.5), _go(67.0, 53.0, "entrée du Colisée", 0.4), {"do": "wait", "t": 1.0},
+				_go(69.0, 85.0, "rue des Combattants (boucle ouest)", 0.5), _go(95.0, 85.0, "marché", 0.5),
+				_go(128.0, 85.0, "marché (est)", 0.5), _go(152.0, 85.0, "rue est (boucle est)", 0.5),
+				_go(152.0, 69.0, "passage est", 0.5), _go(184.0, 69.0, "porte du quartier est (fermée)", 0.6), {"do": "wait", "t": 0.8},
+				_go(152.0, 69.0, "retour", 0.5), _go(152.0, 50.0, "rue du Conseil", 0.5), _go(130.0, 50.0, "hôtel de ville", 0.5),
+				_go(100.0, 50.0, "place", 0.5), _go(108.5, 32.0, "avenue haute", 0.5), _go(108.5, 5.0, "porte du château (fermée)", 0.6),
+				{"do": "wait", "t": 1.5},
+			]
 		"p6_extension_coursive":
 			# P6.4.2 — cadrages de la coursive seuls (reprise après réglage des piliers)
 			var outk: Array = []
