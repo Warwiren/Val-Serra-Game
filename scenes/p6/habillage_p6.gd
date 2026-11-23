@@ -1433,14 +1433,19 @@ func vestiaires(r: Rect2) -> void:
 	var bois := mat(PLANCHES, 1.6, Color(0.78, 0.62, 0.5))
 	var bois_sombre := mat(PLANCHES, 1.6, Color(0.5, 0.38, 0.32))
 	# plancher plus chaleureux avec bordure de dalles
-	sc._box_mesh(Vector3(r.get_center().x, 0.004, r.get_center().y), Vector3(r.size.x, 0.008, r.size.y), mat(PLANCHES, 2.0, Color(0.56, 0.5, 0.46)))
+	var bordure: Material = mat(PAVES, 1.6, Color(0.8, 0.76, 0.74))
+	if extension and p64:
+		# P6.4.2 : plancher procédural (sol de la pièce, préréglage « plancher ») ; bordure en dalles du Colisée
+		bordure = mz("dallage", "vestiaires", "monde", 1.0, false, Color(0.92, 0.9, 0.88))
+	else:
+		sc._box_mesh(Vector3(r.get_center().x, 0.004, r.get_center().y), Vector3(r.size.x, 0.008, r.size.y), mat(PLANCHES, 2.0, Color(0.56, 0.5, 0.46)))
 	for e in [[r.position.x, r.position.y, r.size.x, 0.45], [r.position.x, r.end.y - 0.45, r.size.x, 0.45], [r.position.x, r.position.y, 0.45, r.size.y], [r.end.x - 0.45, r.position.y, 0.45, r.size.y]]:
-		sc._box_mesh(Vector3(e[0] + e[2] / 2.0, 0.012, e[1] + e[3] / 2.0), Vector3(e[2], 0.02, e[3]), mat(PAVES, 1.6, Color(0.8, 0.76, 0.74)))
+		sc._box_mesh(Vector3(e[0] + e[2] / 2.0, 0.012, e[1] + e[3] / 2.0), Vector3(e[2], 0.02, e[3]), bordure)
 	# plinthes et poutre haute le long du mur nord (vu de face)
 	# P6.3 : plinthe interrompue au droit de la porte nord (elle formait une « marche » de 36 cm qu'Aren traversait)
 	var porte := Vector2(24.5, 27.5)
 	if p64:
-		plinthe = m64("socle", "monde")         # P6.4 : mur nord pilote (soubassement de gros blocs)
+		plinthe = mm("socle", "vestiaires", "monde")         # P6.4 : mur nord pilote (soubassement de gros blocs)
 	for seg in [Vector2(r.position.x, porte.x), Vector2(porte.y, r.end.x)]:
 		sc._box_mesh(Vector3((seg.x + seg.y) * 0.5, 0.18, r.position.y - 0.02), Vector3(seg.y - seg.x, 0.36, 0.1), plinthe)
 	var pb := porte
@@ -1507,8 +1512,8 @@ func vestiaires(r: Rect2) -> void:
 ## claveaux avec clé, sur la face intérieure du mur ; suit la coupe du mur nord. Décor seul (hors du passage : la
 ## largeur praticable de 3 m est intacte).
 func _encadrement_p64(porte: Vector2, y_face: float) -> void:
-	var m := m64("moulure", "monde", 1.0, true)
-	var ms := m64("contrefort", "monde", 1.0, true)
+	var m := mm("moulure", "vestiaires", "monde", 1.0, true)
+	var ms := mm("contrefort", "vestiaires", "monde", 1.0, true)
 	var els: Array = []
 	for x in [porte.x - 0.15, porte.y + 0.15]:
 		els.append(sc._box_mesh(Vector3(x, 1.27, y_face + 0.06), Vector3(0.3, 2.54, 0.14), m))

@@ -607,7 +607,9 @@ func _build(e: Dictionary) -> void:
 				_box_mesh(_rect_center(r, e["h"] - th, e["h"] - 0.01), Vector3(r.size.x, th - 0.01, r.size.y), msous)
 			else:
 				var d: Array = SOLS.get(sol, SOLS["paves"])
-				var msol: Material = _hab.m64("dallage", "monde") if _hab != null and _hab.pilote_sol(id) else _tinted(d[0], d[1])
+				var msol: Material = _tinted(d[0], d[1])
+				if _hab != null and _hab.pilote_sol(id):
+					msol = _hab.mat_sol(id) if _hab.extension else _hab.m64("dallage", "monde")      # P6.4.2 : sol de la zone
 				var ms := _box_mesh(_rect_center(r, e["h"] - th, e["h"]), Vector3(r.size.x, th, r.size.y), msol)
 				ms.set_meta("sol", true)          # P6.3 : structure (une pièce vue en coupe garde son sol)
 		"block":
@@ -646,7 +648,7 @@ func _build_bloc_p6(e: Dictionary) -> void:
 			size.y = h1 - h0
 		var mpierre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE, tall) if _hab != null else _surf("pierre", tall)
 		if _hab != null and _hab.pilote_mur(id):
-			mpierre = _hab.m64("mur", "monde", 1.0, tall)          # P6.4 : mur pilote (maçonnerie procédurale)
+			mpierre = _hab.mm("mur", _hab.zone_piece(id), "monde", 1.0, tall)      # P6.4 : mur pilote ; P6.4.2 : ambiance de la zone
 			_rects_p64.append(r)
 		# P6.2 : maillages du mur sous un pivot à l'origine ; la collision (sb) reste dans l'instance, jamais modifiée
 		var pivot := Node3D.new()
@@ -2137,6 +2139,8 @@ func _entree_tunnel() -> void:
 			root.add_child(l)
 			_halo(l.position, 0.6, 0.5)
 	var mp: Material = _hab.mat(Habillage.PIERRE, 1.2, Habillage.C_CALCAIRE * Color(1.1, 1.06, 1.0), true) if _hab != null else _surf("pierre", true)
+	if _hab != null and _hab.extension and _hab.p64:
+		mp = _hab.mz("moulure", "salle", "monde", 1.0, true)          # P6.4.2 : piédroits de l'entrée du tunnel
 	for x in [float(b[0]) - 0.15, float(b[1]) + 0.15]:
 		var pivot := Node3D.new()
 		pivot.name = "piedroit_%d" % int(x * 10)
