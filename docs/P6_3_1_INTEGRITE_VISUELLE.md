@@ -69,6 +69,9 @@ position d'Aren. Il ne fait que lire : aucun système permanent n'est ajouté.
 * **Tunnel est, vu de l'intérieur** : entre le dos des gradins et le mur ouest de la coursive, une bande étroite
   reste sombre. C'est le terrain extérieur, masqué depuis un intérieur. À traiter avec les matériaux et les volumes
   extérieurs (P6.4).
+* **Porte de l'infirmerie** : la cloison étant maintenant haute, son estompage de 0,45 s se voit pendant les
+  allers-retours au seuil (mur semi-transparent un instant). C'est le comportement normal du mode B, à juger en
+  mouvement (vidéo, vers 45–55 s).
 * **Trouée locale** dans les gradins quand Aren est dans le tunnel est : c'est le système validé en forêt, mais à
   juger en mouvement (vidéo).
 * **Gradins** : seuls les gradins, le podium et la colonnade passent aux UV métriques. Les murs droits gardent la
