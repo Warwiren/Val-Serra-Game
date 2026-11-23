@@ -43,8 +43,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p6-4-colisee-direction-artistique`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p6-4-colisee-direction-artistique`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p6-4-1-colisee-second-pilote`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p6-4-1-colisee-second-pilote`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -113,6 +113,11 @@ masque de collision avant / après.
    fermées vues en coupe (vantaux tranchés + silhouette transparente) et des matériaux procéduraux sur trois zones pilotes
    (gradins sud-ouest, mur nord des vestiaires et sa porte, coursive et son dallage). **M** : pilote P6.4 / état P6.3.2 ;
    **U** : porte en coupe (silhouette / coupe seule / porte basse P6.3.2). Rapport : `docs/P6_4_DIRECTION_ARTISTIQUE.md`.
+   **Branche `p6-4-1-colisee-second-pilote`** (second pilote, EN ATTENTE de validation) : F5 inchangé ; `colisee.tscn` (F6)
+   démarre sur le second pilote : galerie A (petites tuiles, palette sombre, travées irrégulières), porte C (coupe sobre,
+   ferrure, petit cadenas discret à l'approche), dallage enrichi et mur avec détails peints, lumière des accès.
+   **M** : P6.3.2 / premier pilote / second pilote ; **K** : galerie A / B (structure mixte) / premier pilote ;
+   **U** : porte C / A / B / P6.3.2. Rapport : `docs/P6_4_1_SECOND_PILOTE.md`.
 
 ### Commandes — forêt V07B (F5)
 

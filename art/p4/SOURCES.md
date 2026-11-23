@@ -32,3 +32,7 @@ d'Aren en jeu sont conservés).
 **P6.4 (Colisée, pilote)** : `mat/roche.png` est aussi lu par `src/p6/maconnerie_p64.gdshader` comme **grain de luminance
 seulement** (basse fréquence, décalé par pierre) pour les matériaux procéduraux des zones pilotes. Aucune nouvelle image ;
 statut inchangé (à tester). Les matériaux P6.4 eux-mêmes sont **PROVISOIRES** (pilote en attente de la revue du créateur).
+
+**P6.4.1 (Colisée, second pilote)** : `mat/sol_terre.png` et `mat/sol_herbe.png` sont aussi lus par
+`src/p6/maconnerie_p64.gdshader` comme **calques de détails peints** (variations autour de leur moyenne : salissures et
+mousse des matières pilotes). Aucune image modifiée ni ajoutée ; statut inchangé (à tester). Matières P6.4.1 PROVISOIRES.

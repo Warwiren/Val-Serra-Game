@@ -26,6 +26,9 @@ var sc                                    # scène du Colisée (méthodes d'aide
 var _mats := {}
 ## P6.4 : pilote de direction artistique (touche M, -- --p64=0 : état P6.3.2 pour comparaison)
 var p64 := true
+## P6.4.1 : second pilote (matières hybrides) et variante de la galerie ("p64" : premier pilote, "A", "B")
+var pilote2 := true
+var galerie := "A"
 const MACON_SH = preload("res://src/p6/maconnerie_p64.gdshader")
 const GRAIN := "res://art/p4/mat/roche.png"
 ## P6.4 : zones pilotes des matériaux (le reste du Colisée garde les matières P6.3.2)
@@ -95,6 +98,31 @@ const P64_PRESETS := {
 	"tuiles": {"motif": 3, "assises": Vector3(0.32, 0.30, 0.33), "long_bloc": 0.2, "var_long": 0.12, "joint": 0.008,
 		"couleur": Color(0.50, 0.31, 0.23), "couleur2": Color(0.43, 0.30, 0.25), "c_joint": Color(0.2, 0.12, 0.1),
 		"var_teinte": 0.22, "part2": 0.4, "salissure": 0.0, "coulures": 0.0, "mousse": 0.3, "usure": 0.2},
+	# P6.4.1 : mur des vestiaires retenu comme base + détails picturaux discrets (salissures et mousse peintes,
+	# quelques pierres de réparation et fissures)
+	"mur2": {"motif": 0, "assises": Vector3(0.42, 0.30, 0.36), "long_bloc": 0.95, "var_long": 0.4, "joint": 0.016,
+		"couleur": Color(0.63, 0.55, 0.45), "couleur2": Color(0.56, 0.53, 0.49), "c_joint": Color(0.24, 0.20, 0.18),
+		"var_teinte": 0.2, "part2": 0.32, "salissure": 0.3, "coulures": 0.3, "mousse": 0.08, "usure": 0.35,
+		"irregulier": 0.12, "fissures": 0.05, "rapieces": 0.06, "k_terre": 0.72, "k_mousse": 0.38},
+	"mur_haut2": {"motif": 0, "assises": Vector3(0.42, 0.30, 0.36), "long_bloc": 0.95, "var_long": 0.4, "joint": 0.011,
+		"couleur": Color(0.52, 0.46, 0.40), "couleur2": Color(0.46, 0.43, 0.40), "c_joint": Color(0.24, 0.21, 0.19),
+		"var_teinte": 0.12, "part2": 0.3, "salissure": 0.0, "coulures": 0.3, "mousse": 0.0, "usure": 0.3,
+		"irregulier": 0.1, "rapieces": 0.05, "k_terre": 0.68, "k_mousse": 0.0},
+	"socle2": {"motif": 0, "assises": Vector3(0.5, 0.5, 0.5), "long_bloc": 1.2, "var_long": 0.35, "joint": 0.012,
+		"couleur": Color(0.47, 0.43, 0.39), "couleur2": Color(0.43, 0.41, 0.39), "c_joint": Color(0.27, 0.24, 0.22),
+		"var_teinte": 0.12, "part2": 0.35, "salissure": 0.4, "coulures": 0.1, "mousse": 0.15, "usure": 0.5,
+		"irregulier": 0.2, "fissures": 0.05, "k_terre": 0.6, "k_mousse": 0.4},
+	# P6.4.1 : dallage enrichi : dalles recoupées et de tailles inégales, joints taillés irréguliers, dalles gauchies,
+	# fissures, pierres de réparation ; salissure et mousse peintes dans les joints et par plaques
+	"dallage2": {"motif": 1, "assises": Vector3(0.58, 0.46, 0.66), "long_bloc": 0.82, "var_long": 0.5, "joint": 0.013,
+		"couleur": Color(0.56, 0.50, 0.43), "couleur2": Color(0.49, 0.45, 0.41), "c_joint": Color(0.18, 0.16, 0.15),
+		"var_teinte": 0.17, "part2": 0.42, "salissure": 0.0, "coulures": 0.0, "mousse": 0.1, "usure": 0.5,
+		"irregulier": 1.0, "fissures": 0.07, "rapieces": 0.05, "k_terre": 0.55, "k_mousse": 0.3},
+	# P6.4.1 A : petites tuiles canal (rangs de 20 cm, tuiles de 13 cm), terre cuite sombre et rompue, lichen
+	"tuiles_a": {"motif": 3, "assises": Vector3(0.2, 0.19, 0.21), "long_bloc": 0.13, "var_long": 0.14, "joint": 0.006,
+		"couleur": Color(0.40, 0.27, 0.21), "couleur2": Color(0.35, 0.29, 0.26), "c_joint": Color(0.16, 0.11, 0.09),
+		"var_teinte": 0.2, "part2": 0.45, "salissure": 0.0, "coulures": 0.0, "mousse": 0.2, "usure": 0.25, "valeur": 0.85,
+		"desordre": 1.0, "k_terre": 0.0, "k_mousse": 0.25},
 	# contreforts et façades de la galerie : gros appareil, plus gris
 	"contrefort": {"motif": 0, "assises": Vector3(0.48, 0.40, 0.44), "long_bloc": 1.0, "var_long": 0.3, "joint": 0.012,
 		"couleur": Color(0.55, 0.50, 0.43), "couleur2": Color(0.50, 0.48, 0.45), "c_joint": Color(0.31, 0.27, 0.24),
@@ -102,7 +130,16 @@ const P64_PRESETS := {
 }
 
 
+## P6.4.1 : matières du second pilote (hybride : calepinage procédural + détails peints), substituées à celles du
+## premier pilote quand `pilote2` est actif
+const P641_VARIANTES := {"mur": "mur2", "mur_haut": "mur_haut2", "dallage": "dallage2", "socle": "socle2"}
+const PEINT_TERRE := "res://art/p4/mat/sol_terre.png"
+const PEINT_MOUSSE := "res://art/p4/mat/sol_herbe.png"
+
+
 func m64(nom: String, uv := "monde", uv_m := 1.0, hole := false, teinte := Color.WHITE) -> ShaderMaterial:
+	if pilote2 and P641_VARIANTES.has(nom):
+		nom = P641_VARIANTES[nom]
 	var k := "p64|%s|%s|%s|%s|%s" % [nom, uv, uv_m, hole, teinte]
 	if _mats.has(k):
 		return _mats[k]
@@ -114,6 +151,9 @@ func m64(nom: String, uv := "monde", uv_m := 1.0, hole := false, teinte := Color
 		if v is Color and teinte != Color.WHITE:
 			v = (v as Color) * teinte
 		m.set_shader_parameter(key, v)
+	if float(d.get("k_terre", 0.0)) > 0.0 or float(d.get("k_mousse", 0.0)) > 0.0:
+		m.set_shader_parameter("peint_terre", load(PEINT_TERRE))
+		m.set_shader_parameter("peint_mousse", load(PEINT_MOUSSE))
 	if int(d["motif"]) != 2:
 		# grain peint : luminance basse fréquence de la roche peinte du dépôt (art/p4/mat/roche.png), décalée par élément
 		m.set_shader_parameter("grain", load(GRAIN))
@@ -454,7 +494,9 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 		archi.append(_rt(c, rl2 - 0.3, ry + (rl2 - 0.3 - rx), rl2 + 0.3, ry + (rl2 + 0.3 - rx), a0, a1, htop_n + 2.75))
 	sc._faces(archi, u_dalle)
 	# P6.3.2 : écoinçons entre l'anneau des gradins et l'enveloppe rectangulaire du bâtiment
-	if p64:
+	if p64 and galerie in ["A", "B"]:
+		_galerie_v2(galerie, a, tunnels, c, rx, ry, ep, prof, rangs, ah)
+	elif p64:
 		_galerie_p64(a, tunnels, c, rx, ry, ep, prof, rangs, ah)
 	else:
 		_ecoincons(a, tunnels, c, rx, ry, ep, prof, rangs, ah)
@@ -517,9 +559,20 @@ func lum_fixe(pos: Vector3, energie: float, portee: float, col: Color) -> OmniLi
 func lumiere_coursive_p64() -> void:
 	if not p64:
 		return
-	lum_fixe(Vector3(50.0, 5.5, 20.0), 0.55, 11.0, Color(0.74, 0.8, 0.98))
-	for x in [46.4, 53.6]:
-		lum_fixe(Vector3(x, 2.2, 12.7), 0.7, 3.6, Color(1.0, 0.7, 0.42))
+	if not pilote2:
+		lum_fixe(Vector3(50.0, 5.5, 20.0), 0.55, 11.0, Color(0.74, 0.8, 0.98))
+		for x in [46.4, 53.6]:
+			lum_fixe(Vector3(x, 2.2, 12.7), 0.7, 3.6, Color(1.0, 0.7, 0.42))
+		return
+	# P6.4.1 : la lumière sert la lecture : accès (porte de la loge, porte de la réserve, débouché du tunnel est) et
+	# allée centrale où circulent les personnages ; fond zénithal plus discret (les murs restent un peu plus sombres
+	# que le sol : les silhouettes s'en détachent)
+	lum_fixe(Vector3(50.0, 5.5, 20.0), 0.42, 11.0, Color(0.74, 0.8, 0.98))
+	lum_fixe(Vector3(50.0, 2.5, 13.0), 1.0, 3.8, Color(1.0, 0.72, 0.44))        # porte de la loge
+	lum_fixe(Vector3(53.0, 2.1, 33.0), 0.75, 3.0, Color(1.0, 0.7, 0.42))        # porte de la réserve
+	lum_fixe(Vector3(45.2, 2.2, 23.0), 0.6, 3.2, Color(1.0, 0.78, 0.55))        # débouché du tunnel est
+	for z in [17.0, 23.0, 29.0]:
+		lum_fixe(Vector3(50.0, 3.2, z), 0.6, 4.2, Color(1.0, 0.86, 0.7))        # allée centrale
 
 
 ## Hauteur du haut du mur de fond des gradins à l'angle a (même formule que la construction des gradins).
@@ -816,6 +869,297 @@ func _contreforts(c: Vector2, rl: float, rly: float, rect: Rect2, garde: Callabl
 	mf.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	mf.name = "Galerie_contreforts"
 	var md: MeshInstance3D = sc._faces(_deux(dessus), m64("moulure", "maillage", 1.0, true))
+	md.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+
+
+## P6.4.1 : SECOND PILOTE de la galerie des écoinçons (même emprise, mêmes exclusions, aucune collision).
+##   A : toiture couverte de PETITES tuiles (rangs de 20 cm, tuiles de 13 cm), palette plus sombre et moins saturée,
+##       usure discrète (tuiles remplacées, lichen, salissure) ; travées irrégulières (contreforts bas et sombres, pas
+##       variable) ; légère flèche de chaque travée.
+##   B : structure MIXTE : une bande couverte étroite (2,2 m) le long des gradins, ouverte vers l'extérieur par une
+##       arcade ; au-delà, une terrasse maçonnée dallée plus basse, bordée d'un parapet ; piles de maçonnerie massives.
+##       La toiture n'occupe plus qu'un liseré : la maçonnerie domine.
+func _galerie_v2(variante: String, a: Dictionary, tunnels: Array, c: Vector2, rx: float, ry: float, ep: float, prof: float, rangs: int, ah: float) -> void:
+	var rl := rx + ep + prof + 0.5
+	var rly := ry + ep + prof + 0.5
+	var vt: Dictionary = sc._p6.get("vue_tunnel", {})
+	var y1: float = float(vt.get("entree", 37.5)) - 0.6
+	var rect := Rect2(Vector2(c.x - rl, c.y - rly), Vector2(43.6 - (c.x - rl), y1 - (c.y - rly)))
+	var exclus: Array = []
+	for t in tunnels:
+		exclus.append((t as Rect2).grow(0.3))
+	exclus.append(Rect2(24.0, 30.0, 4.0, y1 - 30.0 + 0.5))
+	var lg: Dictionary = a["loge"]
+	exclus.append(Rect2(lg["centre"][0] - lg["taille"][0] * 0.5, lg["centre"][1] - lg["taille"][1] * 0.5, lg["taille"][0], lg["taille"][1]).grow(0.4))
+	var mixte := variante == "B"
+	var n := 288
+	var coins := [rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)]
+	var garde := func(am: float) -> bool:
+		var pm := Vector2(c.x + rl * cos(am), c.y + rly * sin(am))
+		var qm := _vers_bord(c, pm, rect)
+		if pm.distance_to(qm) < 0.05:
+			return false
+		for e in exclus:
+			for t in [0.05, 0.35, 0.65, 0.95]:
+				if (e as Rect2).has_point(pm.lerp(qm, t)):
+					return false
+		return true
+	# travées : contreforts à pas irrégulier (15° ± 3,5°, tirés une fois pour toutes)
+	var cotes: Array = []
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 6404
+	var ang := 0.0
+	while ang < 360.0:
+		var j := rng.randf_range(-3.5, 3.5) if not mixte else rng.randf_range(-1.0, 1.0)
+		cotes.append(deg_to_rad(ang + j))
+		ang += 15.0
+	var travee := func(aa: float) -> float:             # position dans la travée, 0..1
+		var x := fposmod(aa, TAU)
+		for k in cotes.size():
+			var c0: float = fposmod(cotes[k], TAU)
+			var c1: float = fposmod(cotes[(k + 1) % cotes.size()], TAU)
+			var span := fposmod(c1 - c0, TAU)
+			var dx := fposmod(x - c0, TAU)
+			if dx <= span:
+				return dx / maxf(span, 1e-4)
+		return 0.0
+	var BANDE := 2.2
+	var rayon := func(aa: float) -> Dictionary:
+		var p := Vector2(c.x + rl * cos(aa), c.y + rly * sin(aa))
+		var q := _vers_bord(c, p, rect)
+		var h_in := _h_dos(aa, ah, rangs) - 0.32
+		var dm := p.distance_to(q)
+		var chute := minf(0.34 * dm, 0.3 * h_in) if not mixte else minf(0.5, 0.25 * h_in)
+		var tb := 1.0 if not mixte else clampf(BANDE / maxf(dm, 0.01), 0.0, 1.0)
+		if mixte and dm < BANDE + 0.6:
+			tb = 1.0
+		var h_t := maxf(h_in - 1.45, 0.9)              # terrasse (B)
+		var fl := 0.0 if mixte else 0.06 * sin(PI * float(travee.call(aa)))
+		return {"p": p, "q": q, "h_in": h_in, "dm": dm, "chute": chute, "tb": tb, "h_t": h_t, "fl": fl, "s": _arc_s(rl, rly, fposmod(aa, TAU))}
+	# hauteur du toit (t dans [0, tb]) : appentis, flèche de la travée nulle contre la corniche
+	var toit_h := func(r: Dictionary, t: float) -> float:
+		var u := t / maxf(float(r["tb"]), 1e-4)
+		return float(r["h_in"]) - float(r["chute"]) * u - float(r["fl"]) * smoothstep(0.0, 0.25, u)
+	# hauteur du couronnement (toit, puis terrasse + parapet en B)
+	var haut_h := func(r: Dictionary, t: float) -> float:
+		if t <= float(r["tb"]) + 1e-4:
+			return toit_h.call(r, t)
+		return float(r["h_t"]) + 0.6
+	var toit: Array = []
+	var murs: Array = []
+	var dalles: Array = []
+	var corniche: Array = []
+	var ombres: Array = []                # baies sombres de l'arcade (B)
+	var ok: Array = []
+	for i in n:
+		ok.append(garde.call(TAU * (i + 0.5) / n))
+	for i in n:
+		if not ok[i]:
+			continue
+		var a0 := TAU * i / n
+		var a1 := TAU * (i + 1) / n
+		var r0: Dictionary = rayon.call(a0)
+		var r1: Dictionary = rayon.call(a1)
+		var m := int(ceil(maxf(float(r0["dm"]) * float(r0["tb"]), float(r1["dm"]) * float(r1["tb"])) / 0.5))
+		m = maxi(m, 1)
+		for k in m:
+			var pts: Array = []
+			var uvs: Array = []
+			for pr in [[r0, k], [r0, k + 1], [r1, k + 1], [r1, k]]:
+				var rr: Dictionary = pr[0]
+				var t: float = float(pr[1]) / m * float(rr["tb"])
+				var xz: Vector2 = (rr["p"] as Vector2).lerp(rr["q"], t)
+				var lam := (xz - c).length() / ((rr["p"] as Vector2) - c).length()
+				pts.append(Vector3(xz.x, toit_h.call(rr, t), xz.y))
+				uvs.append(Vector2(float(rr["s"]) * lam, -t * float(rr["dm"])))
+			toit.append([pts, uvs])
+		var q0: Vector2 = r0["q"]
+		var q1: Vector2 = r1["q"]
+		var tb0: float = r0["tb"]
+		var tb1: float = r1["tb"]
+		var mix_seg := mixte and (tb0 < 0.999 or tb1 < 0.999)
+		if mix_seg:
+			# terrasse dallée de tb au bord, et front de la bande couverte (mur d'arcade) de la terrasse au toit
+			var e0: Vector2 = (r0["p"] as Vector2).lerp(q0, tb0)
+			var e1: Vector2 = (r1["p"] as Vector2).lerp(q1, tb1)
+			var ht0: float = r0["h_t"]
+			var ht1: float = r1["h_t"]
+			var poly: Array = [Vector3(e0.x, ht0, e0.y), Vector3(q0.x, ht0, q0.y)]
+			for kk in coins:
+				var kc: Vector2 = kk
+				if _entre((kc - c).angle(), (q0 - c).angle(), (q1 - c).angle()):
+					poly.append(Vector3(kc.x, (ht0 + ht1) * 0.5, kc.y))
+			poly.append(Vector3(q1.x, ht1, q1.y))
+			poly.append(Vector3(e1.x, ht1, e1.y))
+			for j in range(1, poly.size() - 1):
+				var tri := [poly[0], poly[j], poly[j + 1]]
+				dalles.append([tri, tri.map(func(v): return Vector2((v as Vector3).x, (v as Vector3).z))])
+			var f0 := Vector3(e0.x, toit_h.call(r0, tb0), e0.y)
+			var f1 := Vector3(e1.x, toit_h.call(r1, tb1), e1.y)
+			var u0 := float(r0["s"]) * 1.12
+			var u1 := float(r1["s"]) * 1.12
+			murs.append([[Vector3(e0.x, ht0 - 0.05, e0.y), f0, f1, Vector3(e1.x, ht1 - 0.05, e1.y)], [Vector2(u0, -ht0), Vector2(u0, -f0.y), Vector2(u1, -f1.y), Vector2(u1, -ht1)]])
+		# bord extérieur : façade (deux faces), égout (A) ou parapet (B)
+		var hb0: float = haut_h.call(r0, 1.0)
+		var hb1: float = haut_h.call(r1, 1.0)
+		var bord: Array = [Vector3(q0.x, hb0, q0.y)]
+		for kk in coins:
+			var kc2: Vector2 = kk
+			if _entre((kc2 - c).angle(), (q0 - c).angle(), (q1 - c).angle()):
+				var hk := minf(hb0, hb1) - (0.0 if mix_seg else 0.12)
+				if not mix_seg:
+					var lam2 := (kc2 - c).length() / ((r0["p"] as Vector2) - c).length()
+					toit.append([[Vector3(q0.x, hb0, q0.y), Vector3(kc2.x, hk, kc2.y), Vector3(q1.x, hb1, q1.y)],
+						[Vector2(float(r0["s"]) * lam2, -float(r0["dm"])), Vector2(float(r0["s"]) * lam2, -(kc2 - (r0["p"] as Vector2)).length()), Vector2(float(r1["s"]) * lam2, -float(r1["dm"]))]])
+				bord.append(Vector3(kc2.x, hk, kc2.y))
+		bord.append(Vector3(q1.x, hb1, q1.y))
+		for j in range(bord.size() - 1):
+			var b0: Vector3 = bord[j]
+			var b1: Vector3 = bord[j + 1]
+			var uu0 := b0.x + b0.z
+			var uu1 := b1.x + b1.z
+			murs.append([[Vector3(b0.x, 0.0, b0.z), Vector3(b0.x, b0.y, b0.z), Vector3(b1.x, b1.y, b1.z), Vector3(b1.x, 0.0, b1.z)], [Vector2(uu0, 0), Vector2(uu0, -b0.y), Vector2(uu1, -b1.y), Vector2(uu1, 0)]])
+			var dir := Vector2(b1.x - b0.x, b1.z - b0.z).normalized()
+			var nrm := Vector2(-dir.y, dir.x)
+			if nrm.dot(Vector2((b0.x + b1.x) * 0.5, (b0.z + b1.z) * 0.5) - c) < 0.0:
+				nrm = -nrm
+			if mix_seg:
+				# parapet : face intérieure (30 cm en retrait) et chaperon
+				var inn := -Vector3(nrm.x, 0, nrm.y) * 0.3
+				var hb := b0.y - 0.6
+				var hb2 := b1.y - 0.6
+				murs.append([[b0 + inn + Vector3(0, hb - b0.y, 0), b0 + inn, b1 + inn, b1 + inn + Vector3(0, hb2 - b1.y, 0)], [Vector2(uu0, -hb), Vector2(uu0, -b0.y), Vector2(uu1, -b1.y), Vector2(uu1, -hb2)]])
+				corniche.append([[b0 + Vector3(0, 0.0, 0) - inn * 0.1, b0 + inn * 1.1, b1 + inn * 1.1, b1 - inn * 0.1], [Vector2(uu0, 0), Vector2(uu0, 0.36), Vector2(uu1, 0.36), Vector2(uu1, 0)]])
+			else:
+				var o := Vector3(nrm.x, 0, nrm.y) * 0.22
+				var e0b := b0 + Vector3(0, 0.02, 0)
+				var e1b := b1 + Vector3(0, 0.02, 0)
+				corniche.append([[e0b, e0b + o + Vector3(0, -0.05, 0), e1b + o + Vector3(0, -0.05, 0), e1b], [Vector2(uu0, 0), Vector2(uu0, 0.22), Vector2(uu1, 0.22), Vector2(uu1, 0)]])
+		# retours de mur au bord d'un passage (profil du couronnement)
+		for side in [[r0, (i - 1 + n) % n], [r1, (i + 1) % n]]:
+			if ok[side[1]]:
+				continue
+			var rr: Dictionary = side[0]
+			var mm := int(ceil(float(rr["dm"]) / 0.5))
+			for k in mm:
+				var ta := float(k) / mm
+				var tb2 := float(k + 1) / mm
+				var xa: Vector2 = (rr["p"] as Vector2).lerp(rr["q"], ta)
+				var xb: Vector2 = (rr["p"] as Vector2).lerp(rr["q"], tb2)
+				var ha: float = haut_h.call(rr, ta)
+				var hb3: float = haut_h.call(rr, tb2)
+				var da := ta * float(rr["dm"])
+				var db := tb2 * float(rr["dm"])
+				murs.append([[Vector3(xa.x, 0, xa.y), Vector3(xa.x, ha, xa.y), Vector3(xb.x, hb3, xb.y), Vector3(xb.x, 0, xb.y)], [Vector2(da, 0), Vector2(da, -ha), Vector2(db, -hb3), Vector2(db, 0)]])
+		# corniche de l'anneau (pierre sombre, plus fine)
+		var hd := minf(_h_dos(a0, ah, rangs), _h_dos(a1, ah, rangs))
+		corniche.append(_rq(c, rl, rly, a1, a0, float(r0["h_in"]) - 0.12, hd, 0.0))
+		corniche.append(_rq(c, rl + 0.12, rly + 0.12, a1, a0, hd - 0.2, hd - 0.02, 0.0))
+		corniche.append(_rt(c, rl, rly, rl + 0.12, rly + 0.12, a0, a1, hd - 0.02))
+	# baies de l'arcade (B) : une ouverture sombre cintrée par travée, sur le front de la bande couverte
+	if mixte:
+		for k in cotes.size():
+			var c0: float = cotes[k]
+			var c1: float = cotes[(k + 1) % cotes.size()]
+			if c1 < c0:
+				c1 += TAU
+			var am := (c0 + c1) * 0.5
+			if not (garde.call(am) and garde.call(am - 0.05) and garde.call(am + 0.05)):
+				continue
+			var r: Dictionary = rayon.call(am)
+			if float(r["tb"]) >= 0.999:
+				continue
+			var ra: Dictionary = rayon.call(am - 0.01)
+			var rb: Dictionary = rayon.call(am + 0.01)
+			var pe: Vector2 = (r["p"] as Vector2).lerp(r["q"], r["tb"])
+			var pa: Vector2 = (ra["p"] as Vector2).lerp(ra["q"], ra["tb"])
+			var pb: Vector2 = (rb["p"] as Vector2).lerp(rb["q"], rb["tb"])
+			var tg := (pb - pa).normalized()
+			var nn := (pe - c).normalized()
+			var h0: float = r["h_t"]
+			var htop: float = toit_h.call(r, r["tb"])
+			var hh := (htop - h0) * 0.78
+			var demi := minf(0.75, 0.45 * hh)
+			var base := Vector3(pe.x, h0, pe.y) + Vector3(nn.x, 0, nn.y) * 0.02
+			var tg3 := Vector3(tg.x, 0, tg.y)
+			var pts2: Array = [base - tg3 * demi, base - tg3 * demi + Vector3(0, hh - demi, 0)]
+			for s2 in range(1, 8):
+				var th := PI * s2 / 8.0
+				pts2.append(base - tg3 * demi * cos(th) + Vector3(0, hh - demi + demi * sin(th), 0))
+			pts2.append(base + tg3 * demi + Vector3(0, hh - demi, 0))
+			pts2.append(base + tg3 * demi)
+			for j in range(1, pts2.size() - 1):
+				ombres.append([[pts2[0], pts2[j], pts2[j + 1]], [Vector2.ZERO, Vector2.ZERO, Vector2.ZERO]])
+	var mt: MeshInstance3D = sc._faces(toit, m64("tuiles_a", "maillage", 1.0, true))
+	mt.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	mt.name = "Galerie_toiture"
+	var mw: MeshInstance3D = sc._faces(_deux(murs), m64("contrefort", "maillage", 1.0, true, Color(0.92, 0.9, 0.88)))
+	mw.name = "Galerie_murs"
+	if not dalles.is_empty():
+		var md: MeshInstance3D = sc._faces(dalles, m64("dalle", "maillage", 1.0, true, Color(0.78, 0.76, 0.73)))
+		md.name = "Galerie_terrasse"
+	var mc: MeshInstance3D = sc._faces(_deux(corniche), m64("moulure", "maillage", 1.0, true, Color(0.8, 0.78, 0.76)))
+	mc.name = "Galerie_corniches"
+	if not ombres.is_empty():
+		var mo: MeshInstance3D = sc._faces(_deux(ombres), uni(Color(0.07, 0.06, 0.06), 1.0))
+		mo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mo.name = "Galerie_arcade"
+	_contreforts_v2(mixte, c, rect, cotes, garde, rayon, toit_h, haut_h)
+
+
+## P6.4.1 : contreforts du second pilote. A : nervures basses et sombres (18 cm au-dessus des tuiles), pas irrégulier ;
+## B : piles de maçonnerie massives (60 cm), qui dépassent le parapet de la terrasse.
+func _contreforts_v2(mixte: bool, c: Vector2, rect: Rect2, cotes: Array, garde: Callable, rayon: Callable, toit_h: Callable, haut_h: Callable) -> void:
+	var faces: Array = []
+	var dessus: Array = []
+	var larg := 0.3 if mixte else 0.17
+	var sur := 0.32 if mixte else 0.16
+	for am0 in cotes:
+		var am: float = am0
+		if not (garde.call(am) and garde.call(am - 0.03) and garde.call(am + 0.03)):
+			continue
+		var r: Dictionary = rayon.call(am)
+		var p: Vector2 = r["p"]
+		var q: Vector2 = r["q"]
+		var d := (q - p).normalized()
+		var lat := Vector2(-d.y, d.x) * larg
+		var m := int(ceil(float(r["dm"]) / 0.4))
+		var pl: Array = []
+		var pr: Array = []
+		for k in m + 1:
+			var t := float(k) / m
+			var xz := p.lerp(q, t) - d * 0.2 * (1.0 - t)
+			if k == m:
+				xz = q + d * (0.16 if mixte else 0.1)
+			var h: float = haut_h.call(r, minf(t, 0.999) if t < 1.0 else 1.0) + sur
+			if mixte and t > float(r["tb"]) + 1e-4:
+				h = float(r["h_t"]) + 0.6 + sur + 0.12
+			pl.append([Vector3(xz.x + lat.x, h, xz.y + lat.y), t * float(r["dm"])])
+			pr.append([Vector3(xz.x - lat.x, h, xz.y - lat.y), t * float(r["dm"])])
+		for k in m:
+			for side in [pl, pr]:
+				var a0: Vector3 = side[k][0]
+				var a1: Vector3 = side[k + 1][0]
+				var u0: float = side[k][1]
+				var u1: float = side[k + 1][1]
+				var bas0 := maxf(a0.y - 1.4, 0.0)
+				var bas1 := maxf(a1.y - 1.4, 0.0)
+				faces.append([[Vector3(a0.x, bas0, a0.z), Vector3(a0.x, a0.y, a0.z), Vector3(a1.x, a1.y, a1.z), Vector3(a1.x, bas1, a1.z)], [Vector2(u0, -bas0), Vector2(u0, -a0.y), Vector2(u1, -a1.y), Vector2(u1, -bas1)]])
+			dessus.append([[pl[k][0], pr[k][0], pr[k + 1][0], pl[k + 1][0]], [Vector2(pl[k][1], 0.0), Vector2(pl[k][1], larg * 2.0), Vector2(pl[k + 1][1], larg * 2.0), Vector2(pl[k + 1][1], 0.0)]])
+		var lt: Vector3 = pl[m][0]
+		var rt: Vector3 = pr[m][0]
+		faces.append([[Vector3(lt.x, 0, lt.z), Vector3(lt.x, lt.y, lt.z), Vector3(rt.x, rt.y, rt.z), Vector3(rt.x, 0, rt.z)], [Vector2(0, 0), Vector2(0, -lt.y), Vector2(larg * 2.0, -rt.y), Vector2(larg * 2.0, 0)]])
+		var he: float = haut_h.call(r, 1.0)
+		for pr2 in [[q + lat, lt], [q - lat, rt]]:
+			var f0: Vector2 = pr2[0]
+			var t1: Vector3 = pr2[1]
+			faces.append([[Vector3(f0.x, 0, f0.y), Vector3(t1.x, 0, t1.z), Vector3(t1.x, he, t1.z), Vector3(f0.x, he, f0.y)], [Vector2(0, 0), Vector2(0.16, 0), Vector2(0.16, -he), Vector2(0, -he)]])
+	if faces.is_empty():
+		return
+	var mf: MeshInstance3D = sc._faces(_deux(faces), m64("contrefort", "maillage", 1.0, true, Color(0.8, 0.78, 0.76) if not mixte else Color(0.95, 0.93, 0.9)))
+	mf.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	mf.name = "Galerie_contreforts"
+	var md: MeshInstance3D = sc._faces(_deux(dessus), m64("contrefort", "maillage", 1.0, true, Color(0.72, 0.7, 0.68)))
 	md.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 
 

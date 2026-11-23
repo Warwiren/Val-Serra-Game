@@ -166,6 +166,14 @@
   `src/p6/coupe_p64.gdshader`, `fantome_p64.gdshader` ; touche U). Matériaux procéduraux `src/p6/maconnerie_p64.gdshader`
   (calepinage en mètres, joints filtrés, grain de `art/p4/mat/roche.png`) LIMITÉS aux zones pilotes (`P64_MURS`, `P64_SOLS`,
   `P64_GRADINS`) : ne pas généraliser avant accord. Touche M / `--p64=0` : état P6.3.2. Mipmaps et faces de P6.3.2 conservés.
+- **P6.4.1 (branche `p6-4-1-colisee-second-pilote`, `docs/P6_4_1_SECOND_PILOTE.md`)** : retour du créateur du 23/11/2026 :
+  principe de la galerie couvert VALIDÉ, toiture du premier pilote refusée ; porte B (silhouette « hologramme ») refusée,
+  A préférée provisoirement ; direction calcaire ocre / gris chaud retenue, mur des vestiaires = bonne base ; dallage trop
+  régulier. Second pilote EN ATTENTE : galeries A / B (`habillage_p6._galerie_v2`, touche K), porte C (coupe sobre, ferrure,
+  cadenas discret à l'approche, jamais sur l'axe du passage ; touche U ; aucune mini-porte), matières hybrides
+  (`mur2`, `mur_haut2`, `dallage2`, `socle2` : calepinage procédural + détails peints tirés de `sol_terre.png` /
+  `sol_herbe.png`), lumière des accès de la coursive. Touche M : P6.3.2 / pilote 1 / pilote 2 (`--p64=0|1|2`).
+  Ne pas généraliser ni étendre les lumières avant validation.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.

@@ -34,6 +34,17 @@ uniform float hole = 0.0;
 uniform float base_y = 0.0;         // hauteur du sol de référence (salissure)
 uniform float valeur = 0.8;         // valeur générale (étalonnée sur l'éclairage du Colisée)
 uniform float modele = 0.12;        // modelé peint de chaque pierre (haut plus clair, bas plus sombre)
+// P6.4.1 — second pilote : calepinage moins régulier et DÉTAILS PEINTS (approche hybride : le shader garde le
+// calepinage et la stabilité ; des textures peintes existantes apportent nuances, usure et salissures)
+uniform float irregulier = 0.0;     // dalles recoupées en longueur / en hauteur, joints irréguliers, dalles gauchies
+uniform float fissures = 0.0;       // proportion d'éléments fissurés
+uniform float rapieces = 0.0;       // proportion de pierres de réparation (teinte différente)
+uniform float desordre = 0.0;       // tuiles : recouvrements irréguliers, tuiles remplacées, lichen
+uniform sampler2D peint_terre : source_color, repeat_enable, filter_linear_mipmap;   // art/p4/mat/sol_terre.png
+uniform sampler2D peint_mousse : source_color, repeat_enable, filter_linear_mipmap;  // art/p4/mat/sol_herbe.png
+uniform float k_terre = 0.0;        // salissures peintes (taches, pied des murs, joints des sols)
+uniform float k_mousse = 0.0;       // mousse peinte (joints, pied des murs, tuiles)
+uniform float peint_m = 2.4;        // taille d'une répétition de la texture peinte (m)
 global uniform vec3 p4_hero;
 global uniform float p4_hole;
 global uniform float p4_persp;
@@ -71,8 +82,21 @@ void calepin(vec2 p, out vec2 id, out vec2 loc, out float d_bord, out vec2 taill
 	float b = floor(xx / L);
 	// un élément sur quatre est plus long ou plus court (coupe le rythme régulier)
 	float lx = xx - b * L;
+	float ly = yy - y0;
 	id = vec2(b, r);
-	loc = vec2(lx, yy - y0);
+	if (irregulier > 0.0) {
+		// recoupe en longueur (deux pierres de longueurs inégales)
+		if (h21(id + vec2(3.3, 1.7)) < 0.6 * irregulier) {
+			float sp = L * (0.3 + 0.4 * h21(id + vec2(8.1, 2.2)));
+			if (lx < sp) { L = sp; } else { lx -= sp; L = L - sp; id.x += 0.5; }
+		}
+		// recoupe en hauteur (paire de demi-pierres)
+		if (h21(id + vec2(5.9, 4.4)) < 0.3 * irregulier) {
+			float sy = h * (0.4 + 0.2 * h21(id + 1.9));
+			if (ly < sy) { h = sy; } else { ly -= sy; h = h - sy; id.y += 0.5; }
+		}
+	}
+	loc = vec2(lx, ly);
 	taille = vec2(L, h);
 	d_bord = min(min(loc.x, L - loc.x), min(loc.y, h - loc.y));
 }
@@ -95,6 +119,10 @@ void fragment() {
 	vec2 id; vec2 loc; float d; vec2 taille;
 	calepin(p, id, loc, d, taille);
 	float fw = max(fwidth(p.x), fwidth(p.y));          // taille d'un pixel en mètres sur la surface
+	if (irregulier > 0.0) {
+		// joints taillés à la main : bord légèrement ondulé (filtré avec la distance)
+		d += (fnoise(p * 7.0, fw * 7.0) - 0.5) * 0.016 * irregulier;
+	}
 	float hb = h21(id + vec2(7.0, 3.0));
 	float hb2 = h21(id + vec2(1.3, 9.1));
 	// --- teinte de l'élément
@@ -131,9 +159,38 @@ void fragment() {
 	float bombe = 0.0;
 	if (motif == 3) {
 		float u = loc.x / taille.x;
-		bombe = sin(u * PI);
+		// filtrage : quand une tuile ne couvre plus que quelques pixels, son bombé et l'ombre du recouvrement
+		// rejoignent leur valeur moyenne (sinon moiré en bandes obliques)
+		float fx = 1.0 - smoothstep(0.12, 0.3, fw / max(taille.x, 1e-3));
+		float fy = 1.0 - smoothstep(0.08, 0.22, fw / max(taille.y, 1e-3));
+		bombe = mix(0.64, sin(u * PI), fx);
 		c *= 0.78 + 0.3 * bombe;
-		c *= mix(0.68, 1.0, smoothstep(0.0, 0.07, loc.y));          // pied de la tuile du dessus
+		float lyt = loc.y + (h21(id + vec2(2.9, 0.4)) - 0.5) * 0.035 * desordre;   // recouvrements irréguliers
+		c *= mix(0.95, mix(0.66, 1.0, smoothstep(0.0, 0.06, lyt)), fy);          // pied de la tuile du dessus
+		if (desordre > 0.0) {
+			float hr = h21(id + vec2(17.1, 3.3));
+			if (hr < 0.045 * desordre) { c *= vec3(1.18, 1.02, 0.92); }          // tuile remplacée, plus neuve
+			else if (hr < 0.09 * desordre) { c *= 0.72; }                      // tuile noircie
+			// lichen gris-jaune sur les bombés, par plaques
+			float li = smoothstep(0.7, 0.9, fnoise(wpos.xz * 1.6 + 2.0, fw * 1.6)) * smoothstep(0.4, 0.8, fnoise(wpos.xz * 0.5 + 7.0, fw * 0.5));
+			c = mix(c, c * vec3(0.92, 0.98, 0.86), 0.5 * desordre * li * bombe);            // lichen : teinte rompue, sans éclaircir
+		}
+	}
+	// --- pierres de réparation (teinte et grain différents), fissures
+	if (rapieces > 0.0 && motif != 3) {
+		float hp = h21(id + vec2(13.7, 6.6));
+		if (hp < rapieces) { c *= vec3(0.86, 0.8, 0.76) * (0.9 + 0.2 * h21(id + 4.4)); }
+	}
+	float fis = 0.0;
+	if (fissures > 0.0 && h21(id + vec2(11.3, 2.1)) < fissures) {
+		vec2 c0 = taille * vec2(0.3 + 0.4 * h21(id + 0.7), 0.3 + 0.4 * h21(id + 1.3));
+		float an = h21(id + 2.6) * 3.1416;
+		vec2 nl = vec2(cos(an), sin(an));
+		float dl = abs(dot(loc - c0, nl) + (fnoise(loc * 23.0, fw * 23.0) - 0.5) * 0.02);
+		float lg = length(loc - c0);
+		float aaf = max(fw * 0.75, 1e-4);
+		fis = (1.0 - smoothstep(0.0025, 0.0025 + aaf, dl)) * clamp(0.004 / aaf, 0.2, 1.0) * (1.0 - smoothstep(0.15, 0.4, lg / max(taille.x, taille.y)));
+		c *= 1.0 - 0.45 * fis;
 	}
 	// --- joint filtré : sa couverture moyenne remplace le trait quand il devient sous-pixel
 	float jw = joint;
@@ -159,6 +216,27 @@ void fragment() {
 		// sols et dessus : verdissement des joints, grandes plaques plus sèches
 		c = mix(c, c * vec3(0.78, 0.92, 0.72), mousse * jm * smoothstep(0.4, 0.8, fnoise(wp * 0.6, fw)));
 	}
+	// --- DÉTAILS PEINTS (P6.4.1) : nuances et salissures prises dans des textures peintes du dépôt (variations de
+	// la texture autour de sa moyenne, appliquées par plaques et selon la position : pied des murs, joints)
+	if (k_terre > 0.0 || k_mousse > 0.0) {
+		vec2 pp = abs(wnrm.y) > 0.5 ? wpos.xz : vec2(wpos.x + wpos.z, wpos.y * 1.3);
+		vec3 tt = texture(peint_terre, pp / peint_m).rgb / vec3(0.459, 0.267, 0.199);
+		vec3 sal = vec3(0.34, 0.28, 0.22) * clamp(tt, vec3(0.5), vec3(1.6));
+		float plaque = smoothstep(0.42, 0.82, fnoise(pp * 0.45 + 1.3, fw * 0.45));
+		float m_t;
+		if (abs(wnrm.y) < 0.5) {
+			float y = wpos.y - base_y;
+			float cou = smoothstep(0.55, 0.9, fnoise(vec2(pp.x * 2.2, pp.y * 0.18), fw * 2.2));
+			m_t = (1.0 - smoothstep(0.0, 1.1, y)) * (0.5 + 0.5 * plaque) + 0.4 * plaque + 0.45 * cou * smoothstep(0.8, 2.0, y);
+		} else {
+			m_t = 0.55 * plaque + 0.6 * jm + 0.25 * arete;
+		}
+		c = mix(c, c * 0.55 + sal * 0.45, clamp(k_terre * m_t, 0.0, 0.85));
+		vec3 mo = texture(peint_mousse, pp / (peint_m * 0.7)).rgb;
+		float m_m = (abs(wnrm.y) < 0.5 ? (1.0 - smoothstep(0.0, 0.7, wpos.y - base_y)) * (jm + 0.3 * arete) : jm) * smoothstep(0.5, 0.85, fnoise(pp * 0.7 + 5.0, fw * 0.7));
+		if (motif == 3) { m_m = smoothstep(0.66, 0.9, fnoise(pp * 0.6 + 9.0, fw * 0.6)) * (1.0 - bombe * 0.5); }
+		c = mix(c, mo * vec3(0.9, 0.95, 0.75), clamp(k_mousse * m_m, 0.0, 0.7));
+	}
 	// variation lente à l'échelle du bâtiment
 	c *= 1.0 + 0.08 * (vnoise(wp * 0.07) * 2.0 - 1.0);
 	c *= valeur;
@@ -168,6 +246,12 @@ void fragment() {
 	float k_rel = relief * (1.0 - smoothstep(0.012, 0.05, fw));
 	if (k_rel > 0.001) {
 		float hgt = smoothstep(joint * 0.5, joint + ep, d) * 0.012 + nn * 0.004;
+		if (irregulier > 0.0) {
+			// dalles légèrement gauchies : chacune accroche la lumière à sa façon
+			vec2 tl = vec2(h21(id + 3.7), h21(id + 6.1)) - 0.5;
+			hgt += dot(loc / taille - 0.5, tl) * 0.02 * irregulier * smoothstep(joint, joint + 0.02, d);
+		}
+		hgt -= fis * 0.003;
 		if (motif == 3) { hgt = bombe * 0.03 - (1.0 - smoothstep(0.0, 0.06, loc.y)) * 0.01; }
 		hgt *= k_rel;
 		vec3 dpx = dFdx(VERTEX);

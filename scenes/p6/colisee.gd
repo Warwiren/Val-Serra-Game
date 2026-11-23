@@ -87,9 +87,21 @@ var habillage := true                       # P6.1 : pilote d'habillage (touche 
 ## P6.4 : pilote de direction artistique (touche M ; -- --p64=0 : état P6.3.2) ; porte fermée vue en coupe (touche U ;
 ## -- --porte_coupe=p632|coupe|silhouette)
 var p64 := true
-var porte_coupe := "silhouette"
-const PORTES_COUPE := ["silhouette", "coupe", "p632"]
+var porte_coupe := "C"
+const PORTES_COUPE := ["C", "coupe", "silhouette", "p632"]
+## P6.4.1 : état de comparaison (touche M) : "0" = P6.3.2, "1" = premier pilote P6.4, "2" = second pilote (défaut) ;
+## galerie des écoinçons (touche K ; -- --galerie=A|B|p64)
+var pilote := "2"
+var galerie := "A"
+const GALERIES := ["A", "B", "p64"]
+var _marques_portes: Array = []             # P6.4.1 : [Sprite3D, centre xz] (indication discrète des portes fermées)
 var _hab
+
+
+## P6.4.1 : réglages par défaut de chaque état de comparaison (galerie, porte) ; la ligne de commande l'emporte.
+func _defauts_pilote() -> void:
+	galerie = "A" if pilote == "2" else "p64"
+	porte_coupe = "C" if pilote == "2" else "silhouette"
 
 
 func _ready() -> void:
@@ -99,10 +111,17 @@ func _ready() -> void:
 	_diag_on = _cli.has("diag")
 	_isoler = str(_cli.get("isoler", ""))        # P6.3.2 : diagnostic des clignotements (ombres, occultation, trouee, fondus)
 	eblouissement = str(_cli.get("eblouissement", eblouissement))
-	p64 = str(_cli.get("p64", "1")) != "0"
+	pilote = str(_cli.get("p64", "2"))
+	if not pilote in ["0", "1", "2"]:
+		pilote = "2"
+	_defauts_pilote()
+	p64 = pilote != "0"
 	porte_coupe = str(_cli.get("porte_coupe", porte_coupe))
 	if not PORTES_COUPE.has(porte_coupe):
-		porte_coupe = "silhouette"
+		porte_coupe = "C"
+	galerie = str(_cli.get("galerie", galerie))
+	if not GALERIES.has(galerie):
+		galerie = "A"
 	if not CAMS_P6.has(cam_p6):
 		cam_p6 = "C"
 	cam_mode = CAMS_P6[cam_p6][0]
@@ -127,7 +146,7 @@ func _ready() -> void:
 	_apply_variante()
 	s.arch = "P6 — Colisée · " + CAMS_P6_LABEL[cam_p6]
 	s.build_hud()
-	s._help.text = "Flèches / ZQSD : marcher  ·  Maj : courir  ·  E / Entrée : parler, examiner  ·  Molette : zoom  ·  C : caméra  ·  B : Aren  ·  H : habillage  ·  J : transitions  ·  M : P6.4  ·  U : porte en coupe  ·  F1 : infos"
+	s._help.text = "Flèches / ZQSD : marcher  ·  Maj : courir  ·  E / Entrée : parler, examiner  ·  Molette : zoom  ·  C : caméra  ·  B : Aren  ·  H : habillage  ·  J : transitions  ·  M : pilote  ·  K : galerie  ·  U : porte  ·  F1 : infos"
 	_build_ui()
 	_dialog.choisi.connect(_on_choix)
 	_build_ui_p6()
@@ -510,6 +529,9 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	_hab = Habillage.new(self) if habillage else null
 	if _hab != null:
 		_hab.p64 = p64
+		_hab.pilote2 = pilote == "2"
+		_hab.galerie = galerie
+	_marques_portes.clear()
 	if _hab != null:
 		_hab.lumiere(_env_res, _sun)
 	_portes_fermees.clear()
@@ -1197,14 +1219,21 @@ func _unhandled_input(e: InputEvent) -> void:
 		s.toast("Habillage : " + ("pilote P6.1" if habillage else "blockout P6"), 2.5)
 		return
 	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_M:
-		p64 = not p64
+		pilote = {"0": "1", "1": "2", "2": "0"}[pilote]
+		p64 = pilote != "0"
+		_defauts_pilote()
 		_reload_here()
-		s.toast("Direction artistique : " + ("pilote P6.4" if p64 else "P6.3.2 (comparaison)"), 2.5)
+		s.toast("Direction artistique : " + {"0": "P6.3.2 (comparaison)", "1": "premier pilote P6.4", "2": "second pilote P6.4.1"}[pilote], 2.5)
+		return
+	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_K:
+		galerie = GALERIES[(GALERIES.find(galerie) + 1) % GALERIES.size()]
+		_reload_here()
+		s.toast("Galerie : " + {"A": "A — petites tuiles", "B": "B — structure mixte", "p64": "premier pilote"}[galerie], 2.5)
 		return
 	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_U:
 		porte_coupe = PORTES_COUPE[(PORTES_COUPE.find(porte_coupe) + 1) % PORTES_COUPE.size()]
 		_reload_here()
-		s.toast("Porte en coupe : " + {"silhouette": "coupe + silhouette (P6.4)", "coupe": "coupe seule (P6.4)", "p632": "porte basse (P6.3.2)"}[porte_coupe], 2.5)
+		s.toast("Porte en coupe : " + {"C": "C — coupe sobre + indication", "silhouette": "B — coupe + silhouette", "coupe": "A — coupe seule", "p632": "porte basse (P6.3.2)"}[porte_coupe], 2.5)
 		return
 	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_B:
 		aren_variante = AREN_VARIANTES[(AREN_VARIANTES.find(aren_variante) + 1) % AREN_VARIANTES.size()]
@@ -1291,6 +1320,7 @@ func _process(delta: float) -> void:
 		RenderingServer.global_shader_parameter_set("p4_hole", 0.0)     # diagnostic : trouée d'occlusion coupée
 	if s == null or world == null:
 		return
+	_maj_marques_portes(delta)
 	var hint := ""
 	if not s.dialogue_open and not _bloque:
 		var id := _pnj_proche()
@@ -1865,6 +1895,12 @@ func _porte_habillee(r: Rect2) -> void:
 			# P6.4 : vantaux EN COUPE (taille réelle, tranchés au niveau du muret) ; « silhouette » : partie retirée
 			# lisible en transparence
 			_au_coupe.append(_en_coupe(modele("mv/Door_8_Round", bord + d3 * 0.22, rot, k), Secteurs.LIP + 0.04))
+			if porte_coupe == "C":
+				# C : ferrure de verrouillage sur la tranche des vantaux (barre et moraillon), des deux côtés
+				for sgn in [-1.0, 1.0]:
+					var fer := _box_mesh(bord + axe * (-float(side) * lw * 0.5) + d3 * (0.22 + 0.075 * sgn) + Vector3(0, 0.36, 0), Vector3(lw * 0.98, 0.07, 0.025) if le_long_x else Vector3(0.025, 0.07, lw * 0.98), _mat_fer())
+					fer.rotation.y = 0.0
+					_au_coupe.append(fer)
 			if porte_coupe == "silhouette":
 				_au_coupe.append(_en_fantome(modele("mv/Door_8_Round", bord + d3 * 0.22, rot, k), Secteurs.LIP + 0.04))
 	if not p64 or porte_coupe == "p632":
@@ -1875,6 +1911,12 @@ func _porte_habillee(r: Rect2) -> void:
 		var kc := Vector3((w + 0.5) / 1.6, 1.0, 1.0)
 		var pc := Vector3(c.x, 0, c.y) + d3 * 0.1
 		_au_coupe.append(_en_coupe(modele("mv/DoorFrame_Round_Brick", pc, rot, kc, Color(1.05, 1.0, 0.95)), 1.85))
+		if porte_coupe == "C":
+			# moraillon au milieu (là où les vantaux se rejoignent) et indication discrète de porte fermée
+			for sgn in [-1.0, 1.0]:
+				_au_coupe.append(_box_mesh(Vector3(c.x, 0.36, c.y) + d3 * (0.22 + 0.095 * sgn), Vector3(0.14, 0.18, 0.03) if le_long_x else Vector3(0.03, 0.18, 0.14), _mat_fer()))
+			# à côté de la porte, contre le jambage (jamais sur l'axe du passage : il ne se superpose pas à Aren)
+			_marque_porte(Vector3(c.x, 0.0, c.y) + axe * (w * 0.5 + 0.5) + d3 * 0.35)
 		if porte_coupe == "silhouette":
 			_au_coupe.append(_en_fantome(modele("mv/DoorFrame_Round_Brick", pc, rot, kc, Color(1.05, 1.0, 0.95)), 1.85))
 		# seuil de pierre encastré (à fleur du sol : aucun relief praticable), des deux côtés de la porte
@@ -1886,6 +1928,75 @@ func _porte_habillee(r: Rect2) -> void:
 			seuil.set_meta("xz", c)
 	if cadre != null:
 		cadre.set_meta("porte", true)
+
+
+var _m_fer: StandardMaterial3D
+var _tex_cadenas: ImageTexture
+
+
+func _mat_fer() -> StandardMaterial3D:
+	if _m_fer == null:
+		_m_fer = StandardMaterial3D.new()
+		_m_fer.albedo_color = Color(0.16, 0.15, 0.15)
+		_m_fer.metallic = 0.6
+		_m_fer.roughness = 0.45
+	return _m_fer
+
+
+## P6.4.1 : indication discrète d'une porte fermée : petit cadenas dessiné au pixel (24 × 24, généré ici, aucune
+## ressource externe), au-dessus du seuil, qui n'apparaît qu'à l'approche d'Aren (moins de 2,4 m) puis s'estompe.
+func _marque_porte(pos: Vector3) -> void:
+	if _tex_cadenas == null:
+		var im := Image.create(24, 24, false, Image.FORMAT_RGBA8)
+		im.fill(Color(0, 0, 0, 0))
+		var bord := Color(0.12, 0.09, 0.07, 1.0)
+		var corps := Color(0.86, 0.72, 0.42, 1.0)
+		var ombre := Color(0.62, 0.48, 0.26, 1.0)
+		for y in range(11, 22):
+			for x in range(5, 19):
+				var b := y == 11 or y == 21 or x == 5 or x == 18
+				im.set_pixel(x, y, bord if b else (ombre if y > 17 else corps))
+		for x in range(8, 16):                      # anse
+			for y in range(3, 12):
+				var dx := absf(x + 0.5 - 12.0)
+				var r := Vector2(dx, maxf(0.0, 8.0 - y)).length()
+				if y >= 8:
+					r = dx
+				if absf(r - 3.0) < 0.75 or (y >= 8 and (x == 8 or x == 15)):
+					im.set_pixel(x, y, bord)
+				elif absf(r - 2.0) < 0.6 and y < 11:
+					im.set_pixel(x, y, Color(0.72, 0.7, 0.66, 1.0))
+		for p in [Vector2i(11, 14), Vector2i(12, 14), Vector2i(11, 15), Vector2i(12, 15), Vector2i(11, 16), Vector2i(12, 16), Vector2i(11, 17), Vector2i(12, 17)]:
+			im.set_pixelv(p, bord)                     # entrée de serrure
+		_tex_cadenas = ImageTexture.create_from_image(im)
+	var sp := Sprite3D.new()
+	sp.texture = _tex_cadenas
+	sp.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	sp.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	sp.shaded = false
+	sp.no_depth_test = true
+	sp.render_priority = 10
+	sp.pixel_size = 0.015
+	sp.position = pos + Vector3(0, 0.95, 0)
+	sp.modulate = Color(1, 1, 1, 0)
+	sp.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	sp.set_meta("hors_secteurs", true)
+	root.add_child(sp)
+	_marques_portes.append([sp, Vector2(pos.x, pos.z)])
+
+
+func _maj_marques_portes(delta: float) -> void:
+	if s == null:
+		return
+	var hp := Vector2(s.hero.x, s.hero.y)
+	for mq in _marques_portes:
+		var sp: Sprite3D = mq[0]
+		if not is_instance_valid(sp):
+			continue
+		var d := hp.distance_to(mq[1])
+		var cible := 0.85 * (1.0 - smoothstep(1.6, 2.4, d))
+		sp.modulate.a = move_toward(sp.modulate.a, cible, delta * 3.0)
+		sp.visible = sp.modulate.a > 0.01
 
 
 const COUPE_SH := preload("res://src/p6/coupe_p64.gdshader")
