@@ -1,5 +1,8 @@
 # P6.1 — Caméra, apparence d'Aren et pilote d'habillage du Colisée
 
+> **P7.2 (nettoyage autorisé par le créateur)** : les médias de ce rapport (`docs/media/…`) ont été retirés du projet
+> actif. Ils restent dans l'historique Git : `git checkout d88eac4 -- docs/media/<dossier>`.
+
 Branche **`p6-1-colisee-camera-art`**, depuis `p6-colisee-ouverture` (`dc5e10e`, conservée comme référence
 fonctionnelle). Godot **4.7.2**. F5 inchangé ; le Colisée reste en F6 (`scenes/p6/colisee.tscn`).
 Structure, parcours, dialogues, progression, tutoriel et collisions : **inchangés**.

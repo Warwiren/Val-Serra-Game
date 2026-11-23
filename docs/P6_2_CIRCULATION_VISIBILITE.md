@@ -1,5 +1,8 @@
 # P6.2 — Circulation et visibilité du Colisée
 
+> **P7.2 (nettoyage autorisé par le créateur)** : les médias de ce rapport (`docs/media/…`) ont été retirés du projet
+> actif. Ils restent dans l'historique Git : `git checkout d88eac4 -- docs/media/<dossier>`.
+
 Branche **`p6-2-colisee-circulation-visibilite`**, depuis `p6-1-colisee-camera-art` (`6ca2c32`). Branches
 précédentes intactes. F5 inchangé. **Étape A seulement** : diagnostic, comparaison des solutions, nouveau plan,
 recommandation. Aucune pièce n'a été refaite. Le seul changement de code rend l'azimut réglable pour les comparaisons

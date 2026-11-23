@@ -146,7 +146,7 @@
   remplacé par les modèles (collisions des données inchangées), accessoires posés par la scène = obstacle rond
   (`_solide_rond`) : aucun relief visible traversable (`tools/p6/reliefs_p6.gd`). Éléments muraux attachés à la coupe de
   leur mur (`Secteurs.attacher`) ; sols = groupes « SOL: » (devant, derrière, visibles). Luminaires sans ombre portée.
-  Décor du combat tutoriel régénéré (ancien : `arene_colisee_p6.png`). Le quartier de ville n'est PAS à développer : il
+  Décor du combat tutoriel régénéré (l'ancien `arene_colisee_p6.png` est retiré en P7.2, historique Git). Le quartier de ville n'est PAS à développer : il
   sera repensé à partir d'un plan séparé.
 - **P6.3.1 (branche `p6-3-1-colisee-integrite-visuelle`, `docs/P6_3_1_INTEGRITE_VISUELLE.md`)** : EN ATTENTE de validation.
   Anneaux de l'arène en UV métriques le long de l'arc (`habillage_p6._rq / _rt`, matériaux `mat_uv`) ; tranche de gradins

@@ -1,5 +1,8 @@
 # P5.3-B — V3 hybride : matières V2 + forme des zones mixtes de la V1 (21/11/2026)
 
+> **P7.2 (nettoyage autorisé par le créateur)** : les médias de ce rapport (`docs/media/…`) ont été retirés du projet
+> actif. Ils restent dans l'historique Git : `git checkout d88eac4 -- docs/media/<dossier>`.
+
 Branche `p5-3b-v3-hybride` (depuis `p5-3b-v2-transitions`). Demande : garder la palette, la sobriété et le calme de la V2,
 retrouver les transitions organiques de la V1 + calage, sans ses points orange ni son bruit. Shader et répartition
 seulement : **aucun nouvel asset, aucune texture modifiée**. Médias : `docs/media/p5_3b_v3h/`.

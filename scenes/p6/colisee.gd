@@ -67,7 +67,7 @@ var _obj_label: Label
 var _obj_flash := 0.0
 var _journal: Array = []                  # événements de la session (tests, rapport)
 var cam_p6 := "C"
-## P6.2 : azimut du Colisée validé le 22/11/2026 : 0° (colisee_azimut20.tscn : ancienne référence 20°) ; -- --azimut= l'emporte
+## P6.2 : azimut du Colisée validé le 22/11/2026 : 0° (référence 20° : -- --azimut=20 ; scène retirée en P7.2) ; -- --azimut= l'emporte
 @export var azimut_initial := 0.0
 ## P6.2-D : longueur du tunnel sud (comparaison) : "" = données par défaut (colisee.json), "A" 6,5 m, "B" 8,5 m, "C" 9,5 m.
 ## -- --tunnel=A|B|C l'emporte ; le choix est gardé pour la session (retour du combat tutoriel).

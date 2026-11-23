@@ -84,7 +84,7 @@ masque de collision avant / après.
    **l'apparence de la forêt** (V09B.5 + V4 ; touche **B** : P4.8), **pilote d'habillage** (touche **H** : blockout).
    Rapport : `docs/P6_1_CAMERA_ART.md`.
    **Branche `p6-2-colisee-circulation-visibilite` (étape A, plan de circulation)** : F5 inchangé ; Colisée en F6
-   **azimut 0° validé le 22/11/2026** (`colisee.tscn` et `colisee_azimut0.tscn` ; ancienne référence 20° : `colisee_azimut20.tscn`).
+   **azimut 0° validé le 22/11/2026** (`colisee.tscn` ; ancienne référence 20° : `-- --azimut=20`).
    **Étape B** : vestiaires et salle d'attente en vrais intérieurs (visibilité par secteurs, murs de premier plan coupés,
    lanternes à ombres douces), tutoriel qu'on peut passer (dialogue du commandant, ou Échap en combat avec confirmation). Rapport et nouveau plan : `docs/P6_2_CIRCULATION_VISIBILITE.md`.
    **Branche `p6-2b-transitions-interieurs`** : F5 inchangé ; `colisee.tscn` (F6) démarre avec les transitions
@@ -191,7 +191,6 @@ masque de collision avant / après.
 | Scène | Contenu |
 |---|---|
 | `scenes/p6/colisee.tscn` | **P6 — ouverture du jeu** : Colisée de Val'Serra, tutoriel, sortie vers la ville |
-| `scenes/p6/colisee_azimut20.tscn` | P6.2 — le Colisée avec l'ancienne caméra à azimut 20° (comparaison ; `colisee.tscn` = 0°, validé) |
 | `scenes/p6/colisee_tunnel_A_6_5m.tscn` | P6.2-D — tunnel sud de 6,5 m (longueur de P6, comparaison) |
 | `scenes/p6/colisee_tunnel_B_8_5m.tscn` | P6.2-D — tunnel sud de 8,5 m (proposé ; = `colisee.tscn`) |
 | `scenes/p6/colisee_tunnel_C_9_5m.tscn` | P6.2-D — tunnel sud de 9,5 m (comparaison) |

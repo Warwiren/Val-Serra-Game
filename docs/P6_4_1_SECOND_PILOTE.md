@@ -1,5 +1,8 @@
 # P6.4.1 — Second pilote artistique du Colisée
 
+> **P7.2 (nettoyage autorisé par le créateur)** : les médias de ce rapport (`docs/media/…`) ont été retirés du projet
+> actif. Ils restent dans l'historique Git : `git checkout d88eac4 -- docs/media/<dossier>`.
+
 Branche **`p6-4-1-colisee-second-pilote`**, issue de `p6-4-colisee-direction-artistique`. Elle répond au retour
 du créateur du 23/11/2026 sur le premier pilote :
 * **galerie** : principe validé, toiture refusée ;

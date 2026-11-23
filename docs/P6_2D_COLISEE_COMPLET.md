@@ -1,5 +1,8 @@
 # P6.2-D — Intérieurs consolidés et Colisée complet
 
+> **P7.2 (nettoyage autorisé par le créateur)** : les médias de ce rapport (`docs/media/…`) ont été retirés du projet
+> actif. Ils restent dans l'historique Git : `git checkout d88eac4 -- docs/media/<dossier>`.
+
 Branche **`p6-2d-colisee-complet`**, issue de `p6-2c-tunnel-visibilite`.
 
 Ce qui reste conservé :
