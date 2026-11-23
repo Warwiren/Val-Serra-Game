@@ -186,6 +186,12 @@
   `build_colisee.py` ; joues des gradins aux accès (`habillage_p6._joue_gradins`) ; arc et grille du tunnel est classés
   EXT ; calque du sable `src/p6/sable_p643.gdshader` (`--sable=0`) ; ombres de contact locales au Colisée
   (`colisee._ombres_contact`, shader commun inchangé). Ne pas annoncer le Colisée validé ; la ville attend son plan directeur.
+- **P7.1 (branche `p7-1-ville-blockout-v01`, `docs/P7_1_VILLE_BLOCKOUT_V01.md`)** : BLOCKOUT V0.1 du quartier central d'après le
+  plan directeur V0.5 (validé comme base fonctionnelle) ; PROTOTYPE NON VALIDÉ. Données générées par
+  `tools/p7/build_ville_v05.py` (ne pas éditer `data/p7/ville_v05.json` à la main ; échelle tirée des durées cibles à 2,2 m/s),
+  affichage `scenes/p7/ville_blockout.gd` + `src/p7/blockout_p7.gdshader`, scène F6 `scenes/p7/ville_v05_blockout.tscn`
+  (`colisee.gd`, `ville_v05 = true`). Le Colisée garde le quartier provisoire par défaut. Pas d'habillage définitif, pas
+  d'intérieurs, pas de foule ; le quartier P4 provisoire n'est ni figé ni reconstruit.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.

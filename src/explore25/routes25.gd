@@ -656,12 +656,19 @@ static func _route_base(name: String) -> Array:
 				_go(88.0, 53.0, "ville : vers la grande place", 0.4),
 				{"do": "wait", "t": 0.5},
 			]
+		"p7_camera":
+			# P7.1 — continuité de la caméra : parcours de la vidéo SANS changement de zoom (×3 de bout en bout)
+			var outk: Array = []
+			for st in _route_base("p7_video"):
+				if st["do"] != "zoom":
+					outk.append(st)
+			return outk
 		"p7_vues":
 			# P7.1 — vues demandées (A arrivée sud, B place -> hôtel de ville, C parvis -> Colisée) et contrôles, ×3 et ×2
 			var outv: Array = []
 			for z in [[2, "x3"], [0, "x2"]]:
 				outv.append({"do": "zoom", "i": z[0], "smooth": false})
-				for c in [["A_arrivee_sud", 108.5, 150.0, 0.0], ["B_place_hotel_de_ville", 136.0, 51.0, 1.0],
+				for c in [["A_arrivee_sud", 108.5, 150.0, 0.0], ["B_place_hotel_de_ville", 150.0, 46.5, 1.0],
 						["C_parvis_colisee", 72.0, 55.0, 1.0], ["D_guilde", 116.0, 132.0, 0.0], ["E_commerces", 112.0, 106.0, 0.0],
 						["F_marche", 108.5, 88.0, 1.0], ["G_escalier_avenue", 108.5, 107.0, 0.0], ["H_avenue_haute", 108.5, 28.5, 1.0],
 						["I_ruelle_ouest", 32.0, 141.0, 0.0], ["J_passage_est", 176.0, 69.0, 1.0]]:

@@ -94,7 +94,11 @@ func _physics_process(delta: float) -> bool:
 	cam_prev = cp
 	hero_prev = hp
 	ecr_prev = ecr
-	if s.pilot_done or t > 90.0:
+	var duree := 90.0
+	for a0 in OS.get_cmdline_user_args():
+		if a0.begins_with("--duree="):
+			duree = float(a0.substr(8))           # P7.1 : parcours plus longs (ville)
+	if s.pilot_done or t > duree:
 		fini = true
 		var args := OS.get_cmdline_user_args()
 		var csv := "user://camera_continuite_p6.csv"

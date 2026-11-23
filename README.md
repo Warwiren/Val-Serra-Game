@@ -43,8 +43,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p6-4-3-colisee-consolidation`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p6-4-3-colisee-consolidation`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p7-1-ville-blockout-v01`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p7-1-ville-blockout-v01`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -128,6 +128,11 @@ masque de collision avant / après.
    P6.4.2 consolidé : vue du tunnel sud sans éléments isolés, gradins fermés aux accès (plus de sol visible dessous), arc
    et grille du tunnel est rattachés à l'arène, sable enrichi (traces d'usage, cercle d'évaluation ; `-- --sable=0` pour
    comparer), ombres de contact des personnages. Rapport : `docs/P6_4_3_COLISEE_CONSOLIDATION.md`.
+   **Branche `p7-1-ville-blockout-v01`** (PROTOTYPE de circulation, NON validé) : F5 inchangé ; **F6 sur
+   `scenes/p7/ville_v05_blockout.tscn`** = blockout V0.1 du quartier central (plan V0.5) : départ à la porte sud, guilde,
+   commerces, place, Colisée (parvis), deux boucles, accès château et quartier est fermés. `-- --etat=tutorial_completed` :
+   départ dans le Colisée, dont la sortie mène au parvis. `colisee.tscn` (F6) inchangé (quartier provisoire).
+   Rapport : `docs/P7_1_VILLE_BLOCKOUT_V01.md`.
 
 ### Commandes — forêt V07B (F5)
 

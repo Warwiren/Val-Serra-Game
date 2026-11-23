@@ -151,7 +151,39 @@ par le rendu logiciel et **n'a pas de sens sans GPU**.
 
 ## 7. Tests
 
-TESTS_P71
+| Vérification | Résultat |
+|---|---|
+| `tests/run_tests.gd` | 85 / 85 |
+| `e2e_p6_ouverture --tuto-rapide` (Colisée de bout en bout, quartier provisoire par défaut) | réussi (0 échec) |
+| `e2e_p6_saut_tutoriel` | réussi (0 échec) |
+| `e2e_p4_retour`, parcours `p4` et `p4_sondes` | réussis |
+| Sondes de collision du Colisée `p6_sondes` | 10 / 10 |
+| `v11_collisions_smoke` (forêt), F5 `--quit-after 60` | réussis, sans erreur |
+| Caméra du Colisée (`p6_traversee`) | 0 bond |
+| **Ville** : trajets `p7_trajets` (8 tronçons, 45 étapes) | toutes atteintes, aucun blocage, 0 saut de hauteur |
+| **Ville** : raccord Colisée → parvis (`p7_raccord`, marche réelle) | réussi |
+| **Ville** : caméra, parcours continu de 277 s à ×3 (`p7_camera`) | **0 bond**, vitesse max 2,74 m/s, déplacement écran max 4,1 px/image (mêmes valeurs que dans le Colisée) |
+| **Ville** : vidéo continue (`p7_video`, ×3 avec passages à ×2) | 27 étapes sur 28 atteintes ; une étape a été abandonnée 2 s contre la fontaine, car le parcours automatique la traversait en ligne droite (collision correcte) |
+
+Pour la mesure de caméra, l'option `--duree=` a été ajoutée à `tools/p6/camera_continuite_p6.gd`, car elle s'arrêtait à
+90 s. Les changements de zoom ×3 / ×2 déplacent volontairement la caméra : ils sont exclus de cette mesure (parcours
+`p7_camera`).
+
+**Non réalisable ici** : un test sur GPU réel, et une évaluation « ressentie » au clavier par un joueur humain.
+
+### Occultations mesurées (vidéo, 277 s)
+
+| Où | Durée où Aren est caché (trouée tramée active) | Cause |
+|---|---|---|
+| Passage est (vers le quartier est) | 23,8 s | Front de 12 m au sud d'une rue de 6 m |
+| Rue haute des boutiques, devant la forge | 20,8 s | Rangée de boutiques au sud de la rue de 4 m |
+| Devant l'auberge-taverne | 10,1 s | Façade nord de l'auberge, Aren au pied |
+| Rue du Conseil, devant l'hôtel de ville | 7,7 s | Immeuble de 9 m au sud de la rue de 8 m |
+| Parvis de la Guilde, rue est, marché ouest, parvis du Colisée | 5 à 7,5 s chacun | Fronts au sud |
+
+Avec l'azimut 0° de la caméra, toute rue est-ouest bordée au sud par un front plus haut que sa largeur cache Aren. La
+trouée tramée le laisse voir, mais la rue elle-même disparaît, comme dans la première vue B. **C'est le principal
+enseignement du blockout** : voir l'arbitrage 7.
 
 ## 8. Fichiers
 
@@ -163,12 +195,14 @@ TESTS_P71
 | `scenes/p7/ville_v05_blockout.tscn` (nouveau) | Scène F6 (hérite de la scène du Colisée, `ville_v05 = true`) |
 | `src/p7/blockout_p7.gdshader` (nouveau) | Matériau de blockout : couleur unie, quadrillage d'1 m, étages et baies schématiques, trouée d'occlusion |
 | `scenes/p6/colisee.gd` | Branchement **optionnel** de la ville (`ville_v05` / `--ville=v05`). Sans cette option, comportement inchangé |
-| `src/explore25/routes25.gd` | Parcours `p7_trajets`, `p7_vues`, `p7_video`, `p7_raccord` |
+| `tools/p6/camera_continuite_p6.gd` | Option `--duree=` (parcours longs) ; durée par défaut inchangée (90 s) |
+| `src/explore25/routes25.gd` | Parcours `p7_trajets`, `p7_vues`, `p7_video`, `p7_camera`, `p7_raccord` |
 
 ## 9. Défauts ouverts et éléments provisoires
 
 | Priorité | Point |
 |---|---|
+| **Haute** | **Rues est-ouest masquées par leur front sud** (voir « Occultations mesurées ») : passage est, rue des boutiques, rue du Conseil. Correction possible sans nouveau système : fronts sud plus bas (1–2 étages), rues est-ouest plus larges, ou façades sud dessinées « coupées » comme le rempart sud. **À décider** (arbitrage 7) |
 | Moyenne | **Rues orthogonales** : les rues courbes du plan sont approchées par des rectangles. Pour des diagonales, il faudrait des sols non rectangulaires dans le socle (évolution technique à décider) |
 | Moyenne | **Arrivée sud** : la vue A laisse voir l'avenue et la ville en profondeur, mais pas encore de « grande cité » au-delà. Pas de silhouettes lointaines dans le blockout, volontairement |
 | Basse | **Escaliers** : ils gardent la texture du socle P4 (violacée), un placeholder |
@@ -186,3 +220,6 @@ TESTS_P71
 4. **Géométrie des rues** : faut-il étendre le socle aux sols non rectangulaires pour les rues courbes du plan ?
 5. **Porte sud** : vers quelle carte extérieure relier la transition ?
 6. **Entrée de la Guilde** : sur un parvis à l'ouest, côté avenue, comme ici, ou sur la rue des Aventuriers ?
+7. **Fronts au sud des rues est-ouest** : faut-il limiter leur hauteur (1–2 étages) ou élargir ces rues ? Ou bien
+   dessiner les façades face à la caméra coupées, comme dans les intérieurs du Colisée ? Cela engage la composition
+   HD-2D de toute la ville.
