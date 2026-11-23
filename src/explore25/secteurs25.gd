@@ -259,9 +259,12 @@ func plafonds(racine: Node3D, h_min := 0.0) -> void:
 
 var _toits: Array = []
 var _mat_toit_cache: StandardMaterial3D
+var mat_toit: Material = null              # P6.4.2 : matière des toits fournie par l'habillage (sinon aplat brun)
 
 
-func _mat_toit() -> StandardMaterial3D:
+func _mat_toit() -> Material:
+	if mat_toit != null:
+		return mat_toit
 	if _mat_toit_cache == null:
 		_mat_toit_cache = StandardMaterial3D.new()
 		_mat_toit_cache.albedo_color = Color(0.36, 0.22, 0.18)

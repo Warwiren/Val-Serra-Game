@@ -89,9 +89,9 @@ var habillage := true                       # P6.1 : pilote d'habillage (touche 
 var p64 := true
 var porte_coupe := "C"
 const PORTES_COUPE := ["C", "coupe", "silhouette", "p632"]
-## P6.4.1 : état de comparaison (touche M) : "0" = P6.3.2, "1" = premier pilote P6.4, "2" = second pilote (défaut) ;
-## galerie des écoinçons (touche K ; -- --galerie=A|B|p64)
-var pilote := "2"
+## P6.4.1 : état de comparaison (touche M) : "0" = P6.3.2, "1" = premier pilote P6.4, "2" = second pilote,
+## "3" = extension P6.4.2 à tout le Colisée (défaut) ; galerie des écoinçons (touche K ; -- --galerie=A|B|p64)
+var pilote := "3"
 var galerie := "A"
 const GALERIES := ["A", "B", "p64"]
 var _marques_portes: Array = []             # P6.4.1 : [Sprite3D, centre xz] (indication discrète des portes fermées)
@@ -100,8 +100,9 @@ var _hab
 
 ## P6.4.1 : réglages par défaut de chaque état de comparaison (galerie, porte) ; la ligne de commande l'emporte.
 func _defauts_pilote() -> void:
-	galerie = "A" if pilote == "2" else "p64"
-	porte_coupe = "C" if pilote == "2" else "silhouette"
+	# P6.4.2 : galerie B (structure mixte) et porte C retenues par le créateur après P6.4.1
+	galerie = {"3": "B", "2": "A"}.get(pilote, "p64")
+	porte_coupe = "C" if pilote in ["2", "3"] else "silhouette"
 
 
 func _ready() -> void:
@@ -111,9 +112,9 @@ func _ready() -> void:
 	_diag_on = _cli.has("diag")
 	_isoler = str(_cli.get("isoler", ""))        # P6.3.2 : diagnostic des clignotements (ombres, occultation, trouee, fondus)
 	eblouissement = str(_cli.get("eblouissement", eblouissement))
-	pilote = str(_cli.get("p64", "2"))
-	if not pilote in ["0", "1", "2"]:
-		pilote = "2"
+	pilote = str(_cli.get("p64", "3"))
+	if not pilote in ["0", "1", "2", "3"]:
+		pilote = "3"
 	_defauts_pilote()
 	p64 = pilote != "0"
 	porte_coupe = str(_cli.get("porte_coupe", porte_coupe))
@@ -529,7 +530,8 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	_hab = Habillage.new(self) if habillage else null
 	if _hab != null:
 		_hab.p64 = p64
-		_hab.pilote2 = pilote == "2"
+		_hab.pilote2 = pilote in ["2", "3"]
+		_hab.extension = pilote == "3"
 		_hab.galerie = galerie
 	_marques_portes.clear()
 	if _hab != null:
@@ -548,6 +550,9 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 		for n in [_overlay, _labels]:
 			if n != null:
 				n.set_meta("hors_secteurs", true)
+		if _hab != null and _hab.extension and _hab.p64:
+			# P6.4.2 : toits des intérieurs vus de l'arène = terrasses dallées, comme la terrasse de la galerie B
+			_sect.mat_toit = _hab.mz("dalle", "arene", "monde", 1.0, false, Color(0.74, 0.72, 0.7))
 		_sect.plafonds(root, H_VIS + 0.1 if _sect.mode != "echelle" else 0.0)
 		if _sect.mode == "echelle":
 			_lueur_tunnel = _lueur_fin_de_tunnel()
@@ -1219,11 +1224,11 @@ func _unhandled_input(e: InputEvent) -> void:
 		s.toast("Habillage : " + ("pilote P6.1" if habillage else "blockout P6"), 2.5)
 		return
 	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_M:
-		pilote = {"0": "1", "1": "2", "2": "0"}[pilote]
+		pilote = {"0": "1", "1": "2", "2": "3", "3": "0"}[pilote]
 		p64 = pilote != "0"
 		_defauts_pilote()
 		_reload_here()
-		s.toast("Direction artistique : " + {"0": "P6.3.2 (comparaison)", "1": "premier pilote P6.4", "2": "second pilote P6.4.1"}[pilote], 2.5)
+		s.toast("Direction artistique : " + {"0": "P6.3.2 (comparaison)", "1": "premier pilote P6.4", "2": "second pilote P6.4.1", "3": "extension P6.4.2"}[pilote], 2.5)
 		return
 	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_K:
 		galerie = GALERIES[(GALERIES.find(galerie) + 1) % GALERIES.size()]
@@ -1672,17 +1677,18 @@ func _mur_continu(id: String, pivot: Node3D, r: Rect2, h0: float, hv: float, mpi
 	haut.append(_box_mesh(_rect_center(rc, lip, h_mid), Vector3(rc.size.x, h_mid - lip, rc.size.y), mpierre, pivot))
 	var mcap: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(1.12, 1.1, 1.08), true) if _hab != null else _tinted("pierre", Color(1.12, 1.1, 1.14), true)
 	var p64m: bool = _hab != null and _hab.pilote_mur(id)
-	var mcorn: Material = _hab.m64("moulure", "monde", 1.0, true) if p64m else mpierre
+	var zm: String = _hab.zone_piece(id) if _hab != null else ""
+	var mcorn: Material = _hab.mm("moulure", zm, "monde", 1.0, true) if p64m else mpierre
 	if p64m:
-		mcap = _hab.m64("moulure", "monde", 1.0, true)
+		mcap = _hab.mm("moulure", zm, "monde", 1.0, true)
 	if hv > 3.05:
 		# P6.2-D : partie haute en deux assises (moins brutale qu'un aplat sombre), corniche, chaperon de pierre au sommet
 		# (et non plus une tranche noire de maquette), pilastres aux extrémités des murs longs (angles, piédroits)
 		var mmoyen: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.6, 0.56, 0.55), true) if _hab != null else _tinted("pierre", Color(0.58, 0.56, 0.58), true)
 		var msombre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.4, 0.36, 0.36), true) if _hab != null else _tinted("pierre", Color(0.4, 0.38, 0.4), true)
 		if p64m:
-			mmoyen = _hab.m64("mur_haut", "monde", 1.0, true)
-			msombre = _hab.m64("mur_sombre", "monde", 1.0, true)
+			mmoyen = _hab.mm("mur_haut", zm, "monde", 1.0, true)
+			msombre = _hab.mm("mur_sombre", zm, "monde", 1.0, true)
 		var hm := minf(4.3, hv)
 		haut.append(_box_mesh(_rect_center(rc, 3.0, hm), Vector3(rc.size.x, hm - 3.0, rc.size.y), mmoyen, pivot))
 		if hv > hm + 0.05:
@@ -1704,7 +1710,7 @@ func _mur_continu(id: String, pivot: Node3D, r: Rect2, h0: float, hv: float, mpi
 	else:
 		haut.append(_box_mesh(_rect_center(r.grow(0.06 + e), hv + e, hv + 0.12 + e), Vector3(r.size.x + 0.12 + 2.0 * e, 0.12, r.size.y + 0.12 + 2.0 * e), mcap, pivot))
 	if _hab != null:
-		_box_mesh(_rect_center(r.grow(0.05 + e), h0, 0.3 + e), Vector3(r.size.x + 0.1 + 2.0 * e, 0.3 + e - h0, r.size.y + 0.1 + 2.0 * e), _hab.m64("socle", "monde") if p64m else _hab.mat(Habillage.PIERRE, 1.2, Habillage.C_CALCAIRE * Color(0.72, 0.7, 0.7)), pivot)
+		_box_mesh(_rect_center(r.grow(0.05 + e), h0, 0.3 + e), Vector3(r.size.x + 0.1 + 2.0 * e, 0.3 + e - h0, r.size.y + 0.1 + 2.0 * e), _hab.mm("socle", zm, "monde") if p64m else _hab.mat(Habillage.PIERRE, 1.2, Habillage.C_CALCAIRE * Color(0.72, 0.7, 0.7)), pivot)
 	var coupe := _box_mesh(_rect_center(r.grow(0.07 + e), lip - 0.01 + e, lip + 0.05 + e), Vector3(r.size.x + 0.14 + 2.0 * e, 0.06, r.size.y + 0.14 + 2.0 * e), _mat_coupe(), pivot)
 	coupe.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var occ: OccluderInstance3D = null
@@ -1739,8 +1745,9 @@ func _linteaux() -> void:
 		for rp in _rects_p64:
 			if (rp as Rect2).grow(0.05).intersects(r.grow(0.05)):
 				pil = true
+		var zl: String = _hab.zone_en(r.get_center()) if _hab != null else ""
 		if pil:
-			mclair = _hab.m64("mur", "monde", 1.0, true)
+			mclair = _hab.mm("mur", zl, "monde", 1.0, true)
 			mp = mclair
 		if lh < 3.5:
 			# arc de la bouche : un bandeau de pierre claire et son chaperon, sans masse sombre au-dessus
@@ -1750,7 +1757,7 @@ func _linteaux() -> void:
 			haut.append(_box_mesh(_rect_center(r, lb, 3.0), Vector3(r.size.x, 3.0 - lb, r.size.y), mclair, pivot))
 			var msombre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.42, 0.38, 0.38), true) if _hab != null else mp
 			if pil:
-				msombre = _hab.m64("mur_haut", "monde", 1.0, true)
+				msombre = _hab.mm("mur_haut", zl, "monde", 1.0, true)
 			haut.append(_box_mesh(_rect_center(r, 3.0, lh), Vector3(r.size.x, lh - 3.0, r.size.y), msombre, pivot))
 		var arc := lh < 3.5
 		if arc:

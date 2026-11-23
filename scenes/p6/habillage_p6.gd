@@ -29,6 +29,9 @@ var p64 := true
 ## P6.4.1 : second pilote (matières hybrides) et variante de la galerie ("p64" : premier pilote, "A", "B")
 var pilote2 := true
 var galerie := "A"
+## P6.4.2 : extension des choix retenus (matières hybrides, galerie B, porte C, lumière des accès) à tout le Colisée,
+## avec une ambiance de matière par zone (P642_ZONES). false : pilotes P6.4 / P6.4.1 tels quels (touche M).
+var extension := false
 const MACON_SH = preload("res://src/p6/maconnerie_p64.gdshader")
 const GRAIN := "res://art/p4/mat/roche.png"
 ## P6.4 : zones pilotes des matériaux (le reste du Colisée garde les matières P6.3.2)
@@ -123,6 +126,16 @@ const P64_PRESETS := {
 		"couleur": Color(0.40, 0.27, 0.21), "couleur2": Color(0.35, 0.29, 0.26), "c_joint": Color(0.16, 0.11, 0.09),
 		"var_teinte": 0.2, "part2": 0.45, "salissure": 0.0, "coulures": 0.0, "mousse": 0.2, "usure": 0.25, "valeur": 0.85,
 		"desordre": 1.0, "k_terre": 0.0, "k_mousse": 0.25},
+	# P6.4.2 : planchers (lames de 18 à 22 cm le long de x, joints sombres, crasse peinte dans les joints)
+	"plancher": {"motif": 2, "assises": Vector3(0.2, 0.18, 0.22), "long_bloc": 2.3, "var_long": 0.45, "joint": 0.006,
+		"couleur": Color(0.50, 0.33, 0.22), "couleur2": Color(0.44, 0.31, 0.23), "c_joint": Color(0.13, 0.09, 0.07),
+		"var_teinte": 0.13, "part2": 0.4, "salissure": 0.0, "coulures": 0.0, "mousse": 0.0, "usure": 0.45,
+		"rapieces": 0.04, "k_terre": 0.45, "k_mousse": 0.0},
+	# P6.4.2 : pavage des tunnels : pierres plus petites, très usées, crasse dans les joints (passage des combattants)
+	"dallage_tunnel": {"motif": 1, "assises": Vector3(0.42, 0.34, 0.46), "long_bloc": 0.58, "var_long": 0.45, "joint": 0.013,
+		"couleur": Color(0.52, 0.46, 0.40), "couleur2": Color(0.46, 0.42, 0.39), "c_joint": Color(0.15, 0.13, 0.12),
+		"var_teinte": 0.17, "part2": 0.42, "salissure": 0.0, "coulures": 0.0, "mousse": 0.08, "usure": 0.7,
+		"irregulier": 1.0, "fissures": 0.08, "rapieces": 0.05, "k_terre": 0.7, "k_mousse": 0.25},
 	# contreforts et façades de la galerie : gros appareil, plus gris
 	"contrefort": {"motif": 0, "assises": Vector3(0.48, 0.40, 0.44), "long_bloc": 1.0, "var_long": 0.3, "joint": 0.012,
 		"couleur": Color(0.55, 0.50, 0.43), "couleur2": Color(0.50, 0.48, 0.45), "c_joint": Color(0.31, 0.27, 0.24),
@@ -143,9 +156,109 @@ func m64(nom: String, uv := "monde", uv_m := 1.0, hole := false, teinte := Color
 	var k := "p64|%s|%s|%s|%s|%s" % [nom, uv, uv_m, hole, teinte]
 	if _mats.has(k):
 		return _mats[k]
+	var m := _macon(P64_PRESETS[nom], uv, uv_m, hole, teinte)
+	_mats[k] = m
+	return m
+
+
+## P6.4.2 : ambiance des matières par zone. Les calepinages restent ceux des pilotes (mur des vestiaires, dallage
+## enrichi) ; seuls changent la palette, la valeur, l'usure et la salissure, selon la fonction de chaque espace.
+##   teinte : multiplie les deux familles de pierre ; valeur : multiplie la valeur générale ; sal / mousse / coul :
+##   multiplient salissure (et salissure peinte), mousse (et mousse peinte), coulures ; rap / fis : s'ajoutent aux
+##   pierres de réparation et aux fissures ; sol : préréglage du sol de la zone.
+const P642_ZONES := {
+	# référence : mur des vestiaires du second pilote (inchangé), plancher chaud
+	"vestiaires": {"sol": "plancher"},
+	# intérieur de service, plus neutre et plus propre ; dallage enrichi
+	"salle": {"teinte": Color(0.98, 0.97, 0.97), "sal": 0.85, "mousse": 0.4, "sol": "dallage"},
+	# passage sous les gradins : plus sombre, suie et humidité (coulures, pied verdi), pavage très usé
+	"tunnel": {"valeur": 0.84, "teinte": Color(0.96, 0.93, 0.9), "sal": 1.45, "coul": 1.6, "mousse": 1.5, "fis": 0.03, "sol": "dallage_tunnel"},
+	# à ciel ouvert : pierre plus claire et plus chaude, lavée par la pluie (coulures), peu de crasse
+	"arene": {"valeur": 1.06, "teinte": Color(1.04, 1.0, 0.93), "sal": 0.75, "coul": 1.35, "mousse": 0.9, "fis": 0.03},
+	# référence : coursive du second pilote (inchangée)
+	"coursive": {"sol": "dallage"},
+	# soins : pierre plus claire, entretenue (presque pas de crasse ni de mousse), plancher clair récuré
+	"infirmerie": {"valeur": 1.07, "teinte": Color(1.06, 1.05, 1.02), "sal": 0.45, "coul": 0.5, "mousse": 0.15, "sol": "plancher",
+		"sol_teinte": Color(1.18, 1.14, 1.08), "sol_sal": 0.5},
+	# réserve : brute, poussiéreuse, réparée ; plancher sombre
+	"reserve": {"valeur": 0.92, "teinte": Color(0.97, 0.94, 0.9), "sal": 1.25, "mousse": 0.6, "rap": 0.06, "fis": 0.04, "sol": "plancher",
+		"sol_teinte": Color(0.82, 0.8, 0.78), "sol_sal": 1.5},
+	# couloir de sortie : proche de la rue, un peu plus exposé (coulures, mousse)
+	"sortie": {"teinte": Color(1.0, 0.98, 0.95), "coul": 1.25, "mousse": 1.15, "sol": "dallage"},
+}
+## pièce des données (id des murs « cmur_<pièce>_<côté><n> », id des sols) -> zone de matière
+const P642_PIECES := {"vestiaires": "vestiaires", "passage_vestiaires": "vestiaires", "salle_attente": "salle",
+	"tunnel_sud": "tunnel", "tunnel_est": "tunnel", "coursive": "coursive", "passage_infirmerie": "infirmerie",
+	"infirmerie": "infirmerie", "reserve": "reserve", "couloir_sortie": "sortie", "arene": "arene"}
+## secteur de la visibilité -> zone de matière (éléments posés entre deux pièces : linteaux)
+const P642_SECTEURS := {"S1": "vestiaires", "P12": "vestiaires", "S2": "salle", "S3": "tunnel", "S4": "arene",
+	"S5": "tunnel", "S6": "coursive", "S7": "infirmerie", "S8": "reserve", "S9": "sortie"}
+
+
+func zone_piece(id: String) -> String:
+	var p := id.trim_prefix("cmur_").trim_prefix("meuble_")
+	var best := ""
+	for k in P642_PIECES:
+		if p.begins_with(k) and (k as String).length() > best.length():
+			best = k
+	return P642_PIECES.get(best, "coursive")
+
+
+## Zone d'un point du plan : secteur qui le contient, sinon le plus proche (éléments posés dans l'épaisseur d'un mur).
+func zone_en(xz: Vector2) -> String:
+	var best := "coursive"
+	var dmin := INF
+	for sd in sc._p6.get("secteurs", []):
+		for q in sd["rects"]:
+			var r := Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1])
+			var d := xz.distance_to(Vector2(clampf(xz.x, r.position.x, r.end.x), clampf(xz.y, r.position.y, r.end.y)))
+			if d < dmin:
+				dmin = d
+				best = P642_SECTEURS.get(sd["id"], "coursive")
+	return best
+
+
+func mz(nom: String, zone: String, uv := "monde", uv_m := 1.0, hole := false, teinte := Color.WHITE) -> ShaderMaterial:
+	if P641_VARIANTES.has(nom):
+		nom = P641_VARIANTES[nom]
+	var k := "pz|%s|%s|%s|%s|%s|%s" % [nom, zone, uv, uv_m, hole, teinte]
+	if _mats.has(k):
+		return _mats[k]
+	var z: Dictionary = P642_ZONES.get(zone, {})
+	var d: Dictionary = P64_PRESETS[nom].duplicate()
+	var sol: bool = int(d["motif"]) == 1 or nom.begins_with("plancher")
+	var tz: Color = z.get("sol_teinte" if sol and z.has("sol_teinte") else "teinte", Color.WHITE)
+	d["couleur"] = (d["couleur"] as Color) * tz
+	d["couleur2"] = (d["couleur2"] as Color) * tz
+	d["valeur"] = float(d.get("valeur", 0.8)) * float(z.get("valeur", 1.0))
+	var ks: float = z.get("sol_sal" if sol and z.has("sol_sal") else "sal", 1.0)
+	d["salissure"] = float(d["salissure"]) * ks
+	d["k_terre"] = minf(float(d.get("k_terre", 0.0)) * ks, 0.95)
+	d["mousse"] = float(d["mousse"]) * float(z.get("mousse", 1.0))
+	d["k_mousse"] = float(d.get("k_mousse", 0.0)) * float(z.get("mousse", 1.0))
+	d["coulures"] = float(d["coulures"]) * float(z.get("coul", 1.0))
+	if int(d["motif"]) != 3:
+		d["rapieces"] = float(d.get("rapieces", 0.0)) + float(z.get("rap", 0.0))
+		d["fissures"] = float(d.get("fissures", 0.0)) + float(z.get("fis", 0.0))
+	var m := _macon(d, uv, uv_m, hole, teinte)
+	_mats[k] = m
+	return m
+
+
+## Matière de pilote : par zone en P6.4.2 (extension), celle des pilotes sinon (comparaison, touche M).
+func mm(nom: String, zone: String, uv := "monde", uv_m := 1.0, hole := false, teinte := Color.WHITE) -> ShaderMaterial:
+	return mz(nom, zone, uv, uv_m, hole, teinte) if extension else m64(nom, uv, uv_m, hole, teinte)
+
+
+## P6.4.2 : sol d'une pièce (préréglage de sa zone).
+func mat_sol(id: String) -> ShaderMaterial:
+	var z := zone_piece(id)
+	return mz(str(P642_ZONES.get(z, {}).get("sol", "dallage")), z, "monde", 1.0, false)
+
+
+func _macon(d: Dictionary, uv: String, uv_m: float, hole: bool, teinte: Color) -> ShaderMaterial:
 	var m := ShaderMaterial.new()
 	m.shader = MACON_SH
-	var d: Dictionary = P64_PRESETS[nom]
 	for key in d:
 		var v = d[key]
 		if v is Color and teinte != Color.WHITE:
@@ -162,19 +275,20 @@ func m64(nom: String, uv := "monde", uv_m := 1.0, hole := false, teinte := Color
 	m.set_shader_parameter("uv_mode", 0.0 if uv == "monde" else 1.0)
 	m.set_shader_parameter("uv_m", uv_m)
 	m.set_shader_parameter("hole", 1.0 if hole else 0.0)
-	_mats[k] = m
 	return m
 
 
 func pilote_mur(id: String) -> bool:
-	return p64 and id in P64_MURS
+	return p64 and (id in P64_MURS or (extension and id.begins_with("cmur_")))
 
 
 func pilote_sol(id: String) -> bool:
-	return p64 and id in P64_SOLS
+	return p64 and (id in P64_SOLS or extension)
 
 
 func pilote_gradins(am: float) -> bool:
+	if extension:
+		return p64
 	var d := rad_to_deg(fposmod(am, TAU))
 	return p64 and d >= P64_GRADINS[0] and d <= P64_GRADINS[1]
 
