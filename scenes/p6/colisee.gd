@@ -167,13 +167,14 @@ func _ready() -> void:
 	_dialogues_p6 = JSON.parse_string(FileAccess.open(DIALOGUES_P6, FileAccess.READ).get_as_text())["dialogues"]
 	_pnj_defs = JSON.parse_string(FileAccess.open(PNJ_P6, FileAccess.READ).get_as_text())["pnj"]
 	# outils de test : état de départ imposé (--etat=tutorial_completed, etc.), nouvelle partie (--neuf)
-	if _cli.has("neuf"):
+	var retour: bool = GameState.explore_return == scene_file_path and GameState.last_battle_result != ""
+	# P6.4.2 : au retour du tutoriel (même processus), l'état imposé au lancement n'est pas réappliqué (vidéo continue)
+	if _cli.has("neuf") and not retour:
 		Progression.reinitialiser()
-	if _cli.has("etat"):
+	if _cli.has("etat") and not retour:
 		Progression.definir(str(_cli["etat"]), true)
 		if Progression.au_moins(Progression.TUTORIAL_COMPLETED):
 			Progression.definir_objectif("guilde_badge")
-	var retour: bool = GameState.explore_return == scene_file_path and GameState.last_battle_result != ""
 	var arrive := Vector3.INF
 	if retour and GameState.last_battle_result == Progression.RESULTAT_TUTORIEL:
 		# fin du tutoriel : retour dans l'arène, devant le commandant ; la grille est se lève
@@ -1290,7 +1291,7 @@ func _physics_process(delta: float) -> void:
 	_maj_diag()
 	_suivi_zones()
 	_commandant_auto()
-	if _cli.has("quitter_fin") and s.pilot_done and s.pilot_name in ["p6_apres", "p6_video_complet_apres"] and not _dialog.is_open() and not s.dialogue_open:
+	if _cli.has("quitter_fin") and s.pilot_done and s.pilot_name in ["p6_apres", "p6_video_complet_apres", "p6_video_642_apres"] and not _dialog.is_open() and not s.dialogue_open:
 		_cli.erase("quitter_fin")
 		await get_tree().create_timer(1.5).timeout
 		get_tree().quit()                      # démonstration filmée : fin du parcours
@@ -1473,6 +1474,18 @@ func _lueur_fin_de_tunnel() -> MeshInstance3D:
 
 
 ## Applique le secteur actif : visibilité (module Secteurs), lueur du tunnel, ambiance et limites de caméra.
+## P6.4.2 : une téléportation (parcours de test, montage vidéo, réapparition) recale la visibilité SANS fondu. Avant,
+## l'état de la pièce de départ restait affiché pendant le fondu : en passant de l'arène à la coursive, le toit plat de
+## la coursive (vu de l'arène) s'estompait par-dessus la pièce (grand aplat brun de la vidéo P6.4.1, vers 18 s). La
+## marche normale n'est pas concernée (seuils franchis pas à pas, voir docs/P6_4_2_COLISEE_EXTENSION.md).
+func teleport(p: Vector3, comp: Vector3) -> void:
+	super.teleport(p, comp)
+	if _sect != null and root != null and is_instance_valid(root) and s != null and s.world != null:
+		_maj_secteur(true)
+		if _sect.mode != "echelle":
+			_sect.regler_voile_ext(_sect.voile_ext_pour(Vector2(s.hero.x, s.hero.y)))
+
+
 func _maj_secteur(immediat := false) -> void:
 	if _sect == null:
 		return

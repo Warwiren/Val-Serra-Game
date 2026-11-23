@@ -352,6 +352,27 @@ static func _route_base(name: String) -> Array:
 				_go(10.0, 8.0, "quartier", 0.3),
 				{"do": "wait", "t": 1.5},
 			]
+		"p6_video_642_apres":
+			# P6.4.2 — suite de la vidéo continue après le tutoriel passé : arène -> tunnel est -> coursive (infirmerie,
+			# réserve) -> couloir de sortie -> sortie est (arrêt devant la porte : la ville est hors périmètre)
+			return [
+				{"do": "wait", "t": 7.0},
+				_go(33.0, 23.0, "arène vers l'est", 0.3),
+				_go(41.2, 23.0, "tunnel est : milieu", 0.25),
+				{"do": "wait", "t": 0.6},
+				_go(44.8, 23.0, "coursive : entrée", 0.25),
+				_go(50.0, 25.0, "coursive : centre", 0.3),
+				_go(46.6, 33.3, "porte de l'infirmerie", 0.3),
+				_go(46.6, 36.4, "infirmerie", 0.3),
+				{"do": "wait", "t": 0.6},
+				_go(46.6, 33.0, "retour dans la coursive", 0.3),
+				_go(53.0, 32.6, "devant la réserve", 0.3),
+				{"do": "wait", "t": 0.8},
+				_go(55.0, 23.2, "coursive (est)", 0.3),
+				_go(58.5, 23.2, "couloir de sortie", 0.3),
+				_go(62.8, 23.2, "sortie est", 0.3),
+				{"do": "wait", "t": 1.5},
+			]
 		"p6_traversee":
 			# P6.2-D — traversée complète d'un seul tenant (après le tutoriel), avec arrêts et demi-tours aux seuils : mesure
 			# de la continuité de la caméra (tools/p6/camera_continuite_p6.gd)
@@ -499,6 +520,26 @@ static func _route_base(name: String) -> Array:
 				_go(45.4, 31.5, "coursive : le long du mur ouest", 0.3),
 				{"do": "wait", "t": 0.5},
 			]
+		"p6_extension_captures":
+			# P6.4.2 — avant / après de l'extension, mêmes cadrages pour --p64=2 et --p64=3 (dix zones du Colisée)
+			var oute: Array = []
+			for c in [["e01_vestiaires", 26.0, 51.5], ["e02_salle_attente", 26.0, 42.6], ["e03_tunnel_sud", 26.0, 35.0],
+					["e04_arene_gradins", 26.0, 27.0], ["e05_galerie_sud_ouest", 19.0, 28.0], ["e05b_galerie_sud_est", 33.0, 28.0],
+					["e05c_arene_nord", 26.0, 17.0], ["e06_tunnel_est", 41.2, 23.0], ["e07_coursive", 49.5, 24.5],
+					["e08_infirmerie", 46.6, 37.6], ["e09_reserve_coursive", 53.0, 32.6], ["e09b_reserve_infirmerie", 47.2, 34.8],
+					["e10_sortie_est", 61.5, 23.0]]:
+				oute.append(_warp(c[1], c[2], 0.0))
+				oute.append({"do": "wait", "t": 1.6})
+				oute.append({"do": "snap", "id": c[0]})
+			return oute
+		"p6_extension_coursive":
+			# P6.4.2 — cadrages de la coursive seuls (reprise après réglage des piliers)
+			var outk: Array = []
+			for c in [["e07_coursive", 49.5, 24.5], ["e09_reserve_coursive", 53.0, 32.6], ["e10_sortie_est", 61.5, 23.0], ["e06_tunnel_est", 41.2, 23.0]]:
+				outk.append(_warp(c[1], c[2], 0.0))
+				outk.append({"do": "wait", "t": 1.6})
+				outk.append({"do": "snap", "id": c[0]})
+			return outk
 		"p6_captures":
 			return [
 				{"do": "wait", "t": 1.5},

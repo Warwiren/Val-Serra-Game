@@ -43,8 +43,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p6-4-1-colisee-second-pilote`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p6-4-1-colisee-second-pilote`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p6-4-2-colisee-extension`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p6-4-2-colisee-extension`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -118,6 +118,12 @@ masque de collision avant / après.
    ferrure, petit cadenas discret à l'approche), dallage enrichi et mur avec détails peints, lumière des accès.
    **M** : P6.3.2 / premier pilote / second pilote ; **K** : galerie A / B (structure mixte) / premier pilote ;
    **U** : porte C / A / B / P6.3.2. Rapport : `docs/P6_4_1_SECOND_PILOTE.md`.
+   **Branche `p6-4-2-colisee-extension`** (EN ATTENTE de validation artistique) : F5 inchangé (forêt) ; `colisee.tscn` (F6)
+   démarre sur l'**extension à tout le Colisée** des choix retenus après P6.4.1 : galerie **B** (structure mixte), porte
+   **C**, matières hybrides adaptées à chaque zone (vestiaires, salle, tunnels, arène et gradins entiers, coursive,
+   infirmerie, réserve, sortie), toits des intérieurs en terrasses dallées, lumière des accès dans chaque pièce, décor du
+   combat tutoriel régénéré. **M** : P6.3.2 / premier pilote / second pilote / extension ; **K** : galerie B → premier
+   pilote → A ; **U** : porte. Rapport : `docs/P6_4_2_COLISEE_EXTENSION.md`.
 
 ### Commandes — forêt V07B (F5)
 

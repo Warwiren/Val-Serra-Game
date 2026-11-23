@@ -174,6 +174,13 @@
   (`mur2`, `mur_haut2`, `dallage2`, `socle2` : calepinage procédural + détails peints tirés de `sol_terre.png` /
   `sol_herbe.png`), lumière des accès de la coursive. Touche M : P6.3.2 / pilote 1 / pilote 2 (`--p64=0|1|2`).
   Ne pas généraliser ni étendre les lumières avant validation.
+- **P6.4.2 (branche `p6-4-2-colisee-extension`, `docs/P6_4_2_COLISEE_EXTENSION.md`)** : décisions du créateur du 23/11/2026
+  après P6.4.1 : galerie **B** (structure mixte ; A réservée aux couvertures complètes justifiées, jamais mêlée
+  arbitrairement), porte **C**, mur et dallage du second pilote, logique de lumière des accès. Extension EN ATTENTE de
+  validation : `--p64=3` (défaut ; touche M : 0 / 1 / 2 / 3) ; matières par zone `habillage_p6.mz(nom, zone)` et
+  `P642_ZONES` (même calepinage hybride, palette / usure / salissure selon la pièce ; pas de troisième variante de dallage) ;
+  `lumiere_p642()` (accès et axes, aucune lumière qui suit Aren) ; toits des intérieurs en terrasses (`Secteurs.mat_toit`).
+  Téléportation = visibilité recalée sans fondu (`colisee.teleport`). Le quartier de ville reste hors périmètre.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.
