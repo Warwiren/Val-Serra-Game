@@ -1758,6 +1758,8 @@ func _linteaux() -> void:
 		if pil:
 			mclair = _hab.mm("mur", zl, "monde", 1.0, true)
 			mp = mclair
+			if _hab.extension and lh < 3.5:
+				mclair = _hab.mz("moulure", zl, "monde", 1.0, true)      # P6.4.2 : claveaux clairs de l'arc de la bouche
 		if lh < 3.5:
 			# arc de la bouche : un bandeau de pierre claire et son chaperon, sans masse sombre au-dessus
 			haut.append(_box_mesh(_rect_center(r, lb, lh), Vector3(r.size.x, lh - lb, r.size.y), mp, pivot))
@@ -2107,6 +2109,9 @@ func _naissance_voute(pivot: Node3D, r: Rect2, hv: float) -> void:
 	var face := r.end.x if vers > 0.0 else r.position.x
 	var m1: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.62, 0.58, 0.56), true) if _hab != null else _tinted("pierre", Color(0.6, 0.58, 0.6), true)
 	var m2: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.42, 0.38, 0.38), true) if _hab != null else _tinted("pierre", Color(0.4, 0.38, 0.4), true)
+	if _hab != null and _hab.extension and _hab.p64:
+		m1 = _hab.mz("moulure", "tunnel", "monde", 1.0, true, Color(0.78, 0.76, 0.74))      # P6.4.2 : naissance de voûte
+		m2 = _hab.mz("mur_sombre", "tunnel", "monde", 1.0, true)
 	for k in 2:
 		var ep := 0.22 + 0.2 * k
 		var h0 := hv - 0.05 + 0.24 * k
