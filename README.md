@@ -43,8 +43,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p7-1-ville-blockout-v01`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p7-1-ville-blockout-v01`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p7-2-nettoyage`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p7-2-nettoyage`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -133,6 +133,9 @@ masque de collision avant / après.
    commerces, place, Colisée (parvis), deux boucles, accès château et quartier est fermés. `-- --etat=tutorial_completed` :
    départ dans le Colisée, dont la sortie mène au parvis. `colisee.tscn` (F6) inchangé (quartier provisoire).
    Rapport : `docs/P7_1_VILLE_BLOCKOUT_V01.md`.
+   **Branche `p6-4-4-colisee-vestiaires`** (ticket distinct de la ville) : F5 inchangé ; `colisee.tscn` (F6) : l'arène n'est
+   plus visible depuis les vestiaires, le passage et la salle d'attente (voile de l'extérieur forcé après un recalage).
+   Rapport : `docs/P6_4_4_COLISEE_VESTIAIRES.md`.
 
 ### Commandes — forêt V07B (F5)
 

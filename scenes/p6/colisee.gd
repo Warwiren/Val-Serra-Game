@@ -1533,6 +1533,10 @@ func teleport(p: Vector3, comp: Vector3) -> void:
 	if _sect != null and root != null and is_instance_valid(root) and s != null and s.world != null:
 		_maj_secteur(true)
 		if _sect.mode != "echelle":
+			# P6.4.4 : voile FORCÉ (comme au chargement). La mise à jour immédiate réaffiche les groupes de l'extérieur
+			# (arène comprise) à pleine opacité ; si le voile valait déjà 1, regler_voile_ext() ne faisait rien et l'arène
+			# restait visible depuis les vestiaires, le passage et la salle d'attente (défaut introduit en P6.4.2).
+			_sect.voile_ext = -1.0
 			_sect.regler_voile_ext(_sect.voile_ext_pour(Vector2(s.hero.x, s.hero.y)))
 
 

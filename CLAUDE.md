@@ -192,6 +192,9 @@
   affichage `scenes/p7/ville_blockout.gd` + `src/p7/blockout_p7.gdshader`, scène F6 `scenes/p7/ville_v05_blockout.tscn`
   (`colisee.gd`, `ville_v05 = true`). Le Colisée garde le quartier provisoire par défaut. Pas d'habillage définitif, pas
   d'intérieurs, pas de foule ; le quartier P4 provisoire n'est ni figé ni reconstruit.
+- **P6.4.4 (branche `p6-4-4-colisee-vestiaires`, `docs/P6_4_4_COLISEE_VESTIAIRES.md`)** : `colisee.teleport()` (appelé aussi en fin
+  de chargement) FORCE le voile de l'extérieur après sa mise à jour immédiate des secteurs (sinon l'arène restait visible
+  depuis les vestiaires, le passage et la salle). Diagnostic : `tools/p6/visibilite_vestiaires_p644.gd`.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.
