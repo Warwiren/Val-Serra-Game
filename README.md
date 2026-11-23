@@ -23,9 +23,8 @@ modèles Quaternius stylisés, ruisseau, nouvelle direction HD-2D en cours d'ess
    ou un rocher, une silhouette discrète les montre.
 4. **Diagnostic des collisions** (touche C) : obstacles, eau, bords et pentes du terrain.
 
-C'est un **banc d'essai** (interface de test visible, pas de quête ni de combat). La **démo complète de l'avant-poste**
-— exploration, dialogue avec le garde, combat au tour par tour contre le Vorgane (475 PV de démonstration), retour —
-reste jouable en **F6** (`scenes/p4/avant_poste.tscn`, voir « Autres scènes »).
+C'est un **banc d'essai** (interface de test visible, pas de quête ni de combat). L'ancienne démo de l'avant-poste P4
+a été retirée en P7.2 (accord du créateur) ; elle reste dans l'historique Git (commit `d88eac4`).
 
 
 Étape en cours : **P4.9** — forêt V07B, inclinaisons et occlusion, navigation libre (V08A), locomotion V09A en essai
@@ -54,7 +53,7 @@ masque de collision avant / après.
    **État validé le 20/11/2026** : profil droit (miroir vers la gauche) ; vers le bas / le haut, Aren marche de face /
    de dos (GIF dessinés, V4) et Ilya de face / de dos (pack V09C.5) ; rendu Sprite3D d'origine. **V11 (20/11/2026)** :
    **sans brouillard** au démarrage (touche F pour le revoir), **tous les rochers et les buissons hauts bloquent**, et
-   le **Vorgane** se tient au sud du chemin principal (x ≈ 7,5), animé et solide, sans combat déclenché. La **démo de l'avant-poste** s'ouvre en **F6** depuis `scenes/p4/avant_poste.tscn`.
+   le **Vorgane** se tient au sud du chemin principal (x ≈ 7,5), animé et solide, sans combat déclenché.
    **Branche `p5-combat` (refonte du combat, 20/11/2026)** : F5 est inchangé (forêt validée) ; le combat refondu
    s'ouvre en **F6** depuis `scenes/battle/combat_foret.tscn` (groupe à gauche, Vorgane à droite, décor forêt).
    **Branche `p5-2-environnement` (20/11/2026)** : F5 démarre avec le **nouveau sol** (matière, raccords chemin / herbe,
@@ -170,22 +169,6 @@ masque de collision avant / après.
 | **C** / **B** / **H** / **J** | caméra (A / B / C) ; apparence d'Aren (forêt / P4.8) ; habillage (pilote / blockout) ; transitions des intérieurs (A / B / C) |
 | **P** | parcours automatique (avant ou après le tutoriel) ; **F1** : informations |
 
-### Commandes — démo de l'avant-poste (F6)
-
-| Touche | Action |
-|---|---|
-| Flèches / ZQSD | se déplacer (8 directions) ; **Maj** maintenue : courir |
-| **Molette** (ou PgPréc / PgSuiv) | zoom ×2 / ×2,5 (défaut) / ×3 |
-| **E** / Entrée / Espace | parler au garde, examiner ; faire avancer le dialogue |
-| ↑ / ↓ puis Entrée (dialogue) | choisir une réponse ; **Échap** : fermer |
-| Marcher sur le seuil de la porte | entrer dans le bâtiment ; le seuil sud de la salle en fait ressortir |
-| Toucher le Vorgane | lancer le combat |
-| En combat : clic, ↑/↓ ou 1 à 5 | choisir une action ; ←/→ ou clic sur une partie : changer de cible |
-| En combat : Tab | changer de mode (VIF / MESURÉ / CHARGÉ) ; **Entrée** : confirmer |
-| **C** | caméra de comparaison : P30 (défaut) / B28 (orthographique 28°) / P38 |
-| **T** | personnages : rendu net / ancien rendu bilinéaire (comparaison) |
-| **R** | revenir à l'entrée de la zone ; **F1** : informations ; **F2** : couches et collisions |
-
 ### Autres scènes (ouvrir dans l'éditeur, puis **F6**)
 
 | Scène | Contenu |
@@ -195,8 +178,6 @@ masque de collision avant / après.
 | `scenes/p6/colisee_tunnel_B_8_5m.tscn` | P6.2-D — tunnel sud de 8,5 m (proposé ; = `colisee.tscn`) |
 | `scenes/p6/colisee_tunnel_C_9_5m.tscn` | P6.2-D — tunnel sud de 9,5 m (comparaison) |
 | `scenes/battle/combat_tutoriel.tscn` | P6 — combat tutoriel seul (retourne au Colisée à la fin) |
-| `scenes/p4/avant_poste.tscn` | **démo complète de l'avant-poste** (F5 jusqu'en P4.8) : exploration, dialogue, combat, retour |
-| `scenes/p4/comparaison_camera_B28.tscn` | la démo de l'avant-poste avec l'ancienne caméra orthographique 28° (B28), pour comparer |
 | `scenes/battle/combat_foret.tscn` | **P5 — combat refondu** : groupe à gauche, Vorgane à droite, décor = la forêt d'exploration |
 | `scenes/battle/battle_scene.tscn` | combat seul (avec `--start=proto-battle --arena=lisiere` ou `--arena=foret` en ligne de commande) |
 | `tests/test_runner.tscn` | tests automatiques dans l'éditeur |
@@ -205,10 +186,6 @@ masque de collision avant / après.
 
 ```bash
 godot --headless --path . --script res://tests/run_tests.gd
-```
-
-```bash
-godot --headless --path . --script res://tests/e2e_p4_retour.gd
 ```
 
 ```bash
@@ -221,14 +198,6 @@ godot --headless --path . --script res://tests/e2e_p6_saut_tutoriel.gd
 
 ```bash
 godot --headless --path . res://scenes/p6/colisee.tscn -- --route=p6_sondes --quit --neuf --etat=tutorial_available --out=/tmp/p6
-```
-
-```bash
-godot --headless --path . res://scenes/p4/avant_poste.tscn -- --route=p4 --quit --out=user://p4
-```
-
-```bash
-godot --headless --path . res://scenes/p4/avant_poste.tscn -- --route=p4_sondes --quit --out=user://p4
 ```
 
 ```bash
@@ -279,29 +248,23 @@ godot --headless --path . --fixed-fps 60 --script res://tools/p49/ilya_v09c.gd -
 python3 tools/p49/v09b6_gabarit.py <dossier du pack V09B.5 décompressé>/ValSerra_V09B5_Aren_Marche_Course_Revue/
 ```
 
-```bash
-godot --path . res://scenes/p4/avant_poste.tscn -- --autoplay --route=p4_demo --route_retour=p4_retour
-```
-
 Dans l'ordre : tests automatiques (80, dont 9 pour P6), ouverture P6 de bout en bout (Colisée → tutoriel → retour →
-sortie), sondes de collision du Colisée (10), rencontre de bout en bout de l'avant-poste (déclenchement, PV de démo,
-victoire, défaite, bâtiment), parcours complet au clavier simulé (29 étapes ; `--camera=B28` ou `P38` pour
-comparer), sondes de collision (20), forêt V07B : 18 traversées hors des chemins (marche et course) et 12 scénarios
+sortie), sondes de collision du Colisée (10), forêt V07B : 18 traversées hors des chemins (marche et course) et 12 scénarios
 d'occlusion, test de locomotion V09A, test des animations V09B.5 (12), mesures V09B.5 (vitesses, cadence, glissement
-des pieds, demi-tours, Ilya ; P4.8 et V09B.5, vitesses actuelles et candidates), démonstration automatique de l'avant-poste (dialogue et combat joués seuls).
+des pieds, demi-tours, Ilya ; P4.8 et V09B.5, vitesses actuelles et candidates).
 
 ## Où trouver quoi
 
 | Sujet | Fichiers |
 |---|---|
 | Forêt V07B (F5) : scène, modèles, manifeste | `ValSerra_P49_V07B_PREFLIGHT_GODOT/` (`godot/`, `assets/`, `docs/V07_WORLD.json`) ; occlusion `src/occlusion/` ; diagnostic des collisions `src/diag/` ; outils de test `tools/p49/` |
-| Avant-poste (F6) : scène et habillage | `scenes/p4/avant_poste.gd` ; données `data/p4/` ; shaders `src/p4/` |
+| Habillage de base (hérité par le Colisée) | `scenes/p4/avant_poste.gd` ; shaders `src/p4/` (avant-poste retiré en P7.2) |
 | Socle d'exploration 2.5D | `src/explore25/` (monde, session, caméra, acteurs, parcours), `scenes/explore25/explore_3d.gd` |
 | Personnages (exploration, combat, portraits) | `art/p45/` (`SOURCES.md`), outil `tools/p45/build_p45.py` ; Vorgane d'exploration `art/p45/chars/vorgane/` |
 | Décor de la zone | `art/p4/` (`SOURCES.md`), décor nettoyé `art/p41/decor/` ; outils `tools/p4/`, `tools/p41/` |
 | Combat | `scenes/battle/`, règles `src/combat/`, données `data/combat/`, présentation `src/presentation/`, `src/proto/` |
 | Arène de combat | `art/arena/lisiere/`, `src/presentation/arena_layers.gd`, outils `tools/arena/` |
-| Dialogues | `data/p4/dialogue_garde.json`, `data/dialogue/` ; portraits : `src/proto/portraits.gd` |
+| Dialogues | `data/p6/dialogues_colisee.json`, `data/dialogue/` ; portraits : `src/proto/portraits.gd` |
 | Tests | `tests/` |
 
 ## Documentation

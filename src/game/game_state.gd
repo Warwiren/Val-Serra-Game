@@ -5,19 +5,21 @@ extends Node
 signal render_mode_changed(mode: String)
 
 ## P4.4 : les anciennes scènes (menu, zones P1/P2, visionneuses) ont été retirées du projet (historique Git :
-## branche p4-1-finitions). Toutes les entrées d'exploration mènent désormais à la démo P4.
-const SCENE_HERO_SELECT := "res://scenes/p4/avant_poste.tscn"
-const SCENE_ZONE := "res://scenes/p4/avant_poste.tscn"
+## branche p4-1-finitions). P7.2 : la démo de l'avant-poste P4 est retirée à son tour (accord du créateur, 23/11/2026) ;
+## toutes les entrées d'exploration mènent à la forêt V07B (F5).
+const FORET := "res://ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn"
+const SCENE_HERO_SELECT := FORET
+const SCENE_ZONE := FORET
 const SCENE_BATTLE := "res://scenes/battle/battle_scene.tscn"
-const SCENE_DEBUG := "res://scenes/p4/avant_poste.tscn"
-const SCENE_RIG_VIEWER := "res://scenes/p4/avant_poste.tscn"
+const SCENE_DEBUG := FORET
+const SCENE_RIG_VIEWER := FORET
 ## Prototype recentré (scène principale) : zone de l'avant-poste -> combat dans la même clairière
-const SCENE_PROTO_ZONE := "res://scenes/p4/avant_poste.tscn"
+const SCENE_PROTO_ZONE := FORET
 const SCENE_PROTO_BATTLE := "res://scenes/battle/battle_scene.tscn"
 ## Exploration HD-2D expérimentale (branche exploration-hd2d) : scène séparée, combat inchangé
-const SCENE_EXPLORE_HD2D := "res://scenes/p4/avant_poste.tscn"
+const SCENE_EXPLORE_HD2D := FORET
 ## Carte d'exploration v2 (version par défaut, F5) : même script que l'avant-poste, carte agrandie et enrichie
-const SCENE_EXPLORATION := "res://scenes/p4/avant_poste.tscn"
+const SCENE_EXPLORATION := FORET
 var explore_return: String = ""          # scène où revenir après un combat lancé depuis l'exploration
 
 const RENDER_2D := "A"      # Variante A : 2D illustrée simple

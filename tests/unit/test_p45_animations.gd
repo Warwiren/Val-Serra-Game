@@ -114,8 +114,7 @@ func test_camera_p30_hp_and_f5() -> void:
 	var data: Dictionary = JSON.parse_string(FileAccess.open("res://data/combat/monster_vorgane.json", FileAccess.READ).get_as_text())
 	check_eq(int(data["hp"]), 950, "données du Vorgane inchangées")
 	check_eq(ProjectSettings.get_setting("application/run/main_scene"), "res://ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn", "F5 : forêt V07B (décision du créateur, 15/11/2026)")
-	check(ResourceLoader.exists("res://scenes/p4/avant_poste.tscn"), "démo de l'avant-poste toujours présente (F6)")
+	check(not ResourceLoader.exists("res://scenes/p4/avant_poste.tscn"), "P7.2 : démo de l'avant-poste retirée (accord du créateur, 23/11/2026)")
 	for d in ["res://art/p44", "res://art/p41/chars/pnj"]:
 		check(not DirAccess.dir_exists_absolute(d), "remplacé et retiré : " + d)
-	var w = World25.load_world("res://data/p4/avant_poste.json", "instance")
-	check(not w.npc.is_empty(), "le garde est présent")
+	check(Actor25.make("garde").frames.has_animation("walk_face"), "le garde reste disponible (sprites P4.5)")

@@ -56,6 +56,6 @@ func test_cadence_matches_drawn_step() -> void:
 	check_eq(g.frames.get_frame_count("walk_face"), 4, "garde : marche à 4 images inchangée")
 	var src: String = FileAccess.open("res://scenes/explore25/explore_3d.gd", FileAccess.READ).get_as_text()
 	check(src.contains("KEY_SHIFT") and src.contains("world.run_speed"), "Maj : course")
-	var w = load("res://src/explore25/world25.gd").load_world("res://data/p4/avant_poste.json", "instance")
+	var w = load("res://src/explore25/world25.gd").load_world("res://data/p6/colisee.json", "instance")   # P7.2 : avant-poste retiré, même vitesse (2,2 m/s)
 	var steps_per_s: float = w.speed / (float(m["step_px"]) * 0.4 / 20.0)
 	check(steps_per_s > 3.5 and steps_per_s < 5.5, "marche : %.1f pas/s (petits pas vifs, pieds posés)" % steps_per_s)

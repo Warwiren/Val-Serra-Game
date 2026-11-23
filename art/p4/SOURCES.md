@@ -36,3 +36,11 @@ statut inchangé (à tester). Les matériaux P6.4 eux-mêmes sont **PROVISOIRES*
 **P6.4.1 (Colisée, second pilote)** : `mat/sol_terre.png` et `mat/sol_herbe.png` sont aussi lus par
 `src/p6/maconnerie_p64.gdshader` comme **calques de détails peints** (variations autour de leur moyenne : salissures et
 mousse des matières pilotes). Aucune image modifiée ni ajoutée ; statut inchangé (à tester). Matières P6.4.1 PROVISOIRES.
+
+## P7.2 — retrait de l'avant-poste (accord du créateur, 23/11/2026)
+
+Retirés du projet actif (restent dans l'historique Git, commit `d88eac4`) parce qu'ils ne servaient qu'à l'avant-poste :
+`mat/eau_courante.png`, `mat/eau_galets.png`, `mat/berge.png`, `mat/trs_herbe_terre.png`, `relief/` (REL-01),
+`arbre/arb01_feuillage_arriere.png`, `arbre/arb01_feuillage_avant.png`, `vegetation/` (buissons, fleurs, herbes, massette).
+Gardés : matières et bâtiments utilisés par le Colisée, `props/`, et les entrées de `tools/p41/decor_p41.py`
+(`arbre/arb01_tronc.png`, `vegetation/arb0*_*.png`, `vegetation/roc01_rocher.png`).

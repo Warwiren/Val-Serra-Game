@@ -4,14 +4,15 @@
   Ne pas modifier `config/features` dans `project.godot` sans décision explicite.
 - **F5 lance la forêt V07B** (`run/main_scene = res://ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`,
   caméra P30 à trois inclinaisons, occlusion, navigation libre V08A) : **décision du créateur du 15 novembre 2026**,
-  consignée dans `docs/P4_9_V07B.md` (§ V08A). La démo de l'avant-poste (`scenes/p4/avant_poste.tscn`, F5 jusqu'en
-  P4.8) reste jouable en F6 et garde ses tests (rencontre de bout en bout, parcours `p4` et `p4_sondes`).
+  consignée dans `docs/P4_9_V07B.md` (§ V08A). La démo de l'avant-poste (F5 jusqu'en P4.8) est **retirée
+  en P7.2 avec l'accord du créateur (23/11/2026)** : scène, données, tests et ressources propres dans l'historique Git ;
+  `scenes/p4/avant_poste.gd` reste comme **script de base** dont hérite le Colisée (ne pas le supprimer).
   **Ne pas modifier `run/main_scene` sans l'accord explicite du créateur.** Une nouvelle branche ou une nouvelle
   étape ne suffit pas à « promouvoir » une scène sur F5 : la promotion est une décision du créateur, datée et
   consignée dans le compte rendu de l'étape. Si une étape casse la scène F5, revenir à l'état stable précédent et
   le signaler.
-- **Organisation** : la zone P4 est décrite par des données (`data/p4/*.json`, mètres, niveaux, collisions) lues
-  par le socle `src/explore25/` ; l'habillage est dans `scenes/p4/avant_poste.gd`, les shaders dans `src/p4/`, les
+- **Organisation** : les zones sont décrites par des données (`data/p6/*.json`, `data/p7/*.json` : mètres, niveaux,
+  collisions) lues par le socle `src/explore25/` ; l'habillage de base est dans `scenes/p4/avant_poste.gd` (hérité), les shaders dans `src/p4/`, les
   ressources dans `art/p4/`, `art/p41/` et `art/p45/` (provenance et statut dans leurs `SOURCES.md`). Ajouter une
   zone = un fichier de données + ses ressources, pas un nouveau moteur. Les anciennes scènes (P1–P3, ancienne
   exploration) ont été retirées en P4.4 : elles restent dans l'historique Git (`docs/HISTORIQUE.md`).
@@ -20,7 +21,7 @@
   l'étape en cours. Ne jamais réécrire l'historique Git sans accord explicite.
 - **Caméra d'exploration** : P30 par défaut depuis P4.4 (Camera3D perspective, plongée 30°, champ 30°, azimut 20°,
   flou de distance léger en haut de l'écran seulement), rotation fixe, zooms ×2 / ×2,5 / ×3 (×2,5 par défaut).
-  B28 (orthographique 28°) reste en comparaison (touche C, scène F6 `comparaison_camera_B28.tscn`).
+  (B28, orthographique 28°, et sa scène de comparaison ont été retirés avec l'avant-poste en P7.2.)
 - **Personnages** : sprites réduits depuis les sources (`art/p45/`, outil `tools/p45/build_p45.py`), 1 pixel de
   sprite = 1 pixel d'écran à ×2,5 en exploration (shader « pixel net »), ×2 (entier, au plus proche) en combat ; ne jamais agrandir une image réduite avec un filtre
   bilinéaire. Une même apparence en exploration, en combat et en portrait. Aren : cheveux bruns, tenue grise/noire.
@@ -196,5 +197,6 @@
   de chargement) FORCE le voile de l'extérieur après sa mise à jour immédiate des secteurs (sinon l'arène restait visible
   depuis les vestiaires, le passage et la salle). Diagnostic : `tools/p6/visibilite_vestiaires_p644.gd`.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
-  `--script res://tests/e2e_p4_retour.gd`, `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
+  `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
+  `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.
