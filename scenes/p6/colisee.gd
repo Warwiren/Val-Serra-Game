@@ -730,9 +730,18 @@ func _build_bloc_p6(e: Dictionary) -> void:
 		_box_mesh(c + Vector3(0, 1.35, 0), Vector3(1.0, 0.1, 0.1), bois)
 	elif nom.begins_with("pilier"):
 		var mp: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE, true) if _hab != null else _surf("pierre", true)
+		var mb: Material = _surf("pierre")
+		var mh: Material = _surf("pierre", true)
+		if _hab != null and _hab.extension and _hab.p64:
+			# P6.4.2 : piliers de la coursive dans l'appareil de leur pièce (base en soubassement, chapiteau mouluré)
+			var zp: String = _hab.zone_en(r.get_center())
+			# fût un peu plus clair que les murs : isolés au milieu de la pièce, ils ne reçoivent que la lumière de l'allée
+			mp = _hab.mz("mur", zp, "monde", 1.0, true, Color(1.28, 1.24, 1.18))
+			mb = _hab.mz("socle", zp, "monde", 1.0, false, Color(1.15, 1.12, 1.08))
+			mh = _hab.mz("moulure", zp, "monde", 1.0, true, Color(1.15, 1.12, 1.08))
 		_box_mesh(_rect_center(r, h0, h1), size, mp)
-		_box_mesh(_rect_center(r.grow(0.12), h0, 0.3), Vector3(r.size.x + 0.24, 0.3, r.size.y + 0.24), _surf("pierre"))
-		_box_mesh(_rect_center(r.grow(0.12), h1 - 0.25, h1), Vector3(r.size.x + 0.24, 0.25, r.size.y + 0.24), _surf("pierre", true))
+		_box_mesh(_rect_center(r.grow(0.12), h0, 0.3), Vector3(r.size.x + 0.24, 0.3, r.size.y + 0.24), mb)
+		_box_mesh(_rect_center(r.grow(0.12), h1 - 0.25, h1), Vector3(r.size.x + 0.24, 0.25, r.size.y + 0.24), mh)
 	elif nom.begins_with("lit"):
 		_box_mesh(_rect_center(r, h0, 0.35), Vector3(r.size.x, 0.35, r.size.y), bois)
 		_box_mesh(_rect_center(r.grow(-0.06), 0.35, h1), Vector3(r.size.x - 0.12, h1 - 0.35, r.size.y - 0.12), _tinted("facade", Color(0.92, 0.9, 0.86)))
