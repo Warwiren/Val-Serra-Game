@@ -181,6 +181,11 @@
   `P642_ZONES` (même calepinage hybride, palette / usure / salissure selon la pièce ; pas de troisième variante de dallage) ;
   `lumiere_p642()` (accès et axes, aucune lumière qui suit Aren) ; toits des intérieurs en terrasses (`Secteurs.mat_toit`).
   Téléportation = visibilité recalée sans fondu (`colisee.teleport`). Le quartier de ville reste hors périmètre.
+- **P6.4.3 (branche `p6-4-3-colisee-consolidation`, `docs/P6_4_3_COLISEE_CONSOLIDATION.md`)** : consolidation EN ATTENTE de
+  validation, corrections locales seulement. Rectangle jamais masqué de la vue du tunnel à 37,3 (plan non décalé) dans
+  `build_colisee.py` ; joues des gradins aux accès (`habillage_p6._joue_gradins`) ; arc et grille du tunnel est classés
+  EXT ; calque du sable `src/p6/sable_p643.gdshader` (`--sable=0`) ; ombres de contact locales au Colisée
+  (`colisee._ombres_contact`, shader commun inchangé). Ne pas annoncer le Colisée validé ; la ville attend son plan directeur.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.

@@ -43,8 +43,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p6-4-2-colisee-extension`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p6-4-2-colisee-extension`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p6-4-3-colisee-consolidation`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p6-4-3-colisee-consolidation`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -124,6 +124,10 @@ masque de collision avant / après.
    infirmerie, réserve, sortie), toits des intérieurs en terrasses dallées, lumière des accès dans chaque pièce, décor du
    combat tutoriel régénéré. **M** : P6.3.2 / premier pilote / second pilote / extension ; **K** : galerie B → premier
    pilote → A ; **U** : porte. Rapport : `docs/P6_4_2_COLISEE_EXTENSION.md`.
+   **Branche `p6-4-3-colisee-consolidation`** (EN ATTENTE de validation) : F5 inchangé ; `colisee.tscn` (F6) = Colisée
+   P6.4.2 consolidé : vue du tunnel sud sans éléments isolés, gradins fermés aux accès (plus de sol visible dessous), arc
+   et grille du tunnel est rattachés à l'arène, sable enrichi (traces d'usage, cercle d'évaluation ; `-- --sable=0` pour
+   comparer), ombres de contact des personnages. Rapport : `docs/P6_4_3_COLISEE_CONSOLIDATION.md`.
 
 ### Commandes — forêt V07B (F5)
 
