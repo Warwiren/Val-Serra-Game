@@ -271,7 +271,9 @@ def _colisee_base():
                      # P6.3.1 : passage coursive / infirmerie (la cloison est désormais rendue sur toute la hauteur)
                      [45.5, 34.0, 47.5, 34.4], [52.0, 34.0, 54.0, 34.4]],
         # P6.2-C : vue depuis le tunnel = lignes de vue réelles à travers sa bouche (voir src/p6/vue_tunnel.gdshader)
-        "vue_tunnel": {"bouche": [24.5, 27.5, 32.0], "interieur": [[15.5, 37.0, 36.5, 56.0], [24.0, 31.95, 28.0, 37.6]],
+        # P6.4.3 : rectangle « bâtiment » jamais masqué à partir du MILIEU du mur nord de la salle (37,3 et non plus 37,0) :
+        # les piles de la galerie B (P6.4.1) dépassent sa façade jusqu'à 37,06 et apparaissaient seules sur le noir
+        "vue_tunnel": {"bouche": [24.5, 27.5, 32.0], "interieur": [[15.5, 37.3, 36.5, 56.0], [24.0, 31.95, 28.0, 37.6]],
                        "plein": 32.0, "libre": 29.6, "couloir_x": [26.0, 2.0, 4.0]},
         # P6.2 — secteurs de visibilité (prototype : vestiaires et salle d'attente ; le reste = « EXT », affiché comme avant)
         "secteurs": [

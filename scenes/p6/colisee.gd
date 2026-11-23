@@ -862,7 +862,12 @@ func _build_porte(p: Dictionary) -> void:
 		_box_mesh(Vector3(mr.get_center().x, 0.012, mr.get_center().y), Vector3(mr.size.x, 0.02, mr.size.y), mark)
 	if ouverte:
 		if p.get("type", "") == "grille":
-			_box_mesh(_rect_center(r, 2.5, 2.7), Vector3(r.size.x, 0.2, r.size.y), _tinted("pierre", Color(0.6, 0.6, 0.66)))
+			var mg: Material = _tinted("pierre", Color(0.6, 0.6, 0.66))
+			if _hab != null and _hab.extension and _hab.p64:
+				mg = _hab.mz("moulure", "tunnel", "monde", 1.0, false, Color(0.82, 0.8, 0.78))
+			var tg := _box_mesh(_rect_center(r, 2.5, 2.7), Vector3(r.size.x, 0.2, r.size.y), mg)
+			if _hab != null and _hab.extension and _hab.p64:
+				tg.set_meta("secteur", Secteurs.EXT)       # P6.4.3 : avec l'arc de la bouche (sinon isolée vue de la coursive)
 		return
 	_portes_fermees[p["id"]] = {"texte": p.get("texte_ferme", "C'est fermé."), "c": r.get_center()}
 	_static_box(_rect_center(r, 0.0, 2.6), Vector3(r.size.x, 2.6, r.size.y), L_OBST)

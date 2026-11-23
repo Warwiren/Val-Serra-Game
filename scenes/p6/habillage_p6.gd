@@ -546,6 +546,11 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 	var p_marches: Array = []
 	var p_assises: Array = []
 	var p_esc: Array = []
+	# P6.4.3 : segments de gradins conservés (les accès combattants interrompent l'anneau) ; aux extrémités, une joue
+	# de maçonnerie ferme le profil des marches (sinon on voyait le dessous des gradins et le parvis par la coupe)
+	var garde_g := func(i: int) -> bool:
+		var amg := TAU * (fposmod(float(i), float(n)) + 0.5) / n
+		return not (_dans_tunnel(c, rx + ep + prof * 0.5, ry + ep + prof * 0.5, amg, tunnels) or _dans_tunnel(c, rx + ep * 0.5, ry + ep * 0.5, amg, tunnels) or _dans_tunnel(c, rx + ep + prof - 0.2, ry + ep + prof - 0.2, amg, tunnels))
 	for i in n:
 		var a0 := TAU * i / n
 		var a1 := TAU * (i + 1) / n
@@ -580,6 +585,10 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 				as_.append(_rq(c, rs, ry + (rs - rx), a0, a1, hk, hk + 0.07, 0.0))
 		var rl := rx + ep + prof
 		var htop := (ah + 0.25 + 0.55 * rangs) * k_h + (1.0 - k_h) * 0.4
+		if extension and p64:
+			for bord in [[a0, i - 1], [a1, i + 1]]:
+				if not garde_g.call(int(bord[1])):
+					cm_.append_array(_joue_gradins(c, rx, ry, ep, prof, rangs, ah, k_h, float(bord[0])))
 		cm_.append(_rq(c, rl, ry + (rl - rx), a1, a0, 0.0, htop + 0.7, 0.0))
 		cm_.append(_rt(c, rl, ry + (rl - rx), rl + 0.5, ry + (rl + 0.5 - rx), a0, a1, htop + 0.7))
 		cm_.append(_rq(c, rl, ry + (rl - rx), a0, a1, htop, htop + 0.7, 0.0))
@@ -626,9 +635,34 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 	# accès combattants : arcs à claveaux, grille relevée visible
 	for t in tunnels:
 		if (t as Rect2).size.x > (t as Rect2).size.y:      # tunnel est (vu de côté) ; au sud, un arc masquerait l'arène
+			var n_arc: int = sc.root.get_child_count()
 			_arc_tunnel(t as Rect2, pierre_claire, pierre_sombre)
+			if extension and p64:
+				# P6.4.3 : l'arc fait partie de l'enceinte de l'arène (EXT, comme le reste du décor de l'arène, soumis au voile). Classé par sa position (tunnel est), il
+				# restait affiché depuis la coursive, seul sur le noir, alors que l'arène autour était masquée
+				for j in range(n_arc, sc.root.get_child_count()):
+					sc.root.get_child(j).set_meta("secteur", "EXT")
 	if extension and p64:
 		_lumiere_arene_p642(c, rx, ry, tunnels)
+
+
+## P6.4.3 : joue radiale qui ferme l'extrémité d'un segment de gradins à l'angle an (profil des rangs rempli jusqu'au
+## sol, puis le mur de fond et son chaperon). Faces doublées (vues des deux côtés), UV métriques (u = rayon, v = -h) à
+## l'échelle des matières de l'anneau (1 unité = 1,8 m). Affichage seul : aucune collision.
+func _joue_gradins(c: Vector2, rx: float, ry: float, ep: float, prof: float, rangs: int, ah: float, k_h: float, an: float) -> Array:
+	var pt := func(r: float, h: float) -> Vector3:
+		return Vector3(c.x + r * cos(an), h, c.y + (ry + r - rx) * sin(an))
+	var quad := func(r0: float, r1: float, h: float) -> Array:
+		return [[pt.call(r0, 0.0), pt.call(r0, h), pt.call(r1, h), pt.call(r1, 0.0)],
+			[Vector2(r0 / 1.8, 0.0), Vector2(r0 / 1.8, -h / 1.8), Vector2(r1 / 1.8, -h / 1.8), Vector2(r1 / 1.8, 0.0)]]
+	var out: Array = []
+	for kk in rangs:
+		var r0 := rx + ep + prof * kk / rangs
+		var r1 := rx + ep + prof * (kk + 1) / rangs
+		out.append(quad.call(r0, r1, (ah + 0.25 + 0.55 * (kk + 1)) * k_h + (1.0 - k_h) * 0.4))
+	var rl := rx + ep + prof
+	out.append(quad.call(rl, rl + 0.5, (ah + 0.25 + 0.55 * rangs) * k_h + (1.0 - k_h) * 0.4 + 0.7))
+	return _deux(out)
 
 
 func _dans_tunnel(c: Vector2, rx: float, ry: float, an: float, tunnels: Array) -> bool:
