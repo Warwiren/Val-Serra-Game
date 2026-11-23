@@ -14,7 +14,7 @@ const COULEURS := {
 	"commerce": Color(0.80, 0.62, 0.42), "auberge": Color(0.70, 0.50, 0.44), "accueil": Color(0.58, 0.66, 0.60),
 	"rempart": Color(0.52, 0.52, 0.50), "colisee": Color(0.74, 0.64, 0.50), "etal": Color(0.66, 0.50, 0.34),
 }
-const SOL := {0.0: Color(0.62, 0.58, 0.52), 1.0: Color(0.72, 0.68, 0.61), 2.0: Color(0.78, 0.75, 0.69)}
+const SOL := {0.0: Color(0.47, 0.44, 0.40), 1.0: Color(0.53, 0.50, 0.45), 2.0: Color(0.57, 0.55, 0.51)}
 
 var sc
 var v: Dictionary
@@ -92,6 +92,13 @@ func construit(e: Dictionary) -> bool:
 				b.name = "barriere_fin_de_carte"
 				return true
 			sc._static_box(sc._rect_center(r, h0, h1), size, sc.L_OBST)
+			if id.begins_with("rempart_sud") or id.begins_with("tour_sud"):
+				# mur face à la caméra (convention des intérieurs du Colisée) : dessiné en muret de 1,6 m avec une tranche
+				# sombre ; collision des données (8 à 11 m) inchangée. Sinon il masque toute l'arrivée sud.
+				var hc := h0 + 1.6
+				sc._box_mesh(sc._rect_center(r, h0, hc), Vector3(r.size.x, hc - h0, r.size.y), mat(COULEURS["rempart"]))
+				sc._box_mesh(sc._rect_center(r.grow(0.05), hc, hc + 0.08), Vector3(r.size.x + 0.1, 0.08, r.size.y + 0.1), mat(Color(0.12, 0.11, 0.1)))
+				return true
 			var mi2: MeshInstance3D = sc._box_mesh(sc._rect_center(r, h0, h1), size, mat(COULEURS.get(cat, COULEURS["residentiel"]), 0.0, facade, h0, true))
 			mi2.name = id
 			if id.begins_with("etal_"):
@@ -107,8 +114,8 @@ func construit(e: Dictionary) -> bool:
 ## Décor propre au blockout : tambour du Colisée, sols des espaces publics, silhouette du château, libellés des accès.
 func decorer() -> void:
 	_colisee()
-	var pz := {"place": Color(0.80, 0.76, 0.66), "parvis": Color(0.78, 0.73, 0.62), "marche": Color(0.80, 0.70, 0.55),
-		"avenue_haute": Color(0.82, 0.78, 0.70), "avenue_portes": Color(0.68, 0.63, 0.55), "parvis_guilde": Color(0.70, 0.72, 0.74)}
+	var pz := {"place": Color(0.60, 0.57, 0.50), "parvis": Color(0.58, 0.54, 0.47), "marche": Color(0.60, 0.52, 0.42),
+		"avenue_haute": Color(0.61, 0.58, 0.52), "avenue_portes": Color(0.52, 0.48, 0.42), "parvis_guilde": Color(0.52, 0.54, 0.56)}
 	for z in sc._p6.get("zones_nommees", []):
 		if not pz.has(z["id"]):
 			continue
@@ -125,14 +132,13 @@ func decorer() -> void:
 	sc._box_mesh(Vector3(108.5, 2.0 + 17.0, -22.0), Vector3(14.0, 34.0, 12.0), pierre)
 	_libelle("Château — accès fermé", Vector3(108.5, 2.0 + 7.0, 3.5))
 	_libelle("Quartier est — accès fermé", Vector3(186.0, 1.0 + 6.0, 69.0))
-	_libelle("Porte sud — sortie (transition à relier)", Vector3(108.5, 9.0, 159.0))
+	_libelle("Porte sud — sortie (transition à relier)", Vector3(108.5, 3.0, 160.5))
 	_libelle("Grande place", Vector3(108.5, 1.0 + 5.0, 48.5))
 	_libelle("Marché", Vector3(108.5, 1.0 + 4.0, 84.0))
 	# porte sud : vantaux ouverts contre les tours (passage libre jusqu'à la barrière de fin de carte)
 	var bois := mat(Color(0.45, 0.33, 0.24))
 	for x in [104.25, 112.75]:
-		sc._box_mesh(Vector3(x, 2.75, 157.2), Vector3(0.3, 5.5, 3.0), bois)
-	sc._box_mesh(Vector3(108.5, 6.2, 159.0), Vector3(13.0, 1.6, 2.2), mat(COULEURS["rempart"]))
+		sc._box_mesh(Vector3(x, 0.8, 157.2), Vector3(0.3, 1.6, 3.0), bois)      # vantaux ouverts (coupés comme le rempart)
 
 
 func _niveau(y: float) -> float:

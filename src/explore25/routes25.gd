@@ -644,13 +644,25 @@ static func _route_base(name: String) -> Array:
 				_go(152.0, 69.0, "T8 passage est", 0.5), _go(186.5, 69.0, "T8 porte du quartier est (fermée)", 0.7),
 				{"do": "wait", "t": 0.5},
 			]
+		"p7_raccord":
+			# P7.1 — raccord réel Colisée -> ville : couloir de sortie du Colisée, porte est, arrivée sur le parvis, quelques
+			# pas vers la grande place (scène ville_v05_blockout.tscn avec --etat=tutorial_completed)
+			return [
+				_warp(58.0, 23.0, 0.0), {"do": "wait", "t": 0.8},
+				_go(62.5, 23.0, "couloir de sortie du Colisée", 0.3),
+				{"do": "go", "to": Vector2(64.4, 23.0), "tol": 0.25, "id": "porte est du Colisée", "exit": true},
+				{"do": "wait", "t": 1.5},
+				_go(72.0, 53.0, "ville : parvis du Colisée", 0.4),
+				_go(88.0, 53.0, "ville : vers la grande place", 0.4),
+				{"do": "wait", "t": 0.5},
+			]
 		"p7_vues":
 			# P7.1 — vues demandées (A arrivée sud, B place -> hôtel de ville, C parvis -> Colisée) et contrôles, ×3 et ×2
 			var outv: Array = []
 			for z in [[2, "x3"], [0, "x2"]]:
 				outv.append({"do": "zoom", "i": z[0], "smooth": false})
-				for c in [["A_arrivee_sud", 108.5, 150.0, 0.0], ["B_place_hotel_de_ville", 124.0, 60.0, 1.0],
-						["C_parvis_colisee", 76.0, 55.0, 1.0], ["D_guilde", 116.0, 132.0, 0.0], ["E_commerces", 112.0, 106.0, 0.0],
+				for c in [["A_arrivee_sud", 108.5, 150.0, 0.0], ["B_place_hotel_de_ville", 136.0, 51.0, 1.0],
+						["C_parvis_colisee", 72.0, 55.0, 1.0], ["D_guilde", 116.0, 132.0, 0.0], ["E_commerces", 112.0, 106.0, 0.0],
 						["F_marche", 108.5, 88.0, 1.0], ["G_escalier_avenue", 108.5, 107.0, 0.0], ["H_avenue_haute", 108.5, 28.5, 1.0],
 						["I_ruelle_ouest", 32.0, 141.0, 0.0], ["J_passage_est", 176.0, 69.0, 1.0]]:
 					outv.append(_warp(c[1], c[2], c[3]))
