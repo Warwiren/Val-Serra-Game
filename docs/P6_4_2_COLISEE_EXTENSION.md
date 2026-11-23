@@ -234,7 +234,28 @@ Parcours de captures (13 positions, même parcours) :
   * l'arène face aux gradins, quasi plein écran de shader procédural ;
   * les vestiaires, plancher et murs.
 
-PERF_PIECES
+Coût par pièce (`perf_pieces_p6`, mêmes positions, `--p64=2` puis `--p64=3`) :
+
+| Position | Second pilote : appels / primitives | Extension : appels / primitives |
+|---|---|---|
+| vestiaires | 1161 / 128 k | 1146 / 128 k |
+| passage | 1057 / 110 k | 1040 / 110 k |
+| salle d'attente | 479 / 76 k | 471 / 76 k |
+| tunnel | 435 / 70 k | 426 / 70 k |
+| sortie du tunnel | 401 / 68 k | 392 / 68 k |
+| arène (entrée) | 455 / 48 k | 446 / 48 k |
+| arène (centre) | 357 / 47 k | 348 / 47 k |
+| tunnel est | 433 / 55 k | 431 / 57 k |
+| coursive | 306 / 40 k | 307 / 40 k |
+| infirmerie | 623 / 76 k | 619 / 78 k |
+| couloir de sortie | 418 / 73 k | 425 / 76 k |
+
+* **Appels de dessin** : ils baissent de 8 à 17 dans les pièces du sud et dans l'arène. Ils sont stables dans la
+  coursive (+1) et augmentent un peu dans le couloir de sortie (+7), qui reçoit les nouvelles lumières d'accès.
+* **Primitives** : elles sont identiques, sauf + 2 à 3 k vues depuis le tunnel est, l'infirmerie et le couloir de sortie.
+  Ce sont des objets un peu plus nombreux à l'écran (lumières, éléments déjà existants mieux éclairés), pas de géométrie
+  nouvelle : les faces confondues restent identiques.
+* La mémoire vidéo est stable (302–303 Mo dans les deux cas).
 
 ## 7. Fichiers modifiés
 
