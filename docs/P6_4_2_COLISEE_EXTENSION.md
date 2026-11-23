@@ -28,7 +28,7 @@ Les mesures sont faites en **rendu logiciel (lavapipe), sans GPU** : elles ne va
 |---|---|
 | Rapport | ce fichier |
 | Avant / après, mêmes cadrages (avant = second pilote P6.4.1 tel que livré, après = extension) | planches ci-dessous, `docs/media/p6_4_2/` |
-| Vidéo continue, vitesse réelle : vestiaires → salle d'attente → tunnel sud → arène → tutoriel passé → tunnel est → coursive (infirmerie, réserve) → sortie est | [`colisee_continu_p642.mp4`](media/p6_4_2/colisee_continu_p642.mp4) |
+| Vidéo continue (72 s, vitesse réelle, une seule prise) : vestiaires → salle d'attente → tunnel sud → arène → tutoriel passé → tunnel est → coursive (infirmerie, réserve) → sortie est | [`colisee_continu_p642.mp4`](media/p6_4_2/colisee_continu_p642.mp4) |
 | Décor du combat tutoriel régénéré (gameplay inchangé) | `art/p6/combat/arene_colisee.png`, comparaison [`decor_combat_avant_apres.jpg`](media/p6_4_2/decor_combat_avant_apres.jpg) |
 
 Planches avant / après (à gauche P6.4.1, à droite P6.4.2) :
@@ -51,7 +51,7 @@ utilisait entre deux séquences (arène → coursive).
   (≈ 0,3 s). Pendant ce temps, le toit recouvrait encore la pièce, et les murs de la coursive n'étaient pas encore
   revenus. D'où le grand aplat brun et l'architecture absente sur quelques images.
 * En marche normale, on franchit les seuils pas à pas (arène → tunnel est → coursive) : le toit est retiré dès le
-  tunnel est, avant que la coursive soit à l'écran. La vidéo continue de cette étape ne montre pas le défaut.
+  tunnel est, avant que la coursive soit à l'écran. La vidéo continue de cette étape ne montre pas le défaut (vérifiée à 5 images par seconde sur la transition arène → tunnel est → coursive, vers 41–49 s).
 
 **Correction** (sans toucher à la caméra) : `colisee.teleport()` recale maintenant la visibilité **immédiatement**,
 sans fondu, comme au chargement. Cela couvre les parcours de test, le montage et une éventuelle réapparition.
