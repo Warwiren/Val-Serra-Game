@@ -32,6 +32,9 @@ var galerie := "A"
 ## P6.4.2 : extension des choix retenus (matières hybrides, galerie B, porte C, lumière des accès) à tout le Colisée,
 ## avec une ambiance de matière par zone (P642_ZONES). false : pilotes P6.4 / P6.4.1 tels quels (touche M).
 var extension := false
+## P6.4.3 : calque du sable de l'arène (variations, traces d'usage, cercle d'évaluation ; -- --sable=0 : sans)
+var sable_calque := true
+const SABLE_SH = preload("res://src/p6/sable_p643.gdshader")
 const MACON_SH = preload("res://src/p6/maconnerie_p64.gdshader")
 const GRAIN := "res://art/p4/mat/roche.png"
 ## P6.4 : zones pilotes des matériaux (le reste du Colisée garde les matières P6.3.2)
@@ -491,6 +494,8 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 	# sable tassé et ombré au pied du podium, piétinement au centre (bandes semi-transparentes)
 	_bande(c, rx, ry, rx - 1.6, ry - 1.6, 0.009, Color(0.28, 0.2, 0.12, 0.42), Color(0.28, 0.2, 0.12, 0.0))
 	_bande(c, 3.6, 3.6, 0.0, 0.0, 0.008, Color(0.35, 0.26, 0.16, 0.0), Color(0.35, 0.26, 0.16, 0.22))
+	if extension and p64 and sable_calque:
+		_calque_sable(c, rx, ry, n)
 	# podium : parement, chaperon débordant, pilastres, bannières, braseros
 	var podium: Array = []
 	var chaperon: Array = []
@@ -671,6 +676,31 @@ func _dans_tunnel(c: Vector2, rx: float, ry: float, an: float, tunnels: Array) -
 		if (t as Rect2).grow(0.15).has_point(p):
 			return true
 	return false
+
+
+## P6.4.3 : calque transparent sur tout le sable (src/p6/sable_p643.gdshader), juste au-dessus des bandes existantes.
+## Axes des traces : bouche du tunnel sud -> centre -> bouche du tunnel est (les trajets réels du parcours).
+func _calque_sable(c: Vector2, rx: float, ry: float, n: int) -> void:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for i in n:
+		var a0 := TAU * i / n
+		var a1 := TAU * (i + 1) / n
+		for v in [Vector3(c.x, 0.011, c.y), Vector3(c.x + rx * cos(a0), 0.011, c.y + ry * sin(a0)), Vector3(c.x + rx * cos(a1), 0.011, c.y + ry * sin(a1))]:
+			st.set_normal(Vector3.UP)
+			st.add_vertex(v)
+	var mi := MeshInstance3D.new()
+	mi.name = "Sable_calque_p643"
+	mi.mesh = st.commit()
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var m := ShaderMaterial.new()
+	m.shader = SABLE_SH
+	m.set_shader_parameter("centre", c)
+	m.set_shader_parameter("rayons", Vector2(rx, ry))
+	m.set_shader_parameter("axe_a", Vector4(c.x, c.y + ry - 0.4, c.x, c.y + 0.4))
+	m.set_shader_parameter("axe_b", Vector4(c.x + 1.0, c.y, c.x + rx - 0.3, c.y))
+	mi.material_override = m
+	sc.root.add_child(mi)
 
 
 func _bande(c: Vector2, rx0: float, ry0: float, rx1: float, ry1: float, h: float, c0: Color, c1: Color) -> void:

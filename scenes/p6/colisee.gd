@@ -415,6 +415,25 @@ func _scene_commandant() -> void:
 
 
 ## P6.3 : obstacle rond pour un accessoire posé par la scène (modèle logique + physique), même principe que les PNJ.
+## P6.4.3 : ombres de contact des personnages du Colisée. Le disque doux commun (blob25.gdshader, 0,9 × 0,55 m,
+## force 0,45) était presque entièrement couvert par les pieds des sprites au zoom ×3 : les personnages semblaient poser
+## à peine sur le sable. Réglage local (force, taille) de l'instance de chaque personnage ; le shader commun et la forêt
+## ne changent pas.
+func _ombres_contact() -> void:
+	if _hab == null or not (_hab.extension and _hab.p64):
+		return
+	for k in actors:
+		var nd = actors[k].get("node")
+		if nd == null or not is_instance_valid(nd):
+			continue
+		for ch in (nd as Node).get_children():
+			if ch is MeshInstance3D and (ch as MeshInstance3D).material_override is ShaderMaterial \
+					and ((ch as MeshInstance3D).material_override as ShaderMaterial).shader == BLOB_SH:
+				var mi := ch as MeshInstance3D
+				(mi.mesh as QuadMesh).size = Vector2(1.0, 0.62)
+				(mi.material_override as ShaderMaterial).set_shader_parameter("strength", 0.62)
+
+
 func _solide_rond(c: Vector2, r: float, h: float) -> void:
 	_obstacle_cyl(World25.g3(Vector3(c.x, c.y, 0.0)), r, h)
 	world.solids.append({"id": "accessoire_%d_%d" % [int(c.x * 10), int(c.y * 10)], "kind": "circle", "c": c, "r": r, "h0": 0.0, "h1": h})
@@ -533,6 +552,7 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 		_hab.p64 = p64
 		_hab.pilote2 = pilote in ["2", "3"]
 		_hab.extension = pilote == "3"
+		_hab.sable_calque = str(_cli.get("sable", "1")) != "0"
 		_hab.galerie = galerie
 	_marques_portes.clear()
 	if _hab != null:
@@ -545,6 +565,7 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	_build_p6()
 	_spawn_pnj()
 	_scene_commandant()
+	_ombres_contact()
 	_build_overlay()
 	s.set_world(world, arrive)
 	if _sect != null:
