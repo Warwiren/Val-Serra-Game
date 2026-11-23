@@ -49,3 +49,12 @@ Les chemins et points d'ancrage sont centralisés dans `src/presentation/art.gd`
 le corps du héros par une illustration finale : exporter un PNG/SVG au même cadrage (pieds en bas au centre,
 tourné vers la droite), l'enregistrer sous le même nom, ou changer le chemin dans `art.gd`, et ajuster
 `hand` (position de la main qui tient l'arme) si nécessaire.
+
+## Mise à jour P4.4 (13 novembre 2026)
+
+Les ressources actives de la démo sont décrites, avec leur provenance et leur statut, dans `art/p4/SOURCES.md`,
+`art/p41/SOURCES.md` et `art/p44/SOURCES.md`. Les lignes ci-dessus qui citent `art/explore_hd2d/`, `art/source/`,
+`art/proto/aren*`, `art/proto/ilya*`, `art/proto/vorgane*` (sauf `vorgane_nuit_p1`), `art/3d/` ou `art/zone/`
+décrivent des fichiers retirés du projet actif (historique Git, voir `docs/HISTORIQUE.md`).
+| `ValSerra_P49_V07B_PREFLIGHT_GODOT/assets/models/*` | **Banc d'essai V07B (P4.9, F6 seulement)** : arbres, buissons, herbes, fleurs, rochers stylisés (27 modèles glTF utilisés et leurs textures) | Quaternius *Stylized Nature MegaKit [Standard]*, sélection et teintes par le pack V07B (fourni par le créateur) | **CC0 1.0** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/docs/Licence_Quaternius_Standard_CC0.txt`) | Test, non validé artistiquement |
+| `ValSerra_P49_V07B_PREFLIGHT_GODOT/assets/{geometry,eau}/*` | Terrain sculpté 36 × 28 m, jupe de décor hors jeu, ruisseau (eau calme, courant, texture de rides) | Pack V07B (fourni par le créateur, `tools/` du pack) | Projet | Test, non validé artistiquement |

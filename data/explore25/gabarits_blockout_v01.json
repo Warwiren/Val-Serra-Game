@@ -1,0 +1,356 @@
+{
+  "project": "Val’Serra — Les Larmes d’Aether",
+  "stage": "preproduction/blockout ONLY",
+  "godot_target": "4.7.2",
+  "status": "PROPOSE — non validé par jeu",
+  "world": {
+    "axes": "x droit, y bas sur plan de conception, h altitude séparée",
+    "unit": "mètre monde de travail",
+    "extent_m": [
+      32,
+      24
+    ],
+    "reference_native_px_per_m": 20,
+    "reference_render_scale": 2,
+    "reference_viewport_px": [
+      1280,
+      720
+    ]
+  },
+  "camera": {
+    "yaw_deg_reference": 20,
+    "pitch_deg_reference": 35,
+    "projection": "à confirmer par prototype Camera2D ou Camera3D orthographique",
+    "rotation_player_control": false,
+    "zoom_presets": [
+      2.0,
+      2.5,
+      3.0
+    ],
+    "default_zoom": 2.5,
+    "mouse_wheel_steps": true
+  },
+  "levels": {
+    "lower_h_m": 0.0,
+    "upper_h_m": 1.2
+  },
+  "assets": [
+    {
+      "id": "terrain_bas",
+      "category": "surface",
+      "polygon_xy_m": [
+        [
+          1,
+          9
+        ],
+        [
+          21,
+          9
+        ],
+        [
+          21,
+          22
+        ],
+        [
+          1,
+          22
+        ]
+      ],
+      "height_m": 0,
+      "walkable": true,
+      "anchor_xy_m": [
+        1,
+        9
+      ],
+      "art_layers": [
+        "surface",
+        "edge",
+        "contact_shadow"
+      ]
+    },
+    {
+      "id": "terrain_est",
+      "category": "surface",
+      "polygon_xy_m": [
+        [
+          26,
+          10
+        ],
+        [
+          31,
+          10
+        ],
+        [
+          31,
+          20
+        ],
+        [
+          26,
+          20
+        ]
+      ],
+      "height_m": 0,
+      "walkable": true,
+      "anchor_xy_m": [
+        26,
+        10
+      ],
+      "art_layers": [
+        "surface",
+        "edge",
+        "contact_shadow"
+      ]
+    },
+    {
+      "id": "terrasse_haute",
+      "category": "surface",
+      "polygon_xy_m": [
+        [
+          9,
+          2
+        ],
+        [
+          21,
+          2
+        ],
+        [
+          21,
+          8
+        ],
+        [
+          9,
+          8
+        ]
+      ],
+      "height_m": 1.2,
+      "walkable": true,
+      "anchor_xy_m": [
+        9,
+        8
+      ],
+      "art_layers": [
+        "surface",
+        "vertical_front_face",
+        "edge",
+        "occlusion"
+      ]
+    },
+    {
+      "id": "escalier",
+      "category": "transition",
+      "bounds_xy_m": [
+        12.8,
+        8.0,
+        15.2,
+        11.0
+      ],
+      "bottom_h_m": 0,
+      "top_h_m": 1.2,
+      "risers": 8,
+      "riser_h_m": 0.15,
+      "tread_depth_m": 0.32,
+      "width_m": 2.4,
+      "direction": "de y=11 bas vers y=8 haut",
+      "anchor_xy_m": [
+        14,
+        11
+      ],
+      "art_layers": [
+        "steps",
+        "sidewall",
+        "shadow"
+      ]
+    },
+    {
+      "id": "riviere",
+      "category": "water",
+      "bounds_xy_m": [
+        22,
+        8,
+        25,
+        23
+      ],
+      "water_level_h_m": -0.4,
+      "walkable": false,
+      "anchor_xy_m": [
+        22,
+        8
+      ],
+      "art_layers": [
+        "bed",
+        "surface_animation",
+        "bank_contact",
+        "foam_optional"
+      ]
+    },
+    {
+      "id": "pont",
+      "category": "crossing",
+      "bounds_xy_m": [
+        20.5,
+        12.5,
+        26.5,
+        15.0
+      ],
+      "deck_h_m": 0,
+      "width_m": 2.5,
+      "length_m": 6.0,
+      "walkable": true,
+      "anchor_xy_m": [
+        23.5,
+        13.75
+      ],
+      "art_layers": [
+        "deck",
+        "rail_front",
+        "rail_back",
+        "underside",
+        "shadow"
+      ]
+    },
+    {
+      "id": "berge_ouest",
+      "category": "bank",
+      "bounds_xy_m": [
+        21,
+        8,
+        22,
+        23
+      ],
+      "height_from_h_m": 0,
+      "water_level_h_m": -0.4,
+      "walkable": false,
+      "art_layers": [
+        "edge",
+        "bank_face",
+        "wetline"
+      ]
+    },
+    {
+      "id": "berge_est",
+      "category": "bank",
+      "bounds_xy_m": [
+        25,
+        8,
+        26,
+        23
+      ],
+      "height_from_h_m": 0,
+      "water_level_h_m": -0.4,
+      "walkable": false,
+      "art_layers": [
+        "edge",
+        "bank_face",
+        "wetline"
+      ]
+    },
+    {
+      "id": "arbre_test",
+      "category": "occluder",
+      "foot_center_xy_m": [
+        7,
+        17
+      ],
+      "root_collision_radius_m": 0.65,
+      "foliage_overhang_m": 2,
+      "walkable": false,
+      "art_layers": [
+        "ground_shadow",
+        "trunk",
+        "foliage_rear",
+        "foliage_front",
+        "sway_optional"
+      ]
+    },
+    {
+      "id": "maison_place",
+      "category": "building-placeholder",
+      "footprint_xy_m": [
+        16,
+        3,
+        20,
+        7.5
+      ],
+      "height_level_m": 1.2,
+      "walkable": false,
+      "art_layers": [
+        "base",
+        "wall",
+        "roof_occluder",
+        "window_glow"
+      ]
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "A",
+      "name": "entrée",
+      "xy_m": [
+        2,
+        14
+      ],
+      "height_m": 0
+    },
+    {
+      "id": "B",
+      "name": "place",
+      "xy_m": [
+        13,
+        14
+      ],
+      "height_m": 0
+    },
+    {
+      "id": "C",
+      "name": "escalier_bas",
+      "xy_m": [
+        14,
+        11
+      ],
+      "height_m": 0
+    },
+    {
+      "id": "D",
+      "name": "escalier_haut",
+      "xy_m": [
+        14,
+        8
+      ],
+      "height_m": 1.2
+    },
+    {
+      "id": "E",
+      "name": "PNJ",
+      "xy_m": [
+        11,
+        5
+      ],
+      "height_m": 1.2
+    },
+    {
+      "id": "F",
+      "name": "pont",
+      "xy_m": [
+        23.5,
+        13.75
+      ],
+      "height_m": 0
+    },
+    {
+      "id": "G",
+      "name": "sortie",
+      "xy_m": [
+        30,
+        13.75
+      ],
+      "height_m": 0
+    }
+  ],
+  "constraints": [
+    "Les rectangles/tailles sont un blockout provisoire, non des gabarits de sprites peints.",
+    "Comparer les collisions et le parcours en Godot 4.7.2 avant de valider mètres et pixels.",
+    "Ne pas combiner collision d’eau et surface du pont : niveau logique explicite.",
+    "Niveaux de déplacement/tri de rendu distincts même si deux objets se projettent au même point écran.",
+    "Ne pas figer découpe de textures ni silhouette sans choisir la solution Camera2D/Camera3D."
+  ]
+}

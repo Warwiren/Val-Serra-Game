@@ -27,6 +27,9 @@ var _c_log_panel: PanelContainer
 var _c_log: RichTextLabel
 var _c_banner: Label
 var _c_actions_cache: Array = []
+var _c_menu_panel: PanelContainer      # P6 : conteneurs nommés pour le guidage (guide_target)
+var _c_desc_panel: PanelContainer
+var _c_right: Control
 
 
 func build() -> void:
@@ -94,6 +97,7 @@ func build() -> void:
 	menu_panel.size = Vector2(UI.MENU_W, 142)
 	menu_panel.add_theme_stylebox_override("panel", UI.box(UI.C_PANEL, UI.C_SEP, 1, UI.RADIUS, 0.94))
 	bottom.add_child(menu_panel)
+	_c_menu_panel = menu_panel
 	_c_menu = VBoxContainer.new()
 	_c_menu.add_theme_constant_override("separation", 1)
 	menu_panel.add_child(_c_menu)
@@ -115,6 +119,7 @@ func build() -> void:
 	desc.size = Vector2(262, 108)
 	desc.add_theme_stylebox_override("panel", UI.box(UI.C_PANEL, UI.C_SEP, 1, UI.RADIUS, 0.94))
 	bottom.add_child(desc)
+	_c_desc_panel = desc
 	var dv := VBoxContainer.new()
 	dv.add_theme_constant_override("separation", 2)
 	desc.add_child(dv)
@@ -152,6 +157,7 @@ func build() -> void:
 	right.offset_bottom = 160
 	right.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	bottom.add_child(right)
+	_c_right = right
 	for i in range(3):
 		var c := TempoCard.new()
 		c.position = Vector2(i * 178, 0)
@@ -223,6 +229,27 @@ func build() -> void:
 	_c_banner.modulate.a = 0.0
 	_c_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_c_banner)
+
+
+## P6 — Guidage (tutoriel) : composant RÉEL de l'interface désigné par une clé ; son rectangle est relu à chaque
+## image par le guide (src/tutorial/guide_interface.gd), donc aucune position n'est codée en dur.
+func guide_target(key: String) -> Control:
+	match key:
+		"initiative":
+			return timeline
+		"groupe":
+			return _c_party_box
+		"actions":
+			return _c_menu_panel
+		"description":
+			return _c_desc_panel
+		"tempos":
+			return _c_right
+		"confirmer":
+			return _c_confirm
+		"pv_adversaire":
+			return _c_boss
+	return null
 
 
 # --- Chasseurs ------------------------------------------------------------------------------------

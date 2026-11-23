@@ -1,0 +1,23 @@
+{
+  "project": "Val'Serra — prototype P3",
+  "stage": "instance FICTIVE minimale (test de transition), pas un quartier",
+  "world": {"extent_m": [12, 9]},
+  "camera": {"zoom_presets": [2.0, 2.5, 3.0], "default_zoom": 2.5},
+  "assets": [
+    {"id": "placette", "category": "surface", "polygon_xy_m": [[1, 1], [11, 1], [11, 8], [1, 8]], "height_m": 0, "walkable": true}
+  ],
+  "checkpoints": [{"id": "A2", "name": "arrivée", "xy_m": [1.8, 4.5], "height_m": 0}],
+  "ajustements": {
+    "decor_marge": [-16, -12, 28, 21],
+    "bordures": [
+      {"id": "haie_n", "seg": [1, 1, 11, 1], "h": 0, "type": "haie"},
+      {"id": "haie_s", "seg": [1, 8, 11, 8], "h": 0, "type": "haie"},
+      {"id": "haie_e", "seg": [11, 1, 11, 8], "h": 0, "type": "haie"},
+      {"id": "haie_o_n", "seg": [1, 1, 1, 3.4], "h": 0, "type": "haie"},
+      {"id": "haie_o_s", "seg": [1, 5.6, 1, 8], "h": 0, "type": "haie"}
+    ],
+    "poi": [{"id": "panneau", "xy": [6, 3], "h": 0, "r": 0.2, "portee_m": 1.2, "texte": "Instance fictive : la porte à l'ouest ramène à la scène témoin."}],
+    "entree": {"xy": [1.8, 4.5], "h": 0, "porte": [1, 3.4, 1, 5.6]},
+    "sorties": [{"id": "retour_ouest", "rect": [1.0, 3.4, 1.5, 5.6], "porte": [1, 3.4, 1, 5.6], "vers": "res://data/explore25/gabarits_blockout_v01.json", "arrivee": [29.3, 13.75, 0]}]
+  }
+}

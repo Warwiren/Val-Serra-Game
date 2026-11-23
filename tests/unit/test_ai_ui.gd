@@ -77,7 +77,7 @@ func test_portraits_come_from_one_source() -> void:
 		var p := Portraits.path(id)
 		check(p != "" and ResourceLoader.exists(p), "%s : portrait unique présent (%s)" % [id, p])
 	# Aucun autre script du parcours normal ne référence un fichier de portrait directement
-	for f in ["res://scenes/battle/battle_scene.gd", "res://scenes/proto/proto_zone.gd", "res://src/proto/dialogue_box.gd",
+	for f in ["res://scenes/battle/battle_scene.gd", "res://scenes/p4/avant_poste.gd", "res://src/proto/dialogue_box.gd",
 			"res://src/presentation/combat_hud.gd", "res://data/dialogue/pnj_proto.json"]:
 		var src := FileAccess.open(f, FileAccess.READ).get_as_text()
 		var re := RegEx.new()

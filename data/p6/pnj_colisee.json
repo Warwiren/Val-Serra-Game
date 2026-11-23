@@ -1,0 +1,20 @@
+{
+ "_note": "P6 — PNJ PROVISOIRES du Colisée et du quartier de transition. Sprite unique disponible pour les PNJ : le garde (art/p45/chars/garde/), distingué par une teinte et une échelle ; aucun PNJ ne reprend la silhouette d'Aren ni d'Ilya. Rôles temporaires, sans portée narrative. zone : colisee | quartier ; a_partir_de / jusqua : états de progression (src/game/progression.gd) entre lesquels le PNJ est présent ; regard : direction à l'écran au repos.",
+ "pnj": [
+  {"id": "garde_vestiaires", "nom": "Garde de la Guilde", "zone": "colisee", "xy": [28.4, 47.7], "regard": [-1, 0.4], "dialogue": "garde_vestiaires", "portrait": "pnj"},
+  {"id": "recrue_vestiaires", "nom": "Recrue en préparation", "zone": "colisee", "xy": [20.6, 51.6], "regard": [1, 0.3], "teinte": [0.82, 1.08, 0.86], "echelle": 0.92, "dialogue": "recrue_vestiaires", "portrait": ""},
+  {"id": "chasseur_nerveux", "nom": "Chasseur nerveux", "zone": "colisee", "xy": [21.8, 39.6], "regard": [1, 0.2], "teinte": [1.18, 0.96, 0.76], "echelle": 0.95, "dialogue": "chasseur_nerveux", "portrait": "", "ronde": [[0.0, 0.0], [0.0, 2.2]]},
+  {"id": "chasseuse_confiante", "nom": "Chasseuse confiante", "zone": "colisee", "xy": [30.0, 42.2], "regard": [-1, 0.2], "teinte": [0.82, 0.92, 1.24], "echelle": 0.95, "dialogue": "chasseuse_confiante", "portrait": ""},
+  {"id": "chasseur_attente", "nom": "Chasseur en attente", "zone": "colisee", "xy": [29.6, 39.2], "regard": [-1, 0.6], "teinte": [1.2, 0.84, 0.82], "echelle": 0.95, "dialogue": "chasseur_attente", "portrait": ""},
+  {"id": "commandant", "nom": "Commandant de la Guilde", "zone": "colisee", "xy": [26.0, 20.6], "regard": [0, 1], "teinte": [1.28, 1.08, 0.74], "echelle": 1.12, "dialogue": "commandant", "portrait": "pnj", "portee_m": 3.0},
+  {"id": "garde_grille", "nom": "Garde de la grille", "zone": "colisee", "xy": [36.6, 26.4], "regard": [-1, 0.3], "dialogue": "garde_grille", "portrait": "pnj"},
+  {"id": "chasseur_reussi", "nom": "Chasseur reçu", "zone": "colisee", "xy": [48.6, 25.8], "regard": [-1, 0.4], "teinte": [1.18, 0.96, 0.74], "dialogue": "chasseur_reussi", "portrait": "", "a_partir_de": "tutorial_completed"},
+  {"id": "chasseuse_echouee", "nom": "Chasseuse recalée", "zone": "colisee", "xy": [54.2, 31.2], "regard": [-1, 0.2], "teinte": [0.84, 0.86, 1.1], "echelle": 0.95, "dialogue": "chasseuse_echouee", "portrait": "", "a_partir_de": "tutorial_completed"},
+  {"id": "chasseur_commentaire", "nom": "Chasseur bavard", "zone": "colisee", "xy": [45.8, 19.2], "regard": [1, 0.4], "teinte": [0.8, 1.1, 0.86], "dialogue": "chasseur_commentaire", "portrait": "", "a_partir_de": "tutorial_completed"},
+  {"id": "garde_loge", "nom": "Garde de la loge", "zone": "colisee", "xy": [51.9, 13.2], "regard": [-1, 0.6], "dialogue": "garde_loge", "portrait": "pnj"},
+  {"id": "garde_gradins", "nom": "Garde des gradins", "zone": "colisee", "xy": [54.9, 18.2], "regard": [-1, 0.4], "dialogue": "garde_gradins", "portrait": "pnj"},
+  {"id": "soigneuse", "nom": "Soigneuse", "zone": "colisee", "xy": [48.1, 37.2], "regard": [-1, 0.6], "teinte": [1.32, 1.3, 1.36], "echelle": 0.92, "dialogue": "soigneuse", "portrait": ""},
+  {"id": "garde_sortie", "nom": "Garde de la porte est", "zone": "colisee", "xy": [60.0, 21.95], "regard": [0, 1], "dialogue": "garde_sortie", "portrait": "pnj"},
+  {"id": "habitant_quartier", "nom": "Habitant", "zone": "quartier", "xy": [17.6, 10.2], "regard": [-1, 0.3], "teinte": [1.1, 1.0, 0.86], "echelle": 0.92, "dialogue": "habitant_quartier", "portrait": ""}
+ ]
+}

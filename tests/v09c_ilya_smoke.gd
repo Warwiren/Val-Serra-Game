@@ -1,0 +1,200 @@
+extends SceneTree
+## V09C — test rapide du banc d'essai d'Ilya (Godot 4.7.2) :
+##   godot --headless --path . --script res://tests/v09c_ilya_smoke.gd
+const C = preload("res://src/explore25/anim_v09c.gd")
+const Actor25 = preload("res://src/explore25/actor25.gd")
+const Portraits = preload("res://src/proto/portraits.gd")
+const SCENE := "res://ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn"
+var failures := 0
+
+
+func _test(ok: bool, label: String) -> void:
+	if not ok:
+		failures += 1
+		push_error("V09C ECHEC : " + label)
+	else:
+		print("V09C OK : " + label)
+
+
+func _initialize() -> void:
+	_run.call_deferred()
+
+
+func _run() -> void:
+	var a = C.make()
+	a.profil_unique = false                   # banc V09C.5 d'origine (4 directions du pack) ; profil unique testé plus bas
+	var n := 0
+	for k in a._tex:
+		for t in a._tex[k]:
+			if t != null and (t as Texture2D).get_size() == Vector2(96, 112):
+				n += 1
+	_test(n == 104, "96 images V09C.5 (4 directions × attente / marche / course × 8) + 8 poses de course V09C.6, 96 × 112")
+	_test(ResourceLoader.exists("res://art/p45/chars/ilya/walk_right_7.png"), "sprites P4.8 d'Ilya toujours présents")
+	var hv: float = a.hauteur_px * a.echelle
+	_test(a.echelle > 0.69 and a.echelle < 0.75 and absf(hv - 64.0) < 0.5, "échelle mesurée ×%.3f (%d px -> %.1f px)" % [a.echelle, a.hauteur_px, hv])
+	for d in C.DIRS:
+		for c in ["idle", "walk", "run"]:
+			a.dir = d
+			a.cycle = c
+			var t: Texture2D = a._tex[c + "_" + d][0]
+			var ofs: Vector2 = a.offset_px(0.96, t)
+			var foot: float = 0.96 + (ofs.y + t.get_height() * 0.5 - float(a._cad["directions"][d][c]["ligne_sol_px"])) * a.pixel_m()
+			if absf(foot) > 0.0001:
+				_test(false, "pieds au sol %s %s (%.4f m)" % [c, d, foot])
+	_test(true, "pieds posés sur l'origine du corps, 12 cycles")
+
+	# marche / course d'après la vitesse réelle, avec hystérésis (profil candidat 2,8 / 4,5 m/s)
+	var sp := [2.8, 4.5]
+	var s: Vector2 = C.seuils(sp)
+	_test(absf(s.x - 3.82) < 0.001 and absf(s.y - 3.31) < 0.001, "seuils course : entrée %.2f, sortie %.2f m/s" % [s.x, s.y])
+	var base = Actor25.make("ilya")
+	base.set_scale_k(26.0 / 65.0)
+	var seq := []
+	for v in [2.8, 3.6, 4.0, 3.5, 3.4, 3.2, 3.6]:
+		base.step(v / 60.0, Vector2(1, 0), 1.0 / 60.0)
+		a.step(base, v / 60.0, v, sp)
+		seq.append(a.cycle)
+	_test(seq == ["walk", "walk", "run", "run", "run", "walk", "walk"], "hystérésis marche / course : %s" % [seq])
+	_test(a.dir == "right" and a.texture() == a._tex["walk_right"][a.frame], "profil droit : marche droite livrée")
+	base.step(0.05, Vector2(-1, 0), 1.0 / 60.0)
+	a.step(base, 0.05, 3.0, sp)
+	_test(a.dir == "left" and a.cycle == "walk", "demi-tour : profil gauche du pack")
+	for i in 30:
+		base.step(0.0, Vector2.ZERO, 1.0 / 60.0)
+	a.step(base, 0.0, 0.0, sp)
+	_test(a.cycle == "idle" and a.frame == int(base.frame) % 8, "attente : images du pack au rythme d'Actor25")
+
+	# profil unique (19/11/2026) : profil droit dans toutes les directions, miroir à gauche, arrêt sur la pose tenue
+	var pu = C.make()
+	pu.course_v09c6 = true
+	pu.vues_face_dos = false                  # comportement du 19/11 ; haut / bas en face / dos testés plus bas
+	var b3 = Actor25.make("ilya")
+	b3.set_scale_k(26.0 / 65.0)
+	for v in [4.0, 4.5, 4.5]:
+		b3.step(v / 60.0, Vector2(-1, 0), 1.0 / 60.0)
+		pu.step(b3, v / 60.0, v, sp, -1.0)
+	_test(pu.flip and pu.dir == "right" and pu.run_v09c6() and pu.texture() == pu._tex["run_right_v09c6"][pu.frame], "profil unique : course vers la gauche = course droite V09C.6 en miroir")
+	b3.step(0.05, Vector2(0, -1), 1.0 / 60.0)
+	pu.step(b3, 0.05, 2.8, sp, 0.0)
+	_test(pu.flip and pu.cycle == "walk" and pu.texture() == pu._tex["walk_right"][pu.frame], "profil unique : vers le haut, marche droite (dernier profil gardé)")
+	for i in 30:
+		b3.step(0.0, Vector2.ZERO, 1.0 / 60.0)
+	pu.step(b3, 0.0, 0.0, sp, 0.0)
+	_test(pu.cycle == "walk" and pu.frame == C.IMAGE_ARRET and pu.texture() == pu._tex["walk_right"][C.IMAGE_ARRET], "profil unique : arrêt sur la pose tenue de la marche droite")
+	var ow: float = pu.offset_px(0.96, pu.texture()).x
+	b3.step(4.5 / 60.0, Vector2(-1, 0), 1.0 / 60.0)
+	pu.step(b3, 4.5 / 60.0, 4.5, sp, -1.0)
+	b3.step(4.5 / 60.0, Vector2(-1, 0), 1.0 / 60.0)
+	pu.step(b3, 4.5 / 60.0, 4.5, sp, -1.0)
+	var orun: float = pu.offset_px(0.96, pu.texture()).x
+	_test(pu.run_v09c6() and absf((ow - float(pu._axe["walk_right"]) + 48.0) - (orun - float(pu._axe["run_right_v09c6"]) + 48.0)) < 0.001,
+		"profil unique : axe de la tête identique en marche et en course (pas de saut latéral)")
+
+	# haut / bas (20/11/2026, défaut) : vues de face et de dos dessinées du pack V09C.5, jamais en miroir
+	var fd = C.make()
+	fd.course_v09c6 = true
+	_test(fd.profil_unique and fd.vues_face_dos, "Ilya : vues de face et de dos actives par défaut")
+	var b4 = Actor25.make("ilya")
+	b4.set_scale_k(26.0 / 65.0)
+	var vus := []
+	for seg in [[Vector2(-1, 0), 2.8, "walk_right", true], [Vector2(0, 1), 2.8, "walk_face", false], [Vector2(0, 1), 4.5, "run_face", false],
+			[Vector2(0, -1), 2.8, "walk_back", false], [Vector2(0, -1), 4.5, "run_back", false], [Vector2(1, 0), 4.5, "run_right_v09c6", false]]:
+		for i in 8:
+			b4.step(seg[1] / 60.0, seg[0], 1.0 / 60.0)
+			fd.step(b4, seg[1] / 60.0, seg[1], sp, seg[0].x)
+		var cle: String = "run_right_v09c6" if fd.run_v09c6() else fd.cycle + "_" + fd.dir
+		vus.append(cle == seg[2] and fd.texture() == fd._tex[seg[2]][fd.frame] and fd.miroir() == seg[3])
+	_test(vus == [true, true, true, true, true, true], "Ilya : gauche = profil en miroir, bas = face, haut = dos (marche et course), droite = V09C.6 (%s)" % [vus])
+	b4.step(0.05, Vector2(0, 1), 1.0 / 60.0)
+	fd.step(b4, 0.05, 2.8, sp, 0.0)
+	for i in 30:
+		b4.step(0.0, Vector2.ZERO, 1.0 / 60.0)
+	fd.step(b4, 0.0, 0.0, sp, 0.0)
+	_test(fd.cycle == "idle" and fd.dir == "face" and not fd.miroir() and fd.texture() == fd._tex["idle_face"][fd.frame], "Ilya : arrêt après le bas = attente de face du pack")
+	b4.step(0.05, Vector2(0, -1), 1.0 / 60.0)
+	fd.step(b4, 0.05, 2.8, sp, 0.0)
+	for i in 30:
+		b4.step(0.0, Vector2.ZERO, 1.0 / 60.0)
+	fd.step(b4, 0.0, 0.0, sp, 0.0)
+	_test(fd.cycle == "idle" and fd.dir == "back" and fd.texture() == fd._tex["idle_back"][fd.frame], "Ilya : arrêt après le haut = attente de dos du pack")
+	b4.step(0.05, Vector2(-1, 0), 1.0 / 60.0)
+	fd.step(b4, 0.05, 2.8, sp, -1.0)
+	for i in 30:
+		b4.step(0.0, Vector2.ZERO, 1.0 / 60.0)
+	fd.step(b4, 0.0, 0.0, sp, 0.0)
+	_test(fd.cycle == "walk" and fd.frame == C.IMAGE_ARRET and fd.miroir(), "Ilya : arrêt après la gauche = pose tenue du profil en miroir (inchangé)")
+	_test(absf(fd.stride_m("walk", "face") - fd.stride_m("walk", "right")) < 0.0001, "Ilya : même foulée de face / de dos qu'en profil (même cadence)")
+
+	# V09C.6 : course droite candidate, seule à changer ; même échelle, pieds au sol, foulée propre
+	a.course_v09c6 = true
+	base.step(4.5 / 60.0, Vector2(1, 0), 1.0 / 60.0)
+	a.step(base, 4.5 / 60.0, 4.5, sp)
+	_test(a.cycle == "run" and a.dir == "right" and a.run_v09c6() and a.texture() == a._tex["run_right_v09c6"][a.frame], "V09C.6 : course droite = poses V09C.6")
+	var t6: Texture2D = a.texture()
+	var o6: Vector2 = a.offset_px(0.96, t6)
+	var f6: float = 0.96 + (o6.y + t6.get_height() * 0.5 - float(a._cad6["run_right"]["ligne_sol_px"])) * a.pixel_m()
+	_test(absf(f6) < 0.0001 and int(a._cad6["run_right"]["ligne_sol_px"]) == 105, "V09C.6 : pieds au sol (ligne 105, y = %.4f m)" % f6)
+	_test(absf(a.stride_m() - float(a._cad6["run_right"]["foulee_px"]) * a.pixel_m()) < 0.0001 and absf(a.stride_m("run", "left") - float(a._cad["directions"]["left"]["run"]["foulee_px"]) * a.pixel_m()) < 0.0001,
+		"V09C.6 : foulée propre (%.2f m), autres directions inchangées" % a.stride_m())
+	a.course_v09c6 = false
+	_test(not a.run_v09c6() and a.texture() == a._tex["run_right"][a.frame], "V09C.5 : course droite d'origine toujours disponible")
+
+	# portraits : anciens par défaut, nouveaux sur bascule, correspondance des clés
+	_test(Portraits.path("compagnon_vif", "souriant").ends_with("art/p45/portraits/ilya/souriant.png"), "portraits : anciens par défaut")
+	Portraits.ilya_v09c = true
+	var ok := true
+	for k in Portraits.ILYA_V09C:
+		ok = ok and Portraits.get_texture("compagnon_vif", k) != null
+	_test(ok and Portraits.path("compagnon_vif", "souriant").ends_with("sereine.png") and Portraits.path("compagnon_vif", "blesse").ends_with("blessee.png")
+		and Portraits.path("compagnon_vif", "concentre").ends_with("resolue.png"), "portraits V09C : 7 expressions, souriant -> sereine, blesse -> blessee")
+	_test(Portraits.path("heros", "souriant").ends_with("aren/souriant.png"), "portraits d'Aren inchangés")
+	var tailles := true
+	for cad in ["serre", "v09c5"]:
+		Portraits.ilya_cadrage = cad
+		for k in Portraits.ILYA_V09C:
+			var t: Texture2D = Portraits.get_texture("compagnon_vif", k)
+			tailles = tailles and t != null and t.get_size() == Vector2(160, 160)
+	_test(tailles, "portraits : cadrage serré et V09C.5 (secours), 160 × 160")
+	Portraits.ilya_cadrage = "serre"
+	Portraits.ilya_v09c = false
+
+	change_scene_to_file(SCENE)
+	for i in 10:
+		await physics_frame
+	var sc := current_scene
+	_test(sc != null and bool(sc.get("_v09c_on")) and bool((sc.get("_ilya_v09c") as RefCounted).get("course_v09c6")), "F5 démarre avec Ilya V09C.6")
+	# tailles constantes au démarrage : hauteur visible à l'écran (px au ×2,5, 1 px = 0,02 m) de chaque image possible
+	var c6: RefCounted = sc.get("_ilya_v09c")
+	var a5: RefCounted = sc.get("_anim_v09b5")
+	var h_aren: Array = []
+	for d in ["face", "back", "left", "right"]:
+		for k in ["idle_", "walk_"]:
+			var fr: SpriteFrames = (sc.get("_hero_anim") as RefCounted).get("frames")
+			if d == "right" and k == "walk_":
+				continue                              # remplacé par V09B.5 ci-dessous
+			for i in fr.get_frame_count(k + d):
+				h_aren.append(fr.get_frame_texture(k + d, i).get_image().get_used_rect().size.y)
+	for t in a5.get("_tex")["walk_96x112"]:
+		h_aren.append(roundf((101 - (t as Texture2D).get_image().get_used_rect().position.y) * float(a5.get("echelle_h64"))))
+	h_aren.sort()
+	var h_ilya: Array = []
+	for d in C.DIRS:
+		for cy in ["idle", "walk"]:
+			for t in c6.get("_tex")[cy + "_" + d]:
+				var u: Rect2i = (t as Texture2D).get_image().get_used_rect()
+				h_ilya.append(roundf((float(c6.get("_cad")["directions"][d][cy]["ligne_sol_px"]) - u.position.y) * float(c6.get("echelle"))))
+	h_ilya.sort()
+	# Aren : profil droit V09B.5 63-65 px ; P4.8 de face 60-62 px (dessin d'origine, plus court), de dos 64-67 px
+	_test(h_aren[0] >= 60 and h_aren[-1] <= 67, "Aren : attente et marche dans toutes les directions entre %d et %d px (64 −6 / +5 %%, face P4.8 plus courte)" % [h_aren[0], h_aren[-1]])
+	_test(h_ilya[0] >= 61 and h_ilya[-1] <= 67, "Ilya : attente et marche dans toutes les directions entre %d et %d px (64 ± 5 %%)" % [h_ilya[0], h_ilya[-1]])
+	var etats := []
+	for i in 4:
+		var e := InputEventKey.new()
+		e.keycode = KEY_I
+		e.physical_keycode = KEY_I
+		e.pressed = true
+		sc.call("_unhandled_key_input", e)
+		etats.append("P4.8" if not bool(sc.get("_v09c_on")) else ("V09C.6" if bool((sc.get("_ilya_v09c") as RefCounted).get("course_v09c6")) else "V09C.5"))
+	_test(etats == ["P4.8", "V09C.5", "V09C.6", "P4.8"], "touche I depuis V09C.6 : %s" % [etats])
+	print("V09C : %d échec(s)" % failures)
+	quit(1 if failures > 0 else 0)

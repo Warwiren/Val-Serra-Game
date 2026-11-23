@@ -6,6 +6,7 @@ extends Control
 ## Portraits : source unique src/proto/portraits.gd (expression par réplique, repli sur « neutre »).
 
 signal closed
+signal choisi(choix: Dictionary)        # P6.2 : réponse choisie (la scène peut y lire un « effet »)
 
 const UI = preload("res://src/presentation/ui_style.gd")
 const Portraits = preload("res://src/proto/portraits.gd")
@@ -89,6 +90,8 @@ func open(steps: Array, speaker_data: Dictionary) -> void:
 	create_tween().tween_property(self, "modulate:a", 1.0, 0.15)
 	_left.texture = Portraits.get_texture(left_id)
 	_right.texture = Portraits.get_texture(right_id)
+	# P6 : interlocuteur sans portrait (PNJ provisoires) -> cadre droit masqué, le NOM reste affiché
+	_right.get_parent().visible = _right.texture != null
 	_next()
 
 
@@ -127,6 +130,7 @@ func advance() -> void:
 
 func pick(i: int) -> void:
 	var c: Dictionary = _choices[i]
+	choisi.emit(c)
 	_choices = []
 	_draw_choices()
 	_queue = c.get("then", []).duplicate(true) + _queue
@@ -173,7 +177,7 @@ func _set_speaker(id: String, expr: String) -> void:
 	var on_left := id == left_id
 	if on_left:
 		_left.texture = Portraits.get_texture(left_id, expr)
-	else:
+	elif _right.get_parent().visible:
 		_right.texture = Portraits.get_texture(right_id, expr)
 	_left.modulate = Color.WHITE if on_left else Color(0.45, 0.47, 0.55)
 	_right.modulate = Color.WHITE if not on_left else Color(0.45, 0.47, 0.55)

@@ -8,9 +8,13 @@ const TEST_FILES := [
 	"res://tests/unit/test_rig.gd",
 	"res://tests/unit/test_sprites.gd",
 	"res://tests/unit/test_ai_ui.gd",
-	"res://tests/unit/test_explore.gd",
 	"res://tests/unit/test_arena.gd",
-	"res://tests/unit/test_p1_camera.gd",
+	"res://tests/unit/test_p4_avant_poste.gd",
+	"res://tests/unit/test_p45_animations.gd",
+	"res://tests/unit/test_p46_corrections.gd",
+	"res://tests/unit/test_p47_corrections.gd",
+	"res://tests/unit/test_p48_marche.gd",
+	"res://tests/unit/test_p6_colisee.gd",
 ]
 
 
@@ -20,7 +24,7 @@ static func run_all() -> Dictionary:
 	var failed := 0
 	for path in TEST_FILES:
 		var script: GDScript = load(path)
-		if script == null:
+		if script == null or not script.can_instantiate():      # erreur de syntaxe : ne pas l'ignorer en silence
 			lines.append("ÉCHEC  impossible de charger %s" % path)
 			failed += 1
 			continue

@@ -1,0 +1,92 @@
+{
+ "version": "P5.3B_V2_CORRECTION_ESSAI",
+ "status": "pilote_non_valide",
+ "date": "2026-11-21",
+ "sources": "ValSerra_P53B_Pilote_Sols.zip (texturas existantes du Drive)",
+ "textures": [
+  {
+   "name": "herbe_drue",
+   "size": [
+    1024,
+    1024
+   ],
+   "target_rgb": [
+    83,
+    97,
+    54
+   ],
+   "mean_rgb": [
+    82.5,
+    96.5,
+    53.5
+   ],
+   "height_mean": 0.893,
+   "height_min": 0.423,
+   "height_max": 0.926,
+   "edges_mean_abs_diff_x": 4.54,
+   "edges_mean_abs_diff_y": 4.0,
+   "inside_local_diff_x": 4.31,
+   "inside_local_diff_y": 3.43,
+   "alpha_semantics": "height_not_transparency"
+  },
+  {
+   "name": "herbe_usee",
+   "size": [
+    1024,
+    1024
+   ],
+   "target_rgb": [
+    102,
+    103,
+    62
+   ],
+   "mean_rgb": [
+    101.5,
+    102.5,
+    61.5
+   ],
+   "height_mean": 0.565,
+   "height_min": 0.278,
+   "height_max": 0.906,
+   "edges_mean_abs_diff_x": 3.52,
+   "edges_mean_abs_diff_y": 4.03,
+   "inside_local_diff_x": 4.04,
+   "inside_local_diff_y": 3.22,
+   "alpha_semantics": "height_not_transparency",
+   "source_method": "composition terrain+herbe par masques multiéchelles, grappes de 30-50 cm approximativement"
+  },
+  {
+   "name": "terre_chemin",
+   "size": [
+    1024,
+    1024
+   ],
+   "target_rgb": [
+    141,
+    109,
+    75
+   ],
+   "mean_rgb": [
+    140.5,
+    108.5,
+    74.5
+   ],
+   "height_mean": 0.284,
+   "height_min": 0.26,
+   "height_max": 0.49,
+   "edges_mean_abs_diff_x": 3.59,
+   "edges_mean_abs_diff_y": 4.8,
+   "inside_local_diff_x": 3.63,
+   "inside_local_diff_y": 3.88,
+   "alpha_semantics": "height_not_transparency"
+  }
+ ],
+ "integration": {
+  "copie": "fichiers RGBA copiés tels quels (aucune conversion)",
+  "sha256": {
+   "herbe_drue": "60c8c28aa877005cef142883189884d496ee598d4b9535e18366a2e249165b03",
+   "herbe_usee": "3cab9cc23156e554d3e4629a76c3c6b07ea2d5e87042219e2511cc71450fdef6",
+   "terre_chemin": "4c0652d0a179ffe7c0a80ef5a9d1ab43e2741c511da8228f796b054f311c1b9e"
+  }
+ }
+}

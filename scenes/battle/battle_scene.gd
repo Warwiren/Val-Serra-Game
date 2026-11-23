@@ -23,9 +23,12 @@ const CombatHud = preload("res://src/presentation/combat_hud.gd")
 const UI = preload("res://src/presentation/ui_style.gd")
 const Portraits = preload("res://src/proto/portraits.gd")
 const ArenaLayers = preload("res://src/presentation/arena_layers.gd")
-## Prototype recentré : groupe à droite tourné vers la gauche, monstre à gauche (maquette du pack, Octopath).
-const HUNTER_POS_PROTO := {"heros": Vector2(900, 500), "compagnon_vif": Vector2(1028, 468), "compagnon_lourd": Vector2(1150, 492)}
-const MONSTER_POS_PROTO := Vector2(330, 506)
+const ArenaForet = preload("res://src/presentation/arena_foret.gd")
+## P5 (refonte du combat, 20/11/2026) : groupe à GAUCHE tourné vers la droite, monstre à DROITE tourné vers la
+## gauche (demande du créateur) ; avant P5 : groupe à droite, monstre à gauche (maquette du pack, Octopath). Mêmes
+## distances qu'avant, en miroir.
+const HUNTER_POS_PROTO := {"heros": Vector2(380, 500), "compagnon_vif": Vector2(252, 468), "compagnon_lourd": Vector2(130, 492)}
+const MONSTER_POS_PROTO := Vector2(950, 506)
 const PROTO_SPRITES := {"heros": "aren", "compagnon_vif": "ilya", "compagnon_lourd": "throne"}
 ## Lanternes peintes du décor (coordonnées écran) : sources de lumière du combat ET de l'éclairage du Vorgane.
 const PROTO_LIGHTS := [Vector2(60, 212), Vector2(683, 282), Vector2(951, 266), Vector2(1068, 262)]
@@ -90,7 +93,17 @@ func _ready() -> void:
 	if GameState.proto:
 		for id in PROTO_NAMES:
 			battle.get_combatant(id).name = PROTO_NAMES[id]
+		# P4.4 : Ilya combat au pistolet d'Aether (affichage seulement ; règles et dégâts « perforant » inchangés)
+		battle.get_combatant("compagnon_vif").weapon_name = "Pistolet d'Aether"
 	monster_id = battle.monsters()[0].id
+	# P4.1 — rencontre de démonstration : PV maximum du monstre multipliés (0,5 dans l'avant-poste P4), pour CE combat
+	# seulement ; les données (data/combat/monster_vorgane.json) et les autres rencontres ne changent pas.
+	var hp_mult: float = GameState.flags.get("rencontre_pv_mult", 1.0)
+	GameState.flags.erase("rencontre_pv_mult")
+	if hp_mult != 1.0:
+		var mon = battle.get_combatant(monster_id)
+		mon.max_hp = maxi(1, int(round(mon.max_hp * hp_mult)))
+		mon.hp = mon.max_hp
 	if OS.get_cmdline_user_args().has("--dev-resonance"):
 		# OUTIL DE TEST UNIQUEMENT : précharge la jauge pour vérifier l'animation de la technique.
 		# Le parcours normal remplit la jauge par les attaques, gardes utiles et ruptures.
@@ -215,7 +228,7 @@ func _build_world_proto() -> void:
 	overlay.add_child(fx)
 	var mv := SpriteMonsterView.new()
 	mv.sprite_dir = "res://art/proto/vorgane_nuit_p1/"
-	mv.facing_right = true
+	mv.facing_right = false                    # P5 : à droite, tourné vers le groupe
 	mv.scene_lights = arena.lights if arena != null and arena.visible else PROTO_LIGHTS
 	monster_view = mv
 	actors.add_child(monster_view)
@@ -228,7 +241,7 @@ func _build_world_proto() -> void:
 		var hv := ProtoHero.new()
 		actors.add_child(hv)
 		hv.setup(c.id, {"sprite": PROTO_SPRITES[c.id], "combat": true}, HUNTER_POS_PROTO[c.id])
-		hv.scale.x = -1
+		hv.scale.x = 1                         # P5 : à gauche, tournés vers le monstre (droite)
 		hv.z_index = int(HUNTER_POS_PROTO[c.id].y / 10.0)
 		hunters[c.id] = hv
 	cam = Camera2D.new()
@@ -246,7 +259,7 @@ func _build_world_proto() -> void:
 ## Comparaison A/B du décor de combat (F2) : présentation seulement, le combat continue.
 func _show_arena(new_one: bool) -> void:
 	if new_one and arena == null:
-		arena = ArenaLayers.new()
+		arena = ArenaForet.new() if GameState.arena == "foret" else ArenaLayers.new()
 		add_child(arena)
 		arena.build(self)
 	for n in _old_arena:
@@ -313,6 +326,10 @@ func _build_hud() -> void:
 	layer.visible = not OS.get_cmdline_user_args().has("--no-hud")   # outil : capture de cohérence sans interface
 	hud = CombatHud.new() if GameState.proto else BattleHud.new()
 	hud.simple = GameState.proto
+	if GameState.proto and GameState.arena == "foret":
+		hud.zone_name = "Forêt de la lisière"     # P5 : le lieu de la rencontre (la forêt d'exploration)
+	elif GameState.proto and GameState.arena == "colisee":
+		hud.zone_name = "Colisée de Val'Serra"    # P6 : combat tutoriel dans l'arène
 	layer.add_child(hud)
 	hud.build()
 	var i := 0
@@ -544,7 +561,7 @@ func _play(e: Dictionary) -> void:
 			tele_resolve = -1
 			monster_view.set_telegraph(false)
 			hud.banner("INTERROMPU !", Color("#7cfc9a"), 0.7)
-			Fx.float_text(fx, monster_view.part_global("glande") + Vector2(0, -80), "Souffle annulé", Color("#7cfc9a"), 28)
+			Fx.float_text(fx, monster_view.center() + Vector2(0, -80), "%s annulé" % tele_name.split(" ")[0], Color("#7cfc9a"), 28)
 			await _wait(0.9)
 		"tempo":
 			var amount2: int = int(d.get("amount", 0))
@@ -845,9 +862,9 @@ func _refresh_selection() -> void:
 				("Dégâts ≈ %d · partie brisée" % est["damage"]) if m.get_part(sel_part) != null and m.get_part(sel_part).broken else "Dégâts ≈ %d · Rupture %d" % [est["damage"], est["break"]]]
 			if tele_resolve >= 0:
 				if GameState.proto:
-					lines.append("+ avant le Souffle" if int(est["resolve_at"]) < tele_resolve else "- après le Souffle")
+					lines.append(("+ avant " if int(est["resolve_at"]) < tele_resolve else "- après ") + _nom_annonce())
 				else:
-					lines.append("✔ avant le Souffle" if int(est["resolve_at"]) < tele_resolve else "✘ après le Souffle")
+					lines.append(("✔ avant " if int(est["resolve_at"]) < tele_resolve else "✘ après ") + _nom_annonce())
 			cards.append({"mode": mode, "title": MODE_TITLES[mode], "lines": lines, "selected": mode == sel_mode,
 				"color": MODE_COLORS[mode], "windup": float(battle.rules["modes"][mode]["windup"])})
 		hud.set_mode_cards(cards)
@@ -1029,6 +1046,14 @@ func _unhandled_input(event: InputEvent) -> void:
 		if pk >= KEY_1 and pk <= KEY_5 and pk - KEY_1 < ids.size():
 			sel_action = ids[pk - KEY_1]
 			_refresh_selection()
+
+
+## P6.1 : libellé de l'attaque annoncée dans les cartes de tempo (« le Souffle » pour le Vorgane, comme avant ;
+## sinon le nom réel de l'action annoncée, ex. « l'Assaut d'entraînement » du commandant).
+func _nom_annonce() -> String:
+	if tele_name.begins_with("Souffle"):
+		return "le Souffle"
+	return "« %s »" % tele_name
 
 
 func _cycle_target(dir: int) -> void:

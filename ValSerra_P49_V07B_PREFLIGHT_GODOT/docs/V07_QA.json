@@ -1,0 +1,86 @@
+{
+  "status": "EXTERNAL STRUCTURAL QA, no Godot playtest",
+  "number_models": 32,
+  "number_model_images": 15,
+  "number_placements": 648,
+  "placements_by_role": {
+    "tree": 31,
+    "backdrop": 26,
+    "rock": 33,
+    "understory": 188,
+    "pebble": 26,
+    "stream_plant": 16,
+    "path_stone": 28,
+    "herb": 177,
+    "grass": 105,
+    "flower": 18
+  },
+  "placements_by_model": {
+    "CommonTree_2": 16,
+    "CommonTree_4": 10,
+    "Pine_2": 11,
+    "Pine_4": 9,
+    "CommonTree_5": 8,
+    "Pine_1": 2,
+    "TwistedTree_1": 1,
+    "Rock_Medium_2": 11,
+    "Rock_Medium_3": 10,
+    "Rock_Medium_1": 12,
+    "Plant_7": 48,
+    "Bush_Common": 38,
+    "Plant_1": 49,
+    "Fern_1": 85,
+    "Pebble_Round_2": 13,
+    "Pebble_Round_4": 17,
+    "Grass_Wispy_Tall": 67,
+    "Pebble_Square_2": 4,
+    "RockPath_Round_Thin": 6,
+    "Pebble_Square_5": 5,
+    "RockPath_Square_Small_2": 9,
+    "Grass_Common_Short": 98,
+    "Grass_Wispy_Short": 59,
+    "Clover_2": 19,
+    "Grass_Common_Tall": 23,
+    "Flower_4_Group": 11,
+    "Flower_3_Group": 7
+  },
+  "placements_by_palette": {
+    "deep": 115,
+    "forest": 123,
+    "sage": 154,
+    "gold": 2,
+    "stone": 87,
+    "fern": 123,
+    "grass": 26,
+    "accent": 18
+  },
+  "tree_proposals_rejected": [
+    [
+      26,
+      15.3,
+      -12.8,
+      "Pine_2",
+      9.27,
+      1.2
+    ]
+  ],
+  "blocking_assets": 35,
+  "bounding_box": [
+    -18,
+    18,
+    -14,
+    14
+  ],
+  "terrain_grid": {
+    "x": 241,
+    "z": 189,
+    "triangles": 90240
+  },
+  "water_section_count": 24,
+  "routes_m": {
+    "main": 33.84,
+    "boucle_nord": 35.45,
+    "boucle_sud": 34.83
+  },
+  "valid": true
+}

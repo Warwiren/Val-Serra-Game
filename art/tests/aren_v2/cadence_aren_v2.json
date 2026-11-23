@@ -1,0 +1,103 @@
+{
+ "statut": "Aren V2 (face, dos, attente) — BANC D'ESSAI NON VALIDÉ ; préparé sans redessin depuis la planche « Aren – Animations de déplacement (V2) » (WebP avec perte)",
+ "pixel_m": 0.02,
+ "ligne_sol_px": 101,
+ "cycles": {
+  "walk_face": {
+   "hauteur_source_px": [
+    199,
+    199,
+    199,
+    198,
+    197,
+    199,
+    197,
+    198
+   ],
+   "facteur": 0.4484,
+   "hauteur_px": [
+    88,
+    88,
+    88,
+    88,
+    87,
+    88,
+    88,
+    89
+   ]
+  },
+  "walk_back": {
+   "hauteur_source_px": [
+    199,
+    200,
+    200,
+    199,
+    200,
+    201,
+    200,
+    200
+   ],
+   "facteur": 0.445,
+   "hauteur_px": [
+    88,
+    89,
+    89,
+    88,
+    89,
+    89,
+    89,
+    89
+   ]
+  },
+  "idle_face": {
+   "hauteur_source_px": [
+    216,
+    217,
+    216,
+    216,
+    216,
+    217,
+    216,
+    217
+   ],
+   "facteur": 0.412,
+   "hauteur_px": [
+    88,
+    89,
+    89,
+    88,
+    89,
+    88,
+    89,
+    89
+   ]
+  }
+ },
+ "sha256": {
+  "walk_face_0.png": "c27c3f09c547b3f8f28b8b560c20c4a04802bdb533674a3f673673d5d348a777",
+  "walk_face_1.png": "4b63114df3b91c3534d2a41f8b7fdcc195f062bb0a271b01b729d75ff24d8f7e",
+  "walk_face_2.png": "bfffbd75cfeca7e26cc4d3ce670742c6a43bd24b29b9a96667252a49a99d3309",
+  "walk_face_3.png": "ab2946492ce27c5c940c83381c621e698a19777874ec26496e7591fcd742add4",
+  "walk_face_4.png": "84b7fa710e3653bdd861b36b388b176dd3e091f0e9beb19fd6647261825b9677",
+  "walk_face_5.png": "bf958859fd3cd40e78a1476ae9b7603b59cbe13ce018112b58fc9f25ebd7d947",
+  "walk_face_6.png": "1c4d63c0f165b092fbac58a51a7c682cf9ee402b81317fa75c71db7d93023a13",
+  "walk_face_7.png": "d04a4f021eeb4eb84d42ed74f2844122ba6d7f57adb8781d6c1d1c32c53cf8d5",
+  "walk_back_0.png": "702dd2ed212019a1ae0760201d41179f645b0463c974c6f372a798762839b396",
+  "walk_back_1.png": "f1b91c596b451215385c692d60d7f40496694e596d5d489efecb405cc25bc13a",
+  "walk_back_2.png": "368fe8a5995c3132a5bb0ffb5cd2e031dbe6caad75e5a8d9820d9542ca4a371e",
+  "walk_back_3.png": "ba114dfba33e55258f71c8e1a3ec0fcb8fddb3e9583b84af2a5c846e6f45cef4",
+  "walk_back_4.png": "7c6bfd39dac3673258fdaea05d1681425c2648d48b64729e227b802e449e69bd",
+  "walk_back_5.png": "8eb11597b3c60fc2ab5b210d34ecc1a99e3021d93e2c87e0d3c29e019bd3253f",
+  "walk_back_6.png": "ab781e7f0339d25f77ee075538bd34d3b2cc00a8cb0a1919040e699dc3b239fa",
+  "walk_back_7.png": "834ff59618b6fe9d28149b73c89c3cec8f90b63a45c6c9ecb80ac16f653fa273",
+  "idle_face_0.png": "8d0b5c5ccaf3496c75cacc015802b6f3a1a9b89c0e017b140a6626d82207ea20",
+  "idle_face_1.png": "e0a856de9f6514d67dcee09612729482293e4a894f2159a81a2e5eb3e1ff797f",
+  "idle_face_2.png": "19cf417d8c1624bf2f618c7513481a05e4c68d253fb03701d8244c6fa110c84a",
+  "idle_face_3.png": "07b61c73e77656d939cb7b38c9252afab32b57e942933176cb2d320873571e1d",
+  "idle_face_4.png": "7086a5fe9d3c9f9f676e3c6bad923360fe62d980e32d9e0eb86cc8a6dc8f6ef2",
+  "idle_face_5.png": "b2cab27044ccee5bac6ee3746c343e3dac8270b383516fe66db6577f5259181b",
+  "idle_face_6.png": "1018bc547cfad4e81b1eb579a927c0474b9a64142a721ce629a80ee80ae4f0e0",
+  "idle_face_7.png": "4060f100d3ddcec275dc12191f4bf454e82c72f73c7035774bd9697f3648ddae",
+  "planche_source": "18f73a324c30e49673817ad9b6316eb5b2cc7ea578e54d8f56fafe6665a4f64e"
+ }
+}

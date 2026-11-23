@@ -1,0 +1,336 @@
+{
+  "version": "p3-v01",
+  "statut": "AJUSTEMENTS PROVISOIRES du prototype P3. Le fichier gabarits_blockout_v01.json (doc 06) reste la source, copié sans modification. Chaque entrée ci-dessous complète une donnée absente ou contradictoire ; elle est signalée dans docs/P3_PROTOTYPE_25D.md.",
+  "parametres": {
+    "pas_franchissable_m": 0.25,
+    "rayon_personnage_m": 0.28,
+    "vitesse_m_s": 3.6,
+    "ecart_compagnon_m": 1.0,
+    "assistance_escalier": 0.3,
+    "motif": "Valeurs du jeu existant converties en mètres (72 px/s = 3,6 m/s ; écart de file 20 px = 1 m). Pas franchissable et rayon : choix du prototype."
+  },
+  "escalier": {
+    "palier_bas_m": 0.22,
+    "palier_haut_m": 0.22,
+    "motif": "Emprise de 3 m pour une volée de 8 × 0,32 = 2,56 m : les 0,44 m restants sont répartis en deux paliers de raccord. Navigation : rampe continue de 0 à 1,2 m ; marches visuelles."
+  },
+  "hauteurs": {
+    "maison_murs_m": 2.6,
+    "maison_toit_m": 1.4,
+    "arbre_tronc_m": 2.4,
+    "arbre_feuillage_centre_m": 3.7,
+    "garde_corps_pont_m": 0.9,
+    "muret_terrasse_m": 0.45,
+    "mur_fond_terrasse_m": 2.0,
+    "haie_m": 0.7,
+    "motif": "Hauteurs absentes du doc 06 ; valeurs de test."
+  },
+  "regions_ajoutees": [
+    {
+      "id": "pied_terrasse",
+      "rect": [
+        9,
+        8,
+        21,
+        9
+      ],
+      "h": 0,
+      "motif": "Bande y = 8..9 entre la façade de la terrasse et terrain_bas, non attribuée par le doc 06. Rendue praticable au niveau 0 : sinon une collision invisible de 1 m séparerait le héros du pied du mur."
+    }
+  ],
+  "garde_corps_pont_x": [
+    21,
+    26
+  ],
+  "garde_corps_motif": "Garde-corps limités au-dessus des berges et de l'eau (x = 21..26) : au-dessus des rives (x = 20,5..21 et 26..26,5) le tablier recouvre le sol praticable, un garde-corps y serait traversé par le contournement.",
+  "riviere_visuelle_y": [
+    -14,
+    38
+  ],
+  "decor_marge": [
+    -14,
+    -14,
+    46,
+    38
+  ],
+  "decor_motif": "Sol de décor non praticable autour de l'aire 32 × 24 m, assez large pour qu'aucune vue (×2 à ×3) ne montre de vide ; la rivière et les berges y sont prolongées visuellement. Le sol de décor est en outre agrandi automatiquement pour couvrir toutes les positions de caméra autorisées (coins du cadre compris).",
+  "bordures": [
+    {
+      "id": "haie_ouest_n",
+      "seg": [
+        1,
+        9,
+        1,
+        12.4
+      ],
+      "h": 0,
+      "type": "haie"
+    },
+    {
+      "id": "haie_ouest_s",
+      "seg": [
+        1,
+        15.6,
+        1,
+        22
+      ],
+      "h": 0,
+      "type": "haie"
+    },
+    {
+      "id": "haie_nord_ouest",
+      "seg": [
+        1,
+        9,
+        9,
+        9
+      ],
+      "h": 0,
+      "type": "haie"
+    },
+    {
+      "id": "haie_sud",
+      "seg": [
+        1,
+        22,
+        21,
+        22
+      ],
+      "h": 0,
+      "type": "haie"
+    },
+    {
+      "id": "haie_est_micro",
+      "seg": [
+        21,
+        9,
+        21,
+        22
+      ],
+      "h": 0,
+      "type": "haie",
+      "micro_seul": true
+    },
+    {
+      "id": "muret_terrasse_o",
+      "seg": [
+        9,
+        8,
+        12.8,
+        8
+      ],
+      "h": 1.2,
+      "type": "muret"
+    },
+    {
+      "id": "muret_terrasse_e",
+      "seg": [
+        15.2,
+        8,
+        21,
+        8
+      ],
+      "h": 1.2,
+      "type": "muret"
+    },
+    {
+      "id": "muret_terrasse_cote_o",
+      "seg": [
+        9,
+        2,
+        9,
+        8
+      ],
+      "h": 1.2,
+      "type": "muret"
+    },
+    {
+      "id": "muret_terrasse_cote_e",
+      "seg": [
+        21,
+        2,
+        21,
+        8
+      ],
+      "h": 1.2,
+      "type": "muret"
+    },
+    {
+      "id": "mur_fond_terrasse",
+      "seg": [
+        9,
+        2,
+        21,
+        2
+      ],
+      "h": 0,
+      "type": "mur",
+      "haut": 3.2,
+      "exterieur": true,
+      "cote_h": 1.2,
+      "motif": "Mur de soutènement derrière la terrasse, posé À L'EXTÉRIEUR (y < 2) : le passage de 1 m derrière la maison (y = 2..3) reste entier."
+    },
+    {
+      "id": "haie_est_nord",
+      "seg": [
+        26,
+        10,
+        31,
+        10
+      ],
+      "h": 0,
+      "type": "haie",
+      "temoin_seul": true
+    },
+    {
+      "id": "haie_est_sud",
+      "seg": [
+        26,
+        20,
+        31,
+        20
+      ],
+      "h": 0,
+      "type": "haie",
+      "temoin_seul": true
+    },
+    {
+      "id": "haie_est_n",
+      "seg": [
+        31,
+        10,
+        31,
+        12.4
+      ],
+      "h": 0,
+      "type": "haie",
+      "temoin_seul": true
+    },
+    {
+      "id": "haie_est_s",
+      "seg": [
+        31,
+        15.1,
+        31,
+        20
+      ],
+      "h": 0,
+      "type": "haie",
+      "temoin_seul": true
+    }
+  ],
+  "bordures_motif": "Toute limite praticable est rendue VISIBLE (haie, muret, mur, rebord, berge) : aucune collision invisible.",
+  "obstacles": [
+    {
+      "id": "caisses_place",
+      "rect": [
+        4.0,
+        10.4,
+        5.4,
+        11.6
+      ],
+      "h": 0,
+      "haut": 0.9
+    },
+    {
+      "id": "charrette",
+      "rect": [
+        9.0,
+        19.0,
+        11.4,
+        20.2
+      ],
+      "h": 0,
+      "haut": 1.1,
+      "temoin_seul": true
+    },
+    {
+      "id": "tonneaux",
+      "rect": [
+        17.4,
+        17.6,
+        18.6,
+        18.8
+      ],
+      "h": 0,
+      "haut": 1.0
+    },
+    {
+      "id": "caisse_rive_est",
+      "rect": [
+        28.2,
+        17.0,
+        29.2,
+        18.0
+      ],
+      "h": 0,
+      "haut": 0.8,
+      "temoin_seul": true
+    }
+  ],
+  "obstacles_motif": "Le doc 05 demande des obstacles sans les placer : positions de test hors du parcours principal.",
+  "pnj": {
+    "id": "pnj_terrasse",
+    "xy": [
+      11,
+      5
+    ],
+    "h": 1.2,
+    "r": 0.35,
+    "portee_m": 1.4,
+    "sprite": "pnj",
+    "repliques": [
+      "Bienvenue sur la terrasse.",
+      "D'ici, on voit le pont et la sortie, à l'est.",
+      "Redescends par l'escalier : le rebord ne se saute pas."
+    ]
+  },
+  "poi": [
+    {
+      "id": "borne_detour",
+      "xy": [
+        7.5,
+        15.2
+      ],
+      "h": 0,
+      "r": 0.22,
+      "portee_m": 1.2,
+      "temoin_seul": true,
+      "texte": "Borne gravée : « Val'Serra — route de l'est ». (indice du détour, derrière l'arbre)",
+      "motif": "Le doc 05 prévoit un indice ou une borne derrière l'arbre, sans position : placée au nord de l'arbre pour être masquée par le feuillage."
+    }
+  ],
+  "entree": {
+    "xy": [
+      2,
+      14
+    ],
+    "h": 0,
+    "porte": [
+      1,
+      12.4,
+      1,
+      15.6
+    ]
+  },
+  "sorties": [
+    {
+      "id": "sortie_est",
+      "rect": [
+        30.3,
+        12.4,
+        31.0,
+        15.1
+      ],
+      "porte": [
+        31,
+        12.4,
+        31,
+        15.1
+      ],
+      "vers": "res://data/explore25/instance_2_fictive.json",
+      "temoin_seul": true
+    }
+  ],
+  "sorties_motif": "Sortie G(30, 13,75) : déclencheur sur la largeur du pont, devant un portail visible en x = 31."
+}

@@ -1,0 +1,407 @@
+#!/usr/bin/env python3
+"""P6 — Génère les données de zone du Colisée de Val'Serra (blockout jouable) au format du socle 2.5D.
+
+Sorties :
+  data/p6/colisee.json          — Colisée : vestiaires, salle d'attente, arène, coursive, sortie est
+  data/p6/quartier_initial.json — point de transition provisoire (premier quartier de la ville)
+
+Repère (celui de src/explore25/world25.gd) : x vers l'est, y vers le sud du plan, en mètres ; h = altitude.
+Le plan de référence (« Plan de la zone d'ouverture ») est suivi pour l'organisation, pas au pixel : l'ensemble est
+ramené à environ 55 % de l'échelle dessinée (arène de 25 × 18 m au lieu d'environ 49 × 39 m) pour garder des
+traversées courtes à la vitesse de marche du projet (2,2 m/s).
+
+Le socle ne gère que des surfaces rectangulaires : l'arène ovale est une surface rectangulaire entourée d'un ANNEAU
+de petits blocs (podium de 1,4 m) qui suit l'ellipse ; les coins hors de l'anneau sont inaccessibles. L'habillage
+(sable ovale, gradins, loge) est construit par la scène (scenes/p6/colisee.gd) à partir de la section « p6 ».
+
+Usage : python3 tools/p6/build_colisee.py
+
+P6.2-D : longueur du tunnel sud paramétrable. Le bloc sud (salle d'attente, passage, vestiaires, leur mobilier, leurs
+lumières) est décalé vers le sud de (longueur - 6,5) m ; le tunnel est étiré d'autant. La valeur est écrite dans les
+données (« decalage_sud ») : la scène l'applique aux PNJ et au décor posé par l'habillage, les parcours de test aussi.
+Variantes de comparaison : colisee_tunnel_A.json (6,5 m), _B (8,5 m), _C (9,5 m) ; colisee.json = longueur retenue.
+"""
+import json
+import math
+import os
+
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# ------------------------------------------------------------------------------------------------ gabarit
+ARENE_C = (26.0, 23.0)          # centre du sable
+ARENE_R = (12.5, 9.0)           # demi-axes du sable (m)
+ANNEAU_EP = 0.5                 # épaisseur du podium
+ANNEAU_H = 1.4                  # hauteur du podium
+GRADINS_PROF = 4.6              # profondeur des gradins (5 rangs)
+
+MUR_EP = 0.4
+H_NORD = 3.0                    # murs vus de face (fond des pièces)
+H_COTE = 2.6                    # murs latéraux
+H_SUD = 1.0                     # murs « coupés » côté caméra (sud) : l'intérieur reste lisible
+
+# Pièces praticables : id -> [x0, y0, x1, y1], sol (matière de l'habillage)
+PIECES = {
+    "vestiaires":        ([16.0, 46.5, 36.0, 55.0], "plancher"),
+    "passage_vestiaires": ([24.5, 44.5, 27.5, 46.5], "paves"),     # P6.2 : 3 m, aligné sur la salle et le tunnel
+    "salle_attente":     ([20.0, 37.5, 32.0, 44.5], "paves"),
+    "tunnel_sud":        ([24.5, 31.0, 27.5, 37.5], "paves"),
+    "arene":             ([13.5, 14.0, 38.5, 32.0], "sable"),
+    "tunnel_est":        ([38.0, 21.5, 44.0, 24.5], "paves"),
+    "coursive":          ([44.0, 12.0, 56.0, 34.0], "paves"),
+    "passage_infirmerie": ([45.5, 34.0, 47.5, 35.0], "paves"),
+    "infirmerie":        ([44.0, 35.0, 49.5, 41.0], "plancher"),
+    "couloir_sortie":    ([56.0, 21.5, 65.0, 24.5], "paves"),
+}
+# Pièces visibles mais non accessibles (porte fermée) : sol dessiné, aucune surface praticable
+PIECES_FERMEES = {
+    "reserve": ([50.5, 35.0, 56.0, 41.0], "plancher"),
+}
+
+
+def rect(x0, y0, x1, y1):
+    return [round(x0, 3), round(y0, 3), round(x1, 3), round(y1, 3)]
+
+
+def murs_piece(pid, r, ouvertures, cotes="nsoe", hauteurs=None):
+    """Murs autour du rectangle r (à l'extérieur), avec ouvertures [(côté, a, b)] le long du côté."""
+    x0, y0, x1, y1 = r
+    t = MUR_EP
+    hs = {"n": H_NORD, "s": H_SUD, "o": H_COTE, "e": H_COTE}
+    hs.update(hauteurs or {})
+    out = []
+    for cote in cotes:
+        if cote in "ns":
+            y = y0 - t if cote == "n" else y1
+            a0, a1 = x0 - t, x1 + t
+            segs = _decoupe(a0, a1, [(a, b) for c, a, b in ouvertures if c == cote])
+            for i, (a, b) in enumerate(segs):
+                out.append({"id": "cmur_%s_%s%d" % (pid, cote, i), "rect": rect(a, y, b, y + t), "h": 0.0, "haut": hs[cote]})
+        else:
+            x = x0 - t if cote == "o" else x1
+            segs = _decoupe(y0, y1, [(a, b) for c, a, b in ouvertures if c == cote])
+            for i, (a, b) in enumerate(segs):
+                out.append({"id": "cmur_%s_%s%d" % (pid, cote, i), "rect": rect(x, a, x + t, b), "h": 0.0, "haut": hs[cote]})
+    return out
+
+
+def _decoupe(a0, a1, trous):
+    segs = []
+    cur = a0
+    for a, b in sorted(trous):
+        if a - cur > 0.05:
+            segs.append((cur, a))
+        cur = max(cur, b)
+    if a1 - cur > 0.05:
+        segs.append((cur, a1))
+    return segs
+
+
+def anneau():
+    """Podium de l'arène : blocs de 0,55 m tous les 0,42 m le long de l'ellipse, interrompus aux deux tunnels."""
+    cx, cy = ARENE_C
+    rx, ry = ARENE_R[0] + ANNEAU_EP / 2.0, ARENE_R[1] + ANNEAU_EP / 2.0
+    n = 170
+    out = []
+    for i in range(n):
+        a = 2 * math.pi * i / n
+        x, y = cx + rx * math.cos(a), cy + ry * math.sin(a)
+        if 24.35 < x < 27.65 and y > cy:          # tunnel sud (salle d'attente)
+            continue
+        if 21.35 < y < 24.65 and x > cx:          # tunnel est (coursive)
+            continue
+        h = 0.275
+        out.append({"id": "anneau_%03d" % i, "rect": rect(x - h, y - h, x + h, y + h), "h": 0.0, "haut": ANNEAU_H})
+    return out
+
+
+TUNNEL_REF = 6.5                # longueur du tunnel sud de P6 (y 31 -> 37,5, dont 5,5 m couverts au-delà de l'anneau)
+TUNNEL_VARIANTES = {"A": 6.5, "B": 8.5, "C": 9.5}
+TUNNEL_RETENU = "B"             # P6.2-D : proposition (8,5 m), comparaison A / C en F6 (docs/P6_2D_COLISEE_COMPLET.md)
+SUD_Y = 37.0                    # au-delà (vers le sud), entre x 15 et 37 : bloc sud décalé
+SUD_X = (15.0, 37.0)
+
+
+def _decaler(o, dy, cle=""):
+    """Décale le bloc sud de dy (rectangles entièrement au sud : déplacés ; à cheval : étirés ; points : déplacés)."""
+    if isinstance(o, dict):
+        return {k: _decaler(v, dy, k) for k, v in o.items()}
+    if isinstance(o, list):
+        nums = all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in o)
+        if nums and len(o) >= 4 and cle not in ("lumieres",) and SUD_X[0] <= o[0] <= SUD_X[1] and SUD_X[0] <= o[2] <= SUD_X[1] and o[3] > o[1]:
+            r = list(o)
+            if r[1] >= SUD_Y:
+                r[1] = round(r[1] + dy, 3)
+            if r[3] >= SUD_Y:
+                r[3] = round(r[3] + dy, 3)
+            return r
+        if nums and len(o) in (2, 3, 5) and SUD_X[0] <= o[0] <= SUD_X[1] and o[1] >= SUD_Y:
+            r = list(o)
+            r[1] = round(r[1] + dy, 3)
+            return r
+        return [_decaler(v, dy, cle if cle == "lumieres" else "") for v in o]
+    return o
+
+
+def colisee(variante=None):
+    variante = variante or TUNNEL_RETENU
+    dy = TUNNEL_VARIANTES[variante] - TUNNEL_REF
+    return _finir(_colisee_base(), dy, variante)
+
+
+def _finir(zone, dy, variante):
+    z = _decaler(zone, dy) if dy != 0.0 else zone
+    p6 = z["ajustements"]["p6"]
+    p6["decalage_sud"] = {"x": list(SUD_X), "y": SUD_Y, "dy": dy, "tunnel": variante, "longueur_m": TUNNEL_REF + dy}
+    p6["camera_vue_dessus"][3] = round(p6["camera_vue_dessus"][3] + dy, 3)
+    z["world"]["extent_m"][1] = round(z["world"]["extent_m"][1] + dy, 3)
+    z["ajustements"]["decor_marge"][3] = round(z["ajustements"]["decor_marge"][3] + dy, 3)
+    vt = p6["vue_tunnel"]
+    vt["entree"] = round(37.5 + dy, 3)
+    return z
+
+
+def _colisee_base():
+    murs = []
+    P = {k: v[0] for k, v in PIECES.items()}
+    murs += murs_piece("vestiaires", P["vestiaires"], [("n", 24.5, 27.5)])
+    murs += murs_piece("passage_vestiaires", P["passage_vestiaires"], [], cotes="oe", hauteurs={"o": 2.6, "e": 2.6})
+    murs += murs_piece("salle_attente", P["salle_attente"],
+                       [("n", 24.5, 27.5), ("s", 24.5, 27.5)])
+    murs += murs_piece("tunnel_sud", [24.5, 32.0, 27.5, 37.5], [], cotes="oe")
+    murs += murs_piece("tunnel_est", [38.4, 21.5, 44.0, 24.5], [], cotes="ns", hauteurs={"s": 1.6})
+    murs += murs_piece("coursive", P["coursive"],
+                       [("o", 21.5, 24.5), ("e", 21.5, 24.5), ("s", 45.5, 47.5), ("s", 52.0, 54.0),
+                        ("n", 49.0, 51.0), ("e", 15.0, 17.0)])
+    murs += murs_piece("couloir_sortie", P["couloir_sortie"], [("e", 21.5, 24.5)], cotes="nse", hauteurs={"s": 1.2})
+    murs += murs_piece("infirmerie", P["infirmerie"], [("n", 45.5, 47.5)], cotes="soe")
+    murs += murs_piece("reserve", PIECES_FERMEES["reserve"][0], [], cotes="soe")
+    # cloison nord de l'infirmerie et de la réserve = mur sud de la coursive (déjà posé)
+
+    # Mobilier et accessoires (obstacles) : id -> rect, hauteur
+    meubles = [
+        # vestiaires : casiers contre le mur nord et le mur ouest, bancs, râtelier, mannequin, bannière de la Guilde
+        ("casiers_no", [16.2, 46.6, 22.6, 47.2], 2.0), ("casiers_ne", [29.4, 46.6, 35.8, 47.2], 2.0),
+        ("casiers_o", [16.1, 49.0, 16.7, 53.5], 2.0),
+        ("banc_v1", [19.0, 50.2, 22.4, 50.75], 0.45), ("banc_v2", [29.6, 50.2, 33.0, 50.75], 0.45),
+        ("ratelier_v", [34.9, 49.2, 35.7, 52.6], 1.6), ("mannequin_v", [31.6, 53.3, 32.4, 54.1], 1.7),
+        ("coffre_v", [16.4, 54.0, 17.6, 54.8], 0.8),
+        # salle d'attente : bancs latéraux, râtelier
+        ("banc_a1", [20.3, 40.0, 20.9, 43.4], 0.45), ("banc_a2", [31.1, 40.0, 31.7, 43.4], 0.45),
+        ("ratelier_a", [28.4, 37.6, 31.6, 38.2], 1.6),
+        # coursive : quatre piliers
+        ("pilier_1", [46.6, 16.6, 47.4, 17.4], 3.4), ("pilier_2", [52.6, 16.6, 53.4, 17.4], 3.4),
+        ("pilier_3", [46.6, 28.6, 47.4, 29.4], 3.4), ("pilier_4", [52.6, 28.6, 53.4, 29.4], 3.4),
+        # infirmerie : deux lits, une table
+        ("lit_1", [44.3, 37.2, 46.0, 38.2], 0.6), ("lit_2", [44.3, 39.4, 46.0, 40.4], 0.6),
+        ("table_i", [48.0, 38.6, 49.2, 39.6], 0.8),
+        # P6.3 : coursive — bancs contre les murs, tonneaux près de la réserve (hors des axes de circulation)
+        ("banc_c1", [44.2, 16.2, 44.75, 19.0], 0.45), ("banc_c2", [55.25, 27.2, 55.8, 30.0], 0.45),
+        ("tonneaux_c", [54.5, 32.7, 55.9, 33.6], 1.0),
+        # réserve (vue à travers le mur bas) : caisses
+        ("caisses_r", [51.0, 38.6, 53.2, 40.6], 1.2), ("tonneaux_r", [54.0, 35.6, 55.6, 36.8], 1.0),
+    ]
+    obstacles = murs + anneau()
+    for mid, r, h in meubles:
+        obstacles.append({"id": "meuble_" + mid, "rect": rect(*r), "h": 0.0, "haut": h})
+
+    surfaces = []
+    for pid, (r, _sol) in PIECES.items():
+        x0, y0, x1, y1 = r
+        surfaces.append({"id": pid, "category": "surface", "polygon_xy_m": [[x0, y0], [x1, y0], [x1, y1], [x0, y1]],
+                         "height_m": 0, "walkable": True})
+
+    # Portes : fermées = solides posés par la scène selon l'état de la progression.
+    portes = [
+        {"id": "grille_arene_est", "rect": rect(38.5, 21.5, 38.9, 24.5), "ouverte_a_partir_de": "tutorial_completed",
+         "type": "grille", "texte_ferme": "La grille est baissée. Le commandant vous attend au centre de l'arène."},
+        {"id": "porte_sortie_est", "rect": rect(56.6, 21.5, 57.0, 24.5), "ouverte_a_partir_de": "tutorial_completed",
+         "type": "porte", "texte_ferme": "La porte de la ville est fermée pendant les évaluations."},
+        {"id": "porte_loge", "rect": rect(49.0, 11.6, 51.0, 12.0), "type": "porte", "marque": "fermee",
+         "texte_ferme": "Loge officielle — réservée aux autorités de la Guilde."},
+        {"id": "porte_gradins_est", "rect": rect(56.0, 15.0, 56.4, 17.0), "type": "porte", "marque": "fermee",
+         "texte_ferme": "Accès aux gradins est — réservé au public."},
+        {"id": "porte_reserve", "rect": rect(52.0, 34.0, 54.0, 34.4), "type": "porte", "marque": "fermee",
+         "texte_ferme": "Réserve — personnel du Colisée uniquement."},
+        {"id": "porte_attente_o", "rect": rect(19.6, 40.0, 20.0, 42.0), "type": "porte", "marque": "fermee",
+         "texte_ferme": "Couloir de service. La porte est verrouillée."},
+        {"id": "porte_attente_e", "rect": rect(32.0, 40.0, 32.4, 42.0), "type": "porte", "marque": "fermee",
+         "texte_ferme": "Couloir de service. La porte est verrouillée."},
+        {"id": "porte_vestiaires_o", "rect": rect(15.6, 50.6, 16.0, 52.6), "type": "porte", "marque": "fermee",
+         "texte_ferme": "Sortie des vestiaires vers la rue. Fermée : les recrues passent par l'arène."},
+    ]
+    # Points d'examen (accessoires) : texte court
+    examens = [
+        {"id": "ex_casiers", "xy": [19.4, 47.6], "portee_m": 1.4, "texte": "Des casiers de recrues. Le vôtre est vide : vous portez déjà votre équipement."},
+        {"id": "ex_ratelier_v", "xy": [34.4, 50.9], "portee_m": 1.4, "texte": "Un râtelier d'armes d'entraînement émoussées."},
+        {"id": "ex_mannequin", "xy": [32.0, 53.0], "portee_m": 1.3, "texte": "Un mannequin d'entraînement, couvert d'entailles."},
+        {"id": "ex_banniere_v", "xy": [26.0, 52.9], "portee_m": 1.5, "texte": "La bannière de la Guilde des Chasseurs : une larme d'Aether entre deux lames."},
+        {"id": "ex_lits", "xy": [46.6, 38.8], "portee_m": 1.2, "texte": "Des lits de camp. L'odeur des onguents flotte dans la pièce."},
+    ]
+    sortie = {"id": "sortie_est", "rect": rect(63.6, 21.5, 65.0, 24.5), "vers": "res://data/p6/quartier_initial.json",
+              "porte": [65.0, 21.5, 65.0, 24.5], "arrivee": [4.2, 8.0, 0.0]}
+
+    p6 = {
+        "nom": "Colisée de Val'Serra",
+        "zone": "colisee",
+        "sols": {k: v[1] for k, v in PIECES.items()},
+        "pieces_fermees": {k: {"rect": v[0], "sol": v[1]} for k, v in PIECES_FERMEES.items()},
+        "arene": {"centre": list(ARENE_C), "rayons": list(ARENE_R), "anneau_ep": ANNEAU_EP, "anneau_h": ANNEAU_H,
+                  "gradins_prof": GRADINS_PROF, "rangs": 5,
+                  "tunnels": [rect(24.5, 31.0, 27.5, 37.5), rect(38.0, 21.5, 44.0, 24.5)],
+                  "loge": {"centre": [35.4, 10.4], "taille": [6.0, 3.2], "h": 3.6}},
+        "portes": portes,
+        "examens": examens,
+        "zones_nommees": [
+            {"id": "vestiaires", "nom": "Vestiaires", "rect": PIECES["vestiaires"][0]},
+            {"id": "salle_attente", "nom": "Salle d'attente", "rect": [20.0, 37.5, 32.0, 46.5]},
+            {"id": "arene", "nom": "Arène centrale", "rect": [13.5, 14.0, 38.5, 32.0]},
+            {"id": "coursive", "nom": "Coursive", "rect": [44.0, 12.0, 56.0, 34.0]},
+            {"id": "infirmerie", "nom": "Infirmerie", "rect": PIECES["infirmerie"][0]},
+            {"id": "sortie", "nom": "Sortie est", "rect": PIECES["couloir_sortie"][0]},
+        ],
+        "camera_vue_dessus": [8.0, 6.0, 66.0, 57.0],
+        # P6.2-B — linteaux des portes intérieures (décor : encadrement, structure continue au-dessus de 2,7 m)
+        "linteaux": [[24.5, 46.1, 27.5, 46.5], [24.5, 44.5, 27.5, 44.9], [24.5, 37.1, 27.5, 37.5],
+                     # P6.2-C : arc de la bouche du tunnel côté arène [x0, y0, x1, y1, bas, haut] (bas : il encadre la vue
+                     # vers le commandant sans couper le sable ; coupé dès qu'Aren est dans l'arène)
+                     [24.1, 31.6, 27.9, 32.0, 2.3, 3.1],
+                     # P6.3 : ouvertures des murs prolongés du reste du bâtiment (au-dessus : un trou noir jusqu'à 6 m)
+                     [49.0, 11.6, 51.0, 12.0], [56.0, 15.0, 56.4, 17.0], [43.6, 21.5, 44.0, 24.5],
+                     [56.0, 21.5, 56.4, 24.5], [65.0, 21.5, 65.4, 24.5],
+                     # P6.3.1 : passage coursive / infirmerie (la cloison est désormais rendue sur toute la hauteur)
+                     [45.5, 34.0, 47.5, 34.4], [52.0, 34.0, 54.0, 34.4]],
+        # P6.2-C : vue depuis le tunnel = lignes de vue réelles à travers sa bouche (voir src/p6/vue_tunnel.gdshader)
+        # P6.4.3 : rectangle « bâtiment » jamais masqué à partir du MILIEU du mur nord de la salle (37,3 et non plus 37,0) :
+        # les piles de la galerie B (P6.4.1) dépassent sa façade jusqu'à 37,06 et apparaissaient seules sur le noir
+        "vue_tunnel": {"bouche": [24.5, 27.5, 32.0], "interieur": [[15.5, 37.3, 36.5, 56.0], [24.0, 31.95, 28.0, 37.6]],
+                       "plein": 32.0, "libre": 29.6, "couloir_x": [26.0, 2.0, 4.0]},
+        # P6.2 — secteurs de visibilité (prototype : vestiaires et salle d'attente ; le reste = « EXT », affiché comme avant)
+        "secteurs": [
+            {"id": "S1", "nom": "Vestiaires", "rects": [PIECES["vestiaires"][0]], "voisins": ["P12"], "fond": "sombre", "plafond_h": 3.4},
+            {"id": "P12", "nom": "Passage des vestiaires", "rects": [PIECES["passage_vestiaires"][0]], "voisins": ["S1", "S2"],
+             "fond": "sombre", "plafond_h": 3.2, "camera": False},
+            {"id": "S2", "nom": "Salle d'attente", "rects": [PIECES["salle_attente"][0]], "voisins": ["P12", "S3"], "fond": "sombre", "plafond_h": 3.4},
+            # P6.2-C : le tunnel est un intérieur (sombre, couvert) ; l'arène n'y est vue qu'à travers sa bouche
+            {"id": "S3", "nom": "Tunnel des combattants", "rects": [[24.5, 32.0, 27.5, 37.5]], "voisins": ["S2", "EXT"], "fond": "sombre",
+             "plafond_h": 3.1, "camera": False},
+            # P6.2-C : l'arène, « zone ouverte » : pièce de référence pour les coupes (les murs du bâtiment situés devant
+            # perdent leur partie haute) ; son décor reste celui du niveau (EXT)
+            {"id": "S4", "nom": "Arène", "rects": [[13.5, 14.0, 38.5, 32.0]], "voisins": ["S3", "S5", "EXT"], "fond": "ciel",
+             "zone_ouverte": True, "camera": False},
+            # P6.2-D : reste du Colisée. Tunnel est = passage couvert sous les gradins (l'arène et la coursive restent en vue
+            # à ses deux bouts) ; coursive = galerie intérieure ; infirmerie ; réserve (fermée : jamais active, vue en coupe
+            # depuis la coursive) ; couloir de sortie vers la ville
+            {"id": "S5", "nom": "Tunnel est", "rects": [[38.5, 21.5, 44.0, 24.5]], "voisins": ["S4", "S6", "EXT"], "fond": "sombre",
+             "plafond_h": 3.2, "camera": False},
+            {"id": "S6", "nom": "Coursive", "rects": [PIECES["coursive"][0]], "voisins": ["S5", "S7", "S9"], "fond": "sombre",
+             "plafond_h": 3.6, "camera": False,
+             # l'arène, vue par la bouche du tunnel est, s'efface à mesure qu'Aren s'éloigne du seuil (pas de bascule)
+             "voile_pos": ["x", 44.2, 46.8]},
+            {"id": "S7", "nom": "Infirmerie", "rects": [[45.5, 34.0, 47.5, 35.0], PIECES["infirmerie"][0]], "voisins": ["S6"],
+             "fond": "sombre", "plafond_h": 3.2, "camera": False},
+            {"id": "S8", "nom": "Réserve", "rects": [PIECES_FERMEES["reserve"][0]], "voisins": [], "fond": "sombre",
+             "plafond_h": 3.2, "camera": False},
+            {"id": "S9", "nom": "Couloir de sortie", "rects": [PIECES["couloir_sortie"][0]], "voisins": ["S6"], "fond": "sombre",
+             "plafond_h": 3.4, "camera": False},
+        ],
+        # P6.2-D : lumière du jour aux bouches vers l'extérieur [x, y, h, énergie, portée] (tunnel sud : voir la scène)
+        "jours": [[64.4, 23.0, 2.2, 1.5, 6.5], [38.8, 23.0, 2.2, 1.2, 5.5]],
+        # [x, y, h, dx, dz] : applique murale ; (dx, dz) = décalage de la lumière vers la pièce (P6.2 : murs latéraux
+        # et mur du fond des vestiaires, plus aucune lumière plaquée devant les casiers)
+        "lumieres": [[16.2, 48.3, 2.3, 0.7, 0.0], [35.8, 54.0, 2.3, -0.7, 0.0], [23.4, 46.55, 2.5, 0.0, 0.6], [28.6, 46.55, 2.5, 0.0, 0.6],
+                     [20.25, 38.6, 2.3, 0.7, 0.0], [31.75, 38.6, 2.3, -0.7, 0.0], [26.0, 37.55, 2.6, 0.0, 0.6],
+                     [45.0, 12.6, 2.6], [55.0, 12.6, 2.6], [47.0, 35.6, 2.0], [60.0, 22.0, 2.2]],
+    }
+    zone = {
+        "project": "Val'Serra — Les Larmes d'Aether",
+        "stage": "P6 — Colisée de Val'Serra, ouverture (blockout jouable)",
+        "godot_target": "4.7.2",
+        "_note": "Généré par tools/p6/build_colisee.py — ne pas éditer à la main.",
+        "world": {"axes": "x droite (est), y bas du plan (sud), h altitude", "unit": "mètre", "extent_m": [66, 58],
+                  "reference_native_px_per_m": 20},
+        "checkpoints": [
+            {"id": "A", "name": "départ (vestiaires)", "xy_m": [26.0, 50.6], "height_m": 0},
+            {"id": "B", "name": "salle d'attente", "xy_m": [26.0, 41.0], "height_m": 0},
+            {"id": "C", "name": "entrée de l'arène", "xy_m": [26.0, 30.5], "height_m": 0},
+            {"id": "D", "name": "commandant", "xy_m": [26.0, 21.0], "height_m": 0},
+            {"id": "E", "name": "coursive", "xy_m": [50.0, 23.0], "height_m": 0},
+            {"id": "F", "name": "sortie est", "xy_m": [64.0, 23.0], "height_m": 0},
+        ],
+        "assets": surfaces,
+        "ajustements": {
+            "parametres": {"pas_franchissable_m": 0.25, "rayon_personnage_m": 0.28, "vitesse_m_s": 2.2,
+                           "vitesse_course_m_s": 3.6, "ecart_compagnon_m": 1.0, "assistance_escalier": 0.3},
+            "decor_marge": [-6, -6, 72, 64],
+            "obstacles": obstacles,
+            "entree": {"xy": [26.0, 50.6], "h": 0.0},
+            "sorties": [sortie],
+            "p6": p6,
+        },
+    }
+    return zone
+
+
+def quartier():
+    rue = [2.0, 4.0, 30.0, 12.0]
+    murs = murs_piece("rue", rue, [("o", 6.5, 9.5), ("e", 6.5, 9.5)], hauteurs={"n": 3.4, "s": 1.0})
+    obstacles = murs + [
+        {"id": "meuble_barriere_e", "rect": rect(29.4, 6.5, 30.0, 9.5), "h": 0.0, "haut": 1.1},
+        {"id": "meuble_etal_1", "rect": rect(9.0, 4.2, 12.0, 5.2), "h": 0.0, "haut": 1.2},
+        {"id": "meuble_etal_2", "rect": rect(18.0, 4.2, 21.0, 5.2), "h": 0.0, "haut": 1.2},
+        {"id": "meuble_fontaine", "rect": rect(14.4, 9.6, 16.6, 11.6), "h": 0.0, "haut": 0.8},
+    ]
+    p6 = {
+        "nom": "Val'Serra — quartier du Colisée (transition provisoire)",
+        "zone": "quartier",
+        "sols": {"rue": "paves"},
+        "portes": [
+            {"id": "portes_colisee", "rect": rect(1.6, 6.5, 2.0, 9.5), "type": "grille", "marque": "fermee",
+             "fermee_a_partir_de": "coliseum_exited",
+             "texte_ferme": "Les portes du Colisée se sont refermées derrière vous. Elles rouvriront plus tard."},
+        ],
+        "examens": [
+            {"id": "ex_panneau_guilde", "xy": [27.6, 8.0], "portee_m": 1.8,
+             "texte": "« Guilde des Chasseurs — par la grande rue ». (Fin de l'introduction : la zone de la Guilde reste à construire.)"},
+            {"id": "ex_fontaine", "xy": [15.5, 9.0], "portee_m": 1.6, "texte": "Une fontaine. L'eau scintille d'un léger reflet d'Aether."},
+        ],
+        "zones_nommees": [{"id": "rue", "nom": "Quartier du Colisée", "rect": rue}],
+        "camera_vue_dessus": [0.0, 0.0, 32.0, 16.0],
+        "lumieres": [[8.0, 4.6, 2.6], [24.0, 4.6, 2.6]],
+        "pnj_zone": "quartier",
+    }
+    return {
+        "project": "Val'Serra — Les Larmes d'Aether",
+        "stage": "P6 — point de transition provisoire vers la ville",
+        "godot_target": "4.7.2",
+        "_note": "Généré par tools/p6/build_colisee.py — ne pas éditer à la main.",
+        "world": {"axes": "x droite, y bas du plan, h altitude", "unit": "mètre", "extent_m": [32, 16],
+                  "reference_native_px_per_m": 20},
+        "checkpoints": [{"id": "A", "name": "sortie du Colisée", "xy_m": [4.2, 8.0], "height_m": 0}],
+        "assets": [{"id": "rue", "category": "surface", "polygon_xy_m": [[2, 4], [30, 4], [30, 12], [2, 12]],
+                    "height_m": 0, "walkable": True}],
+        "ajustements": {
+            "parametres": {"pas_franchissable_m": 0.25, "rayon_personnage_m": 0.28, "vitesse_m_s": 2.2,
+                           "vitesse_course_m_s": 3.6, "ecart_compagnon_m": 1.0, "assistance_escalier": 0.3},
+            "decor_marge": [-6, -6, 38, 22],
+            "obstacles": obstacles,
+            "entree": {"xy": [4.2, 8.0], "h": 0.0},
+            "sorties": [],
+            "p6": p6,
+        },
+    }
+
+
+def main():
+    out = os.path.join(REPO, "data", "p6")
+    os.makedirs(out, exist_ok=True)
+    sorties = [("colisee.json", colisee()), ("quartier_initial.json", quartier())]
+    sorties += [("colisee_tunnel_%s.json" % v, colisee(v)) for v in TUNNEL_VARIANTES]
+    for name, data in sorties:
+        with open(os.path.join(out, name), "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=1)
+            f.write("\n")
+        print("écrit", os.path.join("data", "p6", name), len(data["ajustements"]["obstacles"]), "obstacles")
+
+
+if __name__ == "__main__":
+    main()
