@@ -148,6 +148,12 @@
   leur mur (`Secteurs.attacher`) ; sols = groupes « SOL: » (devant, derrière, visibles). Luminaires sans ombre portée.
   Décor du combat tutoriel régénéré (ancien : `arene_colisee_p6.png`). Le quartier de ville n'est PAS à développer : il
   sera repensé à partir d'un plan séparé.
+- **P6.3.1 (branche `p6-3-1-colisee-integrite-visuelle`, `docs/P6_3_1_INTEGRITE_VISUELLE.md`)** : EN ATTENTE de validation.
+  Anneaux de l'arène en UV métriques le long de l'arc (`habillage_p6._rq / _rt`, matériaux `mat_uv`) ; tranche de gradins
+  du tunnel est jamais coupée (trouée locale par volumes d'occultation) ; cloisons entre deux intérieurs et mur sud de
+  la coursive rendus pleine hauteur (collision inchangée) ; éblouissement du tunnel « discret » par défaut
+  (`--eblouissement=actuel|aucun|discret`) ; diagnostic de visibilité F10 / `--diag` (outil, lecture seule).
+  Ne pas lancer P6.4 sans accord.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.

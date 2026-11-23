@@ -43,8 +43,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p6-3-colisee-art`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p6-3-colisee-art`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p6-3-1-colisee-integrite-visuelle`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p6-3-1-colisee-integrite-visuelle`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -102,6 +102,9 @@ masque de collision avant / après.
    mobilier, lanternes, portes et bannières Quaternius (CC0, sélection de 15 modèles, `art/p63/quaternius/`), arc en
    claveaux et torches du tunnel sud, fausse marche et bannières corrigées, décor du combat tutoriel actualisé.
    Rapport : `docs/P6_3_COLISEE_ART.md`.
+   **Branche `p6-3-1-colisee-integrite-visuelle`** : F5 inchangé ; `colisee.tscn` (F6) corrigé (poutre des vestiaires,
+   gradins en UV le long de l'arc, enceinte continue au tunnel est, infirmerie fermée par ses cloisons, éblouissement
+   discret du tunnel sud). **F10** : diagnostic de visibilité. Rapport : `docs/P6_3_1_INTEGRITE_VISUELLE.md`.
 
 ### Commandes — forêt V07B (F5)
 
