@@ -92,6 +92,7 @@ func _ready() -> void:
 	variante = "B"
 	cam_p6 = str(_cli.get("cam_p6", cam_p6)).to_upper()
 	_diag_on = _cli.has("diag")
+	_isoler = str(_cli.get("isoler", ""))        # P6.3.2 : diagnostic des clignotements (ombres, occultation, trouee, fondus)
 	eblouissement = str(_cli.get("eblouissement", eblouissement))
 	if not CAMS_P6.has(cam_p6):
 		cam_p6 = "C"
@@ -296,6 +297,27 @@ var _props_commandant: Array = []
 
 
 # ------------------------------------------------------------------------------------------------ P6.3.1 diagnostic
+var _isoler := ""
+
+
+## P6.3.2 : isolation d'une cause de clignotement (diagnostic, -- --isoler=ombres|occultation|trouee|fondus).
+func _appliquer_isolation() -> void:
+	if _isoler == "":
+		return
+	if _isoler == "ombres":
+		var pile: Array = [self]
+		while not pile.is_empty():
+			var c = pile.pop_back()
+			for k in c.get_children():
+				pile.append(k)
+			if c is Light3D:
+				(c as Light3D).shadow_enabled = false
+	elif _isoler == "occultation":
+		get_viewport().use_occlusion_culling = false
+	elif _isoler == "fondus" and _sect != null:
+		_sect.duree_fondu = 0.0
+
+
 var _diag: Label
 var _diag_on := false
 
@@ -459,6 +481,7 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	_faded.clear()
 	_lights.clear()
 	_au_mur.clear()
+	_au_coupe.clear()
 	_monster = null
 	_rng.seed = 6061
 	world = World25.load_world(file, m)
@@ -502,12 +525,17 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 			if n != null and is_instance_valid(n):
 				_sect.attacher(n, Vector2(n.global_position.x, n.global_position.z))
 		_au_mur.clear()
+		for n in _au_coupe:
+			if n != null and is_instance_valid(n):
+				_sect.attacher_coupe(n, Vector2(n.global_position.x, n.global_position.z))
+		_au_coupe.clear()
 		_maj_secteur(true)
 		if _sect.mode != "echelle":
 			_sect.voile_ext = -1.0
 			_sect.regler_voile_ext(_sect.voile_ext_pour(Vector2(s.hero.x, s.hero.y)))
 	teleport(s.hero, s.companion)
 	apply_options()
+	_appliquer_isolation()
 	_title.text = _p6.get("nom", "")
 	_title_t = 3.5
 	_zone_courante = ""
@@ -1232,6 +1260,8 @@ func _commandant_auto() -> void:
 
 func _process(delta: float) -> void:
 	super._process(delta)
+	if _isoler == "trouee":
+		RenderingServer.global_shader_parameter_set("p4_hole", 0.0)     # diagnostic : trouée d'occlusion coupée
 	if s == null or world == null:
 		return
 	var hint := ""
@@ -1572,11 +1602,17 @@ func secteur_actif() -> String:
 ## Mur en deux parties : muret persistant (0 -> LIP) et partie haute (LIP -> hv) ; tranche sombre ; occulteur du moteur.
 func _mur_continu(id: String, pivot: Node3D, r: Rect2, h0: float, hv: float, mpierre: Material, sb: StaticBody3D, garde := false) -> void:
 	var lip: float = Secteurs.LIP
-	var bas := _box_mesh(_rect_center(r, h0, lip), Vector3(r.size.x, lip - h0, r.size.y), mpierre, pivot)
+	# P6.3.2 : moulures (corniche, bandeau, chaperon, plinthe, tranche) des murs nord-sud décalées de quelques mm : aux
+	# angles, celles de deux murs perpendiculaires tombaient dans le même plan (z-fighting, scintillement en mouvement)
+	var e := 0.0 if r.size.x >= r.size.y else 0.007
+	# corps des murs nord-sud prolongés de e à leurs extrémités : là où deux murs se chevauchent, leurs faces tombaient
+	# dans le même plan
+	var rc := r.grow_individual(0.0, e, 0.0, e)
+	var bas := _box_mesh(_rect_center(rc, h0, lip), Vector3(rc.size.x, lip - h0, rc.size.y), mpierre, pivot)
 	fade_nodes[sb] = [bas]
 	var haut: Array = []
 	var h_mid := minf(hv, 3.0)
-	haut.append(_box_mesh(_rect_center(r, lip, h_mid), Vector3(r.size.x, h_mid - lip, r.size.y), mpierre, pivot))
+	haut.append(_box_mesh(_rect_center(rc, lip, h_mid), Vector3(rc.size.x, h_mid - lip, rc.size.y), mpierre, pivot))
 	var mcap: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(1.12, 1.1, 1.08), true) if _hab != null else _tinted("pierre", Color(1.12, 1.1, 1.14), true)
 	if hv > 3.05:
 		# P6.2-D : partie haute en deux assises (moins brutale qu'un aplat sombre), corniche, chaperon de pierre au sommet
@@ -1584,26 +1620,28 @@ func _mur_continu(id: String, pivot: Node3D, r: Rect2, h0: float, hv: float, mpi
 		var mmoyen: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.6, 0.56, 0.55), true) if _hab != null else _tinted("pierre", Color(0.58, 0.56, 0.58), true)
 		var msombre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.4, 0.36, 0.36), true) if _hab != null else _tinted("pierre", Color(0.4, 0.38, 0.4), true)
 		var hm := minf(4.3, hv)
-		haut.append(_box_mesh(_rect_center(r, 3.0, hm), Vector3(r.size.x, hm - 3.0, r.size.y), mmoyen, pivot))
+		haut.append(_box_mesh(_rect_center(rc, 3.0, hm), Vector3(rc.size.x, hm - 3.0, rc.size.y), mmoyen, pivot))
 		if hv > hm + 0.05:
-			haut.append(_box_mesh(_rect_center(r, hm, hv), Vector3(r.size.x, hv - hm, r.size.y), msombre, pivot))
-			haut.append(_box_mesh(_rect_center(r.grow(0.03), hm - 0.04, hm + 0.06), Vector3(r.size.x + 0.06, 0.1, r.size.y + 0.06), mmoyen, pivot))
+			haut.append(_box_mesh(_rect_center(rc, hm, hv), Vector3(rc.size.x, hv - hm, rc.size.y), msombre, pivot))
+			haut.append(_box_mesh(_rect_center(r.grow(0.03 + e), hm - 0.04 + e, hm + 0.06 + e), Vector3(r.size.x + 0.06 + 2.0 * e, 0.1, r.size.y + 0.06 + 2.0 * e), mmoyen, pivot))
 		# corniche à la jonction (lecture des proportions : un étage, pas un mur infini)
-		haut.append(_box_mesh(_rect_center(r.grow(0.05), 2.95, 3.12), Vector3(r.size.x + 0.1, 0.17, r.size.y + 0.1), mpierre, pivot))
-		haut.append(_box_mesh(_rect_center(r.grow(0.08), hv, hv + 0.16), Vector3(r.size.x + 0.16, 0.16, r.size.y + 0.16), msombre, pivot))
+		haut.append(_box_mesh(_rect_center(r.grow(0.05 + e), 2.95 + e, 3.12 + e), Vector3(r.size.x + 0.1 + 2.0 * e, 0.17, r.size.y + 0.1 + 2.0 * e), mpierre, pivot))
+		haut.append(_box_mesh(_rect_center(r.grow(0.08 + e), hv + e, hv + 0.16 + e), Vector3(r.size.x + 0.16 + 2.0 * e, 0.16, r.size.y + 0.16 + 2.0 * e), msombre, pivot))
 		var long := maxf(r.size.x, r.size.y)
 		if long > 2.5:
 			var le_long_x := r.size.x > r.size.y
 			for t in [0.0, 1.0]:
 				var c := r.get_center()
-				var bout := Vector2(lerpf(r.position.x + 0.2, r.end.x - 0.2, t), c.y) if le_long_x else Vector2(c.x, lerpf(r.position.y + 0.2, r.end.y - 0.2, t))
-				var sz := Vector3(0.4, 0.0, r.size.y + 0.16) if le_long_x else Vector3(r.size.x + 0.16, 0.0, 0.4)
-				haut.append(_box_mesh(Vector3(bout.x, (lip + hv) * 0.5, bout.y), Vector3(sz.x, hv - lip, sz.z), mmoyen, pivot))
+				# pilastre : dépasse le bout du mur de 3 cm (sa face extrême coïncidait avec celle du mur)
+				var dep := -0.03 if t == 0.0 else 0.03
+				var bout := Vector2(lerpf(r.position.x + 0.2, r.end.x - 0.2, t) + dep, c.y) if le_long_x else Vector2(c.x, lerpf(r.position.y + 0.2, r.end.y - 0.2, t) + dep)
+				var sz := Vector3(0.4, 0.0, r.size.y + 0.16 + 2.0 * e) if le_long_x else Vector3(r.size.x + 0.16 + 2.0 * e, 0.0, 0.4)
+				haut.append(_box_mesh(Vector3(bout.x, (lip + hv - 0.001) * 0.5, bout.y), Vector3(sz.x, hv - 0.001 - lip, sz.z), mmoyen, pivot))
 	else:
-		haut.append(_box_mesh(_rect_center(r.grow(0.06), hv, hv + 0.12), Vector3(r.size.x + 0.12, 0.12, r.size.y + 0.12), mcap, pivot))
+		haut.append(_box_mesh(_rect_center(r.grow(0.06 + e), hv + e, hv + 0.12 + e), Vector3(r.size.x + 0.12 + 2.0 * e, 0.12, r.size.y + 0.12 + 2.0 * e), mcap, pivot))
 	if _hab != null:
-		_box_mesh(_rect_center(r.grow(0.05), h0, 0.3), Vector3(r.size.x + 0.1, 0.3, r.size.y + 0.1), _hab.mat(Habillage.PIERRE, 1.2, Habillage.C_CALCAIRE * Color(0.72, 0.7, 0.7)), pivot)
-	var coupe := _box_mesh(_rect_center(r.grow(0.07), lip - 0.01, lip + 0.05), Vector3(r.size.x + 0.14, 0.06, r.size.y + 0.14), _mat_coupe(), pivot)
+		_box_mesh(_rect_center(r.grow(0.05 + e), h0, 0.3 + e), Vector3(r.size.x + 0.1 + 2.0 * e, 0.3 + e - h0, r.size.y + 0.1 + 2.0 * e), _hab.mat(Habillage.PIERRE, 1.2, Habillage.C_CALCAIRE * Color(0.72, 0.7, 0.7)), pivot)
+	var coupe := _box_mesh(_rect_center(r.grow(0.07 + e), lip - 0.01 + e, lip + 0.05 + e), Vector3(r.size.x + 0.14 + 2.0 * e, 0.06, r.size.y + 0.14 + 2.0 * e), _mat_coupe(), pivot)
 	coupe.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var occ: OccluderInstance3D = null
 	if hv > 2.0 and r.size.x * r.size.y > 0.5:
@@ -1676,6 +1714,7 @@ func _linteaux() -> void:
 const QUAT := "res://art/p63/quaternius/"   # sélection Quaternius (CC0), voir art/p63/quaternius/SOURCES.md
 var _qcache := {}
 var _au_mur: Array = []                     # P6.3 : modèles fixés aux murs (suivent leur coupe)
+var _au_coupe: Array = []                   # P6.3.2 : variantes « mur coupé » (porte basse), visibles seulement coupé
 var _qmat := {}
 
 
@@ -1775,6 +1814,9 @@ func _porte_habillee(r: Rect2) -> void:
 		var bord: Vector3 = Vector3(c.x, 0, c.y) + axe * float(side) * lw
 		var k := Vector3(-float(side) * lw / 1.15, 0.98, 1.0)
 		_au_mur.append(modele("mv/Door_8_Round", bord + d3 * 0.22, rot, k))
+		# P6.3.2 : porte basse (1,2 m) pour quand le mur est coupé : la porte reste identifiable sans masquer Aren
+		_au_coupe.append(modele("mv/Door_8_Round", bord + d3 * 0.22, rot, Vector3(k.x, 1.2 / 2.36, 1.0)))
+	_au_coupe.append(modele("mv/DoorFrame_Round_Brick", Vector3(c.x, 0, c.y) + d3 * 0.1, rot, Vector3((w + 0.5) / 1.6, 1.3 / 2.58, 1.0), Color(1.05, 1.0, 0.95)))
 	if cadre != null:
 		cadre.set_meta("porte", true)
 

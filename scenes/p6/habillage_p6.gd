@@ -335,6 +335,8 @@ func arene(a: Dictionary, tunnels: Array) -> void:
 		archi.append(_rq(c, rl2 - 0.3, ry + (rl2 - 0.3 - rx), a0, a1, htop_n + 2.3, htop_n + 2.75, 0.0))
 		archi.append(_rt(c, rl2 - 0.3, ry + (rl2 - 0.3 - rx), rl2 + 0.3, ry + (rl2 + 0.3 - rx), a0, a1, htop_n + 2.75))
 	sc._faces(archi, u_dalle)
+	# P6.3.2 : écoinçons entre l'anneau des gradins et l'enveloppe rectangulaire du bâtiment
+	_ecoincons(a, tunnels, c, rx, ry, ep, prof, rangs, ah)
 	# accès combattants : arcs à claveaux, grille relevée visible
 	for t in tunnels:
 		if (t as Rect2).size.x > (t as Rect2).size.y:      # tunnel est (vu de côté) ; au sud, un arc masquerait l'arène
@@ -373,6 +375,123 @@ func _bande(c: Vector2, rx0: float, ry0: float, rx1: float, ry1: float, h: float
 	mi.material_override = m
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	sc.root.add_child(mi)
+
+
+## Hauteur du haut du mur de fond des gradins à l'angle a (même formule que la construction des gradins).
+func _h_dos(a: float, ah: float, rangs: int) -> float:
+	var sud := maxf(0.0, sin(a))
+	var deg := rad_to_deg(fposmod(a, TAU))
+	var se := smoothstep(4.0, 16.0, deg) * (1.0 - smoothstep(60.0, 80.0, deg))
+	var k_h := lerpf(1.0, 0.42, maxf(sud, se))
+	return (ah + 0.25 + 0.55 * rangs) * k_h + (1.0 - k_h) * 0.4 + 0.7
+
+
+## P6.3.2 : MASSIF DES ÉCOINÇONS. L'anneau ovale des gradins était posé seul dans une enveloppe rectangulaire (bloc de
+## la salle au sud, coursive à l'est) : entre son dos et ces bâtiments, on voyait le sol du parvis (ouverture réelle de
+## l'architecture, identique avec ou sans masquage). On remplit ces écoinçons par une maçonnerie couverte, comme la
+## substructure d'un amphithéâtre : toiture continue avec le haut du mur de fond des gradins (même hauteur à chaque
+## angle : aucune occultation nouvelle de l'arène), façades de pierre sur le pourtour. Les tunnels et la loge restent
+## dégagés. Affichage seulement : ces zones n'étaient déjà pas praticables (aucune collision ajoutée ou retirée).
+func _ecoincons(a: Dictionary, tunnels: Array, c: Vector2, rx: float, ry: float, ep: float, prof: float, rangs: int, ah: float) -> void:
+	var rl := rx + ep + prof + 0.5
+	var rly := ry + ep + prof + 0.5
+	var vt: Dictionary = sc._p6.get("vue_tunnel", {})
+	var y1: float = float(vt.get("entree", 37.5)) - 0.6         # au pied du mur nord de la salle (bloc sud décalé), hors de la
+	                                                            # zone « intérieur » du masque de vue du tunnel
+	var rect := Rect2(Vector2(c.x - rl, c.y - rly), Vector2(43.6 - (c.x - rl), y1 - (c.y - rly)))
+	var exclus: Array = []
+	for t in tunnels:
+		exclus.append((t as Rect2).grow(0.3))
+	exclus.append(Rect2(24.0, 30.0, 4.0, y1 - 30.0 + 0.5))     # tunnel sud prolongé (longueur retenue)
+	var lg: Dictionary = a["loge"]
+	exclus.append(Rect2(lg["centre"][0] - lg["taille"][0] * 0.5, lg["centre"][1] - lg["taille"][1] * 0.5, lg["taille"][0], lg["taille"][1]).grow(0.4))
+	var toit := mat(PIERRE, 1.8, C_CALCAIRE * Color(0.84, 0.82, 0.8), true)      # terrasse de pierre (couverture)
+	var facade := mat(PIERRE, 2.4, C_CALCAIRE * Color(0.92, 0.9, 0.9), true)
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var sf := SurfaceTool.new()
+	sf.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var n := 144
+	var coins := [rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)]
+	for i in n:
+		var a0 := TAU * i / n
+		var a1 := TAU * (i + 1) / n
+		var am := (a0 + a1) * 0.5
+		var pts: Array = []
+		var hs: Array = []
+		for aa in [a0, a1]:
+			pts.append(Vector2(c.x + rl * cos(aa), c.y + rly * sin(aa)))
+			hs.append(_h_dos(aa, ah, rangs))
+		var q0 := _vers_bord(c, pts[0], rect)
+		var q1 := _vers_bord(c, pts[1], rect)
+		# exclusion : un point du rayon médian dans un tunnel ou la loge
+		var pm := Vector2(c.x + rl * cos(am), c.y + rly * sin(am))
+		var qm := _vers_bord(c, pm, rect)
+		var saute := false
+		for e in exclus:
+			for t in [0.05, 0.35, 0.65, 0.95]:
+				if (e as Rect2).has_point(pm.lerp(qm, t)):
+					saute = true
+		if saute or pm.distance_to(qm) < 0.05:
+			continue
+		# polygone du dessus : P0, Q0, (coin éventuel), Q1, P1 — hauteurs : celles du dos des gradins
+		var poly: Array = [Vector3(pts[0].x, hs[0], pts[0].y), Vector3(q0.x, hs[0], q0.y)]
+		for k in coins:
+			var kk: Vector2 = k
+			var v0 := (q0 - c).angle()
+			var v1 := (q1 - c).angle()
+			var vk := (kk - c).angle()
+			if _entre(vk, v0, v1):
+				poly.append(Vector3(kk.x, (hs[0] + hs[1]) * 0.5, kk.y))
+		poly.append(Vector3(q1.x, hs[1], q1.y))
+		poly.append(Vector3(pts[1].x, hs[1], pts[1].y))
+		for j in range(1, poly.size() - 1):
+			for v in [poly[0], poly[j], poly[j + 1]]:
+				st.set_normal(Vector3.UP)
+				st.set_uv(Vector2((v as Vector3).x, (v as Vector3).z) / 2.4)
+				st.add_vertex(v)
+		# façade sur le pourtour (du sol au dessus), tournée vers l'extérieur
+		var bord: Array = poly.slice(1, poly.size() - 1)
+		for j in range(bord.size() - 1):
+			var b0: Vector3 = bord[j]
+			var b1: Vector3 = bord[j + 1]
+			var quad := [Vector3(b0.x, 0.0, b0.z), Vector3(b1.x, 0.0, b1.z), Vector3(b1.x, b1.y, b1.z), Vector3(b0.x, b0.y, b0.z)]
+			var nn: Vector3 = ((quad[1] as Vector3) - (quad[0] as Vector3)).cross((quad[3] as Vector3) - (quad[0] as Vector3)).normalized()
+			for idx in [0, 1, 2, 0, 2, 3, 0, 2, 1, 0, 3, 2]:      # deux faces (vue depuis l'arène et depuis le parvis)
+				sf.set_normal(-nn)
+				var qv: Vector3 = quad[idx]
+				sf.set_uv(Vector2(qv.x + qv.z, -qv.y) / 2.4)
+				sf.add_vertex(qv)
+	for pair in [[st, toit], [sf, facade]]:
+		var mi := MeshInstance3D.new()
+		mi.mesh = (pair[0] as SurfaceTool).commit()
+		mi.material_override = pair[1]
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		mi.name = "Ecoincons_gradins"
+		sc.root.add_child(mi)
+
+
+func _vers_bord(c: Vector2, p: Vector2, r: Rect2) -> Vector2:
+	var d := (p - c).normalized()
+	var t := INF
+	if absf(d.x) > 1e-5:
+		for x in [r.position.x, r.end.x]:
+			var tt: float = (x - c.x) / d.x
+			if tt > 0.0:
+				t = minf(t, tt)
+	if absf(d.y) > 1e-5:
+		for y in [r.position.y, r.end.y]:
+			var tt2: float = (y - c.y) / d.y
+			if tt2 > 0.0:
+				t = minf(t, tt2)
+	var q := c + d * t
+	return q if (q - c).length() > (p - c).length() else p
+
+
+func _entre(v: float, v0: float, v1: float) -> bool:
+	var a := fposmod(v - v0, TAU)
+	var b := fposmod(v1 - v0, TAU)
+	return a > 0.0 and a < b and b < PI
 
 
 func _colonne(base: Vector3, h: float, m: Material) -> void:

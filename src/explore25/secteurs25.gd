@@ -43,6 +43,7 @@ var _hote: Node
 var _racine: Node3D
 var stats := {"groupes": 0, "elements": 0, "murs": 0, "bascules": 0, "multi_secteurs": 0}
 var traverses: Array = []
+var duree_fondu := DUREE_FONDU          # P6.3.2 : réglable (diagnostic des clignotements)
 var voile_ext := 0.0                      # continu : transparence du reste du niveau (EXT), réglée par la scène                 # éléments dont l'emprise traverse plusieurs secteurs (vérification)
 
 
@@ -515,7 +516,7 @@ func _basculer(g: Dictionary, montre: bool, immediat: bool) -> void:
 	var depart := 1.0 if montre else 0.0
 	if montre:
 		n.visible = true
-	tw.tween_method(func(t: float): _transparence(g, t), depart, 1.0 - depart, DUREE_FONDU).set_trans(Tween.TRANS_SINE)
+	tw.tween_method(func(t: float): _transparence(g, t), depart, 1.0 - depart, maxf(duree_fondu, 0.001)).set_trans(Tween.TRANS_SINE)
 	if not montre:
 		tw.tween_callback(func(): n.visible = false)
 
@@ -561,7 +562,7 @@ func _couper(w: Dictionary, couper: bool, immediat: bool) -> void:
 	var tw2 := _hote.create_tween()
 	w["tween"] = tw2
 	var a := 0.0 if couper else 1.0
-	tw2.tween_method(func(t: float): _haut(w, t), a, 1.0 - a, DUREE_FONDU).set_trans(Tween.TRANS_SINE)
+	tw2.tween_method(func(t: float): _haut(w, t), a, 1.0 - a, maxf(duree_fondu, 0.001)).set_trans(Tween.TRANS_SINE)
 
 
 ## t = 0 : mur entier ; t = 1 : partie haute effacée, tranche sombre visible.
@@ -598,6 +599,27 @@ func attacher(n: Node3D, p: Vector2) -> bool:
 			pile.append(e)
 		if c is GeometryInstance3D:
 			(best["haut"] as Array).append(c)
+	return true
+
+
+## P6.3.2 : variante « coupée » d'un élément mural (porte basse) : rattachée à la tranche du mur le plus proche, elle
+## n'apparaît que lorsque ce mur est coupé (la porte reste identifiable devant un muret).
+func attacher_coupe(n: Node3D, p: Vector2) -> bool:
+	var best: Dictionary = {}
+	var dmin := 0.5
+	for w in _murs:
+		if float(w["h1"]) - float(w["h0"]) < 0.75 or not (w.get("seulement", []) as Array).is_empty():
+			continue
+		var r: Rect2 = w["rect"]
+		var q := Vector2(clampf(p.x, r.position.x, r.end.x), clampf(p.y, r.position.y, r.end.y))
+		var d := p.distance_to(q)
+		if d < dmin:
+			dmin = d
+			best = w
+	if best.is_empty():
+		n.visible = false
+		return false
+	n.reparent(best["coupe"], true)
 	return true
 
 

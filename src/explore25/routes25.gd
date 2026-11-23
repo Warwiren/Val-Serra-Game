@@ -439,6 +439,38 @@ static func _route_base(name: String) -> Array:
 				_go(55.0, 31.0, "coursive : coin sud-est (près de la réserve)", 0.3),
 				{"do": "wait", "t": 1.0},
 			]
+		"p6_arriere_gradins":
+			# P6.3.2 — recherche de l'ouverture entre le dos des gradins et le mur extérieur, vue depuis l'arène
+			var outa: Array = []
+			for c in [["a1_arene_est", 34.0, 22.0], ["a2_arene_nord_est", 32.0, 17.0], ["a3_arene_nord", 26.0, 16.5],
+					["a4_arene_nord_ouest", 19.0, 17.0], ["a5_arene_ouest", 16.5, 23.0], ["a6_arene_sud_est", 33.0, 28.0],
+					["a7_arene_sud_ouest", 19.0, 28.0], ["a8_centre", 26.0, 23.0]]:
+				outa.append(_warp(c[1], c[2], 0.0))
+				outa.append({"do": "wait", "t": 1.5})
+				outa.append({"do": "snap", "id": c[0]})
+			return outa
+		"p6_porte_reserve":
+			# P6.3.2 — porte de la réserve : depuis l'infirmerie puis depuis la coursive (même porte)
+			var outr: Array = []
+			for c in [["r1_infirmerie", 46.6, 37.0], ["r2_infirmerie_porte", 47.0, 34.6], ["r3_coursive_loin", 52.0, 28.0],
+					["r4_coursive_devant", 53.0, 32.6], ["r5_coursive_ouest", 47.5, 31.0], ["r6_salle_portes_service", 26.0, 41.0],
+					["r7_tunnel_vers_salle", 26.0, 36.5]]:
+				outr.append(_warp(c[1], c[2], 0.0))
+				outr.append({"do": "wait", "t": 1.6})
+				outr.append({"do": "snap", "id": c[0]})
+			return outr
+		"p6_clignotements":
+			# P6.3.2 — diagnostic des clignotements : marche le long des murs (vestiaires, salle, coursive), vitesse réelle
+			return [
+				_warp(18.0, 49.6, 0.0), {"do": "wait", "t": 0.8},
+				_go(34.0, 49.6, "vestiaires : le long des casiers", 0.3),
+				_warp(21.0, 43.6, 0.0), {"do": "wait", "t": 0.6},
+				_go(21.0, 38.6, "salle : le long du mur ouest", 0.3),
+				_go(30.6, 38.6, "salle : le long du mur nord", 0.3),
+				_warp(45.4, 14.0, 0.0), {"do": "wait", "t": 0.6},
+				_go(45.4, 31.5, "coursive : le long du mur ouest", 0.3),
+				{"do": "wait", "t": 0.5},
+			]
 		"p6_captures":
 			return [
 				{"do": "wait", "t": 1.5},
