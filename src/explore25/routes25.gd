@@ -609,6 +609,38 @@ static func _route_base(name: String) -> Array:
 		"p6_643_ombres":
 			return [_warp(26.0, 27.0, 0.0), {"do": "wait", "t": 1.6}, {"do": "snap", "id": "o1_arene"},
 				_warp(46.6, 37.6, 0.0), {"do": "wait", "t": 1.6}, {"do": "snap", "id": "o2_infirmerie"}]
+		"p6_644_vestiaires":
+			# P6.4.4 — visibilité de l'arène depuis les vestiaires : centre, coin nord-ouest, porte nord, passage, aux
+			# zooms ×3 et ×2 (le parcours démarre aux vestiaires, état d'origine du jeu)
+			var outv: Array = []
+			for z in [[2, "x3"], [0, "x2"]]:
+				outv.append({"do": "zoom", "i": z[0], "smooth": false})
+				for c in [["v1_centre", 26.0, 51.5], ["v2_nord_ouest", 18.0, 49.6], ["v3_porte_nord", 26.0, 49.0],
+						["v4_nord_est", 34.0, 49.6], ["v5_passage", 26.0, 45.6]]:
+					outv.append(_warp(c[1], c[2], 0.0))
+					outv.append({"do": "wait", "t": 1.6})
+					outv.append({"do": "snap", "id": c[0] + "_" + z[1]})
+			return outv
+		"p6_644_video":
+			# P6.4.4 — vidéo avant / après : départ normal du jeu dans les vestiaires (×2 puis ×3), passage, salle d'attente
+			# (aucune arène visible), tunnel sud (vue par la bouche), débouché dans l'arène
+			return [
+				{"do": "zoom", "i": 0, "smooth": false},
+				{"do": "wait", "t": 1.0},
+				_go(18.5, 49.8, "vestiaires : coin nord-ouest (×2)", 0.3),
+				_go(33.5, 49.8, "vestiaires : le long du mur nord (×2)", 0.3),
+				{"do": "zoom", "i": 2, "smooth": true},
+				_go(26.0, 49.2, "vestiaires : devant la porte nord (×3)", 0.25),
+				_go(26.0, 45.6, "passage", 0.25),
+				_go(26.0, 41.2, "salle d'attente", 0.25),
+				{"do": "zoom", "i": 0, "smooth": true},
+				{"do": "wait", "t": 1.2},
+				_go(26.0, 37.0, "entrée du tunnel (×2)", 0.25),
+				{"do": "zoom", "i": 2, "smooth": true},
+				_go(26.0, 34.6, "tunnel sud : milieu", 0.2),
+				_go(26.0, 29.5, "débouché dans l'arène", 0.25),
+				{"do": "wait", "t": 1.5},
+			]
 		"p6_extension_coursive":
 			# P6.4.2 — cadrages de la coursive seuls (reprise après réglage des piliers)
 			var outk: Array = []
