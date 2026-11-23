@@ -1,0 +1,884 @@
+{
+ ".": {
+  "fichiers": 6,
+  "octets": 46809,
+  "jeu": 0,
+  "outils_tests": 0,
+  "docs_seul": 3,
+  "aucune": 3,
+  "dynamique": 0
+ },
+ "ValSerra_P49_V07B_PREFLIGHT_GODOT": {
+  "fichiers": 2,
+  "octets": 3502,
+  "jeu": 1,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 1,
+  "dynamique": 0
+ },
+ "ValSerra_P49_V07B_PREFLIGHT_GODOT/assets/eau": {
+  "fichiers": 3,
+  "octets": 42769,
+  "jeu": 3,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "ValSerra_P49_V07B_PREFLIGHT_GODOT/assets/geometry": {
+  "fichiers": 2,
+  "octets": 7463060,
+  "jeu": 2,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "ValSerra_P49_V07B_PREFLIGHT_GODOT/assets/models": {
+  "fichiers": 67,
+  "octets": 28529615,
+  "jeu": 27,
+  "outils_tests": 0,
+  "docs_seul": 3,
+  "aucune": 37,
+  "dynamique": 0
+ },
+ "ValSerra_P49_V07B_PREFLIGHT_GODOT/docs": {
+  "fichiers": 9,
+  "octets": 263434,
+  "jeu": 2,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 7,
+  "dynamique": 0
+ },
+ "ValSerra_P49_V07B_PREFLIGHT_GODOT/godot": {
+  "fichiers": 3,
+  "octets": 43966,
+  "jeu": 3,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 3
+ },
+ "ValSerra_P49_V07B_PREFLIGHT_GODOT/shaders": {
+  "fichiers": 1,
+  "octets": 1061,
+  "jeu": 1,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "ValSerra_P49_V07B_PREFLIGHT_GODOT/tools": {
+  "fichiers": 5,
+  "octets": 55598,
+  "jeu": 1,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 4,
+  "dynamique": 0
+ },
+ "art/arena/lisiere": {
+  "fichiers": 2,
+  "octets": 1687498,
+  "jeu": 2,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 2
+ },
+ "art/characters": {
+  "fichiers": 8,
+  "octets": 18615,
+  "jeu": 6,
+  "outils_tests": 0,
+  "docs_seul": 2,
+  "aucune": 0,
+  "dynamique": 8
+ },
+ "art/fonts": {
+  "fichiers": 6,
+  "octets": 1407136,
+  "jeu": 3,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 3,
+  "dynamique": 6
+ },
+ "art/hd/arena": {
+  "fichiers": 8,
+  "octets": 206446,
+  "jeu": 8,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 8
+ },
+ "art/hd/hero": {
+  "fichiers": 13,
+  "octets": 22039,
+  "jeu": 0,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 13,
+  "dynamique": 13
+ },
+ "art/hd/vorgane": {
+  "fichiers": 17,
+  "octets": 37554,
+  "jeu": 5,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 12,
+  "dynamique": 17
+ },
+ "art/monster": {
+  "fichiers": 7,
+  "octets": 9271,
+  "jeu": 7,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 7
+ },
+ "art/p4": {
+  "fichiers": 1,
+  "octets": 5981,
+  "jeu": 1,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 1
+ },
+ "art/p4/arbre": {
+  "fichiers": 3,
+  "octets": 215992,
+  "jeu": 3,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 3
+ },
+ "art/p4/batiment": {
+  "fichiers": 5,
+  "octets": 108242,
+  "jeu": 5,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 5
+ },
+ "art/p4/fx": {
+  "fichiers": 1,
+  "octets": 1528,
+  "jeu": 1,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 1
+ },
+ "art/p4/mat": {
+  "fichiers": 8,
+  "octets": 13577920,
+  "jeu": 8,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 8
+ },
+ "art/p4/pont": {
+  "fichiers": 1,
+  "octets": 17958,
+  "jeu": 1,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 1
+ },
+ "art/p4/props": {
+  "fichiers": 10,
+  "octets": 497015,
+  "jeu": 9,
+  "outils_tests": 1,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 10
+ },
+ "art/p4/relief": {
+  "fichiers": 3,
+  "octets": 1955156,
+  "jeu": 0,
+  "outils_tests": 1,
+  "docs_seul": 0,
+  "aucune": 2,
+  "dynamique": 3
+ },
+ "art/p4/vegetation": {
+  "fichiers": 12,
+  "octets": 692561,
+  "jeu": 12,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 12
+ },
+ "art/p41": {
+  "fichiers": 1,
+  "octets": 651,
+  "jeu": 1,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 1
+ },
+ "art/p41/decor": {
+  "fichiers": 20,
+  "octets": 980345,
+  "jeu": 15,
+  "outils_tests": 1,
+  "docs_seul": 0,
+  "aucune": 4,
+  "dynamique": 20
+ },
+ "art/p45": {
+  "fichiers": 1,
+  "octets": 3312,
+  "jeu": 1,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "art/p45/chars": {
+  "fichiers": 202,
+  "octets": 1326737,
+  "jeu": 174,
+  "outils_tests": 3,
+  "docs_seul": 0,
+  "aucune": 25,
+  "dynamique": 202
+ },
+ "art/p45/combat": {
+  "fichiers": 93,
+  "octets": 401526,
+  "jeu": 3,
+  "outils_tests": 6,
+  "docs_seul": 0,
+  "aucune": 84,
+  "dynamique": 93
+ },
+ "art/p45/portraits": {
+  "fichiers": 13,
+  "octets": 562508,
+  "jeu": 13,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 13
+ },
+ "art/p5": {
+  "fichiers": 1,
+  "octets": 1198,
+  "jeu": 1,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "art/p5/combat": {
+  "fichiers": 2,
+  "octets": 1591179,
+  "jeu": 2,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 2
+ },
+ "art/p53": {
+  "fichiers": 1,
+  "octets": 1542,
+  "jeu": 1,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "art/p53/sol": {
+  "fichiers": 4,
+  "octets": 6316523,
+  "jeu": 3,
+  "outils_tests": 1,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 4
+ },
+ "art/p53/sol_v2": {
+  "fichiers": 4,
+  "octets": 6177022,
+  "jeu": 3,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 1,
+  "dynamique": 4
+ },
+ "art/p6": {
+  "fichiers": 1,
+  "octets": 827,
+  "jeu": 1,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 1
+ },
+ "art/p6/combat": {
+  "fichiers": 2,
+  "octets": 2089905,
+  "jeu": 1,
+  "outils_tests": 0,
+  "docs_seul": 1,
+  "aucune": 0,
+  "dynamique": 2
+ },
+ "art/p63/quaternius": {
+  "fichiers": 50,
+  "octets": 11698099,
+  "jeu": 1,
+  "outils_tests": 0,
+  "docs_seul": 2,
+  "aucune": 47,
+  "dynamique": 50
+ },
+ "art/portraits": {
+  "fichiers": 6,
+  "octets": 10159,
+  "jeu": 4,
+  "outils_tests": 0,
+  "docs_seul": 2,
+  "aucune": 0,
+  "dynamique": 6
+ },
+ "art/proto": {
+  "fichiers": 8,
+  "octets": 243778,
+  "jeu": 3,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 5,
+  "dynamique": 8
+ },
+ "art/proto/throne_combat": {
+  "fichiers": 7,
+  "octets": 17808,
+  "jeu": 0,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 7,
+  "dynamique": 7
+ },
+ "art/proto/vorgane_nuit_p1": {
+  "fichiers": 313,
+  "octets": 657814,
+  "jeu": 13,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 300,
+  "dynamique": 313
+ },
+ "art/sprites/aren": {
+  "fichiers": 21,
+  "octets": 57104,
+  "jeu": 2,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 19,
+  "dynamique": 21
+ },
+ "art/sprites/vorgane": {
+  "fichiers": 211,
+  "octets": 811370,
+  "jeu": 7,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 204,
+  "dynamique": 211
+ },
+ "art/stage": {
+  "fichiers": 5,
+  "octets": 68840,
+  "jeu": 5,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 5
+ },
+ "art/tests/aren_4dir": {
+  "fichiers": 46,
+  "octets": 317731,
+  "jeu": 45,
+  "outils_tests": 1,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 46
+ },
+ "art/tests/aren_4dir_v3": {
+  "fichiers": 34,
+  "octets": 227917,
+  "jeu": 33,
+  "outils_tests": 1,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 34
+ },
+ "art/tests/aren_4dir_v4": {
+  "fichiers": 18,
+  "octets": 116994,
+  "jeu": 17,
+  "outils_tests": 1,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 18
+ },
+ "art/tests/aren_v2": {
+  "fichiers": 26,
+  "octets": 157956,
+  "jeu": 25,
+  "outils_tests": 1,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 26
+ },
+ "art/tests/v09b5_aren": {
+  "fichiers": 34,
+  "octets": 231080,
+  "jeu": 34,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 34
+ },
+ "art/tests/v09b6_aren": {
+  "fichiers": 18,
+  "octets": 87740,
+  "jeu": 18,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 18
+ },
+ "art/tests/v09c6_ilya": {
+  "fichiers": 24,
+  "octets": 769017,
+  "jeu": 24,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 24
+ },
+ "art/tests/v09c_ilya": {
+  "fichiers": 105,
+  "octets": 3169483,
+  "jeu": 105,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 105
+ },
+ "data/combat": {
+  "fichiers": 5,
+  "octets": 9323,
+  "jeu": 5,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 5
+ },
+ "data/dialogue": {
+  "fichiers": 2,
+  "octets": 4104,
+  "jeu": 1,
+  "outils_tests": 1,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "data/explore25": {
+  "fichiers": 4,
+  "octets": 20977,
+  "jeu": 4,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 4
+ },
+ "data/p4": {
+  "fichiers": 3,
+  "octets": 16275,
+  "jeu": 3,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 3
+ },
+ "data/p6": {
+  "fichiers": 8,
+  "octets": 191149,
+  "jeu": 5,
+  "outils_tests": 1,
+  "docs_seul": 0,
+  "aucune": 2,
+  "dynamique": 8
+ },
+ "data/rig": {
+  "fichiers": 3,
+  "octets": 9209,
+  "jeu": 3,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 3
+ },
+ "docs": {
+  "fichiers": 28,
+  "octets": 332767,
+  "jeu": 1,
+  "outils_tests": 2,
+  "docs_seul": 24,
+  "aucune": 1,
+  "dynamique": 0
+ },
+ "docs/media/p5_3b_v3h": {
+  "fichiers": 7,
+  "octets": 12224563,
+  "jeu": 0,
+  "outils_tests": 0,
+  "docs_seul": 7,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "docs/media/p6": {
+  "fichiers": 17,
+  "octets": 8555146,
+  "jeu": 0,
+  "outils_tests": 0,
+  "docs_seul": 12,
+  "aucune": 5,
+  "dynamique": 0
+ },
+ "docs/media/p6_1": {
+  "fichiers": 13,
+  "octets": 16663320,
+  "jeu": 0,
+  "outils_tests": 0,
+  "docs_seul": 6,
+  "aucune": 7,
+  "dynamique": 0
+ },
+ "docs/media/p6_2": {
+  "fichiers": 26,
+  "octets": 31537775,
+  "jeu": 0,
+  "outils_tests": 1,
+  "docs_seul": 9,
+  "aucune": 16,
+  "dynamique": 0
+ },
+ "docs/media/p6_2c": {
+  "fichiers": 4,
+  "octets": 10156775,
+  "jeu": 0,
+  "outils_tests": 0,
+  "docs_seul": 4,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "docs/media/p6_2d": {
+  "fichiers": 7,
+  "octets": 12999963,
+  "jeu": 0,
+  "outils_tests": 0,
+  "docs_seul": 7,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "docs/media/p6_3": {
+  "fichiers": 6,
+  "octets": 12766919,
+  "jeu": 0,
+  "outils_tests": 0,
+  "docs_seul": 6,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "docs/media/p6_3_1": {
+  "fichiers": 5,
+  "octets": 12965150,
+  "jeu": 0,
+  "outils_tests": 0,
+  "docs_seul": 5,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "docs/media/p6_3_2": {
+  "fichiers": 4,
+  "octets": 3966233,
+  "jeu": 0,
+  "outils_tests": 0,
+  "docs_seul": 4,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "docs/media/p6_4": {
+  "fichiers": 7,
+  "octets": 10342066,
+  "jeu": 0,
+  "outils_tests": 0,
+  "docs_seul": 7,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "docs/media/p6_4_1": {
+  "fichiers": 7,
+  "octets": 9247091,
+  "jeu": 0,
+  "outils_tests": 0,
+  "docs_seul": 7,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "docs/media/p6_4_2": {
+  "fichiers": 6,
+  "octets": 11119058,
+  "jeu": 0,
+  "outils_tests": 0,
+  "docs_seul": 6,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "docs/media/p6_4_3": {
+  "fichiers": 4,
+  "octets": 12873198,
+  "jeu": 0,
+  "outils_tests": 0,
+  "docs_seul": 4,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "scenes/battle": {
+  "fichiers": 6,
+  "octets": 60761,
+  "jeu": 5,
+  "outils_tests": 1,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 6
+ },
+ "scenes/explore25": {
+  "fichiers": 1,
+  "octets": 40946,
+  "jeu": 1,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 1
+ },
+ "scenes/p4": {
+  "fichiers": 3,
+  "octets": 63942,
+  "jeu": 2,
+  "outils_tests": 1,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 3
+ },
+ "scenes/p6": {
+  "fichiers": 8,
+  "octets": 195682,
+  "jeu": 4,
+  "outils_tests": 0,
+  "docs_seul": 4,
+  "aucune": 0,
+  "dynamique": 8
+ },
+ "src/combat": {
+  "fichiers": 8,
+  "octets": 40160,
+  "jeu": 8,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 8
+ },
+ "src/diag": {
+  "fichiers": 1,
+  "octets": 4558,
+  "jeu": 1,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 1
+ },
+ "src/explore25": {
+  "fichiers": 22,
+  "octets": 239820,
+  "jeu": 22,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 22
+ },
+ "src/game": {
+  "fichiers": 2,
+  "octets": 12579,
+  "jeu": 2,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 2
+ },
+ "src/occlusion": {
+  "fichiers": 3,
+  "octets": 18083,
+  "jeu": 3,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 3
+ },
+ "src/p4": {
+  "fichiers": 7,
+  "octets": 10837,
+  "jeu": 7,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 7
+ },
+ "src/p6": {
+  "fichiers": 5,
+  "octets": 26036,
+  "jeu": 5,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 5
+ },
+ "src/presentation": {
+  "fichiers": 21,
+  "octets": 160017,
+  "jeu": 21,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 21
+ },
+ "src/proto": {
+  "fichiers": 3,
+  "octets": 31047,
+  "jeu": 3,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 3
+ },
+ "src/tutorial": {
+  "fichiers": 3,
+  "octets": 12805,
+  "jeu": 3,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 3
+ },
+ "tests": {
+  "fichiers": 15,
+  "octets": 69841,
+  "jeu": 1,
+  "outils_tests": 5,
+  "docs_seul": 9,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "tests/unit": {
+  "fichiers": 13,
+  "octets": 83969,
+  "jeu": 0,
+  "outils_tests": 13,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "tools": {
+  "fichiers": 1,
+  "octets": 735,
+  "jeu": 0,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 1,
+  "dynamique": 0
+ },
+ "tools/arena": {
+  "fichiers": 1,
+  "octets": 1602,
+  "jeu": 1,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "tools/p4": {
+  "fichiers": 2,
+  "octets": 13702,
+  "jeu": 0,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 2,
+  "dynamique": 0
+ },
+ "tools/p41": {
+  "fichiers": 1,
+  "octets": 5434,
+  "jeu": 0,
+  "outils_tests": 0,
+  "docs_seul": 0,
+  "aucune": 1,
+  "dynamique": 0
+ },
+ "tools/p45": {
+  "fichiers": 2,
+  "octets": 38377,
+  "jeu": 0,
+  "outils_tests": 0,
+  "docs_seul": 2,
+  "aucune": 0,
+  "dynamique": 0
+ },
+ "tools/p49": {
+  "fichiers": 21,
+  "octets": 163917,
+  "jeu": 8,
+  "outils_tests": 2,
+  "docs_seul": 8,
+  "aucune": 3,
+  "dynamique": 0
+ },
+ "tools/p5": {
+  "fichiers": 6,
+  "octets": 24561,
+  "jeu": 2,
+  "outils_tests": 0,
+  "docs_seul": 3,
+  "aucune": 1,
+  "dynamique": 0
+ },
+ "tools/p6": {
+  "fichiers": 13,
+  "octets": 67193,
+  "jeu": 2,
+  "outils_tests": 0,
+  "docs_seul": 10,
+  "aucune": 1,
+  "dynamique": 0
+ }
+}
