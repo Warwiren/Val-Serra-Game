@@ -186,6 +186,9 @@
   `build_colisee.py` ; joues des gradins aux accès (`habillage_p6._joue_gradins`) ; arc et grille du tunnel est classés
   EXT ; calque du sable `src/p6/sable_p643.gdshader` (`--sable=0`) ; ombres de contact locales au Colisée
   (`colisee._ombres_contact`, shader commun inchangé). Ne pas annoncer le Colisée validé ; la ville attend son plan directeur.
+- **P6.4.4 (branche `p6-4-4-colisee-vestiaires`, `docs/P6_4_4_COLISEE_VESTIAIRES.md`)** : `colisee.teleport()` (appelé aussi en fin
+  de chargement) FORCE le voile de l'extérieur après sa mise à jour immédiate des secteurs (sinon l'arène restait visible
+  depuis les vestiaires, le passage et la salle). Diagnostic : `tools/p6/visibilite_vestiaires_p644.gd`.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.
