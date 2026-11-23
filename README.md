@@ -43,8 +43,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p6-3-2-colisee-corrections-finales`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p6-3-2-colisee-corrections-finales`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p6-4-colisee-direction-artistique`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p6-4-colisee-direction-artistique`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -108,6 +108,11 @@ masque de collision avant / après.
    **Branche `p6-3-2-colisee-corrections-finales`** : F5 inchangé ; `colisee.tscn` (F6) avec les écoinçons maçonnés derrière
    les gradins, la porte de la réserve visible depuis la coursive (porte basse quand le mur est coupé) et moins de
    scintillement (mipmaps des textures de matières, faces confondues des murs). Rapport : `docs/P6_3_2_CORRECTIONS_FINALES.md`.
+   **Branche `p6-4-colisee-direction-artistique`** (pilote de direction artistique, EN ATTENTE de validation) : F5 inchangé ;
+   `colisee.tscn` (F6) avec la galerie couverte des écoinçons (toiture de tuiles, contreforts, corniche), les portes
+   fermées vues en coupe (vantaux tranchés + silhouette transparente) et des matériaux procéduraux sur trois zones pilotes
+   (gradins sud-ouest, mur nord des vestiaires et sa porte, coursive et son dallage). **M** : pilote P6.4 / état P6.3.2 ;
+   **U** : porte en coupe (silhouette / coupe seule / porte basse P6.3.2). Rapport : `docs/P6_4_DIRECTION_ARTISTIQUE.md`.
 
 ### Commandes — forêt V07B (F5)
 

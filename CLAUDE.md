@@ -160,6 +160,12 @@
   textures de matières P4 du Colisée importées AVEC mipmaps (cause principale du scintillement) ; moulures et bouts de
   murs décalés de quelques mm (faces confondues). Outils : `coplanaires_p6.gd`, `clignotements_p6.py`,
   `--isoler=ombres|occultation|trouee|fondus`. Corrections structurelles terminées : attendre l'accord pour P6.4.
+- **P6.4 (branche `p6-4-colisee-direction-artistique`, `docs/P6_4_DIRECTION_ARTISTIQUE.md`)** : PILOTE EN ATTENTE de validation
+  artistique. Galerie couverte des écoinçons (`habillage_p6._galerie_p64`, toiture de tuiles en appentis, contreforts, corniche ;
+  affichage seul, aucune collision). Portes fermées en coupe (`colisee._en_coupe` / `_en_fantome`, shaders
+  `src/p6/coupe_p64.gdshader`, `fantome_p64.gdshader` ; touche U). Matériaux procéduraux `src/p6/maconnerie_p64.gdshader`
+  (calepinage en mètres, joints filtrés, grain de `art/p4/mat/roche.png`) LIMITÉS aux zones pilotes (`P64_MURS`, `P64_SOLS`,
+  `P64_GRADINS`) : ne pas généraliser avant accord. Touche M / `--p64=0` : état P6.3.2. Mipmaps et faces de P6.3.2 conservés.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.

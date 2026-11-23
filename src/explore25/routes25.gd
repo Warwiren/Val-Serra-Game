@@ -459,6 +459,34 @@ static func _route_base(name: String) -> Array:
 				outr.append({"do": "wait", "t": 1.6})
 				outr.append({"do": "snap", "id": c[0]})
 			return outr
+		"p6_pilote_64":
+			# P6.4 — pilote de direction artistique : gradins et galerie, mur des vestiaires et sa porte, coursive
+			var outp: Array = []
+			for c in [["z1_gradins_sud_ouest", 19.0, 28.0], ["z1b_arene_ouest", 16.5, 23.0], ["z1c_arene_sud_est", 33.0, 28.0],
+					["z1d_arene_nord_ouest", 19.0, 17.0], ["z2_vestiaires_mur_nord", 22.0, 50.6], ["z2b_vestiaires_porte", 26.0, 49.4],
+					["z3_coursive_nord", 48.0, 15.0], ["z3b_coursive_ouest", 45.6, 21.0], ["z3c_coursive_centre", 50.0, 26.0]]:
+				outp.append(_warp(c[1], c[2], 0.0))
+				outp.append({"do": "wait", "t": 1.6})
+				outp.append({"do": "snap", "id": c[0]})
+			return outp
+		"p6_video_64":
+			# P6.4 — Aren en mouvement près des éléments du pilote (vitesse réelle)
+			return [
+				_warp(17.5, 50.4, 0.0), {"do": "wait", "t": 0.8},
+				_go(25.0, 49.4, "vestiaires : le long du mur nord", 0.3),
+				_go(26.0, 47.0, "porte nord des vestiaires", 0.25),
+				_go(26.0, 49.6, "retour dans les vestiaires", 0.25),
+				_warp(16.0, 24.0, 0.0), {"do": "wait", "t": 0.6},
+				_go(18.6, 28.4, "arène : pied des gradins ouest", 0.3),
+				_go(24.0, 30.4, "arène : gradins sud-ouest", 0.3),
+				_go(30.0, 28.0, "arène : vers le sud-est", 0.3),
+				_warp(45.4, 14.0, 0.0), {"do": "wait", "t": 0.6},
+				_go(45.4, 26.0, "coursive : le long du mur ouest", 0.3),
+				_go(52.0, 31.0, "coursive : dallage", 0.3),
+				_go(53.0, 33.2, "coursive : devant la réserve", 0.25),
+				_go(50.0, 20.0, "coursive : vers le nord", 0.3),
+				{"do": "wait", "t": 0.5},
+			]
 		"p6_clignotements":
 			# P6.3.2 — diagnostic des clignotements : marche le long des murs (vestiaires, salle, coursive), vitesse réelle
 			return [

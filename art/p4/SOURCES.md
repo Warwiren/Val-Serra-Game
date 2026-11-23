@@ -28,3 +28,7 @@ les modules `relief/` et `eau/` de P4_ENV (non calibrés, non bouclables), l'atl
 `P4_PERSONNAGES_EXPLORATION_v01` (Ilya blonde, refusée), les 32 poses `P4_ILYA_REFERENCE_32POSES_v02` (proportions
 « chibi » agrandies, incompatibles avec les sprites en jeu), l'atlas Aren v01 (non vérifié en mouvement ; les sprites
 d'Aren en jeu sont conservés).
+
+**P6.4 (Colisée, pilote)** : `mat/roche.png` est aussi lu par `src/p6/maconnerie_p64.gdshader` comme **grain de luminance
+seulement** (basse fréquence, décalé par pierre) pour les matériaux procéduraux des zones pilotes. Aucune nouvelle image ;
+statut inchangé (à tester). Les matériaux P6.4 eux-mêmes sont **PROVISOIRES** (pilote en attente de la revue du créateur).

@@ -84,6 +84,11 @@ var _lueur_tunnel: MeshInstance3D
 var _bornes_but := Rect2()
 var _amb_but := -1.0
 var habillage := true                       # P6.1 : pilote d'habillage (touche H : pilote / blockout P6)
+## P6.4 : pilote de direction artistique (touche M ; -- --p64=0 : état P6.3.2) ; porte fermée vue en coupe (touche U ;
+## -- --porte_coupe=p632|coupe|silhouette)
+var p64 := true
+var porte_coupe := "silhouette"
+const PORTES_COUPE := ["silhouette", "coupe", "p632"]
 var _hab
 
 
@@ -94,6 +99,10 @@ func _ready() -> void:
 	_diag_on = _cli.has("diag")
 	_isoler = str(_cli.get("isoler", ""))        # P6.3.2 : diagnostic des clignotements (ombres, occultation, trouee, fondus)
 	eblouissement = str(_cli.get("eblouissement", eblouissement))
+	p64 = str(_cli.get("p64", "1")) != "0"
+	porte_coupe = str(_cli.get("porte_coupe", porte_coupe))
+	if not PORTES_COUPE.has(porte_coupe):
+		porte_coupe = "silhouette"
 	if not CAMS_P6.has(cam_p6):
 		cam_p6 = "C"
 	cam_mode = CAMS_P6[cam_p6][0]
@@ -118,7 +127,7 @@ func _ready() -> void:
 	_apply_variante()
 	s.arch = "P6 — Colisée · " + CAMS_P6_LABEL[cam_p6]
 	s.build_hud()
-	s._help.text = "Flèches / ZQSD : marcher  ·  Maj : courir  ·  E / Entrée : parler, examiner  ·  Molette : zoom  ·  C : caméra  ·  B : Aren  ·  H : habillage  ·  J : transitions  ·  F1 : infos"
+	s._help.text = "Flèches / ZQSD : marcher  ·  Maj : courir  ·  E / Entrée : parler, examiner  ·  Molette : zoom  ·  C : caméra  ·  B : Aren  ·  H : habillage  ·  J : transitions  ·  M : P6.4  ·  U : porte en coupe  ·  F1 : infos"
 	_build_ui()
 	_dialog.choisi.connect(_on_choix)
 	_build_ui_p6()
@@ -482,6 +491,7 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	_lights.clear()
 	_au_mur.clear()
 	_au_coupe.clear()
+	_rects_p64.clear()
 	_monster = null
 	_rng.seed = 6061
 	world = World25.load_world(file, m)
@@ -498,6 +508,8 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	_env_res.background_mode = Environment.BG_COLOR
 	_env_res.tonemap_mode = Environment.TONE_MAPPER_LINEAR
 	_hab = Habillage.new(self) if habillage else null
+	if _hab != null:
+		_hab.p64 = p64
 	if _hab != null:
 		_hab.lumiere(_env_res, _sun)
 	_portes_fermees.clear()
@@ -565,7 +577,8 @@ func _build(e: Dictionary) -> void:
 				_box_mesh(_rect_center(r, e["h"] - th, e["h"] - 0.01), Vector3(r.size.x, th - 0.01, r.size.y), _tinted("paves", Color(0.5, 0.48, 0.55)))
 			else:
 				var d: Array = SOLS.get(sol, SOLS["paves"])
-				var ms := _box_mesh(_rect_center(r, e["h"] - th, e["h"]), Vector3(r.size.x, th, r.size.y), _tinted(d[0], d[1]))
+				var msol: Material = _hab.m64("dallage", "monde") if _hab != null and _hab.pilote_sol(id) else _tinted(d[0], d[1])
+				var ms := _box_mesh(_rect_center(r, e["h"] - th, e["h"]), Vector3(r.size.x, th, r.size.y), msol)
 				ms.set_meta("sol", true)          # P6.3 : structure (une pièce vue en coupe garde son sol)
 		"block":
 			_build_bloc_p6(e)
@@ -602,6 +615,9 @@ func _build_bloc_p6(e: Dictionary) -> void:
 			h1 = h0 + 1.7                       # rendu à la hauteur des gradins sud (collision inchangée : 2,6 m)
 			size.y = h1 - h0
 		var mpierre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE, tall) if _hab != null else _surf("pierre", tall)
+		if _hab != null and _hab.pilote_mur(id):
+			mpierre = _hab.m64("mur", "monde", 1.0, tall)          # P6.4 : mur pilote (maçonnerie procédurale)
+			_rects_p64.append(r)
 		# P6.2 : maillages du mur sous un pivot à l'origine ; la collision (sb) reste dans l'instance, jamais modifiée
 		var pivot := Node3D.new()
 		pivot.name = id
@@ -854,6 +870,7 @@ func _build_arene(a: Dictionary) -> void:
 	if _hab != null:
 		_hab.arene(a, tunnels)
 		_hab.loge(a["loge"])
+		_hab.lumiere_coursive_p64()
 		return
 	var n := 120
 	# sable
@@ -1178,6 +1195,16 @@ func _unhandled_input(e: InputEvent) -> void:
 		habillage = not habillage
 		_reload_here()
 		s.toast("Habillage : " + ("pilote P6.1" if habillage else "blockout P6"), 2.5)
+		return
+	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_M:
+		p64 = not p64
+		_reload_here()
+		s.toast("Direction artistique : " + ("pilote P6.4" if p64 else "P6.3.2 (comparaison)"), 2.5)
+		return
+	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_U:
+		porte_coupe = PORTES_COUPE[(PORTES_COUPE.find(porte_coupe) + 1) % PORTES_COUPE.size()]
+		_reload_here()
+		s.toast("Porte en coupe : " + {"silhouette": "coupe + silhouette (P6.4)", "coupe": "coupe seule (P6.4)", "p632": "porte basse (P6.3.2)"}[porte_coupe], 2.5)
 		return
 	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_B:
 		aren_variante = AREN_VARIANTES[(AREN_VARIANTES.find(aren_variante) + 1) % AREN_VARIANTES.size()]
@@ -1614,18 +1641,25 @@ func _mur_continu(id: String, pivot: Node3D, r: Rect2, h0: float, hv: float, mpi
 	var h_mid := minf(hv, 3.0)
 	haut.append(_box_mesh(_rect_center(rc, lip, h_mid), Vector3(rc.size.x, h_mid - lip, rc.size.y), mpierre, pivot))
 	var mcap: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(1.12, 1.1, 1.08), true) if _hab != null else _tinted("pierre", Color(1.12, 1.1, 1.14), true)
+	var p64m: bool = _hab != null and _hab.pilote_mur(id)
+	var mcorn: Material = _hab.m64("moulure", "monde", 1.0, true) if p64m else mpierre
+	if p64m:
+		mcap = _hab.m64("moulure", "monde", 1.0, true)
 	if hv > 3.05:
 		# P6.2-D : partie haute en deux assises (moins brutale qu'un aplat sombre), corniche, chaperon de pierre au sommet
 		# (et non plus une tranche noire de maquette), pilastres aux extrémités des murs longs (angles, piédroits)
 		var mmoyen: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.6, 0.56, 0.55), true) if _hab != null else _tinted("pierre", Color(0.58, 0.56, 0.58), true)
 		var msombre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.4, 0.36, 0.36), true) if _hab != null else _tinted("pierre", Color(0.4, 0.38, 0.4), true)
+		if p64m:
+			mmoyen = _hab.m64("mur_haut", "monde", 1.0, true)
+			msombre = _hab.m64("mur_sombre", "monde", 1.0, true)
 		var hm := minf(4.3, hv)
 		haut.append(_box_mesh(_rect_center(rc, 3.0, hm), Vector3(rc.size.x, hm - 3.0, rc.size.y), mmoyen, pivot))
 		if hv > hm + 0.05:
 			haut.append(_box_mesh(_rect_center(rc, hm, hv), Vector3(rc.size.x, hv - hm, rc.size.y), msombre, pivot))
 			haut.append(_box_mesh(_rect_center(r.grow(0.03 + e), hm - 0.04 + e, hm + 0.06 + e), Vector3(r.size.x + 0.06 + 2.0 * e, 0.1, r.size.y + 0.06 + 2.0 * e), mmoyen, pivot))
 		# corniche à la jonction (lecture des proportions : un étage, pas un mur infini)
-		haut.append(_box_mesh(_rect_center(r.grow(0.05 + e), 2.95 + e, 3.12 + e), Vector3(r.size.x + 0.1 + 2.0 * e, 0.17, r.size.y + 0.1 + 2.0 * e), mpierre, pivot))
+		haut.append(_box_mesh(_rect_center(r.grow(0.05 + e), 2.95 + e, 3.12 + e), Vector3(r.size.x + 0.1 + 2.0 * e, 0.17, r.size.y + 0.1 + 2.0 * e), mcorn, pivot))
 		haut.append(_box_mesh(_rect_center(r.grow(0.08 + e), hv + e, hv + 0.16 + e), Vector3(r.size.x + 0.16 + 2.0 * e, 0.16, r.size.y + 0.16 + 2.0 * e), msombre, pivot))
 		var long := maxf(r.size.x, r.size.y)
 		if long > 2.5:
@@ -1640,7 +1674,7 @@ func _mur_continu(id: String, pivot: Node3D, r: Rect2, h0: float, hv: float, mpi
 	else:
 		haut.append(_box_mesh(_rect_center(r.grow(0.06 + e), hv + e, hv + 0.12 + e), Vector3(r.size.x + 0.12 + 2.0 * e, 0.12, r.size.y + 0.12 + 2.0 * e), mcap, pivot))
 	if _hab != null:
-		_box_mesh(_rect_center(r.grow(0.05 + e), h0, 0.3 + e), Vector3(r.size.x + 0.1 + 2.0 * e, 0.3 + e - h0, r.size.y + 0.1 + 2.0 * e), _hab.mat(Habillage.PIERRE, 1.2, Habillage.C_CALCAIRE * Color(0.72, 0.7, 0.7)), pivot)
+		_box_mesh(_rect_center(r.grow(0.05 + e), h0, 0.3 + e), Vector3(r.size.x + 0.1 + 2.0 * e, 0.3 + e - h0, r.size.y + 0.1 + 2.0 * e), _hab.m64("socle", "monde") if p64m else _hab.mat(Habillage.PIERRE, 1.2, Habillage.C_CALCAIRE * Color(0.72, 0.7, 0.7)), pivot)
 	var coupe := _box_mesh(_rect_center(r.grow(0.07 + e), lip - 0.01 + e, lip + 0.05 + e), Vector3(r.size.x + 0.14 + 2.0 * e, 0.06, r.size.y + 0.14 + 2.0 * e), _mat_coupe(), pivot)
 	coupe.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var occ: OccluderInstance3D = null
@@ -1671,6 +1705,13 @@ func _linteaux() -> void:
 		root.add_child(pivot)
 		var haut: Array = []
 		var mclair: Material = _hab.mat(Habillage.PIERRE, 1.2, Habillage.C_CALCAIRE * Color(1.1, 1.06, 1.0), true) if _hab != null else mp
+		var pil := false
+		for rp in _rects_p64:
+			if (rp as Rect2).grow(0.05).intersects(r.grow(0.05)):
+				pil = true
+		if pil:
+			mclair = _hab.m64("mur", "monde", 1.0, true)
+			mp = mclair
 		if lh < 3.5:
 			# arc de la bouche : un bandeau de pierre claire et son chaperon, sans masse sombre au-dessus
 			haut.append(_box_mesh(_rect_center(r, lb, lh), Vector3(r.size.x, lh - lb, r.size.y), mp, pivot))
@@ -1678,6 +1719,8 @@ func _linteaux() -> void:
 		else:
 			haut.append(_box_mesh(_rect_center(r, lb, 3.0), Vector3(r.size.x, 3.0 - lb, r.size.y), mclair, pivot))
 			var msombre: Material = _hab.mat(Habillage.PIERRE, 2.4, Habillage.C_CALCAIRE * Color(0.42, 0.38, 0.38), true) if _hab != null else mp
+			if pil:
+				msombre = _hab.m64("mur_haut", "monde", 1.0, true)
 			haut.append(_box_mesh(_rect_center(r, 3.0, lh), Vector3(r.size.x, lh - 3.0, r.size.y), msombre, pivot))
 		var arc := lh < 3.5
 		if arc:
@@ -1716,6 +1759,7 @@ var _qcache := {}
 var _au_mur: Array = []                     # P6.3 : modèles fixés aux murs (suivent leur coupe)
 var _au_coupe: Array = []                   # P6.3.2 : variantes « mur coupé » (porte basse), visibles seulement coupé
 var _qmat := {}
+var _rects_p64: Array = []                  # P6.4 : emprises des murs pilotes (linteaux associés)
 
 
 ## Instancie un modèle de la sélection Quaternius (« fp/Bench », « mv/Door_8_Round »…) : position monde, rotation
@@ -1814,11 +1858,88 @@ func _porte_habillee(r: Rect2) -> void:
 		var bord: Vector3 = Vector3(c.x, 0, c.y) + axe * float(side) * lw
 		var k := Vector3(-float(side) * lw / 1.15, 0.98, 1.0)
 		_au_mur.append(modele("mv/Door_8_Round", bord + d3 * 0.22, rot, k))
-		# P6.3.2 : porte basse (1,2 m) pour quand le mur est coupé : la porte reste identifiable sans masquer Aren
-		_au_coupe.append(modele("mv/Door_8_Round", bord + d3 * 0.22, rot, Vector3(k.x, 1.2 / 2.36, 1.0)))
-	_au_coupe.append(modele("mv/DoorFrame_Round_Brick", Vector3(c.x, 0, c.y) + d3 * 0.1, rot, Vector3((w + 0.5) / 1.6, 1.3 / 2.58, 1.0), Color(1.05, 1.0, 0.95)))
+		if not p64 or porte_coupe == "p632":
+			# P6.3.2 : porte basse (1,2 m) pour quand le mur est coupé (comparaison)
+			_au_coupe.append(modele("mv/Door_8_Round", bord + d3 * 0.22, rot, Vector3(k.x, 1.2 / 2.36, 1.0)))
+		else:
+			# P6.4 : vantaux EN COUPE (taille réelle, tranchés au niveau du muret) ; « silhouette » : partie retirée
+			# lisible en transparence
+			_au_coupe.append(_en_coupe(modele("mv/Door_8_Round", bord + d3 * 0.22, rot, k), Secteurs.LIP + 0.04))
+			if porte_coupe == "silhouette":
+				_au_coupe.append(_en_fantome(modele("mv/Door_8_Round", bord + d3 * 0.22, rot, k), Secteurs.LIP + 0.04))
+	if not p64 or porte_coupe == "p632":
+		_au_coupe.append(modele("mv/DoorFrame_Round_Brick", Vector3(c.x, 0, c.y) + d3 * 0.1, rot, Vector3((w + 0.5) / 1.6, 1.3 / 2.58, 1.0), Color(1.05, 1.0, 0.95)))
+	else:
+		# P6.4 : encadrement EN COUPE : jambages entiers jusqu'à la naissance de l'arc (1,85 m), tranchés au-dessus ;
+		# l'ouverture garde sa vraie largeur et sa vraie hauteur de passage ; l'arc reste en silhouette
+		var kc := Vector3((w + 0.5) / 1.6, 1.0, 1.0)
+		var pc := Vector3(c.x, 0, c.y) + d3 * 0.1
+		_au_coupe.append(_en_coupe(modele("mv/DoorFrame_Round_Brick", pc, rot, kc, Color(1.05, 1.0, 0.95)), 1.85))
+		if porte_coupe == "silhouette":
+			_au_coupe.append(_en_fantome(modele("mv/DoorFrame_Round_Brick", pc, rot, kc, Color(1.05, 1.0, 0.95)), 1.85))
+		# seuil de pierre encastré (à fleur du sol : aucun relief praticable), des deux côtés de la porte
+		if _hab != null:
+			var long := Vector3(w + 0.5, 0.02, 1.1) if le_long_x else Vector3(1.1, 0.02, w + 0.5)
+			var seuil := _box_mesh(Vector3(c.x, 0.004, c.y), long, _hab.m64("dalle", "monde", 1.0, false, Color(0.85, 0.82, 0.8)))
+			seuil.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			seuil.set_meta("sol", true)             # structure : toujours rendu avec les sols voisins
+			seuil.set_meta("xz", c)
 	if cadre != null:
 		cadre.set_meta("porte", true)
+
+
+const COUPE_SH := preload("res://src/p6/coupe_p64.gdshader")
+const FANTOME_SH := preload("res://src/p6/fantome_p64.gdshader")
+
+
+## P6.4 : remplace les matériaux d'un modèle par sa version EN COUPE (au-dessus de y_coupe : retiré ; intérieur mis
+## à nu : teinte sombre de la tranche des murs).
+func _en_coupe(n: Node3D, y_coupe: float) -> Node3D:
+	return _remateriau(n, COUPE_SH, y_coupe)
+
+
+## P6.4 : silhouette transparente de la partie retirée d'un modèle (au-dessus de y_coupe).
+func _en_fantome(n: Node3D, y_coupe: float) -> Node3D:
+	var f := _remateriau(n, FANTOME_SH, y_coupe)
+	for mi in _geometries(f):
+		(mi as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return f
+
+
+func _geometries(n: Node) -> Array:
+	var out: Array = []
+	var pile: Array = [n]
+	while not pile.is_empty():
+		var c = pile.pop_back()
+		for e in c.get_children():
+			pile.append(e)
+		if c is MeshInstance3D:
+			out.append(c)
+	return out
+
+
+func _remateriau(n: Node3D, sh: Shader, y_coupe: float) -> Node3D:
+	if n == null:
+		return null
+	for mi in _geometries(n):
+		var m3 := mi as MeshInstance3D
+		if m3.mesh == null:
+			continue
+		for si in m3.mesh.get_surface_count():
+			var m0 := m3.get_active_material(si) as BaseMaterial3D
+			var m := ShaderMaterial.new()
+			m.shader = sh
+			m.set_shader_parameter("y_coupe", y_coupe)
+			m.set_shader_parameter("miroir", 1.0 if n.scale.x * n.scale.y * n.scale.z < 0.0 else 0.0)
+			if m0 != null:
+				m.set_shader_parameter("albedo", m0.albedo_color)
+				m.set_shader_parameter("has_tex", 1.0 if m0.albedo_texture != null else 0.0)
+				if m0.albedo_texture != null:
+					m.set_shader_parameter("albedo_tex", m0.albedo_texture)
+				m.set_shader_parameter("uv1_scale", m0.uv1_scale)
+				m.set_shader_parameter("uv1_offset", m0.uv1_offset)
+			m3.set_surface_override_material(si, m)
+	return n
 
 
 ## P6.3 / P6.3.1 : tranche de gradins devant le tunnel est (maillages construits par l'habillage). P6.3 la coupait
