@@ -154,6 +154,12 @@
   la coursive rendus pleine hauteur (collision inchangée) ; éblouissement du tunnel « discret » par défaut
   (`--eblouissement=actuel|aucun|discret`) ; diagnostic de visibilité F10 / `--diag` (outil, lecture seule).
   Ne pas lancer P6.4 sans accord.
+- **P6.3.2 (branche `p6-3-2-colisee-corrections-finales`, `docs/P6_3_2_CORRECTIONS_FINALES.md`)** : éblouissement discret
+  retenu provisoirement. Écoinçons entre l'anneau des gradins et l'enveloppe rectangulaire maçonnés (`habillage_p6._ecoincons`,
+  affichage seul) ; portes fermées : variante basse visible quand leur mur est coupé (`Secteurs.attacher_coupe`) ;
+  textures de matières P4 du Colisée importées AVEC mipmaps (cause principale du scintillement) ; moulures et bouts de
+  murs décalés de quelques mm (faces confondues). Outils : `coplanaires_p6.gd`, `clignotements_p6.py`,
+  `--isoler=ombres|occultation|trouee|fondus`. Corrections structurelles terminées : attendre l'accord pour P6.4.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p4_retour.gd`, `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis les parcours `--route=p4` et `--route=p4_sondes` (voir README).
 - Ne pas supprimer ni réécrire les branches existantes ; travailler sur une branche dédiée par étape.
