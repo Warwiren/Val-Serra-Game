@@ -21,7 +21,7 @@ Les mesures sont faites en **rendu logiciel (lavapipe), sans GPU**.
 
 | | |
 |---|---|
-| Vidéo de validation, une seule prise à vitesse réelle, zooms ×3 et ×2. Même parcours que P6.4.2, plus la vue générale de l'arène à ×2, les gradins sud-est et la bouche du tunnel est à ×2, et la soigneuse | [`colisee_validation_p643.mp4`](media/p6_4_3/colisee_validation_p643.mp4) |
+| Vidéo de validation (87 s), une seule prise à vitesse réelle, zooms ×3 et ×2. Même parcours que P6.4.2, plus la vue générale de l'arène à ×2, les gradins sud-est et la bouche du tunnel est à ×2, et la soigneuse | [`colisee_validation_p643.mp4`](media/p6_4_3/colisee_validation_p643.mp4) |
 | P0, avant / après aux mêmes positions (tunnel sud, bouche du tunnel est, coursive) | [`p0_continuite.jpg`](media/p6_4_3/p0_continuite.jpg) |
 | Arène : vue générale ×3 et ×2, entrée principale ×3 et ×2 | [`p1_arene.jpg`](media/p6_4_3/p1_arene.jpg) |
 | Raccords gradins / coursive ×3 et ×2, salle d'attente, infirmerie | [`captures_secondaires.jpg`](media/p6_4_3/captures_secondaires.jpg) |
