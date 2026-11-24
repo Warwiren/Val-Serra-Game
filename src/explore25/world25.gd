@@ -63,11 +63,28 @@ static func toward_cam() -> Vector2:
 
 ## Direction d'entrée À L'ÉCRAN (x droite, y bas, clavier 8 directions) -> direction au sol dans le plan.
 ## « Haut » fait monter le personnage verticalement à l'écran, quel que soit l'azimut.
+## P7.4 : azimut des COMMANDES, distinct de celui de la caméra quand `yaw_commande_actif` (caméra semi-fixe de la ville :
+## la direction tenue au clavier ne dérive pas pendant une rotation ; resynchronisée au relâchement). Inactif partout
+## ailleurs (comportement historique).
+static var yaw_commande_actif := false
+static var yaw_commande := 0.0
+
+
 static func input_to_plan(v: Vector2) -> Vector2:
-	var r := Vector2(cos(yaw), sin(yaw))
-	var f := Vector2(sin(yaw), -cos(yaw))
+	var yc: float = yaw_commande if yaw_commande_actif else yaw
+	var r := Vector2(cos(yc), sin(yc))
+	var f := Vector2(sin(yc), -cos(yc))
 	var w := r * v.x - f * v.y
 	return w.normalized() if w.length() > 0.0001 else Vector2.ZERO
+
+
+## P7.4 : inverse de input_to_plan (direction au sol -> touches), avec l'azimut des commandes.
+static func plan_to_input(w: Vector2) -> Vector2:
+	var yc: float = yaw_commande if yaw_commande_actif else yaw
+	var r := Vector2(cos(yc), sin(yc))
+	var f := Vector2(sin(yc), -cos(yc))
+	var v := Vector2(w.dot(r), -w.dot(f))
+	return v.normalized() if v.length() > 0.0001 else Vector2.ZERO
 
 
 ## Direction au sol (plan) -> direction à l'écran (pour l'orientation des sprites, le pilote).

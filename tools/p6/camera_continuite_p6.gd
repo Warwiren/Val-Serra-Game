@@ -10,6 +10,7 @@ const V_MARGE := 1.0        # m/s au-delà de la vitesse d'Aren (lissage : la ca
 const V_MARCHE := 2.6       # P6.2-D : et au-delà de la marche (2,2 m/s) : le rattrapage lissé après un arrêt n'est pas un bond
 const ACC_MAX := 30.0       # m/s² au-delà de l'accélération d'Aren lui-même (ses départs / arrêts sont instantanés)
 const ECRAN_PX := 6.0       # déplacement d'Aren à l'écran en une image, au-delà de son propre mouvement
+const World25 = preload("res://src/explore25/world25.gd")
 var z
 var n := 0
 var cam_prev := Vector3.INF
@@ -28,6 +29,14 @@ var dist_max := 0.0
 var ecran_max := 0.0
 var arret_derive := 0.0     # déplacement cumulé de la caméra pendant qu'Aren est immobile (stabilité à l'arrêt)
 var fini := false
+## P7.4 : rotation de la caméra semi-fixe (ville V0.7-A) : vitesse d'azimut, épisodes, inversions de sens
+var yaw_prev := INF
+var yaw_v_prev := 0.0
+var yaw_vmax := 0.0
+var yaw_inversions := 0
+var yaw_episodes := 0
+var en_rotation := false
+var images_rotation := 0
 
 
 func _initialize() -> void:
@@ -67,8 +76,25 @@ func _physics_process(delta: float) -> bool:
 		var acc_h := (vhv - vh_prev).length() / delta
 		var d_ecr := ecr.distance_to(ecr_prev)
 		var bond := ""
+		var yv := 0.0
+		if yaw_prev != INF:
+			yv = rad_to_deg(World25.yaw - yaw_prev) / delta
+		var tourne := absf(yv) > 0.05
+		if tourne:
+			images_rotation += 1
+			yaw_vmax = maxf(yaw_vmax, absf(yv))
+			if not en_rotation:
+				yaw_episodes += 1
+			if absf(yaw_v_prev) > 0.5 and absf(yv) > 0.5 and signf(yv) != signf(yaw_v_prev):
+				yaw_inversions += 1
+		en_rotation = tourne
+		yaw_v_prev = yv if tourne else yaw_v_prev * 0.0
 		if t > 0.6:                                 # mise en place
-			if v.length() > vh + V_MARGE and v.length() > V_MARCHE:
+			if tourne:
+				# rotation voulue (orbite autour d'Aren) : seul compte le déplacement d'Aren à l'écran
+				if d_ecr > ECRAN_PX + 2.0 * (1.0 if vh > 0.05 else 0.0) and vh < 0.05:
+					bond = "ecran(rotation)"
+			elif v.length() > vh + V_MARGE and v.length() > V_MARCHE:
 				bond = "vitesse"
 			elif acc > acc_h + ACC_MAX:
 				bond = "acceleration"
@@ -96,6 +122,7 @@ func _physics_process(delta: float) -> bool:
 	if dist0 < 0.0 or t < 0.6:
 		dist0 = dist
 	cam_prev = cp
+	yaw_prev = World25.yaw
 	hero_prev = hp
 	ecr_prev = ecr
 	var duree := 90.0
@@ -114,6 +141,7 @@ func _physics_process(delta: float) -> bool:
 			fh.store_string("\n".join(lignes) + "\n")
 		print("CAMERA : %d images, %.1f s, %d bonds ; vitesse max %.2f m/s, accélération max %.1f m/s², recul caméra %.3f–%.3f m (zoom), déplacement écran max %.1f px/image, dérive à l'arrêt %.3f m" % [
 			lignes.size() - 1, t, bonds.size(), v_max, acc_max, dist_min, dist_max, ecran_max, arret_derive])
+		print("  ROTATION : %d épisodes, %d images en rotation, vitesse d'azimut max %.1f °/s, %d inversions de sens" % [yaw_episodes, images_rotation, yaw_vmax, yaw_inversions])
 		print("  seuils : vitesse > Aren + %.1f m/s et > %.1f m/s, accélération > %.0f m/s² au-delà d'Aren, Aren déplacé de > %.0f px à l'écran sans bouger, recul ±0,05 m" % [V_MARGE, V_MARCHE, ACC_MAX, ECRAN_PX])
 		for b in bonds.slice(0, 40):
 			print("  BOND " + b)

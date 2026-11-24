@@ -80,7 +80,10 @@ func construit(e: Dictionary) -> bool:
 			var fait := super(e)
 			if fait and id.begins_with("bat_"):
 				var bm: Dictionary = v.get("batiments", {}).get(id, {})
-				_toit(r, h1, str(bm.get("toit", "")), id.hash())
+				# P7.4 (V0.7-A seulement) : toit d'un volume bas plafonné à 70 % de ses murs (une échoppe de 3,5 m ne
+				# porte plus un toit de 6 m) ; V0.6 inchangée
+				var cap := (h1 - h0) * 0.7 if str(v.get("version", "")) == "v07a" else 99.0
+				_toit(r, h1, str(bm.get("toit", "")), id.hash(), cap)
 			return fait
 	return false
 
@@ -149,7 +152,7 @@ func _niveaux() -> void:
 
 
 ## Toit : "2p" deux pans (faîtage le long du grand côté), "plat" terrasse avec acrotère, "" rien.
-func _toit(r: Rect2, h: float, kind: String, graine: int) -> void:
+func _toit(r: Rect2, h: float, kind: String, graine: int, cap := 99.0) -> void:
 	if kind == "plat":
 		sc._box_mesh(sc._rect_center(r.grow(0.15), h, h + 0.5), Vector3(r.size.x + 0.3, 0.5, r.size.y + 0.3), mat(Color(0.66, 0.63, 0.58)))
 		return
@@ -158,7 +161,7 @@ func _toit(r: Rect2, h: float, kind: String, graine: int) -> void:
 	var c: Color = TOITS[absi(graine) % TOITS.size()]
 	var long_x := r.size.x >= r.size.y
 	var court := minf(r.size.x, r.size.y)
-	var ht := clampf(court * 0.42, 1.4, 6.0)
+	var ht := minf(clampf(court * 0.42, 1.4, 6.0), maxf(cap, 1.0))
 	var d := 0.45                                   # débord
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)

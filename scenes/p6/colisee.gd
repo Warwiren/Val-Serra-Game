@@ -42,6 +42,21 @@ const CHAMP_V06 := 30.0
 const AIM_V06 := 0.1                      # Aren un peu sous le centre : la vue porte plus loin vers le nord (la montée)
 const ZOOM_V06 := 2                        # ×3, la distance validée du Colisée
 @export var ville_v06 := false
+## P7.4 : VILLE V0.7-A (micro-blockout semi-circulaire), scène F6 scenes/p7/ville_v07a.tscn (ou -- --ville=v07a). Même
+## caméra que la V0.6 (A : fixe vers le nord) ; B : caméra SEMI-FIXE, même projection, même distance, orientation propre
+## à 2 secteurs des données (« zones_camera », hystérésis), rotation douce, commandes verrouillées pendant la rotation.
+## Touche V ou -- --camera_ville=A|B. Repli sur A : touche V, ou B sans zones dans les données.
+const ZONE_VILLE_V07A := "res://data/p7/ville_v07a.json"
+const VilleV07A := preload("res://scenes/p7/ville_v07a.gd")
+@export var ville_v07a := false
+var camera_ville := "A"
+var _yaw_base := 0.0
+var _yaw_cible := 0.0
+var _yaw_vit := 0.0
+var _zone_cam := ""
+var _yaw_snap := true
+const YAW_TAU := 0.55                        # s : rapidité de la rotation (amortissement critique)
+const YAW_VMAX := 14.0                       # °/s au plus
 var _ville_ver := "v05"
 var cam_v06 := "V06"
 var _cam_ville := false                    # la caméra de la ville V0.6 est en place (sinon : caméra du Colisée)
@@ -163,6 +178,7 @@ func _ready() -> void:
 	arch_label = "P6 — Colisée"
 	# P6.2 : azimut de la caméra propre au Colisée (comparaison 20° / 0°) ; la forêt et l'avant-poste gardent 20°
 	World25.yaw = deg_to_rad(float(_cli.get("azimut", azimut_initial)))
+	_yaw_base = World25.yaw
 	for k in CHARS:
 		Actor25.overrides[k] = CHARS[k]["dir"]
 	get_tree().physics_interpolation = true
@@ -194,12 +210,15 @@ func _ready() -> void:
 	_pnj_defs = JSON.parse_string(FileAccess.open(PNJ_P6, FileAccess.READ).get_as_text())["pnj"]
 	# outils de test : état de départ imposé (--etat=tutorial_completed, etc.), nouvelle partie (--neuf)
 	var retour: bool = GameState.explore_return == scene_file_path and GameState.last_battle_result != ""
-	_ville_on = ville_v05 or ville_v06 or str(_cli.get("ville", "")) in ["v05", "v06"]
+	_ville_on = ville_v05 or ville_v06 or ville_v07a or str(_cli.get("ville", "")) in ["v05", "v06", "v07a"]
 	_ville_ver = "v06" if (ville_v06 or str(_cli.get("ville", "")) == "v06") else "v05"
+	if ville_v07a or str(_cli.get("ville", "")) == "v07a":
+		_ville_ver = "v07a"
+	camera_ville = "B" if str(_cli.get("camera_ville", "A")).to_upper() == "B" else "A"
 	cam_v06 = str(_cli.get("cam_v06", cam_v06)).to_upper()
 	if not cam_v06 in CAMS_V06:
 		cam_v06 = "V06"
-	if (ville_v05 or ville_v06) and not _cli.has("etat") and not _cli.has("neuf") and not retour:
+	if (ville_v05 or ville_v06 or ville_v07a) and not _cli.has("etat") and not _cli.has("neuf") and not retour:
 		# P7.1 : la scène du blockout commence dans la ville, après le Colisée (objectif : la Guilde)
 		Progression.definir(Progression.COLISEUM_EXITED, true)
 		Progression.definir_objectif("guilde_badge")
@@ -250,6 +269,7 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	Routes.decalage_sud = {}
+	World25.yaw_commande_actif = false
 	super._exit_tree()
 	World25.yaw = World25.YAW
 	get_viewport().use_occlusion_culling = false
@@ -574,7 +594,8 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	_camera_de_zone()
 	_ville = null
 	if _p6.get("zone", "") == "ville":
-		_ville = VilleV06.new(self) if str(_p6.get("ville", {}).get("version", "")) == "v06" else VilleBlockout.new(self)
+		var ver := str(_p6.get("ville", {}).get("version", ""))
+		_ville = VilleV07A.new(self) if ver == "v07a" else (VilleV06.new(self) if ver == "v06" else VilleBlockout.new(self))
 	Routes.decalage_sud = _p6.get("decalage_sud", {})
 	_dy_sud = float(Routes.decalage_sud.get("dy", 0.0))
 	_interior = false
@@ -1325,6 +1346,10 @@ func _unhandled_input(e: InputEvent) -> void:
 		s.cam.set_index(ZOOM_V06, false)
 		s.toast("Caméra " + CAMS_V06_LABEL[cam_v06], 2.5)
 		return
+	if _cam_ville and _ville_ver == "v07a" and e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_V:
+		camera_ville = "B" if camera_ville == "A" else "A"
+		s.toast("Caméra de la ville : " + ("B — semi-fixe (2 secteurs)" if camera_ville == "B" else "A — fixe vers le nord"), 2.5)
+		return
 	if _cam_ville and e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_L:
 		if _cli.has("libelles"):
 			_cli.erase("libelles")
@@ -1390,6 +1415,8 @@ func _physics_process(delta: float) -> void:
 			else:
 				_dialog.advance()
 	_auto_dialog_t = -1.0e9                     # l'avancée automatique héritée de l'avant-poste ne doit pas choisir à notre place
+	if _cam_ville and not _switching and world != null:
+		_yaw_secteurs(delta)                    # P7.4 : caméra semi-fixe (B) ; sans effet en A
 	super._physics_process(delta)
 	if _switching or world == null or _bloque:
 		return
@@ -2328,6 +2355,8 @@ func _passer_porte() -> void:
 
 # ------------------------------------------------------------------------------------------------ P7.3 ville V0.6
 func _zone_ville() -> String:
+	if _ville_ver == "v07a":
+		return ZONE_VILLE_V07A
 	return ZONE_VILLE_V06 if _ville_ver == "v06" else ZONE_VILLE
 
 
@@ -2346,7 +2375,13 @@ func _entree_zoom(e: InputEvent) -> bool:
 ## ailleurs (Colisée, quartier, blockout V0.1) -> caméra du Colisée (cam_p6), inchangée. Appelée avant la construction
 ## de l'instance (les cartes et les sprites dépendent de la plongée).
 func _camera_de_zone() -> void:
-	var ville06: bool = _p6.get("zone", "") == "ville" and str(_p6.get("ville", {}).get("version", "")) == "v06"
+	var ville06: bool = _p6.get("zone", "") == "ville" and str(_p6.get("ville", {}).get("version", "")) in ["v06", "v07a"]
+	# P7.4 : azimut de départ de la zone (caméra B : celui du secteur d'arrivée, sans rotation visible au chargement)
+	World25.yaw = _yaw_base
+	_zone_cam = ""
+	_yaw_vit = 0.0
+	World25.yaw_commande_actif = false
+	_yaw_snap = true
 	var voulu: String = cam_v06 if ville06 else CAMS_P6[cam_p6][0]
 	var change := voulu != cam_mode or ville06 != _cam_ville
 	_cam_ville = ville06
@@ -2392,3 +2427,76 @@ func apply_camera(center: Vector2, zoom: float) -> void:
 	var axis := World25.cam_right() * (center.x / World25.PPM) + World25.cam_up() * (-center.y / World25.PPM)
 	var depth := body.global_position.dot(World25.cam_back()) if body != null else 0.0
 	cam.position = axis + World25.cam_back() * (depth + h_view * 0.5 / tan(deg_to_rad(fov) * 0.5))
+
+
+# ------------------------------------------------------------------------------------------------ P7.4 caméra B
+## Secteur de caméra du héros (mode B) : on entre dans une zone quand on est dans son rectangle ; on n'en sort qu'à
+## « marge_m » au-delà (hystérésis : pas d'oscillation en longeant une limite). Hors zones : azimut de base (nord).
+func _secteur_camera(p: Vector2) -> Dictionary:
+	var zs: Array = _p6.get("ville", {}).get("zones_camera", [])
+	for z in zs:
+		if str(z["id"]) == _zone_cam:
+			var q: Array = z["rect"]
+			if Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1]).grow(float(z.get("marge_m", 2.0))).has_point(p):
+				return z
+	for z in zs:
+		var q: Array = z["rect"]
+		if Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1]).has_point(p):
+			return z
+	return {}
+
+
+## Oriente la caméra (mode B) vers l'azimut du secteur, sans saut : amortissement critique, vitesse bornée. Le cadrage
+## est recalé pour qu'Aren garde exactement sa place à l'écran pendant la rotation ; les cartes des personnages suivent.
+## Commandes : l'azimut des commandes reste celui d'avant la rotation tant qu'une direction est tenue (pas de dérive de
+## la marche pendant qu'on tient une touche), puis rejoint celui de la caméra au relâchement.
+func _yaw_secteurs(delta: float) -> void:
+	if _ville_ver != "v07a":
+		return
+	var hp := Vector2(s.hero.x, s.hero.y)
+	var z: Dictionary = _secteur_camera(hp) if camera_ville == "B" else {}
+	_zone_cam = str(z.get("id", ""))
+	_yaw_cible = _yaw_base + deg_to_rad(float(z.get("azimut_deg", 0.0)))
+	var avant := World25.yaw
+	var nouv := avant
+	if _yaw_snap:
+		nouv = _yaw_cible
+		_yaw_vit = 0.0
+		_yaw_snap = false
+	else:
+		# ressort amorti critique : a = w²(cible − x) − 2w v, w = 1 / tau ; vitesse bornée
+		var w := 1.0 / YAW_TAU
+		_yaw_vit += (w * w * (_yaw_cible - avant) - 2.0 * w * _yaw_vit) * delta
+		_yaw_vit = clampf(_yaw_vit, -deg_to_rad(YAW_VMAX), deg_to_rad(YAW_VMAX))
+		nouv = avant + _yaw_vit * delta
+		if absf(_yaw_cible - nouv) < 0.0002 and absf(_yaw_vit) < 0.002:
+			nouv = _yaw_cible
+			_yaw_vit = 0.0
+	# commandes : verrou tant qu'une direction est tenue
+	var tenu: bool = s.derniere_touche != Vector2.ZERO
+	if camera_ville == "B":
+		if not World25.yaw_commande_actif or not tenu:
+			World25.yaw_commande = nouv if not tenu else World25.yaw_commande
+		World25.yaw_commande_actif = true
+		if not tenu:
+			World25.yaw_commande = nouv
+	else:
+		# A : commandes = azimut de la caméra (aucun verrou) ; même conversion que B pour le pilote de mesure,
+		# afin que les deux modes suivent exactement les mêmes trajectoires
+		World25.yaw_commande_actif = true
+		World25.yaw_commande = nouv
+	if absf(nouv - avant) < 1e-7:
+		return
+	var hero_avant := World25.screen(s.hero)
+	World25.yaw = nouv
+	var dec := World25.screen(s.hero) - hero_avant
+	s.cam.center += dec
+	s.cam.focus += dec
+	s.cam.bounds = Rect2()                        # pas de limites écran dans la ville (elles dépendent de l'azimut)
+	_cam_basis()
+	for k in actors:
+		var nd: Node3D = actors[k]["node"]
+		for ch in nd.get_children():
+			if ch is Node3D and ch.get_child_count() > 0 and ch.get_child(0) is SpriteBase3D:
+				(ch as Node3D).basis = Basis(Vector3.UP, -World25.yaw)
+				(ch as Node3D).position = World25.cam_back() * SPRITE_TOWARD_CAM

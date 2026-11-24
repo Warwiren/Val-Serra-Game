@@ -470,6 +470,8 @@ func _pilot_dir(delta: float) -> Vector2:
 				_next_step(false)
 				return Vector2.ZERO
 			var sd: Vector2 = World25.plan_to_screen_dir(d.normalized())
+			if World25.yaw_commande_actif:
+				sd = World25.plan_to_input(d.normalized())     # P7.4 : commandes verrouillées (caméra B de la ville)
 			if dist > 0.8:
 				# clavier : 8 directions seulement ; on alterne les deux touches voisines dans la bonne proportion
 				# (diffusion d'erreur, comme un joueur qui corrige sa trajectoire) pour suivre une ligne droite
