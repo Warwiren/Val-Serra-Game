@@ -217,6 +217,12 @@
   (`TUNNEL_RETENU_M`, largeur inchangée ; variantes A / B / C conservées). Porte publique de la V0.7-A sur la façade EST
   du tambour (même axe réel que la sortie est du Colisée) ; portail « colisee_porte_publique » (sorties de données,
   orientation d'arrivée `orientation`, déclencheur inverse désarmé à l'arrivée). Test `--route=p7_v07_portail`.
+- **P7.5 (branche `p7-5-ville-v07b`, `docs/P7_5_VILLE_V07B.md`)** : porte du Colisée à deux battants dans l'arche sud du propylée
+  (entrée par interaction E, portail `colisee_porte_publique` inchangé, arrivée de retour sur le perron). V0.7-B = BLOCKOUT
+  CONSOLIDÉ NON VALIDÉ : `tools/p7/build_ville_v07b.py` -> `data/p7/ville_v07b.json` (ne pas éditer à la main),
+  `scenes/p7/ville_v07b.gd` (hérite de la V0.7-A), F6 `scenes/p7/ville_v07b.tscn` ; la V0.7-A reste la référence. Accès futurs
+  bloqués par des obstacles crédibles (A chantier, B caravane, C gardes) ; prolongements visuels sans collision. Parcours
+  `p7_v07b_sondes|trajets|vues|video`. Pas d'intérieurs, de foule, d'habillage détaillé ni de reprise de l'éclairage.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).

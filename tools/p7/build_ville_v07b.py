@@ -121,7 +121,7 @@ BATIMENTS = [
     ("b_no_place", rect(36, 56, 40, 76), H1, 0.6, "commerce", "", ""),         # P7.4.2 : étals bas (caméra B au-dessus)
     ("b_arriere_forge", rect(40, 71, 58, 76), H1, 4.5, "residentiel_b", "", "plat"),        # contre le mur de la terrasse
     ("b_parvis_o", rect(-24, 82, -10, 92), H1, 7.0, "residentiel", "", "2p"),              # front ouest du parvis (nord)
-    ("b_parvis_o2", rect(-24, 100, -10, 104), H1, 6.0, "residentiel_b", "", "2p"),         # front ouest du parvis (sud)
+    ("b_parvis_o2", rect(-24, 100, -10, 104), H1, 1.2, "residentiel_b", "", ""),           # front ouest du parvis (sud) : BAS, sinon il cache la caravane (accès B)
     ("b_faubourg_n", rect(-34, 84, -18, 92), H1, 6.0, "residentiel_b", "", "2p"),          # B : le passage se poursuit
     ("b_faubourg_s", rect(-34, 100, -18, 108), H1, 5.0, "residentiel", "", "2p"),
     ("b_parvis_s", rect(-10, 104, 14, 112), H1, 1.2, "residentiel_b", "", ""),             # bas : la caméra passe au-dessus

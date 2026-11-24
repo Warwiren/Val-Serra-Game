@@ -3,7 +3,7 @@
 
 Rues praticables (teinte par niveau), volées d'escalier, volumes bâtis avec collision, volumes purement visuels,
 accès bloqués (portes, grilles, chantier), garde-corps, Colisée, zones de la caméra semi-fixe B.
-Usage : python3 tools/p7/plan_v07a.py [sortie.png]
+Usage : python3 tools/p7/plan_v07a.py [sortie.png] [donnees.json]   (P7.5 : data/p7/ville_v07b.json pour la V0.7-B)
 """
 import json
 import math
@@ -13,7 +13,7 @@ import sys
 from PIL import Image, ImageDraw, ImageFont
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-SRC = os.path.join(REPO, "data", "p7", "ville_v07a.json")
+SRC = sys.argv[2] if len(sys.argv) > 2 else os.path.join(REPO, "data", "p7", "ville_v07a.json")
 OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "docs", "media", "p7_4", "plan_v07a.png")
 X0, Y0, X1, Y1 = -40.0, 20.0, 145.0, 165.0
 K = 8.0                     # px par mètre

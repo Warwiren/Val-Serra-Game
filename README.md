@@ -42,8 +42,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p7-4-ville-v07a`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p7-4-ville-v07a`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p7-5-ville-v07b`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p7-5-ville-v07b`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -150,6 +150,13 @@ masque de collision avant / après.
    (`colisee.tscn`, profil V : distance fixe, molette sans effet, 20° dans l'arène ; touche C : caméras P6 en comparaison) ;
    tunnel sud de 9 m ; **porte publique** sur la façade est du Colisée, liaison réelle ville ↔ Colisée dans les deux sens.
    Rapport : `docs/P7_4_1_CAMERA_COLISEE.md`.
+   **Branche `p7-5-ville-v07b`** (BLOCKOUT CONSOLIDÉ, NON validé) : F5 inchangé. **Porte du Colisée** à deux battants dans
+   l'arche sud du propylée (V0.7-A et V0.7-B) : **E** devant la porte pour entrer. **F6 sur `scenes/p7/ville_v07b.tscn`** =
+   quartier central V0.7-B : porte sud, placette (Guilde, auberge-taverne), montée, grande place (fontaine, forge-armurerie,
+   boutique de fournitures, étals ; Colisée à l'ouest), montée civique, terrasse haute (hôtel de ville, administration),
+   accès gardé du château ; boucle par la ruelle et la terrasse de l'auberge ; accès futurs bloqués : A chantier (est),
+   B caravane (faubourgs ouest), C gardes et grille (château). **V** : caméra A / B ; **L** : libellés. La V0.7-A reste en
+   référence (`ville_v07a.tscn`). Rapport : `docs/P7_5_VILLE_V07B.md`.
 
 ### Commandes — forêt V07B (F5)
 
@@ -188,6 +195,7 @@ masque de collision avant / après.
 
 | Scène | Contenu |
 |---|---|
+| `scenes/p7/ville_v07b.tscn` | **P7.5 — ville V0.7-B** : quartier central compact (trois terrasses, boucle, accès futurs bloqués), caméras A / B (touche V) |
 | `scenes/p7/ville_v07a.tscn` | **P7.4 — ville V0.7-A** : micro-blockout semi-circulaire, caméras A / B (touche V) |
 | `scenes/p7/ville_v06_montee.tscn` | **P7.3 — ville V0.6** : caméra HD-2D de la ville et montée sur trois niveaux (prototype) |
 | `scenes/p7/ville_v05_blockout.tscn` | P7.1 — blockout V0.1 du quartier central (référence fonctionnelle, comparaison) |

@@ -1078,7 +1078,7 @@
      104
     ],
     "h": 3.5,
-    "haut": 6.0
+    "haut": 1.2
    },
    {
     "id": "bat_b_faubourg_n",
@@ -2182,7 +2182,7 @@
      "bat_b_parvis_o2": {
       "categorie": "residentiel_b",
       "libelle": "",
-      "toit": "2p"
+      "toit": ""
      },
      "bat_b_faubourg_n": {
       "categorie": "residentiel_b",

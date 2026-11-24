@@ -862,6 +862,14 @@ static func _route_base(name: String) -> Array:
 				_warp(82.0, 52.0, 8.0), _push("façade de l'hôtel de ville", Vector2(0, -1), 1.5, {"min_y": 50.2}),
 			]
 			return sb
+		"p7_v07b_diag":
+			var od: Array = []
+			for c in [["d1_caravane", -10.0, 96.0, 3.5], ["d2_ouest_place", 40.0, 96.0, 3.5], ["d3_ouest_place2", 46.0, 100.0, 3.5],
+					["d4_ruelle_bas", 78.0, 130.0, 0.0], ["d5_ruelle_placette", 68.0, 137.0, 0.0], ["d6_parvis_est", 6.0, 96.0, 3.5]]:
+				od.append(_warp(c[1], c[2], c[3]))
+				od.append({"do": "wait", "t": 3.0})
+				od.append({"do": "snap", "id": c[0]})
+			return od
 		"p7_v07b_vues":
 			# P7.5 — repères de vues de la V0.7-B (caméra A par défaut ; --camera_ville=B pour comparer)
 			var outb: Array = []
