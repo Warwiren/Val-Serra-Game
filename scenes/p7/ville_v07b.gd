@@ -18,6 +18,8 @@ func construit(e: Dictionary) -> bool:
 		var h0: float = e["h0"]
 		var h1: float = e["h1"]
 		sc._static_box(sc._rect_center(r, h0, h1), Vector3(r.size.x, h1 - h0, r.size.y), sc.L_OBST)
+		if id.begins_with("decor_entree_"):
+			return true                                   # P7.6 : piédroits des entrées (dessinés par _entrees)
 		if id == "decor_caravane":
 			_caravane(r, h0)
 		elif id.begins_with("decor_guerite"):
@@ -36,6 +38,7 @@ func decorer() -> void:
 		_arche_decor(a)
 	for tr in v.get("decor_tours", []):
 		_tour_decor(tr)
+	_entrees()
 	_libelle("Faubourgs — passage bloqué", Vector3(-14.0, 3.5 + 4.0, 96.0))
 	_libelle("Quartier du château — accès gardé", Vector3(70.0, 8.0 + 5.0, 41.0))
 
@@ -136,3 +139,95 @@ func _tour_decor(tr: Array) -> void:
 	sc._box_mesh(Vector3(x, h0 + ht * 0.5, y), Vector3(6.0, ht, 6.0), mat(Color(0.64, 0.62, 0.60), 0.0, 1.0, h0))
 	_creneaux(Rect2(x - 3.0, y - 3.0, 6.0, 6.0), h0 + ht, Color(0.64, 0.62, 0.60))
 	_cone(Vector3(x, h0 + ht, y), 4.4, 8.0, Color(0.34, 0.36, 0.42))
+
+
+# ------------------------------------------------------------------------------------------------ P7.6 (B) entrées
+const BOIS_PORTE := Color(0.30, 0.20, 0.13)
+const FER := Color(0.15, 0.15, 0.16)
+## Couleur et forme d'enseigne par bâtiment de service (lecture à distance, sans texte)
+const ENSEIGNES := {
+	"guilde": [Color(0.16, 0.24, 0.52), "banniere"],
+	"auberge": [Color(0.62, 0.30, 0.14), "potence"],
+	"forge": [Color(0.32, 0.32, 0.34), "potence"],
+	"boutique": [Color(0.24, 0.46, 0.30), "potence"],
+	"hotel": [Color(0.55, 0.14, 0.16), "banniere"],
+}
+
+
+func _mat_plein(c: Color, emission := 0.0) -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.albedo_color = c
+	m.roughness = 0.85
+	if emission > 0.0:
+		m.emission_enabled = true
+		m.emission = c
+		m.emission_energy_multiplier = emission
+	return m
+
+
+## Entrées des bâtiments (données « entrees ») : fonctionnelles = avant-corps lisible de loin ; décoratives = simple porte.
+func _entrees() -> void:
+	for e in v.get("entrees", []):
+		if str(e["type"]) == "fonctionnelle":
+			_entree_fonctionnelle(e)
+		else:
+			_porte_decorative(e)
+
+
+## Entrée fonctionnelle (façade sud) : piédroits et linteau de calcaire en saillie, battants de bois ferré en retrait,
+## emmarchement, imposte sombre, lanternes (verre émissif, aucune lumière ajoutée) et enseigne propre au bâtiment.
+func _entree_fonctionnelle(e: Dictionary) -> void:
+	var x: float = e["x"]
+	var y: float = e["y"]
+	var h: float = e["h"]
+	var L: float = e["largeur"]
+	var H: float = e["hauteur"]
+	var pierre := mat(CALCAIRE, 0.0, 0.0, h)
+	var bois := _mat_plein(BOIS_PORTE)
+	var fer := _mat_plein(FER)
+	# piédroits (collision : decor_entree_*), linteau et corniche
+	for xc in [x - L * 0.5 - 0.225, x + L * 0.5 + 0.225]:
+		sc._box_mesh(Vector3(xc, h + (H + 0.6) * 0.5, y + 0.175), Vector3(0.45, H + 0.6, 0.35), pierre)
+	sc._box_mesh(Vector3(x, h + H + 0.3, y + 0.175), Vector3(L + 0.9, 0.6, 0.35), pierre)
+	sc._box_mesh(Vector3(x, h + H + 0.66, y + 0.25), Vector3(L + 1.3, 0.12, 0.5), mat(CALCAIRE_CLAIR))
+	# embrasure sombre (profondeur) puis battants en retrait de 0,12 m
+	sc._box_mesh(Vector3(x, h + H * 0.5, y + 0.02), Vector3(L, H, 0.04), _mat_plein(Color(0.08, 0.07, 0.06)))
+	for k in [-1.0, 1.0]:
+		var xc: float = x + k * L * 0.25
+		sc._box_mesh(Vector3(xc, h + (H - 0.5) * 0.5, y + 0.06), Vector3(L * 0.5 - 0.04, H - 0.5, 0.06), bois)
+		for hb in [0.5, (H - 0.5) * 0.5, H - 1.0]:
+			sc._box_mesh(Vector3(xc, h + hb, y + 0.1), Vector3(L * 0.5 - 0.1, 0.08, 0.03), fer)
+		sc._box_mesh(Vector3(x + k * 0.18, h + 1.1, y + 0.11), Vector3(0.08, 0.16, 0.03), fer)          # poignées
+	# emmarchement (dalle basse, franchissable) et seuil
+	sc._box_mesh(Vector3(x, h + 0.04, y + 0.6), Vector3(L + 1.4, 0.08, 1.2), mat(MARCHE.lightened(0.08)))
+	# lanternes de part et d'autre (verre chaud émissif, pas de lumière : l'éclairage n'est pas repris)
+	for k in [-1.0, 1.0]:
+		var lx: float = x + k * (L * 0.5 + 0.7)
+		sc._box_mesh(Vector3(lx, h + H - 0.2, y + 0.3), Vector3(0.05, 0.05, 0.3), fer)
+		sc._box_mesh(Vector3(lx, h + H - 0.45, y + 0.45), Vector3(0.22, 0.34, 0.22), _mat_plein(Color(1.0, 0.72, 0.36), 1.6))
+	# enseigne
+	var en: Array = ENSEIGNES.get(str(e["enseigne"]), [Color(0.5, 0.5, 0.5), "potence"])
+	var col: Color = en[0]
+	if str(en[1]) == "banniere":
+		for k in [-1.0, 1.0]:
+			var bx: float = x + k * (L * 0.5 + 1.4)
+			sc._box_mesh(Vector3(bx, h + H + 0.2, y + 0.08), Vector3(0.9, 2.6, 0.04), _mat_plein(col))
+			sc._box_mesh(Vector3(bx, h + H + 0.3, y + 0.11), Vector3(0.36, 0.36, 0.02), _mat_plein(Color(0.85, 0.68, 0.25)))
+			sc._box_mesh(Vector3(bx, h + H + 1.55, y + 0.1), Vector3(1.1, 0.07, 0.07), fer)
+	else:
+		# enseigne en potence au-dessus de l'entrée (perpendiculaire à la façade : lisible quand on longe la rue)
+		var px: float = x + L * 0.5 + 0.45
+		sc._box_mesh(Vector3(px + 0.5, h + H + 0.95, y + 0.05), Vector3(1.0, 0.07, 0.07), fer)
+		sc._box_mesh(Vector3(px + 0.75, h + H + 0.45, y + 0.05), Vector3(0.75, 0.75, 0.06), _mat_plein(col))
+		sc._box_mesh(Vector3(px + 0.75, h + H + 0.45, y + 0.09), Vector3(0.36, 0.36, 0.02), _mat_plein(Color(0.85, 0.68, 0.25)))
+
+
+## Porte décorative : battant unique de bois sombre affleurant, petit linteau, sans saillie ni interaction.
+func _porte_decorative(e: Dictionary) -> void:
+	var x: float = e["x"]
+	var y: float = e["y"]
+	var h: float = e["h"]
+	var L: float = e["largeur"]
+	var H: float = e["hauteur"]
+	sc._box_mesh(Vector3(x, h + H * 0.5, y + 0.03), Vector3(L, H, 0.06), _mat_plein(BOIS_PORTE.darkened(0.15)))
+	sc._box_mesh(Vector3(x, h + H + 0.1, y + 0.04), Vector3(L + 0.3, 0.2, 0.08), mat(CALCAIRE.darkened(0.12)))

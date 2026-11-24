@@ -100,6 +100,31 @@ def main():
             d.line([(r[0], r[1] + k), (r[0], r[1] + k + 7)], fill=(30, 70, 200), width=3)
             d.line([(r[2], r[1] + k), (r[2], r[1] + k + 7)], fill=(30, 70, 200), width=3)
         d.text((r[0] + 6, r[1] + 6), "B : %s (%+.0f°)" % (z["id"], z["azimut_deg"]), fill=(30, 70, 200), font=fb)
+    # P7.6 : entrées des bâtiments (données « entrees ») et accès réservés
+    for e in v.get("entrees", []):
+        x, y, L = e["x"], e["y"], e["largeur"]
+        if e["type"] == "fonctionnelle":
+            d.rectangle(R([x - L / 2 - 0.45, y - 0.6, x + L / 2 + 0.45, y + 1.2]), fill=(30, 150, 60), outline=(0, 70, 20), width=2)
+            p = P(x, y + 1.2)
+            d.polygon([(p[0], p[1] + 2), (p[0] - 7, p[1] + 13), (p[0] + 7, p[1] + 13)], fill=(0, 90, 30))
+            d.text((p[0] - 30, p[1] + 14), "entrée", fill=(0, 90, 30), font=f)
+        else:
+            d.rectangle(R([x - L / 2, y - 0.4, x + L / 2, y + 0.4]), fill=(150, 90, 50), outline=(80, 50, 30))
+    for s in a.get("sorties", []):
+        r = s["rect"]
+        d.rectangle(R(r), fill=(240, 200, 40), outline=(120, 90, 0), width=2)
+    if v.get("entrees"):
+        pp = v["colisee"].get("porte_publique", {})
+        if pp:
+            q = P(pp["xy"][0], pp["xy"][1])
+            d.ellipse([q[0] - 7, q[1] - 7, q[0] + 7, q[1] + 7], fill=(240, 200, 40), outline=(120, 90, 0), width=2)
+            d.text((q[0] + 10, q[1] - 8), "porte du Colisée (E)", fill=(110, 80, 0), font=fb)
+        acces = {"ex_chantier": "A : quartier est (chantier)", "ex_caravane": "B : faubourgs (caravane)",
+                 "ex_garde_chateau": "C : château (gardé)"}
+        for ex in a["p6"].get("examens", []):
+            if ex["id"] in acces:
+                q = P(ex["xy"][0], ex["xy"][1])
+                d.text((q[0] + 8, q[1] - 22), acces[ex["id"]], fill=(190, 20, 20), font=fb)
     # nord, échelle
     d.text((10, 10), "N ↑  (caméra A regarde le nord)", fill=(0, 0, 0), font=fb)
     d.line([(10, H - 20), (10 + 20 * K, H - 20)], fill=(0, 0, 0), width=3)
@@ -110,6 +135,9 @@ def main():
              ((140, 160, 210), "palier, 5,75 m"), ((170, 150, 210), "terrasse haute, 8 m"), ((235, 170, 80), "volée (flèche = montée)"),
              ((120, 116, 110), "bâti à collision"), ((90, 80, 140), "bâtiment-repère"), ((205, 200, 190), "volume visuel seul"),
              ((60, 60, 60), "garde-corps"), ((220, 40, 40), "accès bloqué (porte, grille, chantier)")]
+    if v.get("entrees"):
+        items += [((30, 150, 60), "entrée fonctionnelle (instance future)"), ((150, 90, 50), "porte décorative (fermée)"),
+                  ((240, 200, 40), "portail vers le Colisée")]
     for i, (c, t) in enumerate(items):
         y = 60 + i * 26
         d.rectangle([lx, y, lx + 18, y + 16], fill=c, outline=(40, 40, 40))

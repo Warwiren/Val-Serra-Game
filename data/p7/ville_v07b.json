@@ -1657,10 +1657,10 @@
    {
     "id": "etal_2",
     "rect": [
-     77,
-     96,
-     79.5,
-     99.5
+     72.6,
+     95,
+     75,
+     98.5
     ],
     "h": 3.5,
     "haut": 1.6
@@ -1807,6 +1807,116 @@
     ],
     "h": 3.5,
     "haut": 9.5
+   },
+   {
+    "id": "decor_entree_guilde_o",
+    "rect": [
+     50.25,
+     132.0,
+     50.7,
+     132.35
+    ],
+    "h": 0.0,
+    "haut": 4.2
+   },
+   {
+    "id": "decor_entree_guilde_e",
+    "rect": [
+     53.3,
+     132.0,
+     53.75,
+     132.35
+    ],
+    "h": 0.0,
+    "haut": 4.2
+   },
+   {
+    "id": "decor_entree_auberge_o",
+    "rect": [
+     74.55,
+     132.0,
+     75.0,
+     132.35
+    ],
+    "h": 0.0,
+    "haut": 3.6
+   },
+   {
+    "id": "decor_entree_auberge_e",
+    "rect": [
+     77.0,
+     132.0,
+     77.45,
+     132.35
+    ],
+    "h": 0.0,
+    "haut": 3.6
+   },
+   {
+    "id": "decor_entree_forge_o",
+    "rect": [
+     49.35,
+     88.0,
+     49.8,
+     88.35
+    ],
+    "h": 3.5,
+    "haut": 3.6
+   },
+   {
+    "id": "decor_entree_forge_e",
+    "rect": [
+     52.2,
+     88.0,
+     52.65,
+     88.35
+    ],
+    "h": 3.5,
+    "haut": 3.6
+   },
+   {
+    "id": "decor_entree_boutique_o",
+    "rect": [
+     76.65,
+     88.0,
+     77.1,
+     88.35
+    ],
+    "h": 3.5,
+    "haut": 3.4
+   },
+   {
+    "id": "decor_entree_boutique_e",
+    "rect": [
+     78.9,
+     88.0,
+     79.35,
+     88.35
+    ],
+    "h": 3.5,
+    "haut": 3.4
+   },
+   {
+    "id": "decor_entree_hotel_de_ville_o",
+    "rect": [
+     81.05,
+     50.0,
+     81.5,
+     50.35
+    ],
+    "h": 8.0,
+    "haut": 4.8
+   },
+   {
+    "id": "decor_entree_hotel_de_ville_e",
+    "rect": [
+     84.5,
+     50.0,
+     84.95,
+     50.35
+    ],
+    "h": 8.0,
+    "haut": 4.8
    }
   ],
   "entree": {
@@ -1876,20 +1986,20 @@
     {
      "id": "ex_guilde",
      "xy": [
-      50.0,
-      132.6
+      52.0,
+      132.9
      ],
      "portee_m": 1.8,
-     "texte": "Guilde des Chasseurs (volume provisoire)."
+     "texte": "Guilde des Chasseurs — entrée principale. (Intérieur : instance à venir.)"
     },
     {
      "id": "ex_forge",
      "xy": [
-      52.0,
-      88.6
+      51.0,
+      88.9
      ],
      "portee_m": 1.8,
-     "texte": "Forge-armurerie (volume provisoire)."
+     "texte": "Forge-armurerie — entrée de l'atelier. (Intérieur : instance à venir.)"
     },
     {
      "id": "ex_chantier",
@@ -1903,20 +2013,20 @@
     {
      "id": "ex_auberge",
      "xy": [
-      70.0,
-      132.6
+      76.0,
+      132.9
      ],
      "portee_m": 1.8,
-     "texte": "Auberge-taverne (volume provisoire)."
+     "texte": "Auberge-taverne « Le Tonnelet » — entrée. (Intérieur : instance à venir.)"
     },
     {
      "id": "ex_boutique",
      "xy": [
       78.0,
-      88.6
+      88.9
      ],
      "portee_m": 1.8,
-     "texte": "Boutique de fournitures (volume provisoire)."
+     "texte": "Boutique de fournitures — entrée. (Intérieur : instance à venir.)"
     },
     {
      "id": "ex_caravane",
@@ -1939,11 +2049,11 @@
     {
      "id": "ex_hotel_de_ville",
      "xy": [
-      82.0,
-      50.6
+      83.0,
+      50.9
      ],
      "portee_m": 1.8,
-     "texte": "Hôtel de ville (volume provisoire)."
+     "texte": "Hôtel de ville — grand portail. (Intérieur : instance à venir.)"
     },
     {
      "id": "ex_fontaine",
@@ -2258,6 +2368,140 @@
       "toit": ""
      }
     },
+    "entrees": [
+     {
+      "id": "guilde",
+      "batiment": "bat_guilde",
+      "x": 52.0,
+      "y": 132.0,
+      "h": 0.0,
+      "largeur": 2.6,
+      "hauteur": 3.6,
+      "type": "fonctionnelle",
+      "instance_future": "guilde_interieur",
+      "enseigne": "guilde"
+     },
+     {
+      "id": "auberge",
+      "batiment": "bat_auberge_taverne",
+      "x": 76.0,
+      "y": 132.0,
+      "h": 0.0,
+      "largeur": 2.0,
+      "hauteur": 3.0,
+      "type": "fonctionnelle",
+      "instance_future": "auberge_interieur",
+      "enseigne": "auberge"
+     },
+     {
+      "id": "forge",
+      "batiment": "bat_forge_armurerie",
+      "x": 51.0,
+      "y": 88.0,
+      "h": 3.5,
+      "largeur": 2.4,
+      "hauteur": 3.0,
+      "type": "fonctionnelle",
+      "instance_future": "forge_interieur",
+      "enseigne": "forge"
+     },
+     {
+      "id": "boutique",
+      "batiment": "bat_boutique_fournitures",
+      "x": 78.0,
+      "y": 88.0,
+      "h": 3.5,
+      "largeur": 1.8,
+      "hauteur": 2.8,
+      "type": "fonctionnelle",
+      "instance_future": "boutique_interieur",
+      "enseigne": "boutique"
+     },
+     {
+      "id": "hotel_de_ville",
+      "batiment": "bat_hotel_de_ville",
+      "x": 83.0,
+      "y": 50.0,
+      "h": 8.0,
+      "largeur": 3.0,
+      "hauteur": 4.2,
+      "type": "fonctionnelle",
+      "instance_future": "hotel_de_ville_interieur",
+      "enseigne": "hotel"
+     },
+     {
+      "id": "deco_guilde_o",
+      "batiment": "bat_guilde",
+      "x": 38.0,
+      "y": 132.0,
+      "h": 0.0,
+      "largeur": 1.2,
+      "hauteur": 2.3,
+      "type": "decorative",
+      "instance_future": "",
+      "enseigne": ""
+     },
+     {
+      "id": "deco_placette_o",
+      "batiment": "bat_b_o_placette",
+      "x": 40.0,
+      "y": 150.0,
+      "h": 0.0,
+      "largeur": 1.2,
+      "hauteur": 2.3,
+      "type": "decorative",
+      "instance_future": "",
+      "enseigne": ""
+     },
+     {
+      "id": "deco_commerce_e2",
+      "batiment": "bat_commerce_e2",
+      "x": 82.0,
+      "y": 100.0,
+      "h": 3.5,
+      "largeur": 1.2,
+      "hauteur": 2.3,
+      "type": "decorative",
+      "instance_future": "",
+      "enseigne": ""
+     },
+     {
+      "id": "deco_ruelle_e",
+      "batiment": "bat_b_e_ruelle",
+      "x": 87.5,
+      "y": 136.0,
+      "h": 0.0,
+      "largeur": 1.2,
+      "hauteur": 2.3,
+      "type": "decorative",
+      "instance_future": "",
+      "enseigne": ""
+     },
+     {
+      "id": "deco_terrasse_no",
+      "batiment": "bat_b_terrasse_no",
+      "x": 61.0,
+      "y": 50.0,
+      "h": 8.0,
+      "largeur": 1.4,
+      "hauteur": 2.6,
+      "type": "decorative",
+      "instance_future": "",
+      "enseigne": ""
+     },
+     {
+      "id": "deco_administration",
+      "batiment": "bat_administration",
+      "x": 49.0,
+      "y": 71.0,
+      "h": 8.0,
+      "largeur": 1.4,
+      "hauteur": 2.6,
+      "type": "decorative",
+      "instance_future": "",
+      "enseigne": ""
+     }
+    ],
     "paysage": [
      {
       "rect": [

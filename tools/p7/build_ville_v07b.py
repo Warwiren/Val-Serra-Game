@@ -48,6 +48,27 @@ PORTE_BATTANTS = [27.5, 66.2, 33.4, 66.4]
 ARCHE_EST_AVEUGLE = [34.6, 58.6, 35.0, 65.4]
 
 
+# P7.6 (B) — ENTRÉES DES BÂTIMENTS. « fonctionnelle » : entrée d'un bâtiment de service, réservée à une instance future
+# (intérieur NON réalisé : examen au seuil, aucune transition) ; avant-corps de pierre, emmarchement, battants, enseigne.
+# « decorative » : porte de façade fermée, sans interaction, sans encadrement saillant (lecture de la ville habitée).
+# Toutes sur une façade SUD (face caméra). (id, bâtiment, x du centre, y de la façade, sol, largeur, hauteur, type,
+# instance future, enseigne)
+ENTREES = [
+    ("guilde", "bat_guilde", 52.0, 132.0, 0.0, 2.6, 3.6, "fonctionnelle", "guilde_interieur", "guilde"),
+    ("auberge", "bat_auberge_taverne", 76.0, 132.0, 0.0, 2.0, 3.0, "fonctionnelle", "auberge_interieur", "auberge"),
+    ("forge", "bat_forge_armurerie", 51.0, 88.0, 3.5, 2.4, 3.0, "fonctionnelle", "forge_interieur", "forge"),
+    ("boutique", "bat_boutique_fournitures", 78.0, 88.0, 3.5, 1.8, 2.8, "fonctionnelle", "boutique_interieur", "boutique"),
+    ("hotel_de_ville", "bat_hotel_de_ville", 83.0, 50.0, 8.0, 3.0, 4.2, "fonctionnelle", "hotel_de_ville_interieur", "hotel"),
+    # portes décoratives
+    ("deco_guilde_o", "bat_guilde", 38.0, 132.0, 0.0, 1.2, 2.3, "decorative", "", ""),
+    ("deco_placette_o", "bat_b_o_placette", 40.0, 150.0, 0.0, 1.2, 2.3, "decorative", "", ""),
+    ("deco_commerce_e2", "bat_commerce_e2", 82.0, 100.0, 3.5, 1.2, 2.3, "decorative", "", ""),
+    ("deco_ruelle_e", "bat_b_e_ruelle", 87.5, 136.0, 0.0, 1.2, 2.3, "decorative", "", ""),
+    ("deco_terrasse_no", "bat_b_terrasse_no", 61.0, 50.0, 8.0, 1.4, 2.6, "decorative", "", ""),
+    ("deco_administration", "bat_administration", 49.0, 71.0, 3.5 + 4.5, 1.4, 2.6, "decorative", "", ""),
+]
+
+
 def rect(x0, y0, x1, y1):
     return [round(x0, 3), round(y0, 3), round(x1, 3), round(y1, 3)]
 
@@ -213,7 +234,7 @@ def construire():
     obstacles.append({"id": "barriere_route_sud", "rect": rect(57, 161.4, 63, 162), "h": H0, "haut": 1.1})
     obstacles.append({"id": "fontaine", "rect": rect(42, 96, 48, 102), "h": H1, "haut": 1.0})
     # étals à auvent intégrés aux bords de la place (pas de seconde place de marché)
-    for i, r in enumerate([rect(31, 110.6, 35, 112.6), rect(37, 110.6, 41, 112.6), rect(77, 96, 79.5, 99.5), rect(66, 89, 70, 91)]):
+    for i, r in enumerate([rect(31, 110.6, 35, 112.6), rect(37, 110.6, 41, 112.6), rect(72.6, 95, 75, 98.5), rect(66, 89, 70, 91)]):
         obstacles.append({"id": "etal_%d" % i, "rect": r, "h": H1, "haut": 1.6})
     # B : caravane en travers du passage des faubourgs (chargement en cours, chevaux dételés)
     obstacles.append({"id": "decor_caravane", "rect": rect(-17.5, 92.6, -13.5, 99.4), "h": H1, "haut": 2.6})
@@ -232,20 +253,27 @@ def construire():
     obstacles.append({"id": "porche_porte", "rect": PORTE_BATTANTS, "h": H1, "haut": 7.4})
     obstacles.append({"id": "porche_arche_est", "rect": ARCHE_EST_AVEUGLE, "h": H1, "haut": 9.5})
 
+    # P7.6 : piédroits des entrées fonctionnelles (saillie de 0,35 m : collision réelle, aucun relief traversable)
+    for eid, _bat, x, y, h, larg, haut, typ, _inst, _ens in ENTREES:
+        if typ != "fonctionnelle":
+            continue
+        for k, x0 in (("o", x - larg / 2.0 - 0.45), ("e", x + larg / 2.0)):
+            obstacles.append({"id": "decor_entree_%s_%s" % (eid, k), "rect": rect(x0, y, x0 + 0.45, y + 0.35), "h": h, "haut": haut + 0.6})
+
     portes = [
         {"id": "porte_chateau", "rect": [66.0, 40.0, 74.0, 40.4], "type": "grille", "marque": "fermee", "h": H2,
          "texte_ferme": "Porte du château — fermée. L'accès s'ouvrira plus tard dans l'histoire."},
     ]
     examens = [
         {"id": "ex_porte_sud", "xy": [60.0, 160.0], "portee_m": 2.2, "texte": "Porte sud — sortie de la ville (transition non reliée)."},
-        {"id": "ex_guilde", "xy": [50.0, 132.6], "portee_m": 1.8, "texte": "Guilde des Chasseurs (volume provisoire)."},
-        {"id": "ex_forge", "xy": [52.0, 88.6], "portee_m": 1.8, "texte": "Forge-armurerie (volume provisoire)."},
+        {"id": "ex_guilde", "xy": [52.0, 132.9], "portee_m": 1.8, "texte": "Guilde des Chasseurs — entrée principale. (Intérieur : instance à venir.)"},
+        {"id": "ex_forge", "xy": [51.0, 88.9], "portee_m": 1.8, "texte": "Forge-armurerie — entrée de l'atelier. (Intérieur : instance à venir.)"},
         {"id": "ex_chantier", "xy": [88.6, 140.0], "portee_m": 2.0, "texte": "Travaux — la rue vers le quartier est est barrée pour l'instant."},
-        {"id": "ex_auberge", "xy": [70.0, 132.6], "portee_m": 1.8, "texte": "Auberge-taverne (volume provisoire)."},
-        {"id": "ex_boutique", "xy": [78.0, 88.6], "portee_m": 1.8, "texte": "Boutique de fournitures (volume provisoire)."},
+        {"id": "ex_auberge", "xy": [76.0, 132.9], "portee_m": 1.8, "texte": "Auberge-taverne « Le Tonnelet » — entrée. (Intérieur : instance à venir.)"},
+        {"id": "ex_boutique", "xy": [78.0, 88.9], "portee_m": 1.8, "texte": "Boutique de fournitures — entrée. (Intérieur : instance à venir.)"},
         {"id": "ex_caravane", "xy": [-12.8, 96.0], "portee_m": 2.0, "texte": "Une caravane bloque le passage vers les faubourgs — on décharge. (Futur secteur de missions.)"},
         {"id": "ex_garde_chateau", "xy": [70.0, 43.6], "portee_m": 2.0, "texte": "« Halte. Le quartier du château est fermé au public pour l'instant. »"},
-        {"id": "ex_hotel_de_ville", "xy": [82.0, 50.6], "portee_m": 1.8, "texte": "Hôtel de ville (volume provisoire)."},
+        {"id": "ex_hotel_de_ville", "xy": [83.0, 50.9], "portee_m": 1.8, "texte": "Hôtel de ville — grand portail. (Intérieur : instance à venir.)"},
         {"id": "ex_fontaine", "xy": [45.0, 102.6], "portee_m": 1.8, "texte": "Fontaine (repère provisoire)."},
     ]
     zones = [
@@ -305,6 +333,9 @@ def construire():
                     "decor_arches": [[-40.0, 96.0, 6.0, H1, "x"], [118.0, 140.0, 6.0, H0, "x"], [112.0, 60.0, 7.0, H2, "x"]],
                     "decor_tours": [[-62.0, 70.0, H1, 26.0], [132.0, 96.0, H1, 24.0], [128.0, 30.0, H2, 30.0], [-30.0, 20.0, H1, 32.0]],
                     "batiments": meta_bat,
+                    # P7.6 : entrées des bâtiments (voir ENTREES) ; dessinées par scenes/p7/ville_v07b.gd, tracées sur le plan
+                    "entrees": [{"id": e[0], "batiment": e[1], "x": e[2], "y": e[3], "h": e[4], "largeur": e[5], "hauteur": e[6],
+                                 "type": e[7], "instance_future": e[8], "enseigne": e[9]} for e in ENTREES],
                     "paysage": paysage(),
                     "masses": masses(),
                     "volees": [list(v) for v in VOLEES],

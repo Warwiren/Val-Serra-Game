@@ -860,6 +860,11 @@ static func _route_base(name: String) -> Array:
 				_warp(70.0, 44.5, 8.0), _push("grille du château (entre les gardes)", Vector2(0, -1), 2.0, {"min_y": 40.6}),
 				_warp(67.0, 44.5, 8.0), _push("guérite ouest", Vector2(0, -1), 1.5, {"min_y": 42.8}),
 				_warp(82.0, 52.0, 8.0), _push("façade de l'hôtel de ville", Vector2(0, -1), 1.5, {"min_y": 50.2}),
+				# P7.6 : entrées fermées (instances futures), bras est fermé, angle libéré du perron
+				_warp(52.0, 134.5, 0.0), _push("porte de la Guilde (fermée : instance future)", Vector2(0, -1), 1.5, {"min_y": 132.2}),
+				_warp(51.0, 90.5, 3.5), _push("porte de la forge (fermée : instance future)", Vector2(0, -1), 1.5, {"min_y": 88.2}),
+				_warp(82.0, 108.0, 3.5), _push("bout du bras est (bâti)", Vector2(1, 0), 1.5, {"max_x": 83.8}),
+				_warp(33.0, 75.0, 3.5), _push("angle libéré du perron -> étals", Vector2(0, 1), 1.5, {"max_y": 78.8}),
 			]
 			return sb
 		"p7_v07b_diag":
@@ -884,6 +889,15 @@ static func _route_base(name: String) -> Array:
 				o76a.append({"do": "wait", "t": 2.5})
 				o76a.append({"do": "snap", "id": c[0]})
 			return o76a
+		"p7_76_entrees":
+			# P7.6 (B) — entrées des bâtiments : vue d'approche et vue au seuil (examen)
+			var o76e: Array = []
+			for c in [["e1_guilde", 54.0, 141.0, 0.0], ["e2_auberge", 74.0, 141.0, 0.0], ["e3_forge", 51.0, 97.0, 3.5],
+					["e4_boutique", 77.0, 96.0, 3.5], ["e5_hotel_de_ville", 81.0, 60.0, 8.0], ["e6_guilde_seuil", 52.0, 134.0, 0.0]]:
+				o76e.append(_warp(c[1], c[2], c[3]))
+				o76e.append({"do": "wait", "t": 2.5})
+				o76e.append({"do": "snap", "id": c[0]})
+			return o76e
 		"p7_v07b_vues":
 			# P7.5 — repères de vues de la V0.7-B (caméra A par défaut ; --camera_ville=B pour comparer)
 			var outb: Array = []
