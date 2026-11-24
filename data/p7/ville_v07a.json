@@ -857,7 +857,7 @@
      88
     ],
     "h": 3.5,
-    "haut": 4.0
+    "haut": 3.0
    },
    {
     "id": "bat_forge_armurerie",
@@ -901,7 +901,7 @@
      96
     ],
     "h": 3.5,
-    "haut": 4.0
+    "haut": 3.0
    },
    {
     "id": "bat_b_rue_colisee_s",
@@ -934,7 +934,7 @@
      84
     ],
     "h": 3.5,
-    "haut": 6.0
+    "haut": 2.5
    },
    {
     "id": "bat_b_no_place",
@@ -945,7 +945,7 @@
      76
     ],
     "h": 3.5,
-    "haut": 6.0
+    "haut": 3.0
    },
    {
     "id": "bat_b_arriere_forge",
@@ -1753,7 +1753,7 @@
       "toit": "2p"
      },
      "bat_b_rue_colisee_s": {
-      "categorie": "commerce",
+      "categorie": "rempart",
       "libelle": "",
       "toit": ""
      },
@@ -1765,7 +1765,7 @@
      "bat_b_parvis_ne": {
       "categorie": "residentiel_b",
       "libelle": "",
-      "toit": "2p"
+      "toit": ""
      },
      "bat_b_no_place": {
       "categorie": "residentiel",

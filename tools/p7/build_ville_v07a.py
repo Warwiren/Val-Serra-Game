@@ -99,15 +99,15 @@ BATIMENTS = [
     # --- palier 1 : bloc de pierre à l'est de la volée A (sous le palier)
     ("socle_palier", rect(62, 126, 68, 132), H0, HP1, "rempart", "", ""),
     # --- grande place : fronts denses
-    ("echoppe_no", rect(30, 76, 44, 88), H1, 4.0, "commerce", "", "2p"),
+    ("echoppe_no", rect(30, 76, 44, 88), H1, 3.0, "commerce", "", "2p"),
     ("forge_armurerie", rect(44, 76, 60, 88), H1, 4.0, "forge", "Forge-armurerie", "2p"),    # façade sud
     ("commerce_est", rect(74, 76, 86, 100), H1, 7.0, "commerce", "", "2p"),
     ("socle_palier_2", rect(66, 82, 74, 88), H1, HP2 - H1, "rempart", "", ""),
-    ("b_rue_colisee_n", rect(22, 84, 30, 96), H1, 4.0, "commerce", "", "2p"),      # bas, en retrait : le Colisée se découvre
-    ("b_rue_colisee_s", rect(14, 104, 30, 118), H1, 1.2, "commerce", "", ""),           # bas : le Colisée se lit
+    ("b_rue_colisee_n", rect(22, 84, 30, 96), H1, 3.0, "commerce", "", "2p"),      # bas, en retrait : le Colisée se découvre
+    ("b_rue_colisee_s", rect(14, 104, 30, 118), H1, 1.2, "rempart", "", ""),           # bas : le Colisée se lit
     ("b_place_so", rect(20, 112, 30, 118), H1, 3.5, "residentiel", "", "2p"),
-    ("b_parvis_ne", rect(22, 62, 30, 84), H1, 6.0, "residentiel_b", "", "2p"),            # ferme le parvis au nord-est
-    ("b_no_place", rect(30, 60, 40, 76), H1, 6.0, "residentiel", "", "2p"),
+    ("b_parvis_ne", rect(22, 62, 30, 84), H1, 2.5, "residentiel_b", "", ""),              # portique bas : le Colisée se voit de la place
+    ("b_no_place", rect(30, 60, 40, 76), H1, 3.0, "residentiel", "", "2p"),
     ("b_arriere_forge", rect(40, 71, 60, 76), H1, 4.5, "residentiel_b", "", "plat"),        # contre le mur de la terrasse
     ("b_parvis_o", rect(-24, 82, -10, 104), H1, 7.0, "residentiel", "", "2p"),             # front ouest du parvis
     ("b_parvis_s", rect(-10, 104, 14, 112), H1, 1.2, "residentiel_b", "", ""),             # bas : la caméra passe au-dessus
