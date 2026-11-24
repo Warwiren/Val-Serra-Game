@@ -39,6 +39,12 @@ COLISEE = {"c": (0.0, 54.0), "r": (28.0, 24.0), "haut": 18.0}     # au nord-oues
 # P7.4.1 : porte publique sur la façade EST du tambour (vers la grande place), comme la sortie publique de l'instance du
 # Colisée (couloir de sortie et porte est, x 63,6 à 65 m) : les deux portes regardent le même axe réel, l'est.
 VESTIBULE = (24.0, 60.0, 26.5, 64.0)                                 # x0, y0, x1, y1 : vestibule de la porte est
+# P7.4.2 : propylée (x 26,5 -> 35, y 57 -> 67) : arche est entre les piles NE et SE (y 58,6 -> 65,4), arche sud entre les
+# piles SO et SE (x 27,5 -> 33,4), mur nord plein. Le portail (fond du vestibule) et les arrivées ne changent pas.
+PROPYLEE = {"emprise": [26.5, 57.0, 35.0, 67.0],
+            "piles": {"no": [26.5, 57.0, 28.1, 58.6], "ne": [33.4, 57.0, 35.0, 58.6],
+                      "se": [33.4, 65.4, 35.0, 67.0], "so": [26.5, 65.4, 27.5, 67.0]},
+            "mur_n": [28.1, 57.0, 33.4, 57.8]}
 
 
 def rect(x0, y0, x1, y1):
@@ -74,7 +80,7 @@ def praticable():
     s.append(surface("place_ouest", rect(14, 104, 30, 115), H1))              # P7.4.1 : la place rejoint l'embranchement
     s.append(surface("parvis_colisee", rect(-10, 70, 22, 104), H1))      # sous le tambour au nord (solides des tranches)
     s.append(surface("vestibule_colisee", rect(VESTIBULE[0], VESTIBULE[1], VESTIBULE[2], VESTIBULE[3]), H1))
-    s.append(surface("perron_colisee", rect(VESTIBULE[2], 56, 34, 70), H1))          # perron devant la porte est
+    s.append(surface("perron_colisee", rect(VESTIBULE[2], 56, 36, 70), H1))          # perron devant la porte est (sous le propylée)
     s.append(surface("allee_colisee", rect(22, 70, 30, 96), H1))                     # allée parvis -> perron (jusqu'à la rue)
     # --- montée haute et terrasse (5,75 / 8 m)
     s.append(surface("palier_2", rect(60, 77, 74, 82), HP2))
@@ -104,12 +110,12 @@ BATIMENTS = [
     ("tour_sud_e", rect(63, 150, 67, 157), H0, 12.0, "rempart", "", ""),
     # --- palier 1 : bloc de pierre à l'est de la volée A (sous le palier)
     # --- grande place : fronts denses
-    ("echoppe_no", rect(30, 76, 44, 88), H1, 2.5, "commerce", "", ""),
+    ("echoppe_no", rect(30, 76, 44, 88), H1, 0.6, "commerce", "", ""),         # P7.4.2 : étals bas (sous la ligne de vue)
     ("forge_armurerie", rect(44, 76, 60, 88), H1, 4.0, "forge", "Forge-armurerie", "2p"),    # façade sud
     ("commerce_est", rect(74, 76, 86, 100), H1, 7.0, "commerce", "", "2p"),
     ("socle_palier_2", rect(66, 82, 74, 88), H1, HP2 - H1, "rempart", "", ""),
     ("b_porche_n", rect(24, 44, 40, 56), H1, 6.0, "residentiel_b", "", "2p"),            # ferme le perron au nord
-    ("b_no_place", rect(34, 56, 40, 76), H1, 2.5, "commerce", "", ""),         # étals bas (caméra B au-dessus)
+    ("b_no_place", rect(36, 56, 40, 76), H1, 0.6, "commerce", "", ""),         # P7.4.2 : étals bas (caméra B au-dessus)
     ("b_arriere_forge", rect(40, 71, 60, 76), H1, 4.5, "residentiel_b", "", "plat"),        # contre le mur de la terrasse
     ("b_parvis_o", rect(-24, 82, -10, 104), H1, 7.0, "residentiel", "", "2p"),             # front ouest du parvis
     ("b_parvis_s", rect(-10, 104, 14, 112), H1, 1.2, "residentiel_b", "", ""),             # bas : la caméra passe au-dessus
@@ -189,6 +195,11 @@ def construire():
     obstacles.append({"id": "barriere_chantier", "rect": rect(89.4, 136, 90, 144), "h": H0, "haut": 1.2})
     obstacles.append({"id": "barriere_route_sud", "rect": rect(57, 161.4, 63, 162), "h": H0, "haut": 1.1})
     obstacles.append({"id": "fontaine", "rect": rect(42, 96, 48, 102), "h": H1, "haut": 1.0})
+    # P7.4.2 : propylée de l'entrée publique (avant-corps devant la porte est) : quatre piles et un mur nord. Arche EST
+    # (axe de la porte) et arche SUD (vers l'allée d'approche, face caméra) ; dessin dans scenes/p7/ville_v07a.gd
+    for pid, r in PROPYLEE["piles"].items():
+        obstacles.append({"id": "porche_pile_" + pid, "rect": r, "h": H1, "haut": 9.5})
+    obstacles.append({"id": "porche_mur_n", "rect": PROPYLEE["mur_n"], "h": H1, "haut": 9.5})
 
     portes = [
         {"id": "porte_chateau", "rect": [66.0, 40.0, 74.0, 40.4], "type": "grille", "marque": "fermee", "h": H2,
@@ -260,7 +271,7 @@ def construire():
                     "volees": [list(v) for v in VOLEES],
                     "niveaux": {"bas": H0, "median": H1, "haut": H2},
                     "colisee": {"centre": list(COLISEE["c"]), "rayons": list(COLISEE["r"]), "h": H1, "haut": COLISEE["haut"],
-                                "porte": [VESTIBULE[2], 62.0], "vestibule": list(VESTIBULE), "porte_cote": "est"},
+                                "porte": [VESTIBULE[2], 62.0], "vestibule": list(VESTIBULE), "porte_cote": "est", "propylee": PROPYLEE},
                     "fontaine": rect(42, 96, 48, 102),
                     "chateau": [100.0, -240.0],
                     "porte_sud": [57.0, 63.0, 153.5],

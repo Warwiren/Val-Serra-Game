@@ -807,7 +807,9 @@ static func _route_base(name: String) -> Array:
 				_warp(28.5, 80.0, 3.5), _push("étals à l'est de l'allée du Colisée", Vector2(1, 0), 1.5, {"max_x": 29.8}),
 				_warp(4.0, 102.0, 3.5), _push("front sud du parvis (bas)", Vector2(0, 1), 1.5, {"max_y": 103.8}),
 				_warp(30.0, 58.0, 3.5), _push("front nord du perron du Colisée", Vector2(0, -1), 1.5, {"min_y": 56.2}),
-				_warp(32.0, 64.0, 3.5), _push("front est du perron", Vector2(1, 0), 1.5, {"max_x": 33.8}),
+				_warp(34.0, 62.0, 3.5), _push("front est du perron (étals)", Vector2(1, 0), 1.5, {"max_x": 35.8}),
+				_warp(28.6, 66.2, 3.5), _push("pile sud-ouest du propylée", Vector2(-1, 0), 1.5, {"min_x": 27.7}),
+				_warp(30.5, 60.0, 3.5), _push("mur nord du propylée", Vector2(0, -1), 1.5, {"min_y": 58.0}),
 				_warp(28.0, 76.0, 3.5), _push("flanc du Colisée (allée)", Vector2(-1, 0), 2.0, {"min_x": 21.0}),
 				_warp(62.0, 79.5, 5.75), _push("garde-corps ouest du palier 2", Vector2(-1, 0), 1.5, {"min_x": 60.6, "h": 5.75}),
 				_warp(80.0, 69.0, 8.0), _push("garde-corps de la terrasse (vide de 4,5 m)", Vector2(0, 1), 1.5, {"max_y": 70.4, "h": 8.0}),
@@ -833,6 +835,35 @@ static func _route_base(name: String) -> Array:
 				_go(71.0, 77.6, "pied de D", 0.3), _go(71.0, 69.0, "terrasse", 0.3), _go(57.0, 51.0, "angle nord-ouest de la terrasse", 0.4),
 				_go(89.0, 69.0, "angle sud-est", 0.4), _go(57.0, 69.0, "bord sud (ouest)", 0.4), _go(89.0, 51.0, "angle nord-est", 0.4),
 				{"do": "wait", "t": 1.0},
+			]
+		"p7_742_entree":
+			# P7.4.2 — entrée du Colisée : depuis la grande place, à mi-chemin, devant le portail, côtés du parvis (A et B)
+			var oute: Array = []
+			for c in [["1_depuis_la_place", 40.0, 104.0], ["2_mi_chemin", 27.0, 84.0], ["3_devant_le_portail", 30.5, 69.2],
+					["4_parvis_ouest", 6.0, 88.0], ["5_parvis_est", 35.0, 69.5], ["6_sous_le_porche", 30.0, 62.0]]:
+				oute.append(_warp(c[1], c[2], 3.5))
+				oute.append({"do": "wait", "t": 3.5})
+				oute.append({"do": "snap", "id": c[0]})
+			return oute
+		"p6_742_arene":
+			# P7.4.2 — démonstration de l'arène (plongée locale de 20°) : salle d'attente, tunnel sud (11°), débouché
+			# (pivot vers 20°), gradins sud (ouest et est), demi-tours, retour dans le tunnel (pivot vers 11°)
+			return [
+				_warp(26.0, 41.5, 0.0), {"do": "wait", "t": 1.5},
+				_go(26.0, 34.0, "tunnel sud (11°)", 0.3), _go(26.0, 29.0, "débouché (pivot vers 20°)", 0.3), {"do": "wait", "t": 1.0},
+				_go(19.0, 28.5, "près des gradins sud-ouest", 0.3), _go(33.0, 28.5, "près des gradins sud-est", 0.3),
+				_go(26.0, 20.0, "centre de l'arène", 0.3), _go(19.0, 28.5, "retour au sud-ouest", 0.3), _go(26.0, 29.0, "bouche du tunnel", 0.3),
+				_go(26.0, 34.5, "retour dans le tunnel (pivot vers 11°)", 0.3), {"do": "wait", "t": 1.5},
+			]
+		"p7_742_approche":
+			# P7.4.2 — même trajet en A et en B : grande place -> allée -> perron -> arche sud -> porte publique (entrée)
+			return [
+				_warp(44.0, 104.0, 3.5), {"do": "wait", "t": 2.0},
+				_go(30.0, 93.0, "vers l'allée du Colisée", 0.4), _go(26.0, 82.0, "allée", 0.4), _go(30.5, 69.0, "devant l'arche sud", 0.3),
+				{"do": "wait", "t": 1.0}, _go(34.5, 69.0, "perron (est)", 0.3), _go(30.5, 69.0, "retour devant l'arche", 0.3),
+				_go(30.5, 62.0, "sous le porche", 0.3), {"do": "wait", "t": 0.8},
+				{"do": "go", "to": Vector2(24.3, 62.0), "tol": 0.25, "id": "entrée dans le Colisée", "exit": true},
+				{"do": "wait", "t": 2.0},
 			]
 		"p7_v07_portail":
 			# P7.4.1 — liaison bidirectionnelle ville <-> Colisée par la porte publique (portail colisee_porte_publique) :

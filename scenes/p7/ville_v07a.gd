@@ -12,6 +12,15 @@ extends "res://scenes/p7/ville_v06.gd"
 const PIERRE_COLISEE := Color(0.76, 0.66, 0.52)
 
 
+## P7.4.2 : piles et mur du propylée = collisions des données seulement (dessinés par _propylee).
+func construit(e: Dictionary) -> bool:
+	if e["type"] == "block" and str(e.get("id", "")).begins_with("porche_"):
+		var r: Rect2 = e["rect"]
+		sc._static_box(sc._rect_center(r, e["h0"], e["h1"]), Vector3(r.size.x, e["h1"] - e["h0"], r.size.y), sc.L_OBST)
+		return true
+	return super(e)
+
+
 ## Décor : masses, paysage, Colisée, fontaine, château (déplacé), chantier, porte sud, ambiance.
 func decorer() -> void:
 	_masses()
@@ -121,31 +130,132 @@ func _colisee_v07() -> void:
 			sc.root.add_child(mi)
 		if k % 4 == 2:
 			_banniere_colisee(Vector3(p.x, h0 + 13.6, p.y) + Vector3(nrm.x, 0, nrm.y) * 0.15, ang, Color(0.62, 0.16, 0.18))
-	# P7.4.1 : porte publique sur la façade EST (vers la grande place, même axe réel que la sortie est de l'instance du
-	# Colisée) : porche saillant sur le perron, baie sombre ouverte (on entre en marchant), fronton, bannière de la Guilde
+	# P7.4.1 / P7.4.2 : porte publique sur la façade EST (vers la grande place, même axe réel que la sortie est de
+	# l'instance du Colisée). P7.4.2 : PROPYLÉE monumental devant elle (voir _propylee).
 	var vb: Array = cd.get("vestibule", [])
 	if vb.size() == 4:
 		var r := Rect2(vb[0], vb[1], vb[2] - vb[0], vb[3] - vb[1])
-		var xe: float = r.end.x
 		var yc := r.get_center().y
-		for y in [r.position.y - 0.9, r.end.y + 0.9]:
-			sc._box_mesh(Vector3(xe + 0.3, h0 + 4.5, y), Vector3(1.6, 9.0, 1.6), pierre)
-		sc._box_mesh(Vector3(xe + 0.3, h0 + 8.0, yc), Vector3(1.6, 2.0, r.size.y + 3.4), pierre)
-		sc._box_mesh(Vector3(xe + 0.3, h0 + 9.6, yc), Vector3(1.8, 1.2, r.size.y + 4.2), mat(PIERRE_COLISEE.lightened(0.12)))
-		# P7.4.1 : avant-corps de 3 m sur le perron (colonnes et entablement), lisible depuis une caméra tournée vers le
-		# nord alors que la porte regarde l'est ; deux lanternes allumées. Affichage seul (le passage reste libre).
-		for y in [r.position.y - 0.9, r.end.y + 0.9]:
-			sc._box_mesh(Vector3(xe + 3.0, h0 + 3.0, y), Vector3(0.7, 6.0, 0.7), pierre)
-			sc._light(Vector3(xe + 3.0, h0 + 2.6, y + (0.6 if y > yc else -0.6)), 1.6, 7.0)
-			sc._halo(Vector3(xe + 3.0, h0 + 2.6, y + (0.6 if y > yc else -0.6)), 1.1, 0.5)
-		sc._box_mesh(Vector3(xe + 1.65, h0 + 6.3, yc), Vector3(3.3, 0.6, r.size.y + 2.6), mat(PIERRE_COLISEE.lightened(0.06)))
-		# joues du vestibule (le tambour est évidé sur 4 m) et fond sombre
+		# vestibule creusé dans le tambour : joues, voûte, fond sombre (on y entre en marchant)
 		for y in [r.position.y - 0.1, r.end.y + 0.1]:
-			sc._box_mesh(Vector3(r.get_center().x, h0 + 3.5, y), Vector3(r.size.x, 7.0, 0.2), pierre)
-		sc._box_mesh(Vector3(r.position.x - 0.3, h0 + 3.5, yc), Vector3(0.6, 7.0, r.size.y), sombre)
-		sc._box_mesh(Vector3(r.get_center().x, h0 + 7.2, yc), Vector3(r.size.x, 0.4, r.size.y + 0.4), pierre)
-		_banniere_colisee(Vector3(xe + 1.2, h0 + 13.5, yc), PI * 0.5, Color(0.22, 0.30, 0.62), 2.6, 3.4)
-		_libelle("Colisée — porte publique", Vector3(xe + 1.0, h0 + 11.0, yc))
+			sc._box_mesh(Vector3(r.get_center().x, h0 + 3.6, y), Vector3(r.size.x, 7.2, 0.2), pierre)
+		sc._box_mesh(Vector3(r.position.x - 0.3, h0 + 3.6, yc), Vector3(0.6, 7.2, r.size.y), sombre)
+		sc._box_mesh(Vector3(r.get_center().x, h0 + 7.4, yc), Vector3(r.size.x, 0.4, r.size.y + 0.4), pierre)
+		_propylee(cd.get("propylee", {}), h0, yc)
+
+
+## Propylée de l'entrée publique : avant-corps en calcaire CLAIR (distinct de l'ocre du tambour et de ses arcades
+## sombres) devant la porte est. Deux grandes arches à encadrement massif (bandeau d'archivolte et clé claire) :
+##   * arche EST, dans l'axe réel de la porte ;
+##   * arche SUD, ouverte sur l'allée d'approche, donc face à la caméra qui regarde le nord : c'est elle qui signale
+##     l'entrée depuis la place et le parvis.
+## Attique avec emblème doré, deux bannières de la Guilde sur la face sud, lumière chaude sous la voûte et deux
+## lanternes (énergie modérée, aucun changement de l'éclairage global). Collisions : piles et mur nord (données).
+const CALCAIRE := Color(0.86, 0.82, 0.72)
+const CALCAIRE_CLAIR := Color(0.93, 0.90, 0.82)
+
+
+func _propylee(p: Dictionary, h0: float, yc: float) -> void:
+	if p.is_empty():
+		return
+	var e: Array = p["emprise"]
+	var x0: float = e[0]
+	var y0: float = e[1]
+	var x1: float = e[2]
+	var y1: float = e[3]
+	var pierre := mat(CALCAIRE, 0.0, 0.0, h0)
+	var clair := mat(CALCAIRE_CLAIR)
+	var haut := 9.5
+	# piles massives (socle saillant et chapiteau)
+	for k in p["piles"]:
+		var q: Array = p["piles"][k]
+		var rr := Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1])
+		sc._box_mesh(sc._rect_center(rr, h0, h0 + haut), Vector3(rr.size.x, haut, rr.size.y), pierre)
+		sc._box_mesh(sc._rect_center(rr.grow(0.18), h0, h0 + 0.9), Vector3(rr.size.x + 0.36, 0.9, rr.size.y + 0.36), clair)
+		sc._box_mesh(sc._rect_center(rr.grow(0.14), h0 + 4.2, h0 + 4.6), Vector3(rr.size.x + 0.28, 0.4, rr.size.y + 0.28), clair)
+	var mn: Array = p["mur_n"]
+	var rn := Rect2(mn[0], mn[1], mn[2] - mn[0], mn[3] - mn[1])
+	sc._box_mesh(sc._rect_center(rn, h0, h0 + haut), Vector3(rn.size.x, haut, rn.size.y), pierre)
+	# arche est (plan x = x1 - 0,6) et arche sud (plan y = y1 - 0,6)
+	var ne: Array = p["piles"]["ne"]
+	var se: Array = p["piles"]["se"]
+	var so: Array = p["piles"]["so"]
+	_arche(Vector3(x1 - 0.8, h0, (float(ne[3]) + float(se[1])) * 0.5), "y", (float(se[1]) - float(ne[3])) * 0.5, 4.4, haut, 1.6, pierre, clair)
+	_arche(Vector3((float(so[2]) + float(se[0])) * 0.5, h0, y1 - 0.8), "x", (float(se[0]) - float(so[2])) * 0.5, 4.4, haut, 1.6, pierre, clair)
+	# voûte (plafond), entablement et attique avec emblème
+	sc._box_mesh(Vector3((x0 + x1) * 0.5, h0 + haut - 0.3, (y0 + y1) * 0.5), Vector3(x1 - x0, 0.6, y1 - y0), pierre)
+	sc._box_mesh(Vector3((x0 + x1) * 0.5, h0 + haut + 0.35, (y0 + y1) * 0.5), Vector3(x1 - x0 + 0.6, 0.7, y1 - y0 + 0.6), clair)
+	sc._box_mesh(Vector3((x0 + x1) * 0.5, h0 + haut + 1.6, (y0 + y1) * 0.5), Vector3(x1 - x0 - 0.4, 1.8, y1 - y0 - 0.4), pierre)
+	sc._box_mesh(Vector3((x0 + x1) * 0.5, h0 + haut + 2.65, (y0 + y1) * 0.5), Vector3(x1 - x0 + 0.2, 0.3, y1 - y0 + 0.2), clair)
+	var or_ := StandardMaterial3D.new()
+	or_.albedo_color = Color(0.93, 0.76, 0.30)
+	or_.metallic = 0.4
+	or_.roughness = 0.45
+	for spec in [[Vector3((x0 + x1) * 0.5, h0 + haut + 1.6, y1 - 0.15), 0.0], [Vector3(x1 - 0.15, h0 + haut + 1.6, (y0 + y1) * 0.5), PI * 0.5]]:
+		var disque := MeshInstance3D.new()
+		var cm := CylinderMesh.new()
+		cm.top_radius = 0.75
+		cm.bottom_radius = 0.75
+		cm.height = 0.12
+		cm.radial_segments = 24
+		disque.mesh = cm
+		disque.material_override = or_
+		disque.position = spec[0]
+		disque.rotation = Vector3(PI * 0.5, spec[1], 0.0)
+		sc.root.add_child(disque)
+	# deux bannières de la Guilde sur la face sud (face caméra), de part et d'autre de l'arche
+	for x in [float(so[0]) + 0.5, float(se[0]) + 0.8]:
+		_banniere_colisee(Vector3(x, h0 + 8.6, y1 + 0.08), 0.0, Color(0.20, 0.30, 0.66), 1.2, 4.2)
+	# lumière chaude sous la voûte (signale le passage) et lanternes de part et d'autre de l'arche sud
+	sc._light(Vector3((x0 + x1) * 0.5 - 1.0, h0 + 5.5, yc), 1.3, 9.0, Color(1.0, 0.78, 0.5))
+	for x in [float(so[2]) + 0.35, float(se[0]) - 0.35]:
+		sc._light(Vector3(x, h0 + 3.2, y1 + 0.6), 1.0, 6.0)
+		sc._halo(Vector3(x, h0 + 3.2, y1 + 0.6), 0.9, 0.45)
+		sc._box_mesh(Vector3(x, h0 + 3.0, y1 + 0.35), Vector3(0.28, 0.45, 0.28), mat(Color(0.25, 0.2, 0.16)))
+	_libelle("Colisée — entrée publique", Vector3((x0 + x1) * 0.5, h0 + haut + 4.0, (y0 + y1) * 0.5))
+
+
+## Arche : ouverture en plein cintre (rayon R, naissance à h0 + naissance) dans un mur de hauteur « haut », plan normal
+## à « axe » ("x" : arche ouverte vers le sud / le nord, s'étend le long de x ; "y" : ouverte vers l'est, le long de y).
+## Écoinçons en gradins (masqués par l'archivolte), archivolte en claveaux clairs, clé saillante.
+func _arche(c: Vector3, axe: String, R: float, naissance: float, haut: float, ep: float, pierre: Material, clair: Material) -> void:
+	var le_long := func(u: float, h: float, du: float, dh: float, epaisseur: float, m: Material) -> void:
+		var pos := Vector3(c.x + u, c.y + h, c.z) if axe == "x" else Vector3(c.x, c.y + h, c.z + u)
+		var size := Vector3(du, dh, epaisseur) if axe == "x" else Vector3(epaisseur, dh, du)
+		sc._box_mesh(pos, size, m)
+	# mur au-dessus de la clé
+	var top_arc := naissance + R
+	le_long.call(0.0, (top_arc + 0.5 + haut) * 0.5, 2.0 * R, haut - top_arc - 0.5, ep, pierre)
+	# écoinçons en gradins de part et d'autre
+	var n := 6
+	for i in n:
+		var ha := naissance + R * float(i) / n
+		var hb := naissance + R * float(i + 1) / n
+		var w := R - sqrt(maxf(0.0, R * R - (hb - naissance) * (hb - naissance)))
+		if w <= 0.01:
+			continue
+		for sgn in [-1.0, 1.0]:
+			le_long.call(sgn * (R - w * 0.5), (ha + hb) * 0.5, w, hb - ha, ep, pierre)
+	le_long.call(0.0, (top_arc + top_arc + 0.5) * 0.5, 2.0 * R, 0.5, ep, pierre)
+	# archivolte : claveaux clairs le long du cintre, légèrement en saillie
+	var k := 15
+	for i in k:
+		var a := PI * (float(i) + 0.5) / k
+		var u := cos(a) * (R + 0.35)
+		var h := naissance + sin(a) * (R + 0.35)
+		var mi := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = Vector3(PI * (R + 0.35) / k + 0.05, 0.7, ep + 0.3) if axe == "x" else Vector3(ep + 0.3, 0.7, PI * (R + 0.35) / k + 0.05)
+		mi.mesh = bm
+		mi.material_override = clair
+		mi.position = Vector3(c.x + u, c.y + h, c.z) if axe == "x" else Vector3(c.x, c.y + h, c.z + u)
+		if axe == "x":
+			mi.rotation.z = a - PI * 0.5
+		else:
+			mi.rotation.x = -(a - PI * 0.5)
+		sc.root.add_child(mi)
+	# clé
+	le_long.call(0.0, top_arc + 0.35, 0.8, 1.0, ep + 0.5, clair)
 
 
 func _pres_porte(p: Vector2, cd: Dictionary) -> bool:
