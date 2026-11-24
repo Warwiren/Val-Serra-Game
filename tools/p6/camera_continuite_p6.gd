@@ -1,7 +1,7 @@
 extends SceneTree
 ## P6.2-C — continuité de la caméra du Colisée, image par image (sans rendu : positions seulement).
 ##   godot --headless --path . --script res://tools/p6/camera_continuite_p6.gd -- --route=p6_tunnel --etat=tutorial_completed
-##        [--csv=user://cam.csv] [--transitions=B]
+##        [--csv=user://cam.csv] [--transitions=B] [--duree=s] [--scene=res://…tscn]
 ## Mesure à chaque image physique : position 3D réelle de la caméra, vitesse, accélération, distance caméra–héros
 ## (un changement = un changement de zoom apparent), position d'Aren à l'écran (1280 × 720) et son déplacement.
 ## Un BOND est une image où la caméra va nettement plus vite qu'Aren ou change brutalement de vitesse ; le suivi normal
@@ -31,7 +31,11 @@ var fini := false
 
 
 func _initialize() -> void:
-	change_scene_to_file("res://scenes/p6/colisee.tscn")
+	var scene := "res://scenes/p6/colisee.tscn"
+	for a0 in OS.get_cmdline_user_args():
+		if a0.begins_with("--scene="):
+			scene = a0.substr(8)                  # P7.3 : autre scène (ville V0.6 : scenes/p7/ville_v06_montee.tscn)
+	change_scene_to_file(scene)
 
 
 func _physics_process(delta: float) -> bool:

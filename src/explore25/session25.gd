@@ -13,6 +13,10 @@ var arch := ""                            # "A — Camera2D" / "B — Camera3D"
 var world
 var cam
 var hero := Vector3()                     # position du héros (plan x, y, altitude h)
+## P7.3 : lissage de l'ALTITUDE suivie par la caméra (s ; 0 = suivi direct, comportement historique). La ville V0.6
+## l'active : la montée d'un escalier ne fait plus « sauter » le cadrage au palier (seule l'altitude est lissée).
+var cam_lissage_h := 0.0
+var _cam_h := INF
 var hero_region := ""
 var hero_dir := Vector2(0, 1)             # dernière direction écran
 var companion := Vector3()
@@ -73,6 +77,7 @@ func set_world(w, arrive := Vector3.INF) -> void:
 	_armed.clear()
 	for t in world.triggers:
 		_armed[t["id"]] = not (t["rect"] as Rect2).has_point(Vector2(hero.x, hero.y))
+	_cam_h = hero.z
 	cam.snap_to(World25.screen(hero))
 	_prev_cam = Vector2.INF
 
@@ -115,6 +120,7 @@ func warp_to(p: Vector3) -> void:
 	m["warps"] = m.get("warps", 0) + 1
 	_skip_measure = 2
 	host.teleport(hero, companion)
+	_cam_h = hero.z
 	cam.snap_to(World25.screen(hero))
 	_prev_cam = Vector2.INF
 
@@ -356,7 +362,11 @@ func process(delta: float) -> void:
 		World25.plan_to_screen_dir(cmoved) if cmoved.length() > 0.0001 else Vector2.ZERO, delta)
 	# caméra
 	cam.viewport_px = viewport_size(host)
-	cam.update(World25.screen(hero), delta)
+	var hc := hero
+	if cam_lissage_h > 0.0:
+		_cam_h = hero.z if _cam_h == INF else lerpf(_cam_h, hero.z, 1.0 - exp(-delta / cam_lissage_h))
+		hc = Vector3(hero.x, hero.y, _cam_h)
+	cam.update(World25.screen(hc), delta)
 	host.apply_camera(cam.render_center(), cam.zoom)
 	# sorties d'instance
 	var hp := Vector2(hero.x, hero.y)

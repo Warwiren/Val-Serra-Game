@@ -27,6 +27,24 @@ const VilleBlockout := preload("res://scenes/p7/ville_blockout.gd")
 @export var ville_v05 := false
 var _ville_on := false
 var _ville
+## P7.3 : VILLE V0.6, démonstration verticale (porte sud -> guilde -> grande place -> quartier haut), PROTOTYPE NON
+## VALIDÉ. Scène F6 scenes/p7/ville_v06_montee.tscn (ou -- --ville=v06). Caméra propre à la ville (CAMS « V06 » de
+## avant_poste.gd) : une seule distance (zoom ×3 fixe, molette et PgPréc / PgSuiv sans effet), plongée abaissée,
+## altitude lissée ; touche C : V0.6 perspective / V0.6 orthographique / caméra V0.5 (P24, comparaison).
+## Le Colisée et la forêt gardent leur caméra (elle est rétablie en quittant la ville).
+const ZONE_VILLE_V06 := "res://data/p7/ville_v06.json"
+const VilleV06 := preload("res://scenes/p7/ville_v06.gd")
+const CAMS_V06 := ["V06", "V06O", "P24"]
+const CAMS_V06_LABEL := {"V06": "V0.6 — perspective 11°, champ 30° (proposée)", "V06O": "V0.6 — orthographique, même plongée (comparaison)",
+	"P24": "V0.5 — P24 ×3 (référence avant)"}
+const PLONGEE_V06 := 11.0                 # degrés (le Colisée : 24°) ; avec le champ de 30°, horizon vers 15 % du haut
+const CHAMP_V06 := 30.0
+const AIM_V06 := 0.1                      # Aren un peu sous le centre : la vue porte plus loin vers le nord (la montée)
+const ZOOM_V06 := 2                        # ×3, la distance validée du Colisée
+@export var ville_v06 := false
+var _ville_ver := "v05"
+var cam_v06 := "V06"
+var _cam_ville := false                    # la caméra de la ville V0.6 est en place (sinon : caméra du Colisée)
 const DIALOGUES_P6 := "res://data/p6/dialogues_colisee.json"
 const PNJ_P6 := "res://data/p6/pnj_colisee.json"
 const QUALITE_OMBRE := 4                  # ombres douces qualité 4 (référence P5.3 retenue)
@@ -176,8 +194,12 @@ func _ready() -> void:
 	_pnj_defs = JSON.parse_string(FileAccess.open(PNJ_P6, FileAccess.READ).get_as_text())["pnj"]
 	# outils de test : état de départ imposé (--etat=tutorial_completed, etc.), nouvelle partie (--neuf)
 	var retour: bool = GameState.explore_return == scene_file_path and GameState.last_battle_result != ""
-	_ville_on = ville_v05 or str(_cli.get("ville", "")) == "v05"
-	if ville_v05 and not _cli.has("etat") and not _cli.has("neuf") and not retour:
+	_ville_on = ville_v05 or ville_v06 or str(_cli.get("ville", "")) in ["v05", "v06"]
+	_ville_ver = "v06" if (ville_v06 or str(_cli.get("ville", "")) == "v06") else "v05"
+	cam_v06 = str(_cli.get("cam_v06", cam_v06)).to_upper()
+	if not cam_v06 in CAMS_V06:
+		cam_v06 = "V06"
+	if (ville_v05 or ville_v06) and not _cli.has("etat") and not _cli.has("neuf") and not retour:
 		# P7.1 : la scène du blockout commence dans la ville, après le Colisée (objectif : la Guilde)
 		Progression.definir(Progression.COLISEUM_EXITED, true)
 		Progression.definir_objectif("guilde_badge")
@@ -212,9 +234,9 @@ func _ready() -> void:
 	elif tunnel_variante != "" and not retour:
 		_tunnel_session = tunnel_variante
 	var zcol := ZONE_COLISEE if _tunnel_session == "" else "res://data/p6/colisee_tunnel_%s.json" % _tunnel_session
-	var zone := (ZONE_VILLE if _ville_on else ZONE_QUARTIER) if Progression.au_moins(Progression.COLISEUM_EXITED) else zcol
+	var zone := (_zone_ville() if _ville_on else ZONE_QUARTIER) if Progression.au_moins(Progression.COLISEUM_EXITED) else zcol
 	_load(_cli.get("instance", zone), "instance", arrive)
-	s.cam.set_index(CAMS_P6[cam_p6][1], false)
+	s.cam.set_index(ZOOM_V06 if _cam_ville else CAMS_P6[cam_p6][1], false)
 	_apply_cli()
 	_maj_objectif(false)
 	_log("chargement", {"etat": Progression.etat(), "zone": _p6.get("zone", ""), "retour_tutoriel": _fin_tutoriel})
@@ -549,7 +571,10 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	_rng.seed = 6061
 	world = World25.load_world(file, m)
 	_p6 = world.adj.get("p6", {})
-	_ville = VilleBlockout.new(self) if _p6.get("zone", "") == "ville" else null
+	_camera_de_zone()
+	_ville = null
+	if _p6.get("zone", "") == "ville":
+		_ville = VilleV06.new(self) if str(_p6.get("ville", {}).get("version", "")) == "v06" else VilleBlockout.new(self)
 	Routes.decalage_sud = _p6.get("decalage_sud", {})
 	_dy_sud = float(Routes.decalage_sud.get("dy", 0.0))
 	_interior = false
@@ -1252,9 +1277,9 @@ func _switch(t: Dictionary) -> void:
 		_log("sortie_colisee", {})
 		if _ville_on and str(t.get("to", "")) == ZONE_QUARTIER:
 			# P7.1 : la sortie du Colisée mène au parvis du blockout de la ville (devant l'entrée publique)
-			var aa: Array = JSON.parse_string(FileAccess.open(ZONE_VILLE, FileAccess.READ).get_as_text())["ajustements"]["p6"]["ville"]["arrivee_colisee"]
+			var aa: Array = JSON.parse_string(FileAccess.open(_zone_ville(), FileAccess.READ).get_as_text())["ajustements"]["p6"]["ville"]["arrivee_colisee"]
 			t = t.duplicate()
-			t["to"] = ZONE_VILLE
+			t["to"] = _zone_ville()
 			t["arrive"] = Vector3(aa[0], aa[1], aa[2])
 	super._switch(t)
 	await get_tree().physics_frame
@@ -1273,6 +1298,24 @@ func _unhandled_input(e: InputEvent) -> void:
 	if _dialog.is_open():
 		if e is InputEventKey and e.pressed and not e.echo:
 			_dialog.handle_key(e)
+		return
+	if _cam_ville and _entree_zoom(e):
+		if not _zoom_fixe_dit:
+			_zoom_fixe_dit = true
+			s.toast("Ville V0.6 : distance de caméra unique (zoom désactivé)", 2.2)
+		return                                  # P7.3 : une seule distance de caméra dans la ville
+	if _cam_ville and e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_C:
+		cam_v06 = CAMS_V06[(CAMS_V06.find(cam_v06) + 1) % CAMS_V06.size()]
+		_reload_here()
+		s.cam.set_index(ZOOM_V06, false)
+		s.toast("Caméra " + CAMS_V06_LABEL[cam_v06], 2.5)
+		return
+	if _cam_ville and e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_L:
+		if _cli.has("libelles"):
+			_cli.erase("libelles")
+		else:
+			_cli["libelles"] = true
+		_reload_here()
 		return
 	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_C:
 		cam_p6 = CAMS_P6_ORDRE[(CAMS_P6_ORDRE.find(cam_p6) + 1) % CAMS_P6_ORDRE.size()]
@@ -2266,3 +2309,62 @@ func _passer_porte() -> void:
 	_fondu_porte = false
 	_maj_secteur(true)
 	s.fade_to(0.0, 0.22)
+
+
+# ------------------------------------------------------------------------------------------------ P7.3 ville V0.6
+func _zone_ville() -> String:
+	return ZONE_VILLE_V06 if _ville_ver == "v06" else ZONE_VILLE
+
+
+var _zoom_fixe_dit := false
+
+
+func _entree_zoom(e: InputEvent) -> bool:
+	if e is InputEventMouseButton and e.pressed:
+		return e.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]
+	if e is InputEventKey and e.pressed:
+		return e.physical_keycode in [KEY_PAGEUP, KEY_PAGEDOWN, KEY_KP_ADD, KEY_KP_SUBTRACT, KEY_EQUAL, KEY_MINUS]
+	return false
+
+
+## Caméra selon la zone chargée : ville V0.6 -> caméra de la ville (plongée, projection, altitude lissée, zoom ×3) ;
+## ailleurs (Colisée, quartier, blockout V0.1) -> caméra du Colisée (cam_p6), inchangée. Appelée avant la construction
+## de l'instance (les cartes et les sprites dépendent de la plongée).
+func _camera_de_zone() -> void:
+	var ville06: bool = _p6.get("zone", "") == "ville" and str(_p6.get("ville", {}).get("version", "")) == "v06"
+	var voulu: String = cam_v06 if ville06 else CAMS_P6[cam_p6][0]
+	var change := voulu != cam_mode or ville06 != _cam_ville
+	_cam_ville = ville06
+	cam_mode = voulu
+	s.cam_lissage_h = 0.45 if ville06 else 0.0
+	if change:
+		_apply_variante()
+		_cam_basis()
+		s.cam.set_index(ZOOM_V06 if ville06 else CAMS_P6[cam_p6][1], false)
+	cam.far = 900.0 if ville06 else 400.0
+	if ville06:
+		s.arch = "P7.3 — Ville V0.6 · " + CAMS_V06_LABEL[cam_v06]
+		s._help.text = "Flèches / ZQSD : marcher  ·  Maj : courir  ·  E / Entrée : examiner  ·  C : caméra (V0.6 perspective / orthographique / V0.5)  ·  L : libellés  ·  F1 : infos"
+
+
+func _apply_variante() -> void:
+	super._apply_variante()
+	if _cam_ville and cam_mode != "P24":
+		World25.pitch = deg_to_rad(float(_cli.get("v06_plongee", PLONGEE_V06)))
+		s.cam.aim_frac = float(_cli.get("v06_visee", AIM_V06))
+
+
+## Caméra perspective de la ville V0.6 : même principe que la P30 / P24 (Aren au même point de l'écran, à la même
+## taille qu'en orthographique), champ propre à la ville (réglable : -- --v06_champ=, --v06_plongee=, --v06_visee=).
+func apply_camera(center: Vector2, zoom: float) -> void:
+	if not _cam_ville or cam_mode != "V06":
+		super.apply_camera(center, zoom)
+		return
+	var fov := float(_cli.get("v06_champ", CHAMP_V06))
+	var vp: Vector2 = Session25.viewport_size(self)
+	var h_view := vp.y / (World25.PPM * zoom)
+	cam.projection = Camera3D.PROJECTION_PERSPECTIVE
+	cam.fov = fov
+	var axis := World25.cam_right() * (center.x / World25.PPM) + World25.cam_up() * (-center.y / World25.PPM)
+	var depth := body.global_position.dot(World25.cam_back()) if body != null else 0.0
+	cam.position = axis + World25.cam_back() * (depth + h_view * 0.5 / tan(deg_to_rad(fov) * 0.5))

@@ -12,6 +12,9 @@ uniform float facade = 0.0;        // 1 : lignes d'étage et baies sur les faces
 uniform float etage = 3.0;         // hauteur d'étage (m)
 uniform float base_y = 0.0;        // altitude du pied du volume (lignes d'étage comptées depuis là)
 uniform float hole = 0.0;
+// P7.3 (ville V0.6) : volumes à moins de `proche` m de la caméra estompés en trame (un toit juste devant l'objectif
+// ne couvre jamais l'écran) ; 0 = sans effet (blockout V0.1 inchangé).
+uniform float proche = 0.0;
 global uniform vec3 p4_hero;
 global uniform float p4_hole;
 global uniform float p4_persp;
@@ -61,6 +64,11 @@ void fragment() {
 	}
 	ALBEDO = c;
 	ROUGHNESS = 1.0;
+	if (proche > 0.0) {
+		float kp = smoothstep(proche * 0.55, proche, -VERTEX.z);
+		float tp = fract(52.9829189 * fract(dot(FRAGCOORD.xy, vec2(0.06711056, 0.00583715))));
+		if (kp < tp) { discard; }
+	}
 	if (hole > 0.5 && p4_hole > 0.01) {
 		vec3 hv = (VIEW_MATRIX * vec4(p4_hero, 1.0)).xyz;
 		if (VERTEX.z > hv.z + 0.35) {
