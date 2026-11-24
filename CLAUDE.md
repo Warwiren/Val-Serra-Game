@@ -205,6 +205,11 @@
   altitude lissée (`Session25.cam_lissage_h`, 0 ailleurs) ; Colisée, forêt et autres zones gardent leur caméra.
   Règle de composition : bâtiments importants façade au sud (face caméra), volumes bas entre la caméra et les lieux
   d'arrêt. Ne pas reconstruire le quartier entier avant validation de la vidéo par le créateur.
+- **P7.4 (branche `p7-4-ville-v07a`, `docs/P7_4_VILLE_V07A.md`)** : V0.7-A, EXPÉRIENCE NON VALIDÉE (brief P7.4) : micro-blockout
+  semi-circulaire (`tools/p7/build_ville_v07a.py` -> `data/p7/ville_v07a.json`, `scenes/p7/ville_v07a.gd`, F6 `scenes/p7/ville_v07a.tscn`,
+  plan `tools/p7/plan_v07a.py`). Caméra A = caméra V0.6 ; B = même caméra, orientation propre à 2 secteurs des données
+  (`zones_camera`, hystérésis, rotation amortie, commandes verrouillées pendant la rotation : `World25.yaw_commande_actif`,
+  inactif hors de la ville). Ne pas reconstruire le quartier avant la décision de la direction sur l'agencement et la caméra.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).

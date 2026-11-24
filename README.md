@@ -42,8 +42,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p7-3-ville-v06`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p7-3-ville-v06`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p7-4-ville-v07a`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p7-4-ville-v07a`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -142,6 +142,10 @@ masque de collision avant / après.
    à la ville (perspective, plongée 11°, champ 30°, distance unique ×3 : molette sans effet). **C** : V0.6 perspective /
    V0.6 orthographique / caméra V0.5 (comparaison) ; **L** : libellés. `-- --etat=tutorial_completed` : départ dans le
    Colisée, dont la sortie mène à la rue du Colisée de la V0.6. Rapport : `docs/P7_3_VILLE_V06.md`.
+   **Branche `p7-4-ville-v07a`** (EXPÉRIENCE, NON validée) : F5 inchangé ; **F6 sur `scenes/p7/ville_v07a.tscn`** = micro-blockout
+   V0.7-A semi-circulaire : porte sud, placette et guilde, montée en baïonnette, grande place, embranchement vers le parvis du
+   Colisée (vue extérieure), montée vers la terrasse haute et la porte du château, ruelle, rues futures fermées (chantier,
+   grille). **V** : caméra A (fixe, nord) / B (semi-fixe, 2 secteurs) ; **L** : libellés. Rapport : `docs/P7_4_VILLE_V07A.md`.
 
 ### Commandes — forêt V07B (F5)
 
@@ -180,6 +184,7 @@ masque de collision avant / après.
 
 | Scène | Contenu |
 |---|---|
+| `scenes/p7/ville_v07a.tscn` | **P7.4 — ville V0.7-A** : micro-blockout semi-circulaire, caméras A / B (touche V) |
 | `scenes/p7/ville_v06_montee.tscn` | **P7.3 — ville V0.6** : caméra HD-2D de la ville et montée sur trois niveaux (prototype) |
 | `scenes/p7/ville_v05_blockout.tscn` | P7.1 — blockout V0.1 du quartier central (référence fonctionnelle, comparaison) |
 | `scenes/p6/colisee.tscn` | **P6 — ouverture du jeu** : Colisée de Val'Serra, tutoriel, sortie vers la ville |
