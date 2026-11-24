@@ -37,6 +37,8 @@ var yaw_inversions := 0
 var yaw_episodes := 0
 var en_rotation := false
 var images_rotation := 0
+var pitch_prev := 0.0
+var images_pivot := 0
 ## P7.4.1 : position d'Aren à l'écran (1280 × 720) : extrêmes et images hors de la zone confortable
 ## (x de 15 à 85 %, y de 20 à 85 %) ; « hors écran » = au-delà des bords
 var ecr_min := Vector2(INF, INF)
@@ -84,9 +86,13 @@ func _physics_process(delta: float) -> bool:
 		var d_ecr := ecr.distance_to(ecr_prev)
 		var bond := ""
 		var yv := 0.0
+		var pv := 0.0
 		if yaw_prev != INF:
 			yv = rad_to_deg(World25.yaw - yaw_prev) / delta
-		var tourne := absf(yv) > 0.05
+			pv = rad_to_deg(World25.pitch - pitch_prev) / delta      # P7.4.1 : pivot de plongée (profil de l'arène)
+		var tourne := absf(yv) > 0.05 or absf(pv) > 0.05
+		if absf(pv) > 0.05:
+			images_pivot += 1
 		if tourne:
 			images_rotation += 1
 			yaw_vmax = maxf(yaw_vmax, absf(yv))
@@ -139,6 +145,7 @@ func _physics_process(delta: float) -> bool:
 		dist0 = dist
 	cam_prev = cp
 	yaw_prev = World25.yaw
+	pitch_prev = World25.pitch
 	hero_prev = hp
 	ecr_prev = ecr
 	var duree := 90.0
@@ -158,7 +165,7 @@ func _physics_process(delta: float) -> bool:
 		print("CAMERA : %d images, %.1f s, %d bonds ; vitesse max %.2f m/s, accélération max %.1f m/s², recul caméra %.3f–%.3f m (zoom), déplacement écran max %.1f px/image, dérive à l'arrêt %.3f m" % [
 			lignes.size() - 1, t, bonds.size(), v_max, acc_max, dist_min, dist_max, ecran_max, arret_derive])
 		print("  ÉCRAN : Aren entre x %d–%d px et y %d–%d px ; %d images hors zone confortable, %d hors écran %s" % [int(ecr_min.x), int(ecr_max_pos.x), int(ecr_min.y), int(ecr_max_pos.y), hors_confort, hors_ecran, str(hors_exemples)])
-		print("  ROTATION : %d épisodes, %d images en rotation, vitesse d'azimut max %.1f °/s, %d inversions de sens" % [yaw_episodes, images_rotation, yaw_vmax, yaw_inversions])
+		print("  ROTATION : %d épisodes, %d images en rotation (dont %d de pivot de plongée), vitesse d'azimut max %.1f °/s, %d inversions de sens" % [yaw_episodes, images_rotation, images_pivot, yaw_vmax, yaw_inversions])
 		print("  seuils : vitesse > Aren + %.1f m/s et > %.1f m/s, accélération > %.0f m/s² au-delà d'Aren, Aren déplacé de > %.0f px à l'écran sans bouger, recul ±0,05 m" % [V_MARGE, V_MARCHE, ACC_MAX, ECRAN_PX])
 		for b in bonds.slice(0, 40):
 			print("  BOND " + b)

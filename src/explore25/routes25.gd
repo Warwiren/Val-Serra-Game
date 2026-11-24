@@ -600,6 +600,32 @@ static func _route_base(name: String) -> Array:
 				oute.append({"do": "wait", "t": 1.6})
 				oute.append({"do": "snap", "id": c[0]})
 			return oute
+		"p6_741_visite":
+			# P7.4.1 — caméra V0.7-A dans le Colisée (après le tutoriel) : vestiaires, passage, salle d'attente, tunnel sud
+			# (9 m), arène (profil 20°, allers-retours tunnel / arène, zigzags), gradins, tunnel est, coursive, infirmerie,
+			# couloir de sortie. Positions du bloc sud décalées par Routes.sud.
+			return [
+				_warp(26.0, 51.5, 0.0), {"do": "wait", "t": 1.0},
+				_go(22.0, 51.5, "vestiaires : ouest", 0.3), _go(33.5, 52.5, "vestiaires : sud-est", 0.3), _go(26.0, 49.2, "vestiaires : porte nord", 0.3),
+				_go(26.0, 45.6, "passage", 0.3), _go(26.0, 41.5, "salle d'attente", 0.3), _go(21.0, 40.0, "salle : ouest", 0.3), _go(26.0, 38.5, "salle : porte du tunnel", 0.3),
+				_go(26.0, 34.0, "tunnel sud", 0.3), _go(26.0, 29.0, "débouché dans l'arène", 0.3), _go(26.0, 34.0, "retour dans le tunnel", 0.3),
+				_go(26.0, 28.0, "arène", 0.3), _go(18.0, 23.0, "arène : ouest", 0.3), _go(34.0, 23.0, "arène : est (demi-tour)", 0.3),
+				_go(19.0, 28.5, "arène : sud-ouest", 0.3), _go(33.0, 28.5, "arène : sud-est", 0.3), _go(26.0, 16.5, "arène : nord", 0.3),
+				_go(31.0, 20.0, "arène : nord-est", 0.3), _go(31.0, 27.0, "arène : sud (demi-tour)", 0.3), _go(37.4, 23.0, "bouche du tunnel est", 0.3), _go(41.0, 23.0, "tunnel est", 0.3),
+				_go(45.4, 23.0, "coursive : entrée", 0.3), _go(49.5, 24.5, "coursive : centre", 0.3), _go(45.4, 31.5, "coursive : sud", 0.3),
+				_go(45.4, 14.0, "coursive : nord", 0.3), _go(45.4, 31.5, "coursive : sud (retour)", 0.3), _go(46.6, 33.6, "porte de l'infirmerie", 0.3),
+				_go(46.6, 37.6, "infirmerie", 0.3), _go(46.6, 33.6, "retour", 0.3), _go(50.0, 23.0, "coursive (est)", 0.3),
+				_go(58.0, 23.0, "couloir de sortie", 0.3), _go(62.0, 23.0, "devant la porte est", 0.3), {"do": "wait", "t": 1.0},
+			]
+		"p6_741_arene":
+			# P7.4.1 — arène et gradins (profil de cadrage de la caméra V0.7-A dans le Colisée)
+			var outq: Array = []
+			for c in [["r1_arene_centre", 26.0, 23.0], ["r2_arene_sud", 26.0, 29.0], ["r3_sud_ouest", 19.0, 28.0],
+					["r4_sud_est", 33.0, 28.0], ["r5_arene_nord", 26.0, 17.0], ["r6_bouche_est", 37.4, 23.0], ["r7_ouest", 15.0, 23.0]]:
+				outq.append(_warp(c[1], c[2], 0.0))
+				outq.append({"do": "wait", "t": 2.5})
+				outq.append({"do": "snap", "id": c[0]})
+			return outq
 		"p6_643_inspection":
 			# P6.4.3 — points de contrôle des P0 : tunnel sud, bouche du tunnel est (gradins, escaliers), coursive
 			var outi: Array = []

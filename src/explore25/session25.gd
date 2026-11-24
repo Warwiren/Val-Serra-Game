@@ -519,7 +519,8 @@ func _pilot_dir(delta: float) -> Vector2:
 				host.analyse(s["id"])
 			_next_step(true)
 		"zoom":
-			cam.set_index(s["i"], s.get("smooth", false))
+			if not cam.verrou:
+				cam.set_index(s["i"], s.get("smooth", false))
 			_next_step(true)
 		"fps":
 			Engine.max_fps = s["n"]

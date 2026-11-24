@@ -29,6 +29,7 @@ var snap := false                         # centre arrondi au pixel d'écran : a
 var aim_frac := 0.0
 var _aim_cur := 0.0
 var ui_lock := false                      # dialogue / menu ouvert : la molette ne change pas le zoom
+var verrou := false                       # P7.4.1 : distance unique (caméra V0.7-A) : ni molette ni zoom des parcours
 var wheel_ignored := 0                    # compteur (vérification : molette bloquée pendant l'UI)
 
 
@@ -46,6 +47,8 @@ func set_index(i: int, smooth := true) -> bool:
 
 ## Cran de molette : +1 rapproche (×3), −1 éloigne (×2).
 func wheel(step: int) -> bool:
+	if verrou:
+		return false
 	if ui_lock:
 		wheel_ignored += 1
 		return false

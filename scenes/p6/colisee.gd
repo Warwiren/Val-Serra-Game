@@ -69,9 +69,12 @@ const AnimV09B5 = preload("res://src/explore25/anim_v09b5.gd")
 const Habillage = preload("res://scenes/p6/habillage_p6.gd")
 const Secteurs = preload("res://src/explore25/secteurs25.gd")
 ## P6.1 — réglages de caméra comparés (touche C) : [nom, préréglage, indice de zoom (0 : ×2, 1 : ×2,5, 2 : ×3)]
-const CAMS_P6 := {"A": ["P30", 1], "B": ["P30", 2], "C": ["P24", 2]}
-const CAMS_P6_ORDRE := ["A", "B", "C"]
-const CAMS_P6_LABEL := {"A": "A — P30 ×2,5 (P6)", "B": "B — P30 ×3", "C": "C — P24 ×3 (réglage de la forêt)"}
+## P7.4.1 : « V » = caméra V0.7-A de la ville, adoptée PROVISOIREMENT dans le Colisée (décision du 24/11/2026) : perspective
+## 11°, champ 30°, distance unique ×3 (zoom manuel désactivé), altitude lissée. A / B / C : caméras P6 en comparaison (C).
+const CAMS_P6 := {"V": ["V06", 2], "A": ["P30", 1], "B": ["P30", 2], "C": ["P24", 2]}
+const CAMS_P6_ORDRE := ["V", "A", "B", "C"]
+const CAMS_P6_LABEL := {"V": "V — V0.7-A (perspective 11°, distance fixe)", "A": "A — P30 ×2,5 (P6)", "B": "B — P30 ×3",
+	"C": "C — P24 ×3 (réglage de la forêt)"}
 ## P6.1 — apparences d'Aren comparées (touche B) : « foret » = ce qu'affiche F5 depuis le 19/11 (profil V09B.5
 ## 96 × 112 réduit à 64 px de haut, face / dos V4 dessinés, art/tests/) ; « p48 » = art/p45/chars/aren/ (P6).
 const AREN_VARIANTES := ["foret", "p48"]
@@ -99,7 +102,7 @@ var _obj_panel: PanelContainer
 var _obj_label: Label
 var _obj_flash := 0.0
 var _journal: Array = []                  # événements de la session (tests, rapport)
-var cam_p6 := "C"
+var cam_p6 := "V"
 ## P6.2 : azimut du Colisée validé le 22/11/2026 : 0° (référence 20° : -- --azimut=20 ; scène retirée en P7.2) ; -- --azimut= l'emporte
 @export var azimut_initial := 0.0
 ## P6.2-D : longueur du tunnel sud (comparaison) : "" = données par défaut (colisee.json), "A" 6,5 m, "B" 8,5 m, "C" 9,5 m.
@@ -165,7 +168,7 @@ func _ready() -> void:
 	if not GALERIES.has(galerie):
 		galerie = "A"
 	if not CAMS_P6.has(cam_p6):
-		cam_p6 = "C"
+		cam_p6 = "V"
 	cam_mode = CAMS_P6[cam_p6][0]
 	habillage = str(_cli.get("habillage", "pilote")) != "blockout"
 	transitions = str(_cli.get("transitions", transitions)).to_upper()
@@ -189,7 +192,7 @@ func _ready() -> void:
 	_apply_variante()
 	s.arch = "P6 — Colisée · " + CAMS_P6_LABEL[cam_p6]
 	s.build_hud()
-	s._help.text = "Flèches / ZQSD : marcher  ·  Maj : courir  ·  E / Entrée : parler, examiner  ·  Molette : zoom  ·  C : caméra  ·  B : Aren  ·  H : habillage  ·  J : transitions  ·  M : pilote  ·  K : galerie  ·  U : porte  ·  F1 : infos"
+	s._help.text = "Flèches / ZQSD : marcher  ·  Maj : courir  ·  E / Entrée : parler, examiner  ·  C : caméra (V : distance fixe ; A / B / C : molette)  ·  B : Aren  ·  H : habillage  ·  J : transitions  ·  M : pilote  ·  K : galerie  ·  U : porte  ·  F1 : infos"
 	_build_ui()
 	_dialog.choisi.connect(_on_choix)
 	_build_ui_p6()
@@ -1335,7 +1338,7 @@ func _unhandled_input(e: InputEvent) -> void:
 		if e is InputEventKey and e.pressed and not e.echo:
 			_dialog.handle_key(e)
 		return
-	if _cam_ville and _entree_zoom(e):
+	if cam_mode == "V06" and _entree_zoom(e):
 		if not _zoom_fixe_dit:
 			_zoom_fixe_dit = true
 			s.toast("Ville V0.6 : distance de caméra unique (zoom désactivé)", 2.2)
@@ -1417,6 +1420,8 @@ func _physics_process(delta: float) -> void:
 	_auto_dialog_t = -1.0e9                     # l'avancée automatique héritée de l'avant-poste ne doit pas choisir à notre place
 	if _cam_ville and not _switching and world != null:
 		_yaw_secteurs(delta)                    # P7.4 : caméra semi-fixe (B) ; sans effet en A
+	elif cam_mode == "V06" and not _switching and world != null:
+		_profil_colisee(delta)                  # P7.4.1 : plongée propre à l'arène (caméra V0.7-A dans le Colisée)
 	super._physics_process(delta)
 	if _switching or world == null or _bloque:
 		return
@@ -1615,6 +1620,8 @@ func _lueur_fin_de_tunnel() -> MeshInstance3D:
 ## marche normale n'est pas concernée (seuils franchis pas à pas, voir docs/P6_4_2_COLISEE_EXTENSION.md).
 func teleport(p: Vector3, comp: Vector3) -> void:
 	super.teleport(p, comp)
+	_pitch_snap = true                          # P7.4.1 : un placement instantané recale aussi plongée et azimut, sans pivot
+	_yaw_snap = true
 	if _sect != null and root != null and is_instance_valid(root) and s != null and s.world != null:
 		_maj_secteur(true)
 		if _sect.mode != "echelle":
@@ -1674,7 +1681,7 @@ func _maj_secteur(immediat := false) -> void:
 	var cr: Rect2 = _sect.camera_rect() if _sect.mode == "echelle" else Rect2()
 	_bornes_but = world.camera_bounds() if cr.size == Vector2.ZERO else _bornes_ecran(cr)
 	if immediat:
-		s.cam.bounds = _bornes_but
+		s.cam.bounds = Rect2() if cam_mode == "V06" else _bornes_but
 	_log("secteur", {"secteur": _sect.actif, "visibles": _sect.visibles, "murs_coupes": _sect.murs_coupes().size()})
 
 
@@ -1694,7 +1701,12 @@ func _suivi_secteur(delta: float) -> void:
 	_maj_secteur()
 	var k := 1.0 - exp(-5.0 * delta)
 	var b: Rect2 = s.cam.bounds
-	s.cam.bounds = Rect2(b.position.lerp(_bornes_but.position, k), b.size.lerp(_bornes_but.size, k))
+	if cam_mode == "V06":
+		# P7.4.1 : caméra V0.7-A : pas de limites écran (à 11°, celles du bâtiment arrêtaient le suivi au nord de l'arène
+		# et Aren remontait au bord de l'image) ; le suivi d'Aren l'emporte
+		s.cam.bounds = Rect2()
+	else:
+		s.cam.bounds = Rect2(b.position.lerp(_bornes_but.position, k), b.size.lerp(_bornes_but.size, k))
 	if _amb_but >= 0.0:
 		_env_res.ambient_light_energy = lerpf(_env_res.ambient_light_energy, _amb_but, k)
 	_maj_vue_tunnel()
@@ -2386,12 +2398,13 @@ func _camera_de_zone() -> void:
 	var change := voulu != cam_mode or ville06 != _cam_ville
 	_cam_ville = ville06
 	cam_mode = voulu
-	s.cam_lissage_h = 0.45 if ville06 else 0.0
+	s.cam_lissage_h = 0.45 if (ville06 or voulu == "V06") else 0.0
 	if change:
 		_apply_variante()
 		_cam_basis()
 		s.cam.set_index(ZOOM_V06 if ville06 else CAMS_P6[cam_p6][1], false)
 	cam.far = 900.0 if ville06 else 400.0
+	s.cam.verrou = voulu == "V06"                # P7.4.1 : distance unique (ville et Colisée), parcours compris
 	if ville06:
 		s.arch = "P7.3 — Ville V0.6 · " + CAMS_V06_LABEL[cam_v06]
 		s._help.text = "Flèches / ZQSD : marcher  ·  Maj : courir  ·  E / Entrée : examiner  ·  C : caméra (V0.6 perspective / orthographique / V0.5)  ·  L : libellés  ·  F1 : infos"
@@ -2399,7 +2412,7 @@ func _camera_de_zone() -> void:
 
 func _apply_variante() -> void:
 	super._apply_variante()
-	if _cam_ville and cam_mode != "P24":
+	if (_cam_ville and cam_mode != "P24") or cam_mode == "V06":
 		World25.pitch = deg_to_rad(float(_cli.get("v06_plongee", PLONGEE_V06)))
 		s.cam.aim_frac = float(_cli.get("v06_visee", AIM_V06))
 
@@ -2416,7 +2429,7 @@ func apply_camera(center: Vector2, zoom: float) -> void:
 		var depth_o := body.global_position.dot(World25.cam_back()) if body != null else 0.0
 		cam.position = World25.cam_right() * (center.x / World25.PPM) + World25.cam_up() * (-center.y / World25.PPM) + World25.cam_back() * (depth_o + 150.0)
 		return
-	if not _cam_ville or cam_mode != "V06":
+	if cam_mode != "V06":
 		super.apply_camera(center, zoom)
 		return
 	var fov := float(_cli.get("v06_champ", CHAMP_V06))
@@ -2494,10 +2507,16 @@ func _yaw_secteurs(delta: float) -> void:
 		return
 	var hero_avant := World25.screen(s.hero)
 	World25.yaw = nouv
+	_recaler_vue(hero_avant)
+
+
+## P7.4 / P7.4.1 : après un changement d'azimut ou de plongée, recale le cadrage pour qu'Aren garde exactement sa place
+## à l'écran (la caméra pivote autour de lui), réoriente la caméra et les cartes des personnages.
+func _recaler_vue(hero_avant: Vector2) -> void:
 	var dec := World25.screen(s.hero) - hero_avant
 	s.cam.center += dec
 	s.cam.focus += dec
-	s.cam.bounds = Rect2()                        # pas de limites écran dans la ville (elles dépendent de l'azimut)
+	s.cam.bounds = Rect2()                        # pas de limites écran (elles dépendent de l'azimut et de la plongée)
 	_cam_basis()
 	for k in actors:
 		var nd: Node3D = actors[k]["node"]
@@ -2505,3 +2524,37 @@ func _yaw_secteurs(delta: float) -> void:
 			if ch is Node3D and ch.get_child_count() > 0 and ch.get_child(0) is SpriteBase3D:
 				(ch as Node3D).basis = Basis(Vector3.UP, -World25.yaw)
 				(ch as Node3D).position = World25.cam_back() * SPRITE_TOWARD_CAM
+
+
+# ------------------------------------------------------------------------------------------------ P7.4.1 Colisée
+## Plongée de la caméra V0.7-A selon le secteur du Colisée. 11° (référence de la ville) partout, sauf l'arène (S4) :
+## à 11°, la caméra passe sous les gradins sud et la toiture de la galerie, qui cachaient Aren près du podium ; à 20°
+## elle passe au-dessus. Transition amortie (pivot autour d'Aren), immédiate après un chargement ou un téléport.
+const PLONGEE_SECTEURS := {"S4": 20.0}
+var _pitch_vit := 0.0
+var _pitch_snap := true
+
+
+func _profil_colisee(delta: float) -> void:
+	if _sect == null:
+		return
+	var cible := deg_to_rad(float(PLONGEE_SECTEURS.get(_sect.actif, float(_cli.get("v06_plongee", PLONGEE_V06)))))
+	var avant := World25.pitch
+	var nouv := avant
+	if _pitch_snap:
+		nouv = cible
+		_pitch_vit = 0.0
+		_pitch_snap = false
+	else:
+		var w := 1.0 / 0.6
+		_pitch_vit += (w * w * (cible - avant) - 2.0 * w * _pitch_vit) * delta
+		_pitch_vit = clampf(_pitch_vit, -deg_to_rad(12.0), deg_to_rad(12.0))
+		nouv = avant + _pitch_vit * delta
+		if absf(cible - nouv) < 0.0002 and absf(_pitch_vit) < 0.002:
+			nouv = cible
+			_pitch_vit = 0.0
+	if absf(nouv - avant) < 1e-7:
+		return
+	var hero_avant := World25.screen(s.hero)
+	World25.pitch = nouv
+	_recaler_vue(hero_avant)
