@@ -126,7 +126,7 @@ BATIMENTS = [
     ("guilde", rect(32, 115, 56, 132), H0, 9.0, "guilde", "Guilde des Chasseurs", "2p"),   # façade sud sur la placette
     ("auberge_taverne", rect(68, 115, 80, 132), H0, 7.5, "auberge", "Auberge-taverne", "2p"),   # façade sud, angle nord-est
     ("b_o_placette", rect(30, 132, 48, 150), H0, 8.0, "residentiel", "", "2p"),
-    ("b_e_placette", rect(72, 144, 96, 150), H0, 1.2, "residentiel_b", "", ""),    # muret bas (rue du chantier)
+    ("b_e_placette", rect(72, 144, 96, 150), H0, 0.6, "residentiel_b", "", ""),    # muret bas (rue du chantier) ; P7.6 : 1,2 -> 0,6 m (côté caméra)
     ("b_e_ruelle", rect(84, 115, 100, 136), H0, 8.0, "residentiel", "", "2p"),
     # P7.6 : ferme le bout du bras est (x 84 -> 86 menait à un vide entre deux volumes de décor : faux passage vers l'est)
     ("b_bras_est_e", rect(84, 100, 98, 115), H1, 6.0, "residentiel_b", "", "2p"),

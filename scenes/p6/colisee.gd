@@ -1516,6 +1516,8 @@ func _physics_process(delta: float) -> void:
 	elif cam_mode == "V06" and not _switching and world != null:
 		_profil_colisee(delta)                  # P7.4.1 : plongée propre à l'arène (caméra V0.7-A dans le Colisée)
 	super._physics_process(delta)
+	if _cam_ville and not _switching and world != null and _ville != null and _ville.has_method("coupes_camera") and body != null:
+		_ville.coupes_camera(cam.global_position, body.global_position)      # P7.6 : volumes entre la caméra et Aren
 	if _switching or world == null or _bloque:
 		return
 	_pnj_step(delta)
@@ -2535,10 +2537,10 @@ func apply_camera(center: Vector2, zoom: float) -> void:
 		super.apply_camera(center, zoom)
 		return
 	var fov := float(_cli.get("v06_champ", CHAMP_V06))
-	# P7.6 : V0.7-B — COUPE NETTE des volumes proches : le plan proche de la caméra est reculé (Aren est à 22,4 m). Un
-	# volume qui contient la caméra ou passe à moins de NEAR_V07B m disparaît entièrement (faces arrière éliminées), au
-	# lieu de la trame de P7.3 (« proche », src/p7/blockout_p7.gdshader). --coupe_ville=0 : trame d'origine (comparaison).
-	cam.near = coupe_ville() if coupe_ville() > 0.0 else 0.5
+	# P7.6 : V0.7-B — la trame des volumes proches (P7.3) est remplacée par l'escamotage des volumes qui contiennent la
+	# caméra ou la frôlent entre elle et Aren (scenes/p7/ville_v07b.gd, coupes_camera). --near_ville=<m> : essai d'un plan
+	# proche reculé (écarté : il évide aussi les façades latérales) ; --coupe_ville=0 : trame d'origine (comparaison).
+	cam.near = float(_cli.get("near_ville", 0.5)) if coupe_ville() > 0.0 else 0.5
 	var vp: Vector2 = Session25.viewport_size(self)
 	var h_view := vp.y / (World25.PPM * zoom)
 	cam.projection = Camera3D.PROJECTION_PERSPECTIVE
@@ -2548,12 +2550,11 @@ func apply_camera(center: Vector2, zoom: float) -> void:
 	cam.position = axis + World25.cam_back() * (depth + h_view * 0.5 / tan(deg_to_rad(fov) * 0.5))
 
 
-## P7.6 : distance de la coupe nette des volumes proches (m) dans la ville V0.7-B ; 0 = trame de P7.3 (autres versions).
-const NEAR_V07B := 11.0
+## P7.6 : > 0 quand la ville V0.7-B escamote les volumes proches de la caméra (au lieu de la trame de P7.3).
 func coupe_ville() -> float:
 	if _ville_ver != "v07b" or str(_cli.get("coupe_ville", "1")) == "0" or _p6.get("zone", "") != "ville":
 		return 0.0
-	return float(_cli.get("near_ville", NEAR_V07B))
+	return 1.0
 
 
 # ------------------------------------------------------------------------------------------------ P7.4 caméra B

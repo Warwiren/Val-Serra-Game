@@ -223,6 +223,14 @@
   `scenes/p7/ville_v07b.gd` (hérite de la V0.7-A), F6 `scenes/p7/ville_v07b.tscn` ; la V0.7-A reste la référence. Accès futurs
   bloqués par des obstacles crédibles (A chantier, B caravane, C gardes) ; prolongements visuels sans collision. Parcours
   `p7_v07b_sondes|trajets|vues|video`. Pas d'intérieurs, de foule, d'habillage détaillé ni de reprise de l'éclairage.
+- **P7.6 (branche `p7-6-tranche-architecturale`, `docs/P7_6_TRANCHE_ARCHITECTURALE.md`)** : V0.7-B retenue comme référence générale
+  de la ville (plan non refait). Colisée : couloir de sortie + VESTIBULE, porte de la ville au SUD (déclencheur `sortie_est` sur le
+  seuil, y 29,1 -> 29,8) ; retour en ville devant les grandes portes, tourné vers le sud. Entrées des bâtiments en données
+  (`ENTREES` : fonctionnelles = instances futures, examen au seuil, aucune transition ; décoratives). Volumes entre la caméra et
+  Aren ESCAMOTÉS (`ville_v07b.coupes_camera`, remplace la trame « proche » en V0.7-B ; `--coupe_ville=0`). Outil
+  `tools/p7/camera_volumes_p76.py` : recouvrements de volumes = 0 attendu. TRANCHE PILOTE (`scenes/p7/tranche_p76.gd`, enduit
+  `src/p7/enduit_p76.gdshader`, maçonnerie du Colisée) limitée à l'îlot de l'auberge et à la ruelle des Tonneliers : NE PAS
+  étendre matières et façades au reste de la ville avant validation (`--tranche=0` : blockout).
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).

@@ -30,7 +30,7 @@ func _init(scene) -> void:
 func mat(c: Color, grille := 0.0, facade := 0.0, base_y := 0.0, hole := false) -> ShaderMaterial:
 	var m := super(c, grille, facade, base_y, hole)
 	# P7.6 : --sans_proche (diagnostic) : aucun estompage des volumes proches de la caméra
-	# P7.6 : en V0.7-B, la coupe nette de la caméra (colisee.coupe_ville) remplace la trame
+	# P7.6 : en V0.7-B, l'escamotage des volumes entre la caméra et Aren (ville_v07b.coupes_camera) remplace la trame
 	var sans: bool = sc._cli.has("sans_proche") or (sc.has_method("coupe_ville") and sc.coupe_ville() > 0.0)
 	m.set_shader_parameter("proche", 0.0 if sans else PROCHE_M)
 	return m

@@ -865,6 +865,8 @@ static func _route_base(name: String) -> Array:
 				_warp(51.0, 90.5, 3.5), _push("porte de la forge (fermée : instance future)", Vector2(0, -1), 1.5, {"min_y": 88.2}),
 				_warp(82.0, 108.0, 3.5), _push("bout du bras est (bâti)", Vector2(1, 0), 1.5, {"max_x": 83.8}),
 				_warp(33.0, 75.0, 3.5), _push("angle libéré du perron -> étals", Vector2(0, 1), 1.5, {"max_y": 78.8}),
+				_warp(80.0, 142.0, 0.0), _push("muret du jardinet (bord sud de la rue du chantier)", Vector2(0, 1), 1.5, {"max_y": 143.8}),
+				_warp(82.0, 130.0, 0.0), _push("balcon / façade ouest de la ruelle", Vector2(1, 0), 1.5, {"max_x": 83.8}),
 			]
 			return sb
 		"p7_v07b_diag":
@@ -898,6 +900,39 @@ static func _route_base(name: String) -> Array:
 				o76e.append({"do": "wait", "t": 2.5})
 				o76e.append({"do": "snap", "id": c[0]})
 			return o76e
+		"p7_76_video":
+			# P7.6 — parcours des corrections : porte du Colisée (E), vestibule de sortie (porte au SUD), arrivée devant les
+			# grandes portes (tourné vers la ville), angle dégagé du perron, place, bras est fermé, ruelle des Tonneliers
+			# (tranche), entrée de l'auberge, placette, montée vers la grande place
+			return [
+				_warp(30.5, 70.4, 3.5), {"do": "wait", "t": 1.5},
+				_go(30.45, 68.4, "devant les portes du Colisée", 0.3), {"do": "talk", "id": "entrée dans le Colisée (E)"},
+				{"do": "wait", "t": 2.5},
+				_go(57.5, 23.0, "Colisée : couloir de sortie", 0.3), {"do": "wait", "t": 0.6},
+				_go(61.0, 24.5, "Colisée : vestibule", 0.3),
+				{"do": "go", "to": Vector2(61.0, 29.4), "tol": 0.25, "id": "Colisée : porte de la ville (vers le bas de l'écran)", "exit": true},
+				{"do": "wait", "t": 2.5},
+				_go(32.0, 74.5, "angle dégagé du perron", 0.3), _go(26.0, 82.0, "allée", 0.4), _go(36.0, 93.0, "ouest de la place", 0.4),
+				_go(54.0, 106.0, "fontaine", 0.4), _go(70.0, 105.0, "est de la place", 0.4), _go(82.0, 108.0, "bras est", 0.3),
+				_push("bout du bras est : fermé par du bâti", Vector2(1, 0), 1.2, {"max_x": 83.8}),
+				_go(82.0, 114.6, "haut de la ruelle des Tonneliers", 0.3), _go(82.0, 126.0, "bas de l'escalier", 0.3),
+				_go(82.0, 133.0, "ruelle", 0.3), _go(76.5, 134.4, "devant l'auberge-taverne", 0.3),
+				{"do": "talk", "id": "examen : entrée de l'auberge"}, {"do": "wait", "t": 2.5},
+				{"do": "talk", "id": "fermer l'examen"}, {"do": "wait", "t": 0.5},
+				_go(66.0, 140.0, "placette", 0.4), _go(59.0, 134.0, "pied de la volée A", 0.3), _go(59.0, 125.6, "haut de A", 0.3),
+				_go(63.0, 123.5, "palier", 0.3), _go(65.0, 121.6, "pied de B", 0.3), _go(65.0, 112.0, "grande place", 0.4),
+				{"do": "wait", "t": 1.5},
+			]
+		"p7_76_tranche":
+			# P7.6 (C) — tranche architecturale : îlot de l'auberge et ruelle des Tonneliers (captures ; --tranche=0 : blockout)
+			var o76t: Array = []
+			for c in [["t1_placette", 66.0, 142.0, 0.0], ["t2_terrasse_auberge", 76.0, 135.0, 0.0], ["t3_pied_ruelle", 82.0, 133.0, 0.0],
+					["t4_ruelle_escalier", 82.0, 122.0, 1.05], ["t5_haut_ruelle", 82.0, 113.5, 3.5], ["t6_bras_est", 78.0, 106.0, 3.5],
+					["t7_rue_chantier", 87.0, 140.0, 0.0], ["t8_montee_palier", 64.0, 123.5, 1.75]]:
+				o76t.append(_warp(c[1], c[2], c[3]))
+				o76t.append({"do": "wait", "t": 2.5})
+				o76t.append({"do": "snap", "id": c[0]})
+			return o76t
 		"p7_v07b_vues":
 			# P7.5 — repères de vues de la V0.7-B (caméra A par défaut ; --camera_ville=B pour comparer)
 			var outb: Array = []

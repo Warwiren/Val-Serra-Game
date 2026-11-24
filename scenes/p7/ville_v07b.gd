@@ -7,12 +7,40 @@ extends "res://scenes/p7/ville_v07a.gd"
 ##   * des prolongements visuels NON praticables : escaliers qui montent vers des secteurs inaccessibles, arches au-dessus
 ##     de rues lointaines, tours à mi-distance.
 
+const Tranche := preload("res://scenes/p7/tranche_p76.gd")
 const BOIS_CARAVANE := Color(0.46, 0.33, 0.22)
+var tr                                    # P7.6 : tranche architecturale (scenes/p7/tranche_p76.gd)
+
+
+func _tr():
+	if tr == null:
+		tr = Tranche.new(self)
+	return tr
 const TOILE := Color(0.82, 0.76, 0.62)
 
 
 func construit(e: Dictionary) -> bool:
 	var id := str(e.get("id", ""))
+	# P7.6 : tranche architecturale (bâtiments, sols ; l'escalier passe par _escalier). Collisions : celles des données.
+	if e["type"] == "block" and id == "bat_b_e_placette" and _tr().actif():
+		# P7.6 : muret bas au sud de la rue du chantier (bord de la tranche, côté caméra) : pierre et chaperon
+		var rm: Rect2 = e["rect"]
+		sc._static_box(sc._rect_center(rm, e["h0"], e["h1"]), Vector3(rm.size.x, e["h1"] - e["h0"], rm.size.y), sc.L_OBST)
+		_tr().muret(rm, e["h0"], e["h1"])
+		return true
+	if e["type"] == "block" and _tr().contient(id):
+		var rb: Rect2 = e["rect"]
+		sc._static_box(sc._rect_center(rb, e["h0"], e["h1"]), Vector3(rb.size.x, e["h1"] - e["h0"], rb.size.y), sc.L_OBST)
+		_tr().batiment(id, rb, e["h0"], e["h1"])
+		var lib: String = str(v.get("batiments", {}).get(id, {}).get("libelle", ""))
+		if lib != "":
+			_libelle(lib, Vector3(rb.get_center().x, e["h1"] + 4.6, rb.get_center().y))
+		return true
+	if e["type"] == "floor" and e.get("role", "") != "decor" and _tr().actif() and id in Tranche.SOLS:
+		var rs: Rect2 = e["rect"]
+		sc._static_box(sc._rect_center(rs, e["h"] - 0.3, e["h"]), Vector3(rs.size.x, 0.3, rs.size.y), sc.L_FLOOR)
+		_tr().sol(id, rs, e["h"])
+		return true
 	if e["type"] == "block" and id.begins_with("decor_"):
 		var r: Rect2 = e["rect"]
 		var h0: float = e["h0"]
@@ -39,6 +67,7 @@ func decorer() -> void:
 	for tr in v.get("decor_tours", []):
 		_tour_decor(tr)
 	_entrees()
+	_classer_volumes()
 	_libelle("Faubourgs — passage bloqué", Vector3(-14.0, 3.5 + 4.0, 96.0))
 	_libelle("Quartier du château — accès gardé", Vector3(70.0, 8.0 + 5.0, 41.0))
 
@@ -182,7 +211,7 @@ func _entree_fonctionnelle(e: Dictionary) -> void:
 	var h: float = e["h"]
 	var L: float = e["largeur"]
 	var H: float = e["hauteur"]
-	var pierre := mat(CALCAIRE, 0.0, 0.0, h)
+	var pierre: Material = _tr().moulure() if _tr().contient(str(e["batiment"])) else mat(CALCAIRE, 0.0, 0.0, h)
 	var bois := _mat_plein(BOIS_PORTE)
 	var fer := _mat_plein(FER)
 	# piédroits (collision : decor_entree_*), linteau et corniche
@@ -224,6 +253,11 @@ func _entree_fonctionnelle(e: Dictionary) -> void:
 
 ## Porte décorative : battant unique de bois sombre affleurant, petit linteau, sans saillie ni interaction.
 func _porte_decorative(e: Dictionary) -> void:
+	if _tr().contient(str(e["batiment"])) and _tr().rects.has(str(e["batiment"])):
+		var rr: Rect2 = _tr().rects[str(e["batiment"])]
+		var dt: Dictionary = Tranche.BATIMENTS[str(e["batiment"])]
+		_tr().baie(_tr().face(rr, "s"), float(e["x"]) - rr.position.x, float(e["h"]), float(e["largeur"]), float(e["hauteur"]), "porte_deco", dt["volets"])
+		return
 	var x: float = e["x"]
 	var y: float = e["y"]
 	var h: float = e["h"]
@@ -231,3 +265,83 @@ func _porte_decorative(e: Dictionary) -> void:
 	var H: float = e["hauteur"]
 	sc._box_mesh(Vector3(x, h + H * 0.5, y + 0.03), Vector3(L, H, 0.06), _mat_plein(BOIS_PORTE.darkened(0.15)))
 	sc._box_mesh(Vector3(x, h + H + 0.1, y + 0.04), Vector3(L + 0.3, 0.2, 0.08), mat(CALCAIRE.darkened(0.12)))
+
+
+## P7.6 : escalier de la ruelle des Tonneliers dessiné par la tranche (pierre, murs d'échiffre) ; les autres : socle.
+func _escalier(e: Dictionary) -> void:
+	if str(e.get("id", "")) == Tranche.ESCALIER and _tr().actif():
+		_tr().escalier(e)
+		return
+	super(e)
+
+
+## P7.6 : ESCAMOTAGE DES VOLUMES PROCHES (remplace la trame de P7.3 dans la V0.7-B). Cause confirmée des « volumes tramés » :
+## la caméra (22 m derrière Aren, 5,8 m plus haut) est DANS un bâtiment ou contre lui sur un quart des points praticables
+## (tools/p7/camera_volumes_p76.py) ; la trame ne les cachait qu'à moitié. Désormais, chaque volume bâti (données :
+## bâtiments, décor) regroupe ses maillages (classement par emprise, comme Secteurs.classer du Colisée) ; un volume est
+## masqué EN ENTIER quand la caméra est dedans ou le frôle ET qu'il se trouve entre elle et Aren (au sud d'Aren). Les
+## façades latérales restent pleines ; collisions inchangées. --coupe_ville=0 : trame d'origine (comparaison).
+var _vols := []
+var masques := {}                       # id -> true : volumes masqués à l'instant (diagnostic, compte rendu)
+
+
+func _classer_volumes() -> void:
+	if not (sc.has_method("coupe_ville") and sc.coupe_ville() > 0.0):
+		return
+	var defs := []
+	for o in sc.world.adj.get("obstacles", []):
+		var oid := str(o["id"])
+		if not (oid.begins_with("bat_") or oid.begins_with("tour_sud") or oid.begins_with("rempart_sud")):
+			continue
+		var a: Array = o["rect"]
+		var r := Rect2(a[0], a[1], a[2] - a[0], a[3] - a[1])
+		var h0 := float(o["h"])
+		var h1 := h0 + float(o["haut"])
+		var toit := 6.0 if Tranche.BATIMENTS.has(oid) else minf(clampf(minf(r.size.x, r.size.y) * 0.42, 1.4, 6.0), maxf((h1 - h0) * 0.7, 1.0))
+		defs.append([oid, r, h0, h1 + toit])
+	for i in v.get("paysage", []).size():
+		var p: Dictionary = v["paysage"][i]
+		var q: Array = p["rect"]
+		var rp := Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1])
+		defs.append(["paysage_%d" % i, rp, float(p["h"]), float(p["h"]) + float(p["haut"]) + 6.0])
+	for d in defs:
+		var g := Node3D.new()
+		g.name = "vol_" + str(d[0])
+		sc.root.add_child(g)
+		_vols.append({"id": d[0], "node": g, "rect": d[1], "h0": d[2], "top": d[3], "masque": false})
+	for n in sc.root.get_children():
+		if not (n is GeometryInstance3D):
+			continue
+		var gi := n as GeometryInstance3D
+		var ab: AABB = gi.global_transform * gi.get_aabb()
+		if ab.size.x > 60.0 or ab.size.z > 60.0 or (ab.size.y < 0.06 and ab.size.x * ab.size.z > 4.0):
+			continue
+		var c := ab.get_center()
+		for vo in _vols:
+			var rr: Rect2 = vo["rect"]
+			if rr.grow(0.7).has_point(Vector2(c.x, c.z)) and c.y >= float(vo["h0"]) - 0.3 and c.y <= float(vo["top"]) + 1.5:
+				gi.reparent(vo["node"], true)
+				break
+
+
+func _dist_rect(r: Rect2, p: Vector2) -> float:
+	var dx := maxf(maxf(r.position.x - p.x, 0.0), p.x - r.end.x)
+	var dy := maxf(maxf(r.position.y - p.y, 0.0), p.y - r.end.y)
+	return sqrt(dx * dx + dy * dy)
+
+
+func coupes_camera(cam: Vector3, heros: Vector3) -> void:
+	var pc := Vector2(cam.x, cam.z)
+	for vo in _vols:
+		var r: Rect2 = vo["rect"]
+		var entre: bool = r.position.y > heros.z - 1.0                 # le volume est au sud d'Aren : entre lui et la caméra
+		var hauteur_ok: bool = cam.y <= float(vo["top"]) + 0.5 and cam.y >= float(vo["h0"]) - 1.0
+		var marge := 4.0 if vo["masque"] else 2.6                        # hystérésis : pas de clignotement en longeant
+		var masque: bool = entre and hauteur_ok and _dist_rect(r, pc) < marge
+		if masque != vo["masque"]:
+			vo["masque"] = masque
+			(vo["node"] as Node3D).visible = not masque
+			if masque:
+				masques[vo["id"]] = true
+			else:
+				masques.erase(vo["id"])

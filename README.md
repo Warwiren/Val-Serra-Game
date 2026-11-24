@@ -42,8 +42,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p7-5-ville-v07b`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p7-5-ville-v07b`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p7-6-tranche-architecturale`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p7-6-tranche-architecturale`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -157,6 +157,12 @@ masque de collision avant / après.
    accès gardé du château ; boucle par la ruelle et la terrasse de l'auberge ; accès futurs bloqués : A chantier (est),
    B caravane (faubourgs ouest), C gardes et grille (château). **V** : caméra A / B ; **L** : libellés. La V0.7-A reste en
    référence (`ville_v07a.tscn`). Rapport : `docs/P7_5_VILLE_V07B.md`.
+   **Branche `p7-6-tranche-architecturale`** (PILOTE, NON validé) : F5 inchangé. **F6 sur `scenes/p7/ville_v07b.tscn`** :
+   la V0.7-B consolidée (sortie du Colisée par un vestibule et une porte au sud, arrivée devant les grandes portes, portail
+   dégagé, faux passage du bras est fermé, anomalies d'affichage corrigées, volumes entre la caméra et Aren escamotés),
+   entrées des bâtiments (E au seuil : instance à venir) et **première tranche architecturale** autour de l'auberge-taverne
+   et de la ruelle des Tonneliers (`--tranche=0` : blockout ; `--coupe_ville=0` : trame d'origine). Le Colisée (F6
+   `scenes/p6/colisee.tscn`) a son nouveau vestibule de sortie. Rapport : `docs/P7_6_TRANCHE_ARCHITECTURALE.md`.
 
 ### Commandes — forêt V07B (F5)
 
@@ -195,7 +201,7 @@ masque de collision avant / après.
 
 | Scène | Contenu |
 |---|---|
-| `scenes/p7/ville_v07b.tscn` | **P7.5 — ville V0.7-B** : quartier central compact (trois terrasses, boucle, accès futurs bloqués), caméras A / B (touche V) |
+| `scenes/p7/ville_v07b.tscn` | **P7.5 / P7.6 — ville V0.7-B** : quartier central compact, entrées des bâtiments, tranche architecturale (auberge, ruelle des Tonneliers), caméras A / B (touche V) |
 | `scenes/p7/ville_v07a.tscn` | **P7.4 — ville V0.7-A** : micro-blockout semi-circulaire, caméras A / B (touche V) |
 | `scenes/p7/ville_v06_montee.tscn` | **P7.3 — ville V0.6** : caméra HD-2D de la ville et montée sur trois niveaux (prototype) |
 | `scenes/p7/ville_v05_blockout.tscn` | P7.1 — blockout V0.1 du quartier central (référence fonctionnelle, comparaison) |
