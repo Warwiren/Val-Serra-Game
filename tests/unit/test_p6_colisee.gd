@@ -473,7 +473,12 @@ func test_tunnel_variantes() -> void:
 			"%s : vestiaires et tunnel praticables" % v[0])
 		var e: Dictionary = z["ajustements"]["entree"]
 		check(is_equal_approx(float(e["xy"][1]), 50.6 + v[1]), "%s : départ dans les vestiaires décalés" % v[0])
-	check_eq(str(_json(ZONE_RETENUE)["ajustements"]["p6"]["decalage_sud"]["tunnel"]), "B", "colisee.json = tunnel retenu (B, 8,5 m)")
+	# P7.4.1 : longueur retenue 9,0 m (décision du 24/11/2026)
+	var dr: Dictionary = _json(ZONE_RETENUE)["ajustements"]["p6"]["decalage_sud"]
+	check(is_equal_approx(float(dr["longueur_m"]), 9.0) and is_equal_approx(float(dr["dy"]), 2.5), "colisee.json = tunnel sud de 9,0 m de long")
+	var pr: Dictionary = _json(ZONE_RETENUE)["ajustements"]["p6"]
+	var tr: Array = pr["secteurs"][3]["rects"][0]
+	check(is_equal_approx(tr[3] - tr[1], 5.5 + 2.5) and is_equal_approx(tr[2] - tr[0], ra_largeur_tunnel(pa)), "tunnel retenu : étiré en longueur, largeur inchangée")
 
 
 ## P6.2-D : règles étendues au Colisée complet (mode B).
@@ -520,3 +525,8 @@ func test_colisee_complet() -> void:
 	check(is_instance_valid(arene), "arène classée")
 	racine.free()
 	World25.yaw = yaw0
+
+
+func ra_largeur_tunnel(p: Dictionary) -> float:
+	var r: Array = p["secteurs"][3]["rects"][0]
+	return float(r[2]) - float(r[0])

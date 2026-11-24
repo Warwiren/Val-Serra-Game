@@ -117,6 +117,9 @@ def anneau():
 TUNNEL_REF = 6.5                # longueur du tunnel sud de P6 (y 31 -> 37,5, dont 5,5 m couverts au-delà de l'anneau)
 TUNNEL_VARIANTES = {"A": 6.5, "B": 8.5, "C": 9.5}
 TUNNEL_RETENU = "B"             # P6.2-D : proposition (8,5 m), comparaison A / C en F6 (docs/P6_2D_COLISEE_COMPLET.md)
+## P7.4.1 : LONGUEUR retenue par la direction le 24/11/2026 : 9,0 m (la largeur, 3 m, ne change pas). colisee.json est
+## écrit à cette longueur ; les variantes A / B / C restent des fichiers de comparaison (suppression S6 non autorisée).
+TUNNEL_RETENU_M = 9.0
 SUD_Y = 37.0                    # au-delà (vers le sud), entre x 15 et 37 : bloc sud décalé
 SUD_X = (15.0, 37.0)
 
@@ -143,7 +146,8 @@ def _decaler(o, dy, cle=""):
 
 
 def colisee(variante=None):
-    variante = variante or TUNNEL_RETENU
+    if variante is None:
+        return _finir(_colisee_base(), TUNNEL_RETENU_M - TUNNEL_REF, "retenu_9m")
     dy = TUNNEL_VARIANTES[variante] - TUNNEL_REF
     return _finir(_colisee_base(), dy, variante)
 
