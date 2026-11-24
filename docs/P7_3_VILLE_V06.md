@@ -115,9 +115,30 @@ Outil `tools/p6/camera_continuite_p6.gd -- --scene=res://scenes/p7/ville_v06_mon
 * distance caméra–Aren constante (22,39 m : une seule distance) ;
 * déplacement d'Aren à l'écran au plus 2,3 px par image, y compris dans les deux escaliers, à la montée comme à la descente.
 
-### Occultations et performances
+### Occultations et performances (parcours vidéo, 217 s, 6 500 images à 30 i/s)
 
-Voir le tableau de mesures en fin de document (parcours vidéo).
+Le test d'occultation tire des rayons physiques d'Aren vers la caméra. Il signale 4 tronçons :
+
+| Tronçon | Durée | Ce que montre l'image |
+|---|---|---|
+| Placette de la guilde (arrêt de 1,2 s au seuil compris) | 9,4 s | Aren visible : le rayon touche le muret et le front proche de la caméra, déjà estompés à l'écran |
+| Terrasse de l'auberge | 9,5 s | Aren visible, en partie couvert par la trame de l'appentis (2,6 m) juste devant la caméra |
+| Devant la forge | 5,8 s | Aren visible |
+| Portes du Colisée | 1,4 s | Aren visible |
+
+La planche `docs/media/p7_3/occultations_video.jpg` montre les trois premiers cas. Ces volumes proches gardent leurs
+collisions, d'où la mesure. *Arbitrage possible* : abaisser encore l'appentis de l'auberge, ou l'éloigner de la terrasse.
+
+| Mesure | Valeur |
+|---|---|
+| Appels de rendu (max) | 821 |
+| Primitives (max) | 34 280 |
+| Mémoire vidéo | 212 Mo |
+| Blocages, sauts de hauteur | 0, 0 |
+
+Ces valeurs viennent du rendu logiciel. Le nombre d'appels de rendu (821, contre environ 170 pour le blockout V0.1) vient
+surtout des boîtes une par une : marches, contreforts, toits et créneaux. Si cette direction est retenue, il faudra
+regrouper ces volumes (maillages fusionnés) avant l'habillage.
 
 ### Non-régression
 
@@ -173,3 +194,4 @@ Toutes réussies, après le nettoyage puis après la V0.6 :
   * V0.6 en orthographique ;
   * V0.6 en perspective.
 * `vue_*.jpg` : vues de profondeur choisies, en pleine taille.
+* `occultations_video.jpg` : images de la vidéo aux tronçons signalés par le test d'occultation.
