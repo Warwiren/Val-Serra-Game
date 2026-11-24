@@ -147,9 +147,27 @@ Tout passe :
 * vestiaires P6.4.4 (`tools/p6/visibilite_vestiaires_p644.gd`) : depuis les vestiaires, **aucun groupe de maillages de
   l'arène visible**.
 
-### Performances
+### Performances et occultations (relevés pendant les vidéos, rendu logiciel)
 
-Voir le tableau en fin de document (relevé pendant les vidéos, rendu logiciel). Référence V0.6 : 821 appels de rendu.
+| Mesure | A | B | V0.6 |
+|---|---|---|---|
+| Appels de rendu (max) | 1 051 | 1 051 | 821 |
+| Primitives (max) | 32 958 | 32 958 | 34 280 |
+| Mémoire vidéo | 212 Mo | 212 Mo | 212 Mo |
+
+La rotation B ne coûte rien de mesurable. Les appels de rendu augmentent de 28 % par rapport à la V0.6, pour deux raisons :
+* chaque arcade du Colisée est une boîte : 44 travées × 3 registres ;
+* les marches et les joues des cinq volées sont dessinées une par une.
+
+**Avant tout habillage, il faudra fusionner ces volumes en maillages uniques.**
+
+Le test d'occultation (rayons physiques d'Aren vers la caméra) signale deux longs tronçons, dans les deux modes :
+* place → rue du Colisée : 23 s en A, 29 s en B ;
+* ruelle → chantier → placette : 22 s.
+
+Sur les images (`occultations_video_A.jpg`), **Aren reste visible**. Les rayons touchent des murets bas (1,2 m) et des
+volumes déjà estompés près de la caméra, qui gardent leur collision. Seul défaut visible : au chantier, **le muret au sud de
+la rue couvre les pieds d'Aren**. Il faudrait l'abaisser à 0,8 m ou le reculer.
 
 ### Limites de l'environnement
 
@@ -205,3 +223,4 @@ appelées. Elles pourront être retirées lors d'un futur refactoring, à décid
 * `ville_v07a_camera_A.mp4` et `ville_v07a_camera_B.mp4` : même séquence, même résolution (1280 × 720, 30 i/s).
 * `ab_entree_place_colisee.jpg`, `ab_montee_chateau_retour.jpg`, `ab_autres_reperes.jpg` : captures A/B aux mêmes repères.
 * `plan_v07a.png` : plan simplifié.
+* `occultations_video_A.jpg` : images de la vidéo A aux tronçons signalés par le test d'occultation.
