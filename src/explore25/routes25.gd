@@ -852,7 +852,7 @@ static func _route_base(name: String) -> Array:
 				_warp(26.0, 41.5, 0.0), {"do": "wait", "t": 1.5},
 				_go(26.0, 34.0, "tunnel sud (11°)", 0.3), _go(26.0, 29.0, "débouché (pivot vers 20°)", 0.3), {"do": "wait", "t": 1.0},
 				_go(19.0, 28.5, "près des gradins sud-ouest", 0.3), _go(33.0, 28.5, "près des gradins sud-est", 0.3),
-				_go(26.0, 20.0, "centre de l'arène", 0.3), _go(19.0, 28.5, "retour au sud-ouest", 0.3), _go(26.0, 29.0, "bouche du tunnel", 0.3),
+				_go(30.0, 20.0, "nord de l'arène", 0.3), _go(19.0, 28.5, "retour au sud-ouest", 0.3), _go(26.0, 29.0, "bouche du tunnel", 0.3),
 				_go(26.0, 34.5, "retour dans le tunnel (pivot vers 11°)", 0.3), {"do": "wait", "t": 1.5},
 			]
 		"p7_742_approche":

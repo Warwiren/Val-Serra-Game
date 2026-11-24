@@ -631,6 +631,9 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	_ombres_contact()
 	_build_overlay()
 	s.set_world(world, arrive)
+	if cam_mode == "V06":
+		s.cam.bounds = Rect2()                  # P7.4.2 : caméra sans limites dès la mise en place (aucune image décentrée)
+		s.cam.snap_to(World25.screen(s.hero))
 	if _sect != null:
 		for n in [_overlay, _labels]:
 			if n != null:
@@ -1639,6 +1642,11 @@ func teleport(p: Vector3, comp: Vector3) -> void:
 	super.teleport(p, comp)
 	_pitch_snap = true                          # P7.4.1 : un placement instantané recale aussi plongée et azimut, sans pivot
 	_yaw_snap = true
+	if cam_mode == "V06" and s != null and s.world != null:
+		# P7.4.2 : caméra sans limites : le calage du socle (fait AVEC les limites de l'instance) décentrait Aren à
+		# l'arrivée près d'un bord (porte est du Colisée : x 939 px), puis la caméra glissait 0,5 s ; recalage direct
+		s.cam.bounds = Rect2()
+		s.cam.snap_to(World25.screen(s.hero))
 	if _sect != null and root != null and is_instance_valid(root) and s != null and s.world != null:
 		_maj_secteur(true)
 		if _sect.mode != "echelle":
