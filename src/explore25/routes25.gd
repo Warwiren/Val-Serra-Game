@@ -837,6 +837,82 @@ static func _route_base(name: String) -> Array:
 				_go(89.0, 69.0, "angle sud-est", 0.4), _go(57.0, 69.0, "bord sud (ouest)", 0.4), _go(89.0, 51.0, "angle nord-est", 0.4),
 				{"do": "wait", "t": 1.0},
 			]
+		"p7_v07b_sondes":
+			# P7.5 — sondes de la V0.7-B : celles de la V0.7-A (sauf la grille de la rue haute, remplacée par du bâti) et
+			# les nouveaux bords : auberge, boutique, étals, caravane, gardes et guérites, fronts des faubourgs
+			var sb: Array = []
+			for st in route("p7_v07_sondes"):
+				if st.get("do", "") == "push" and str(st.get("id", "")).begins_with("grille de la rue haute"):
+					sb.pop_back()
+					continue
+				if st.get("do", "") == "push" and str(st.get("id", "")) == "garde-corps ouest du palier 2":
+					st = st.duplicate(true)
+					st["expect"] = {"min_x": 58.4, "h": 5.75}   # V0.7-B : palier civique élargi vers l'ouest (x = 58)
+				sb.append(st)
+			sb += [
+				_warp(70.0, 134.0, 0.0), _push("façade de l'auberge-taverne", Vector2(0, -1), 1.5, {"min_y": 132.2}),
+				_warp(76.0, 134.0, 0.0), _push("terrasse de l'auberge -> auberge", Vector2(0, -1), 1.5, {"min_y": 132.2}),
+				_warp(78.0, 90.0, 3.5), _push("façade de la boutique de fournitures", Vector2(0, -1), 1.5, {"min_y": 88.2}),
+				_warp(79.0, 94.0, 3.5), _push("commerce à l'est du recoin", Vector2(1, 0), 1.5, {"max_x": 79.8}),
+				_warp(33.0, 108.0, 3.5), _push("étal du bord sud de la place", Vector2(0, 1), 1.5, {"max_y": 110.4}),
+				_warp(-11.0, 96.0, 3.5), _push("caravane (passage des faubourgs)", Vector2(-1, 0), 2.0, {"min_x": -13.3}),
+				_warp(-12.0, 93.5, 3.5), _push("front nord du passage", Vector2(0, -1), 1.5, {"min_y": 92.2}),
+				_warp(70.0, 44.5, 8.0), _push("grille du château (entre les gardes)", Vector2(0, -1), 2.0, {"min_y": 40.6}),
+				_warp(67.0, 44.5, 8.0), _push("guérite ouest", Vector2(0, -1), 1.5, {"min_y": 42.8}),
+				_warp(82.0, 52.0, 8.0), _push("façade de l'hôtel de ville", Vector2(0, -1), 1.5, {"min_y": 50.2}),
+			]
+			return sb
+		"p7_v07b_vues":
+			# P7.5 — repères de vues de la V0.7-B (caméra A par défaut ; --camera_ville=B pour comparer)
+			var outb: Array = []
+			for c in [["01_porte_sud", 60.0, 150.0, 0.0], ["02_placette_guilde", 56.0, 138.0, 0.0], ["03_auberge", 72.0, 138.0, 0.0],
+					["04_rue_chantier", 85.0, 140.0, 0.0], ["05_premier_palier", 62.0, 123.5, 1.75], ["06_arrivee_place", 65.0, 112.0, 3.5],
+					["07_grande_place", 50.0, 106.0, 3.5], ["08_recoin_boutique", 76.0, 94.0, 3.5], ["09_allee_colisee", 26.0, 82.0, 3.5],
+					["10_porte_colisee", 30.5, 69.6, 3.5], ["11_parvis_faubourgs", -6.0, 96.0, 3.5], ["12_pied_montee_civique", 62.0, 90.0, 3.5],
+					["13_palier_civique", 66.0, 79.5, 5.75], ["14_terrasse_civique", 70.0, 62.0, 8.0], ["15_acces_chateau", 70.0, 46.0, 8.0],
+					["16_ruelle", 82.0, 130.0, 0.0]]:
+				outb.append(_warp(c[1], c[2], c[3]))
+				outb.append({"do": "wait", "t": 3.0})
+				outb.append({"do": "snap", "id": c[0]})
+			return outb
+		"p7_v07b_video":
+			# P7.5 — visite complète : porte sud, Guilde, auberge, rue du chantier (A), placette, montée, grande place, boutique,
+			# Colisée (porte), parvis et faubourgs (B), montée civique, hôtel de ville, accès gardé (C), redescente par la ruelle
+			return [
+				{"do": "wait", "t": 1.5},
+				_go(60.0, 141.0, "placette", 0.4), _go(52.0, 136.0, "Guilde", 0.4), {"do": "wait", "t": 0.8},
+				_go(70.0, 134.0, "auberge-taverne", 0.4), _go(76.0, 134.0, "terrasse de l'auberge", 0.4), _go(86.0, 140.0, "travaux (quartier est)", 0.4),
+				{"do": "wait", "t": 1.0}, _go(66.0, 140.0, "retour à la placette", 0.4),
+				_go(59.0, 134.0, "pied de la volée A", 0.3), _go(59.0, 125.6, "haut de A", 0.3), _go(63.0, 123.5, "palier", 0.3),
+				_go(65.0, 121.6, "pied de la volée B", 0.3), _go(65.0, 113.0, "grande place", 0.4), _go(54.0, 107.0, "fontaine", 0.4),
+				_go(76.0, 94.0, "recoin de la boutique", 0.4), _go(52.0, 93.0, "forge", 0.4), _go(36.0, 93.0, "ouest de la place", 0.4),
+				_go(26.0, 82.0, "allée du Colisée", 0.4), _go(30.5, 69.4, "porte du Colisée", 0.3), {"do": "wait", "t": 1.5},
+				_go(26.0, 82.0, "allée", 0.4), _go(4.0, 92.0, "parvis", 0.4), _go(-11.0, 96.0, "passage des faubourgs (caravane)", 0.4),
+				{"do": "wait", "t": 1.5}, _go(20.0, 100.0, "rue du Colisée", 0.4), _go(52.0, 93.0, "place (nord)", 0.4),
+				_go(62.0, 89.5, "pied de la montée civique", 0.3), _go(62.0, 81.6, "haut de C", 0.3), _go(71.0, 79.5, "palier civique", 0.3),
+				_go(72.0, 77.6, "pied de D", 0.3), _go(72.0, 69.0, "terrasse civique", 0.4), _go(82.0, 52.0, "hôtel de ville", 0.4),
+				_go(70.0, 45.0, "accès gardé du château", 0.3), {"do": "wait", "t": 1.5},
+				_go(72.0, 70.0, "redescente", 0.3), _go(72.0, 78.0, "D", 0.3), _go(62.0, 79.5, "palier", 0.3), _go(62.0, 90.0, "C", 0.3),
+				_go(78.0, 108.0, "bras est", 0.4), _go(82.0, 114.6, "haut de la ruelle", 0.3), _go(82.0, 133.0, "ruelle", 0.3),
+				_go(76.0, 134.0, "terrasse de l'auberge (boucle)", 0.4), _go(60.0, 150.0, "porte sud", 0.4), {"do": "wait", "t": 1.0},
+			]
+		"p7_v07b_trajets":
+			return [
+				_warp(60.0, 154.0, 0.0), {"do": "wait", "t": 0.5}, _go(60.0, 153.9, "T1 départ porte sud", 0.3),
+				_go(52.0, 134.0, "T1 arrivée Guilde", 0.4),
+				_go(59.0, 134.0, "T2 pied de la volée A", 0.3), _go(59.0, 125.6, "T2 haut de A", 0.3), _go(63.0, 123.5, "T2 palier", 0.3),
+				_go(65.0, 121.6, "T2 pied de B", 0.3), _go(65.0, 113.0, "T2 arrivée grande place", 0.4),
+				_go(36.0, 93.0, "T3 ouest de la place", 0.4), _go(26.0, 82.0, "T3 allée", 0.4), _go(30.5, 69.4, "T3 arrivée porte du Colisée", 0.3),
+				_warp(54.0, 107.0, 3.5), {"do": "wait", "t": 0.5}, _go(54.1, 107.0, "T4 départ fontaine", 0.3),
+				_go(62.0, 89.5, "T4 pied de C", 0.3), _go(62.0, 81.6, "T4 haut de C", 0.3), _go(71.0, 79.5, "T4 palier", 0.3),
+				_go(72.0, 77.6, "T4 pied de D", 0.3), _go(72.0, 69.0, "T4 terrasse", 0.3), _go(70.0, 45.0, "T4 arrivée accès du château", 0.3),
+				_warp(54.0, 107.0, 3.5), {"do": "wait", "t": 0.5}, _go(54.1, 107.0, "T5 départ fontaine (boucle)", 0.3),
+				_go(78.0, 108.0, "T5 bras est", 0.4), _go(82.0, 114.6, "T5 haut de la ruelle", 0.3), _go(82.0, 133.0, "T5 ruelle", 0.3),
+				_go(76.0, 134.0, "T5 terrasse de l'auberge", 0.4), _go(60.0, 140.0, "T5 placette", 0.4),
+				_go(59.0, 134.0, "T5 pied de A", 0.3), _go(59.0, 125.6, "T5 haut de A", 0.3), _go(63.0, 123.5, "T5 palier", 0.3),
+				_go(65.0, 121.6, "T5 pied de B", 0.3), _go(65.0, 113.0, "T5 arrivée place (boucle bouclée)", 0.4),
+				{"do": "wait", "t": 0.5},
+			]
 		"p7_742_entree":
 			# P7.4.2 — entrée du Colisée : depuis la grande place, à mi-chemin, devant le portail, côtés du parvis (A et B)
 			var oute: Array = []

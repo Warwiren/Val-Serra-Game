@@ -49,6 +49,11 @@ const ZOOM_V06 := 2                        # ×3, la distance validée du Colis�
 const ZONE_VILLE_V07A := "res://data/p7/ville_v07a.json"
 const VilleV07A := preload("res://scenes/p7/ville_v07a.gd")
 @export var ville_v07a := false
+## P7.5 : VILLE V0.7-B, reconstruction compacte du quartier central (scène F6 scenes/p7/ville_v07b.tscn, -- --ville=v07b).
+## Mêmes systèmes que la V0.7-A (caméra A par défaut, B en comparaison, portail du Colisée) ; la V0.7-A reste en référence.
+const ZONE_VILLE_V07B := "res://data/p7/ville_v07b.json"
+const VilleV07B := preload("res://scenes/p7/ville_v07b.gd")
+@export var ville_v07b := false
 var camera_ville := "A"
 var _yaw_base := 0.0
 var _yaw_cible := 0.0
@@ -213,15 +218,17 @@ func _ready() -> void:
 	_pnj_defs = JSON.parse_string(FileAccess.open(PNJ_P6, FileAccess.READ).get_as_text())["pnj"]
 	# outils de test : état de départ imposé (--etat=tutorial_completed, etc.), nouvelle partie (--neuf)
 	var retour: bool = GameState.explore_return == scene_file_path and GameState.last_battle_result != ""
-	_ville_on = ville_v05 or ville_v06 or ville_v07a or str(_cli.get("ville", "")) in ["v05", "v06", "v07a"]
+	_ville_on = ville_v05 or ville_v06 or ville_v07a or ville_v07b or str(_cli.get("ville", "")) in ["v05", "v06", "v07a", "v07b"]
 	_ville_ver = "v06" if (ville_v06 or str(_cli.get("ville", "")) == "v06") else "v05"
 	if ville_v07a or str(_cli.get("ville", "")) == "v07a":
 		_ville_ver = "v07a"
+	if ville_v07b or str(_cli.get("ville", "")) == "v07b":
+		_ville_ver = "v07b"
 	camera_ville = "B" if str(_cli.get("camera_ville", "A")).to_upper() == "B" else "A"
 	cam_v06 = str(_cli.get("cam_v06", cam_v06)).to_upper()
 	if not cam_v06 in CAMS_V06:
 		cam_v06 = "V06"
-	if (ville_v05 or ville_v06 or ville_v07a) and not _cli.has("etat") and not _cli.has("neuf") and not retour:
+	if (ville_v05 or ville_v06 or ville_v07a or ville_v07b) and not _cli.has("etat") and not _cli.has("neuf") and not retour:
 		# P7.1 : la scène du blockout commence dans la ville, après le Colisée (objectif : la Guilde)
 		Progression.definir(Progression.COLISEUM_EXITED, true)
 		Progression.definir_objectif("guilde_badge")
@@ -598,7 +605,10 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	_ville = null
 	if _p6.get("zone", "") == "ville":
 		var ver := str(_p6.get("ville", {}).get("version", ""))
-		_ville = VilleV07A.new(self) if ver == "v07a" else (VilleV06.new(self) if ver == "v06" else VilleBlockout.new(self))
+		if ver == "v07b":
+			_ville = VilleV07B.new(self)
+		else:
+			_ville = VilleV07A.new(self) if ver == "v07a" else (VilleV06.new(self) if ver == "v06" else VilleBlockout.new(self))
 	Routes.decalage_sud = _p6.get("decalage_sud", {})
 	_dy_sud = float(Routes.decalage_sud.get("dy", 0.0))
 	_interior = false
@@ -1368,7 +1378,7 @@ func _switch(t: Dictionary) -> void:
 	_log("arrivee_portail", {"zone": str(_p6.get("zone", "")), "x": snappedf(s.hero.x, 0.01), "y": snappedf(s.hero.y, 0.01),
 		"h": snappedf(s.hero.z, 0.01), "orientation": [ori.x, ori.y], "declencheurs_armes": s._armed.duplicate()})
 	await get_tree().physics_frame
-	var porte_ouverte_v07: bool = _ville_ver == "v07a" and _p6.get("zone", "") == "ville"
+	var porte_ouverte_v07: bool = _ville_ver in ["v07a", "v07b"] and _p6.get("zone", "") == "ville"
 	if _p6.get("zone", "") in ["quartier", "ville"] and Progression.au_moins(Progression.COLISEUM_EXITED) and not porte_ouverte_v07:
 		s.toast("Les portes du Colisée se referment derrière vous.", 3.0)
 
@@ -1395,7 +1405,7 @@ func _unhandled_input(e: InputEvent) -> void:
 		s.cam.set_index(ZOOM_V06, false)
 		s.toast("Caméra " + CAMS_V06_LABEL[cam_v06], 2.5)
 		return
-	if _cam_ville and _ville_ver == "v07a" and e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_V:
+	if _cam_ville and _ville_ver in ["v07a", "v07b"] and e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_V:
 		camera_ville = "B" if camera_ville == "A" else "A"
 		s.toast("Caméra de la ville : " + ("B — semi-fixe (2 secteurs)" if camera_ville == "B" else "A — fixe vers le nord"), 2.5)
 		return
@@ -2420,6 +2430,8 @@ func _passer_porte() -> void:
 
 # ------------------------------------------------------------------------------------------------ P7.3 ville V0.6
 func _zone_ville() -> String:
+	if _ville_ver == "v07b":
+		return ZONE_VILLE_V07B
 	if _ville_ver == "v07a":
 		return ZONE_VILLE_V07A
 	return ZONE_VILLE_V06 if _ville_ver == "v06" else ZONE_VILLE
@@ -2440,7 +2452,7 @@ func _entree_zoom(e: InputEvent) -> bool:
 ## ailleurs (Colisée, quartier, blockout V0.1) -> caméra du Colisée (cam_p6), inchangée. Appelée avant la construction
 ## de l'instance (les cartes et les sprites dépendent de la plongée).
 func _camera_de_zone() -> void:
-	var ville06: bool = _p6.get("zone", "") == "ville" and str(_p6.get("ville", {}).get("version", "")) in ["v06", "v07a"]
+	var ville06: bool = _p6.get("zone", "") == "ville" and str(_p6.get("ville", {}).get("version", "")) in ["v06", "v07a", "v07b"]
 	# P7.4 : azimut de départ de la zone (caméra B : celui du secteur d'arrivée, sans rotation visible au chargement)
 	World25.yaw = _yaw_base
 	_zone_cam = ""
@@ -2522,7 +2534,7 @@ func _yaw_secteurs(delta: float) -> void:
 	# en B, elles n'étaient effacées qu'après la première rotation). Le décor couvre toute la vue, rien ne justifie une
 	# borne ; le suivi d'Aren l'emporte sur toute composition.
 	s.cam.bounds = Rect2()
-	if _ville_ver != "v07a":
+	if not _ville_ver in ["v07a", "v07b"]:
 		return
 	var hp := Vector2(s.hero.x, s.hero.y)
 	var z: Dictionary = _secteur_camera(hp) if camera_ville == "B" else {}

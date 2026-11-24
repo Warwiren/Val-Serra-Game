@@ -82,7 +82,7 @@ func construit(e: Dictionary) -> bool:
 				var bm: Dictionary = v.get("batiments", {}).get(id, {})
 				# P7.4 (V0.7-A seulement) : toit d'un volume bas plafonné à 70 % de ses murs (une échoppe de 3,5 m ne
 				# porte plus un toit de 6 m) ; V0.6 inchangée
-				var cap := (h1 - h0) * 0.7 if str(v.get("version", "")) == "v07a" else 99.0
+				var cap := (h1 - h0) * 0.7 if str(v.get("version", "")) in ["v07a", "v07b"] else 99.0
 				_toit(r, h1, str(bm.get("toit", "")), id.hash(), cap)
 			return fait
 	return false
