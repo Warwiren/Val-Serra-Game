@@ -10,9 +10,8 @@ supplémentaire n'a été fait.
 | `6573027` | 1. Caméra de la ville et lisibilité (suivi, passages vers 20 s et vers 1 min 47) |
 | `ffd973e` | 3. Caméra V0.7-A adoptée dans le Colisée |
 | `a67c002` | 4. Tunnel sud à 9,0 m |
-| (suivant) | 5 à 7. Porte publique : liaison ville ↔ Colisée, portails, orientations |
+| `cf9c348` | 5 à 7. Porte publique : liaison ville ↔ Colisée, portails, orientations |
 
-(Les identifiants exacts sont rappelés en fin de rapport.)
 
 ## 1. Suivi de caméra : défaut bloquant corrigé
 
@@ -143,9 +142,23 @@ Deux volumes de la V0.7-A gênaient à proximité :
 
 Les états de jeu sont conservés : progression, objectif, porte de sortie du Colisée ouverte après le tutoriel.
 
-## Résultats des tests
+## Résultats des tests (état final, commit `cf9c348`)
 
-Voir le tableau de résultats en fin de document.
+| Test | Résultat |
+|---|---|
+| Tests unitaires (`run_tests.gd`), dont le tunnel de 9 m | 76 sur 76 |
+| Ouverture P6 de bout en bout, saut du tutoriel | réussis |
+| Sondes du Colisée `p6_sondes` | 10 sur 10 |
+| Forêt F5 (chargement), V11 | sans erreur, 0 échec |
+| Vestiaires P6.4.4 : maillages de l'arène visibles depuis les vestiaires | aucun |
+| Sondes de la ville `p7_v07_sondes`, A et B | 22 sur 22 dans les deux modes |
+| Portail ville ↔ Colisée `p7_v07_portail`, A et B | 4 passages alternés, 4 arrivées exactes |
+| Raccord Colisée → ville `p7_v07_raccord` | 4 étapes sur 4 |
+| Caméra de la ville, parcours de stress, A | 0 bond, 0 image hors zone confortable, aucun blocage |
+| Caméra de la ville, parcours de stress, B | 0 bond, 0 image hors zone confortable, aucun blocage |
+| Caméra du Colisée (V), `p6_741_visite` | 0 bond, 0 image hors zone confortable, 4 pivots sans inversion, aucun blocage |
+| Trajets de la ville, A et B | 24 étapes sur 24 |
+| V0.6 (chargement) | sans erreur |
 
 ## Non vérifiable ici
 
