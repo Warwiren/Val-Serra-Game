@@ -11,7 +11,7 @@ instance, aucun intérieur.
 | `d4bbfab` | A1 — Colisée : sortie intérieure par un vestibule, porte de la ville au sud |
 | `a59f691` | A1 (côté ville), A2, A3, A4 — arrivée devant les portes, portail dégagé, faux passage fermé, anomalies d'affichage |
 | `624b978` | B — entrées des bâtiments (fonctionnelles et décoratives), plan des portes |
-| (commit de la tranche) | C — tranche architecturale, escamotage des volumes proches, médias et ce rapport |
+| `e68e579` | C — tranche architecturale, escamotage des volumes proches, médias et ce rapport |
 
 ## A1. Sortie intérieure du Colisée
 
