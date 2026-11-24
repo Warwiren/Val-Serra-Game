@@ -1581,6 +1581,28 @@
     ],
     "h": 3.5,
     "haut": 9.5
+   },
+   {
+    "id": "porche_porte",
+    "rect": [
+     27.5,
+     66.2,
+     33.4,
+     66.4
+    ],
+    "h": 3.5,
+    "haut": 7.4
+   },
+   {
+    "id": "porche_arche_est",
+    "rect": [
+     34.6,
+     58.6,
+     35.0,
+     65.4
+    ],
+    "h": 3.5,
+    "haut": 9.5
    }
   ],
   "entree": {
@@ -2231,6 +2253,21 @@
        33.4,
        57.8
       ]
+     },
+     "porte_battants": [
+      27.5,
+      66.2,
+      33.4,
+      66.4
+     ],
+     "porte_publique": {
+      "xy": [
+       30.45,
+       68.2
+      ],
+      "portee_m": 2.2,
+      "sortie": "portail_colisee_public",
+      "invite": "E  Entrer dans le Colisée"
      }
     },
     "fontaine": [
@@ -2346,8 +2383,8 @@
      }
     ],
     "arrivee_colisee": [
-     29.5,
-     62.0,
+     34.6,
+     68.8,
      3.5
     ],
     "orientation_arrivee_colisee": [

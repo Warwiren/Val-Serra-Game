@@ -8,7 +8,7 @@ const V07_VUES := [["01_entree", 60.0, 148.0, 0.0], ["02_placette_guilde", 56.0,
 	["04_arrivee_place", 65.0, 112.0, 3.5], ["05_grande_place", 52.0, 106.0, 3.5], ["06_rue_colisee", 22.0, 100.0, 3.5],
 	["07_parvis_colisee", 2.0, 92.0, 3.5], ["08_pied_montee_haute", 63.0, 90.0, 3.5], ["09_deuxieme_palier", 66.0, 79.5, 5.75],
 	["10_terrasse_haute", 70.0, 64.0, 8.0], ["11_porte_chateau", 70.0, 44.0, 8.0], ["12_ruelle", 82.0, 130.0, 0.0],
-	["13_chantier", 85.0, 140.0, 0.0], ["14_retour_place", 63.0, 98.0, 3.5], ["15_porte_publique_colisee", 31.0, 64.0, 3.5],
+	["13_chantier", 85.0, 140.0, 0.0], ["14_retour_place", 63.0, 98.0, 3.5], ["15_porte_publique_colisee", 30.5, 69.6, 3.5],
 	["16_allee_colisee", 26.0, 80.0, 3.5]]
 
 
@@ -759,7 +759,7 @@ static func _route_base(name: String) -> Array:
 				_go(65.0, 119.0, "2 demi-tour sur la volée (limite de zone)", 0.4), _go(65.0, 112.0, "2 retour sur la place", 0.4),
 				_go(54.0, 107.0, "2 grande place", 0.4), _go(40.0, 108.0, "2 latéral vers l'ouest", 0.4), _go(52.0, 108.0, "2 latéral vers l'est", 0.4),
 				_go(34.0, 100.0, "3 vers la rue du Colisée", 0.4), _go(16.0, 100.0, "3 rue du Colisée", 0.4), _go(4.0, 92.0, "3 parvis du Colisée", 0.4),
-				_go(-6.0, 90.0, "3 parvis (ouest)", 0.4), _go(26.0, 80.0, "3 allée du Colisée", 0.4), _go(30.0, 62.0, "3 perron, porte publique", 0.3),
+				_go(-6.0, 90.0, "3 parvis (ouest)", 0.4), _go(26.0, 80.0, "3 allée du Colisée", 0.4), _go(30.5, 69.0, "3 perron, porte publique", 0.3),
 				{"do": "wait", "t": 2.0}, _go(26.0, 80.0, "3 allée", 0.4), _go(26.0, 100.0, "3 retour", 0.4),
 				_go(36.0, 93.0, "3 place (nord-ouest)", 0.4), _go(52.0, 93.0, "3 place (nord)", 0.4),
 				_go(63.0, 89.5, "4 pied de la volée C", 0.3), _go(63.0, 81.6, "4 haut de la volée C", 0.3), _go(70.0, 79.5, "4 deuxième palier", 0.3),
@@ -781,7 +781,7 @@ static func _route_base(name: String) -> Array:
 				_go(63.0, 123.5, "T1 arrivée premier palier", 0.3),
 				_go(65.0, 121.6, "T2 pied de la volée B", 0.3), _go(65.0, 113.0, "T2 haut de la volée B", 0.3),
 				_go(52.0, 106.0, "T2 arrivée grande place", 0.4),
-				_go(34.0, 100.0, "T3 ouest de la place", 0.4), _go(16.0, 100.0, "T3 rue du Colisée", 0.4), _go(26.0, 80.0, "T3 allée du Colisée", 0.4), _go(30.0, 62.0, "T3 arrivée porte publique du Colisée", 0.4),
+				_go(34.0, 100.0, "T3 ouest de la place", 0.4), _go(16.0, 100.0, "T3 rue du Colisée", 0.4), _go(26.0, 80.0, "T3 allée du Colisée", 0.4), _go(30.5, 69.0, "T3 arrivée porte publique du Colisée", 0.4),
 				_warp(52.0, 106.0, 3.5), {"do": "wait", "t": 0.5}, _go(52.1, 106.0, "T4 départ grande place", 0.3),
 				_go(63.0, 89.5, "T4 pied de la volée C", 0.3), _go(63.0, 81.6, "T4 haut de C", 0.3), _go(70.0, 79.5, "T4 palier", 0.3),
 				_go(71.0, 77.6, "T4 pied de D", 0.3), _go(71.0, 69.0, "T4 terrasse", 0.4), _go(70.0, 41.8, "T4 arrivée porte du château", 0.3),
@@ -806,10 +806,11 @@ static func _route_base(name: String) -> Array:
 				_warp(52.0, 90.0, 3.5), _push("façade de la forge", Vector2(0, -1), 1.5, {"min_y": 88.2}),
 				_warp(28.5, 80.0, 3.5), _push("étals à l'est de l'allée du Colisée", Vector2(1, 0), 1.5, {"max_x": 29.8}),
 				_warp(4.0, 102.0, 3.5), _push("front sud du parvis (bas)", Vector2(0, 1), 1.5, {"max_y": 103.8}),
-				_warp(30.0, 58.0, 3.5), _push("front nord du perron du Colisée", Vector2(0, -1), 1.5, {"min_y": 56.2}),
 				_warp(34.0, 62.0, 3.5), _push("front est du perron (étals)", Vector2(1, 0), 1.5, {"max_x": 35.8}),
-				_warp(28.6, 66.2, 3.5), _push("pile sud-ouest du propylée", Vector2(-1, 0), 1.5, {"min_x": 27.7}),
-				_warp(30.5, 60.0, 3.5), _push("mur nord du propylée", Vector2(0, -1), 1.5, {"min_y": 58.0}),
+				_warp(27.0, 68.5, 3.5), _push("pile sud-ouest du propylée", Vector2(0, -1), 1.5, {"min_y": 67.2}),
+				_warp(35.5, 57.5, 3.5), _push("bâtiment au nord du perron", Vector2(0, -1), 1.5, {"min_y": 56.2}),
+				_warp(30.4, 68.6, 3.5), _push("porte publique du Colisée (battants fermés)", Vector2(0, -1), 1.5, {"min_y": 66.6}),
+				_warp(35.6, 62.0, 3.5), _push("arche est du propylée (aveugle)", Vector2(-1, 0), 1.5, {"min_x": 35.2}),
 				_warp(28.0, 76.0, 3.5), _push("flanc du Colisée (allée)", Vector2(-1, 0), 2.0, {"min_x": 21.0}),
 				_warp(62.0, 79.5, 5.75), _push("garde-corps ouest du palier 2", Vector2(-1, 0), 1.5, {"min_x": 60.6, "h": 5.75}),
 				_warp(80.0, 69.0, 8.0), _push("garde-corps de la terrasse (vide de 4,5 m)", Vector2(0, 1), 1.5, {"max_y": 70.4, "h": 8.0}),
@@ -840,7 +841,7 @@ static func _route_base(name: String) -> Array:
 			# P7.4.2 — entrée du Colisée : depuis la grande place, à mi-chemin, devant le portail, côtés du parvis (A et B)
 			var oute: Array = []
 			for c in [["1_depuis_la_place", 40.0, 104.0], ["2_mi_chemin", 27.0, 84.0], ["3_devant_le_portail", 30.5, 69.2],
-					["4_parvis_ouest", 6.0, 88.0], ["5_parvis_est", 35.0, 69.5], ["6_sous_le_porche", 30.0, 62.0]]:
+					["4_parvis_ouest", 6.0, 88.0], ["5_parvis_est", 35.0, 69.5], ["6_devant_la_porte", 30.4, 68.6]]:
 				oute.append(_warp(c[1], c[2], 3.5))
 				oute.append({"do": "wait", "t": 3.5})
 				oute.append({"do": "snap", "id": c[0]})
@@ -861,8 +862,8 @@ static func _route_base(name: String) -> Array:
 				_warp(44.0, 104.0, 3.5), {"do": "wait", "t": 2.0},
 				_go(30.0, 93.0, "vers l'allée du Colisée", 0.4), _go(26.0, 82.0, "allée", 0.4), _go(30.5, 69.0, "devant l'arche sud", 0.3),
 				{"do": "wait", "t": 1.0}, _go(34.5, 69.0, "perron (est)", 0.3), _go(30.5, 69.0, "retour devant l'arche", 0.3),
-				_go(30.5, 62.0, "sous le porche", 0.3), {"do": "wait", "t": 0.8},
-				{"do": "go", "to": Vector2(24.3, 62.0), "tol": 0.25, "id": "entrée dans le Colisée", "exit": true},
+				{"do": "wait", "t": 0.8},
+				_go(30.45, 68.4, "devant la porte publique", 0.3), {"do": "talk", "id": "entrée dans le Colisée (porte publique, E)"},
 				{"do": "wait", "t": 2.0},
 			]
 		"p7_v07_portail":
@@ -871,15 +872,15 @@ static func _route_base(name: String) -> Array:
 			# quelques pas, retour par la porte est, arrivée sur le perron (tourné vers l'est), puis deuxième aller-retour
 			return [
 				_warp(26.0, 80.0, 3.5), {"do": "wait", "t": 0.8},
-				_go(30.0, 62.0, "ville : perron", 0.3), {"do": "wait", "t": 0.5},
-				{"do": "go", "to": Vector2(24.3, 62.0), "tol": 0.25, "id": "ville -> Colisée (porte publique)", "exit": true},
+				_go(30.5, 69.5, "ville : perron", 0.3), {"do": "wait", "t": 0.5},
+				_go(30.45, 68.4, "devant la porte publique", 0.3), {"do": "talk", "id": "ville -> Colisée (porte publique) (porte publique, E)"},
 				{"do": "wait", "t": 1.6},
 				_go(58.0, 23.0, "Colisée : couloir de sortie", 0.3), _go(52.0, 23.0, "Colisée : vers la coursive", 0.3),
 				_go(61.5, 23.0, "Colisée : retour vers la porte est", 0.3),
 				{"do": "go", "to": Vector2(64.4, 23.0), "tol": 0.25, "id": "Colisée -> ville (porte est)", "exit": true},
 				{"do": "wait", "t": 1.6},
-				_go(31.0, 66.0, "ville : perron (arrivée)", 0.3), _go(26.0, 80.0, "ville : allée", 0.3), _go(30.0, 62.0, "ville : retour au perron", 0.3),
-				{"do": "go", "to": Vector2(24.3, 62.0), "tol": 0.25, "id": "ville -> Colisée (2e passage)", "exit": true},
+				_go(35.0, 69.0, "ville : perron (arrivée)", 0.3), _go(26.0, 80.0, "ville : allée", 0.3), _go(30.5, 69.5, "ville : retour au perron", 0.3),
+				_go(30.45, 68.4, "devant la porte publique", 0.3), {"do": "talk", "id": "ville -> Colisée (2e passage) (porte publique, E)"},
 				{"do": "wait", "t": 1.6},
 				{"do": "go", "to": Vector2(64.4, 23.0), "tol": 0.25, "id": "Colisée -> ville (2e passage)", "exit": true},
 				{"do": "wait", "t": 1.6}, _go(30.0, 70.0, "ville : perron sud", 0.3),

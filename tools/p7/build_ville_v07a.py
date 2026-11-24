@@ -45,6 +45,10 @@ PROPYLEE = {"emprise": [26.5, 57.0, 35.0, 67.0],
             "piles": {"no": [26.5, 57.0, 28.1, 58.6], "ne": [33.4, 57.0, 35.0, 58.6],
                       "se": [33.4, 65.4, 35.0, 67.0], "so": [26.5, 65.4, 27.5, 67.0]},
             "mur_n": [28.1, 57.0, 33.4, 57.8]}
+# P7.5 : porte publique à deux battants dans l'ARCHE SUD du propylée (face à l'allée et à la caméra), en retrait de 0,6 m
+# des piles ; l'arche est devient aveugle (porche fermé, antichambre du vestibule). Plan de la porte : y 66,2 à 66,4.
+PORTE_BATTANTS = [27.5, 66.2, 33.4, 66.4]
+ARCHE_EST_AVEUGLE = [34.6, 58.6, 35.0, 65.4]
 
 
 def rect(x0, y0, x1, y1):
@@ -200,6 +204,10 @@ def construire():
     for pid, r in PROPYLEE["piles"].items():
         obstacles.append({"id": "porche_pile_" + pid, "rect": r, "h": H1, "haut": 9.5})
     obstacles.append({"id": "porche_mur_n", "rect": PROPYLEE["mur_n"], "h": H1, "haut": 9.5})
+    # P7.5 : porte publique à deux battants, en retrait dans le vestibule (0,5 m derrière la face du tambour) : solide ;
+    # on entre par interaction (E), qui déclenche le portail existant (fondu, arrivée et orientation inchangés)
+    obstacles.append({"id": "porche_porte", "rect": PORTE_BATTANTS, "h": H1, "haut": 7.4})
+    obstacles.append({"id": "porche_arche_est", "rect": ARCHE_EST_AVEUGLE, "h": H1, "haut": 9.5})
 
     portes = [
         {"id": "porte_chateau", "rect": [66.0, 40.0, 74.0, 40.4], "type": "grille", "marque": "fermee", "h": H2,
@@ -271,15 +279,20 @@ def construire():
                     "volees": [list(v) for v in VOLEES],
                     "niveaux": {"bas": H0, "median": H1, "haut": H2},
                     "colisee": {"centre": list(COLISEE["c"]), "rayons": list(COLISEE["r"]), "h": H1, "haut": COLISEE["haut"],
-                                "porte": [VESTIBULE[2], 62.0], "vestibule": list(VESTIBULE), "porte_cote": "est", "propylee": PROPYLEE},
+                                "porte": [VESTIBULE[2], 62.0], "vestibule": list(VESTIBULE), "porte_cote": "est", "propylee": PROPYLEE,
+                                "porte_battants": PORTE_BATTANTS,
+                                # P7.5 : interaction devant la porte -> sortie « portail_colisee_public » (portail colisee_porte_publique)
+                                "porte_publique": {"xy": [30.45, 68.2], "portee_m": 2.2, "sortie": "portail_colisee_public",
+                                                   "invite": "E  Entrer dans le Colisée"}},
                     "fontaine": rect(42, 96, 48, 102),
                     "chateau": [100.0, -240.0],
                     "porte_sud": [57.0, 63.0, 153.5],
                     "chantier": rect(88.4, 136, 89.4, 144),
                     "points": points,
                     "zones_camera": zones_camera,
-                    # retour du Colisée (portail colisee_porte_publique) : sur le perron, devant la porte, tourné vers l'est
-                    "arrivee_colisee": [29.5, 62.0, H1],
+                    # retour du Colisée (portail colisee_porte_publique) : sur le perron, devant l'angle sud-est du propylée,
+                    # tourné vers l'est (P7.5 : l'ancien point, sous le porche, est désormais derrière la porte fermée)
+                    "arrivee_colisee": [34.6, 68.8, H1],
                     "orientation_arrivee_colisee": [1.0, 0.0],
                 },
             },

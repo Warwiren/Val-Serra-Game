@@ -142,6 +142,51 @@ func _colisee_v07() -> void:
 		sc._box_mesh(Vector3(r.position.x - 0.3, h0 + 3.6, yc), Vector3(0.6, 7.2, r.size.y), sombre)
 		sc._box_mesh(Vector3(r.get_center().x, h0 + 7.4, yc), Vector3(r.size.x, 0.4, r.size.y + 0.4), pierre)
 		_propylee(cd.get("propylee", {}), h0, yc)
+		_porte_battants(cd.get("porte_battants", []), h0)
+
+
+## P7.5 : porte publique à deux battants dans l'ARCHE SUD du propylée (face à l'allée d'approche et à la caméra), en
+## retrait des piles : bois sombre, planches, ferrures et clous, anneaux, tympan de bois sous le cintre, seuil de pierre
+## claire. Fermée et solide : on entre par interaction (E), suivie du fondu de la transition existante.
+func _porte_battants(q: Array, h0: float) -> void:
+	if q.size() != 4:
+		return
+	var x0: float = q[0]
+	var x1: float = q[2]
+	var y := (float(q[1]) + float(q[3])) * 0.5
+	var R := (x1 - x0) * 0.5
+	var xc := (x0 + x1) * 0.5
+	var naissance := 4.4
+	var bois := StandardMaterial3D.new()
+	bois.albedo_color = Color(0.20, 0.12, 0.075)
+	bois.roughness = 0.85
+	var planche := mat(Color(0.14, 0.085, 0.05))
+	var fer := StandardMaterial3D.new()
+	fer.albedo_color = Color(0.16, 0.16, 0.18)
+	fer.metallic = 0.7
+	fer.roughness = 0.45
+	var larg := R
+	for i in 2:
+		var xb := x0 + larg * (i + 0.5)
+		sc._box_mesh(Vector3(xb, h0 + naissance * 0.5, y), Vector3(larg - 0.04, naissance, 0.2), bois)
+		for k in 5:
+			sc._box_mesh(Vector3(x0 + larg * i + (k + 0.5) * larg / 5.0, h0 + naissance * 0.5, y + 0.11), Vector3(0.05, naissance - 0.2, 0.03), planche)
+		for hb in [0.6, 2.2, 3.8]:
+			sc._box_mesh(Vector3(xb, h0 + hb, y + 0.13), Vector3(larg - 0.2, 0.16, 0.05), fer)
+			for k in 6:
+				sc._box_mesh(Vector3(x0 + larg * i + 0.2 + k * (larg - 0.4) / 5.0, h0 + hb, y + 0.16), Vector3(0.07, 0.07, 0.05), fer)
+		sc._box_mesh(Vector3(xc + (-0.6 if i == 0 else 0.6), h0 + 1.9, y + 0.18), Vector3(0.36, 0.36, 0.06), fer)
+	# tympan de bois en gradins sous le cintre (masqués par l'archivolte), traverse et montant central ferrés
+	var n := 6
+	for i in n:
+		var ha := naissance + R * float(i) / n
+		var hb2 := naissance + R * float(i + 1) / n
+		var w := 2.0 * sqrt(maxf(0.0, R * R - (hb2 - naissance) * (hb2 - naissance)))
+		if w > 0.05:
+			sc._box_mesh(Vector3(xc, h0 + (ha + hb2) * 0.5, y), Vector3(w, hb2 - ha, 0.2), bois)
+	sc._box_mesh(Vector3(xc, h0 + naissance, y + 0.14), Vector3(2.0 * R, 0.2, 0.06), fer)
+	sc._box_mesh(Vector3(xc, h0 + naissance * 0.5, y + 0.14), Vector3(0.12, naissance, 0.06), fer)
+	sc._box_mesh(Vector3(xc, h0 + 0.06, y + 0.4), Vector3(2.0 * R + 0.4, 0.12, 0.8), mat(CALCAIRE_CLAIR))
 
 
 ## Propylée de l'entrée publique : avant-corps en calcaire CLAIR (distinct de l'ocre du tambour et de ses arcades
@@ -181,6 +226,8 @@ func _propylee(p: Dictionary, h0: float, yc: float) -> void:
 	var se: Array = p["piles"]["se"]
 	var so: Array = p["piles"]["so"]
 	_arche(Vector3(x1 - 0.8, h0, (float(ne[3]) + float(se[1])) * 0.5), "y", (float(se[1]) - float(ne[3])) * 0.5, 4.4, haut, 1.6, pierre, clair)
+	# P7.5 : arche est aveugle (panneau de pierre en retrait) : le porche est fermé, on entre par la porte de l'arche sud
+	sc._box_mesh(Vector3(x1 - 0.55, h0 + 4.0, (float(ne[3]) + float(se[1])) * 0.5), Vector3(0.3, 8.0, float(se[1]) - float(ne[3])), mat(CALCAIRE.darkened(0.12)))
 	_arche(Vector3((float(so[2]) + float(se[0])) * 0.5, h0, y1 - 0.8), "x", (float(se[0]) - float(so[2])) * 0.5, 4.4, haut, 1.6, pierre, clair)
 	# voûte (plafond), entablement et attique avec emblème
 	sc._box_mesh(Vector3((x0 + x1) * 0.5, h0 + haut - 0.3, (y0 + y1) * 0.5), Vector3(x1 - x0, 0.6, y1 - y0), pierre)

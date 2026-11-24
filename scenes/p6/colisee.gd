@@ -1172,7 +1172,7 @@ func _examen_proche() -> Dictionary:
 
 
 func dialogue_is_open() -> bool:
-	return (_dialog != null and _dialog.is_open()) or _bloque
+	return (_dialog != null and _dialog.is_open()) or _bloque or _switching     # P7.5 : porte publique (transition en cours)
 
 
 func interact_override() -> bool:
@@ -1190,11 +1190,37 @@ func interact_override() -> bool:
 	if id != "":
 		parler(id)
 		return true
+	var pp := _porte_publique_proche()
+	if not pp.is_empty():
+		_entrer_porte_publique(pp)
+		return true
 	var ex := _examen_proche()
 	if not ex.is_empty():
 		_examiner(ex)
 		return true
 	return false
+
+
+## P7.5 : porte publique du Colisée (ville V0.7-A) : battants fermés et solides ; E devant la porte déclenche la sortie
+## des données (portail colisee_porte_publique) avec le fondu existant. Aucun nouveau système de transition.
+func _porte_publique_proche() -> Dictionary:
+	if _ville == null or _switching:
+		return {}
+	var pp: Dictionary = _p6.get("ville", {}).get("colisee", {}).get("porte_publique", {})
+	if pp.is_empty():
+		return {}
+	if Vector2(s.hero.x, s.hero.y).distance_to(Vector2(pp["xy"][0], pp["xy"][1])) > float(pp.get("portee_m", 2.0)):
+		return {}
+	return pp
+
+
+func _entrer_porte_publique(pp: Dictionary) -> void:
+	for t in world.triggers:
+		if str(t["id"]) == str(pp["sortie"]):
+			_log("porte_publique", {"sortie": t["id"]})
+			s.m["exits"] = s.m.get("exits", []) + [t["id"]]
+			_switch(t)
+			return
 
 
 func _examiner(ex: Dictionary) -> void:
@@ -1510,6 +1536,8 @@ func _process(delta: float) -> void:
 		var id := _pnj_proche()
 		if id != "":
 			hint = "E  Parler — " + str(_pnj[id]["def"]["nom"])
+		elif not _porte_publique_proche().is_empty():
+			hint = str(_porte_publique_proche().get("invite", "E  Entrer"))
 		elif not _examen_proche().is_empty():
 			hint = "E  Examiner"
 	_prompt.text = hint
