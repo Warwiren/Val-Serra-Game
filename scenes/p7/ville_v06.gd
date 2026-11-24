@@ -29,7 +29,10 @@ func _init(scene) -> void:
 ## Matériau du blockout avec l'estompage des volumes trop proches de la caméra (src/p7/blockout_p7.gdshader).
 func mat(c: Color, grille := 0.0, facade := 0.0, base_y := 0.0, hole := false) -> ShaderMaterial:
 	var m := super(c, grille, facade, base_y, hole)
-	m.set_shader_parameter("proche", PROCHE_M)
+	# P7.6 : --sans_proche (diagnostic) : aucun estompage des volumes proches de la caméra
+	# P7.6 : en V0.7-B, la coupe nette de la caméra (colisee.coupe_ville) remplace la trame
+	var sans: bool = sc._cli.has("sans_proche") or (sc.has_method("coupe_ville") and sc.coupe_ville() > 0.0)
+	m.set_shader_parameter("proche", 0.0 if sans else PROCHE_M)
 	return m
 
 
@@ -305,6 +308,8 @@ func _ambiance() -> void:
 	sc._sun.rotation_degrees = Vector3(-34.0, -128.0, 0.0)     # soleil bas venant de l'ouest-sud-ouest : ombres longues
 	sc._sun.light_color = Color(1.0, 0.90, 0.78)
 	sc._sun.light_energy = 1.1
+	if sc._cli.has("sans_ombres"):
+		sc._sun.shadow_enabled = false                         # P7.6 : diagnostic des bandes (ombres coupées)
 
 
 ## Libellés : bâtiments-clés seulement, cachés par le décor (test de profondeur), plus discrets qu'en V0.1 ; L les coupe.

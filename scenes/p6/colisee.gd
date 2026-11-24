@@ -757,7 +757,6 @@ func _porte_ville_p76(e: Dictionary) -> void:
 	_box_mesh(Vector3((a.x + b.x) * 0.5, 0.012, (a.y + 0.45 + 29.8) * 0.5), Vector3(b.x - a.x - 0.02, 0.02, 29.8 - a.y - 0.45), jour)
 
 
-
 func _decor_floor(e: Dictionary) -> void:
 	# hors du bâtiment : sol sombre non praticable (la ville viendra plus tard)
 	var r: Rect2 = e["rect"]
@@ -2536,6 +2535,10 @@ func apply_camera(center: Vector2, zoom: float) -> void:
 		super.apply_camera(center, zoom)
 		return
 	var fov := float(_cli.get("v06_champ", CHAMP_V06))
+	# P7.6 : V0.7-B — COUPE NETTE des volumes proches : le plan proche de la caméra est reculé (Aren est à 22,4 m). Un
+	# volume qui contient la caméra ou passe à moins de NEAR_V07B m disparaît entièrement (faces arrière éliminées), au
+	# lieu de la trame de P7.3 (« proche », src/p7/blockout_p7.gdshader). --coupe_ville=0 : trame d'origine (comparaison).
+	cam.near = coupe_ville() if coupe_ville() > 0.0 else 0.5
 	var vp: Vector2 = Session25.viewport_size(self)
 	var h_view := vp.y / (World25.PPM * zoom)
 	cam.projection = Camera3D.PROJECTION_PERSPECTIVE
@@ -2543,6 +2546,14 @@ func apply_camera(center: Vector2, zoom: float) -> void:
 	var axis := World25.cam_right() * (center.x / World25.PPM) + World25.cam_up() * (-center.y / World25.PPM)
 	var depth := body.global_position.dot(World25.cam_back()) if body != null else 0.0
 	cam.position = axis + World25.cam_back() * (depth + h_view * 0.5 / tan(deg_to_rad(fov) * 0.5))
+
+
+## P7.6 : distance de la coupe nette des volumes proches (m) dans la ville V0.7-B ; 0 = trame de P7.3 (autres versions).
+const NEAR_V07B := 11.0
+func coupe_ville() -> float:
+	if _ville_ver != "v07b" or str(_cli.get("coupe_ville", "1")) == "0" or _p6.get("zone", "") != "ville":
+		return 0.0
+	return float(_cli.get("near_ville", NEAR_V07B))
 
 
 # ------------------------------------------------------------------------------------------------ P7.4 caméra B

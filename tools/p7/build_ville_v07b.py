@@ -77,7 +77,7 @@ def praticable():
     s.append(surface("balcon_palier", rect(56, 115, 62, 121), H1))            # belvédère au-dessus du palier
     s.append(surface("belvedere_palier", rect(62, 126, 68, 132), HP1))        # P7.4.1 : prolongement du palier (praticable)
     s.append(surface("grande_place", rect(30, 88, 72, 115), H1))
-    s.append(surface("place_bras_est", rect(72, 100, 86, 115), H1))          # bras de la place vers la ruelle
+    s.append(surface("place_bras_est", rect(72, 100, 84, 115), H1))          # bras de la place vers la ruelle (P7.6 : jusqu'à x 84)
     s.append(surface("place_recoin", rect(72, 88, 80, 100), H1))              # recoin de la boutique de fournitures
     s.append(surface("rue_colisee", rect(14, 96, 30, 104), H1))               # embranchement ouest
     s.append(surface("place_ouest", rect(14, 104, 30, 115), H1))              # P7.4.1 : la place rejoint l'embranchement
@@ -85,6 +85,7 @@ def praticable():
     s.append(surface("vestibule_colisee", rect(VESTIBULE[0], VESTIBULE[1], VESTIBULE[2], VESTIBULE[3]), H1))
     s.append(surface("perron_colisee", rect(VESTIBULE[2], 56, 36, 70), H1))          # perron devant la porte est (sous le propylée)
     s.append(surface("allee_colisee", rect(22, 70, 30, 96), H1))                     # allée parvis -> perron (jusqu'à la rue)
+    s.append(surface("perron_angle_se", rect(30, 70, 36, 79), H1))                   # P7.6 : angle libéré par l'échoppe reculée
     s.append(surface("passage_faubourgs", rect(-18, 92, -10, 100), H1))              # B : vers les faubourgs (caravane)
     # --- montée haute et terrasse (5,75 / 8 m)
     s.append(surface("palier_2", rect(58, 77, 76, 82), HP2))
@@ -106,13 +107,17 @@ BATIMENTS = [
     ("b_o_placette", rect(30, 132, 48, 150), H0, 8.0, "residentiel", "", "2p"),
     ("b_e_placette", rect(72, 144, 96, 150), H0, 1.2, "residentiel_b", "", ""),    # muret bas (rue du chantier)
     ("b_e_ruelle", rect(84, 115, 100, 136), H0, 8.0, "residentiel", "", "2p"),
+    # P7.6 : ferme le bout du bras est (x 84 -> 86 menait à un vide entre deux volumes de décor : faux passage vers l'est)
+    ("b_bras_est_e", rect(84, 100, 98, 115), H1, 6.0, "residentiel_b", "", "2p"),
     ("rempart_sud_o", rect(10, 152, 53, 155), H0, 9.0, "rempart", "", ""),
     ("rempart_sud_e", rect(67, 152, 120, 155), H0, 9.0, "rempart", "", ""),
     ("tour_sud_o", rect(53, 150, 57, 157), H0, 12.0, "rempart", "", ""),
     ("tour_sud_e", rect(63, 150, 67, 157), H0, 12.0, "rempart", "", ""),
     # --- palier 1 : bloc de pierre à l'est de la volée A (sous le palier)
     # --- grande place : fronts denses
-    ("echoppe_no", rect(30, 76, 44, 88), H1, 0.6, "commerce", "", ""),         # P7.4.2 : étals bas (sous la ligne de vue)
+    # P7.6 : étals abaissés (0,45 m) ; la partie ouest recule de 3 m vers le sud (y 76 -> 79) : dégage l'angle allée / perron
+    ("echoppe_no", rect(36, 76, 44, 88), H1, 0.45, "commerce", "", ""),
+    ("echoppe_no_o", rect(30, 79, 36, 88), H1, 0.45, "commerce", "", ""),
     ("forge_armurerie", rect(44, 76, 58, 88), H1, 4.0, "forge", "Forge-armurerie", "2p"),    # façade sud
     ("boutique_fournitures", rect(76, 76, 88, 88), H1, 5.0, "commerce", "Boutique de fournitures", "2p"),   # façade sud (recoin)
     ("commerce_e2", rect(80, 88, 88, 100), H1, 6.0, "commerce", "", "2p"),
@@ -122,8 +127,8 @@ BATIMENTS = [
     ("b_arriere_forge", rect(40, 71, 58, 76), H1, 4.5, "residentiel_b", "", "plat"),        # contre le mur de la terrasse
     ("b_parvis_o", rect(-24, 82, -10, 92), H1, 7.0, "residentiel", "", "2p"),              # front ouest du parvis (nord)
     ("b_parvis_o2", rect(-24, 100, -10, 104), H1, 1.2, "residentiel_b", "", ""),           # front ouest du parvis (sud) : BAS, sinon il cache la caravane (accès B)
-    ("b_faubourg_n", rect(-34, 84, -18, 92), H1, 6.0, "residentiel_b", "", "2p"),          # B : le passage se poursuit
-    ("b_faubourg_s", rect(-34, 100, -18, 108), H1, 5.0, "residentiel", "", "2p"),
+    ("b_faubourg_n", rect(-34, 84, -24, 92), H1, 6.0, "residentiel_b", "", "2p"),           # P7.6 : x -18 -> -24 (recouvrait b_parvis_o)          # B : le passage se poursuit
+    ("b_faubourg_s", rect(-34, 100, -24, 108), H1, 5.0, "residentiel", "", "2p"),          # P7.6 : idem (b_parvis_o2)
     ("b_parvis_s", rect(-10, 104, 14, 112), H1, 1.2, "residentiel_b", "", ""),             # bas : la caméra passe au-dessus
     # --- terrasse haute
     ("administration", rect(40, 44, 56, 71), H2, 10.0, "civique", "Administration", "plat"),
@@ -131,10 +136,10 @@ BATIMENTS = [
     ("hotel_de_ville", rect(74, 32, 92, 50), H2, 13.0, "civique", "Hôtel de ville", "2p"),     # façade sud sur la terrasse
     ("b_terrasse_e3", rect(90, 58, 104, 64), H2, 8.0, "residentiel", "", "2p"),               # (ancienne rue haute : fermée par du bâti)
     ("b_terrasse_e", rect(90, 64, 104, 72), H2, 8.0, "residentiel", "", "2p"),
-    ("b_terrasse_e2", rect(90, 44, 104, 58), H2, 9.0, "residentiel_b", "", "2p"),
+    ("b_terrasse_e2", rect(92, 44, 104, 58), H2, 9.0, "residentiel_b", "", "2p"),          # P7.6 : x 90 -> 92 (recouvrait l'hôtel de ville)
     ("socle_palier_2b", rect(58, 71, 68, 77), H1, H2 - H1, "rempart", "", ""),              # sous la terrasse, à l'ouest de D
-    ("tour_chateau_o", rect(62, 36, 66, 42), H2, 7.5, "rempart", "", ""),
-    ("tour_chateau_e", rect(74, 36, 78, 42), H2, 7.5, "rempart", "", ""),
+    # P7.6 : tours de la porte du château retirées : entièrement noyées dans b_terrasse_no et l'hôtel de ville (invisibles,
+    # volumes confondus) ; la porte reste encadrée par les guérites et les gardes
 ]
 
 
@@ -142,12 +147,15 @@ def paysage():
     """Volumes sans collision, hors d'atteinte : prolongements de la ville (rues futures, gradins de toits)."""
     out = []
     rangs = [
-        (H0, [(96, 128, 116, 136, 7.0), (96, 144, 118, 152, 8.0), (118, 128, 136, 152, 6.0),     # rue du chantier, au-delà
+        (H0, [(100, 128, 116, 136, 7.0), (96, 144, 118, 152, 8.0), (118, 128, 136, 152, 6.0),     # rue du chantier, au-delà
               (8, 120, 30, 150, 7.0), (8, 115, 30, 120, 2.5), (100, 112, 120, 128, 9.0), (-10, 120, 8, 150, 6.0)]),
-        (H1, [(88, 76, 104, 100, 8.0), (104, 80, 124, 104, 9.0), (-6, 112, 14, 120, 5.0), (86, 100, 104, 112, 6.0),
+        (H1, [(88, 76, 104, 100, 8.0), (104, 80, 124, 104, 9.0), (-6, 112, 14, 120, 5.0), (98, 100, 104, 112, 6.0),
               # faubourgs ouest : la rue du passage B continue entre deux fronts, puis tourne (rue « disparaissant »)
               (-60, 80, -34, 92, 7.0), (-60, 100, -34, 114, 6.0), (-76, 88, -60, 104, 8.0), (-40, 60, -24, 80, 9.0)]),
-        (H2, [(104, 40, 124, 72, 10.0), (124, 44, 140, 70, 8.0), (20, 30, 40, 66, 11.0), (94, 30, 114, 40, 9.0)]),
+        (H2, [(104, 40, 124, 72, 10.0), (124, 44, 140, 70, 8.0), (94, 30, 114, 40, 9.0)]),
+        # P7.6 : ce volume flottait à 8 m au-dessus du perron (x 20 -> 40 : pas de terrasse haute à l'ouest de x 40) ;
+        # posé au niveau de la place, au nord du bâti du perron
+        (H1, [(20, 30, 40, 44, 15.5)]),
     ]
     for h, lst in rangs:
         for x0, y0, x1, y1, haut in lst:
@@ -196,7 +204,7 @@ def construire():
         ("gc_place_o", rect(14, 114.6, 56, 115), H1), ("gc_belvedere_s", rect(62, 131.6, 68, 132), HP1), ("gc_balcon", rect(56, 120.6, 62, 121), H1),
         ("gc_palier_e", rect(67.6, 121, 68, 126), HP1),
         ("gc_terrasse_o", rect(56, 70.6, 68, 71), H2), ("gc_terrasse_e", rect(76, 70.6, 90, 71), H2),
-        ("gc_palier_2_o", rect(58, 77, 58.4, 82), HP2), ("gc_place_bras_o", rect(72, 114.6, 80, 115), H1), ("gc_place_bras_e", rect(84, 114.6, 86, 115), H1),
+        ("gc_palier_2_o", rect(58, 77, 58.4, 82), HP2), ("gc_place_bras_o", rect(72, 114.6, 80, 115), H1),
         ("gc_place_e", rect(68, 114.6, 72, 115), H1),
     ]
     for gid, r, h in gc:
@@ -274,11 +282,11 @@ def construire():
             "obstacles": obstacles,
             "entree": {"xy": [60.0, 154.0], "h": H0},
             "sorties": [
-                # portail « colisee_porte_publique », côté ville : le fond du vestibule. Arrivée dans le Colisée : couloir de
-                # sortie, devant la porte est (hors de son déclencheur), tourné vers l'ouest (vers l'intérieur)
+                # portail « colisee_porte_publique », côté ville : le fond du vestibule. Arrivée dans le Colisée (P7.6) : dans le
+                # vestibule de sortie, devant sa porte sud (hors du déclencheur du seuil), tourné vers le nord (l'intérieur)
                 {"id": "portail_colisee_public", "portail": "colisee_porte_publique", "rect": [VESTIBULE[0], VESTIBULE[1], VESTIBULE[0] + 1.0, VESTIBULE[3]],
                  "vers": "res://data/p6/colisee.json", "porte": [VESTIBULE[0], VESTIBULE[1], VESTIBULE[0], VESTIBULE[3]],
-                 "arrivee": [61.5, 23.0, 0.0], "orientation": [-1.0, 0.0]},
+                 "arrivee": [61.0, 26.8, 0.0], "orientation": [0.0, -1.0]},
             ],
             "p6": {
                 "nom": "Val'Serra — quartier central (V0.7-B, blockout)",
@@ -313,10 +321,10 @@ def construire():
                     "chantier": rect(88.4, 136, 89.4, 144),
                     "points": points,
                     "zones_camera": zones_camera,
-                    # retour du Colisée (portail colisee_porte_publique) : sur le perron, devant l'angle sud-est du propylée,
-                    # tourné vers l'est (P7.5 : l'ancien point, sous le porche, est désormais derrière la porte fermée)
-                    "arrivee_colisee": [34.6, 68.8, H1],
-                    "orientation_arrivee_colisee": [1.0, 0.0],
+                    # retour du Colisée (portail colisee_porte_publique) — P7.6 : sur le perron, DIRECTEMENT devant les grandes
+                    # portes (arche sud du propylée), tourné vers la ville (le sud : l'allée, la grande place)
+                    "arrivee_colisee": [30.45, 68.9, H1],
+                    "orientation_arrivee_colisee": [0.0, 1.0],
                 },
             },
         },

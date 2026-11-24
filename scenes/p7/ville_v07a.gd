@@ -102,11 +102,19 @@ func _colisee_v07() -> void:
 		cm.height = float(spec[1]) - float(spec[0])
 		cm.radial_segments = 96
 		cm.rings = 1
+		# P7.6 : les cordons (anneaux à peine plus larges que le tambour) n'ont plus de couvercles : leur bord supérieur, à
+		# peine visible entre les facettes, faisait une ligne claire en pointillés sur toute la façade (cause confirmée en
+		# masquant les cordons ; les ombres n'y étaient pour rien). Tambour et couronnement gardent les leurs (fermeture).
+		if float(spec[2]) > 1.0 and float(spec[1]) < haut:
+			cm.cap_top = false
+			cm.cap_bottom = false
 		cy.mesh = cm
 		cy.scale = Vector3(rr.x * spec[2], 1.0, rr.y * spec[2])
 		cy.position = Vector3(c.x, h0 + (float(spec[0]) + float(spec[1])) * 0.5, c.y)
 		cy.material_override = spec[3]
 		cy.name = "Colisee_tambour"
+		if sc._cli.has("sans_cordons") and float(spec[2]) > 1.0 and float(spec[0]) > 0.0 and float(spec[1]) < haut:
+			cy.visible = false                                 # P7.6 : diagnostic de la bande du tambour
 		sc.root.add_child(cy)
 	# arcades : deux registres + attique à fenêtres carrées, sur la moitié sud (face à la ville et à la caméra)
 	var n := 44

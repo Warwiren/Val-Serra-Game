@@ -381,11 +381,11 @@
      100
     ],
     [
-     86,
+     84,
      100
     ],
     [
-     86,
+     84,
      115
     ],
     [
@@ -559,6 +559,30 @@
     [
      22,
      96
+    ]
+   ],
+   "height_m": 3.5,
+   "walkable": true
+  },
+  {
+   "id": "perron_angle_se",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     30,
+     70
+    ],
+    [
+     36,
+     70
+    ],
+    [
+     36,
+     79
+    ],
+    [
+     30,
+     79
     ]
    ],
    "height_m": 3.5,
@@ -927,6 +951,17 @@
     "haut": 8.0
    },
    {
+    "id": "bat_b_bras_est_e",
+    "rect": [
+     84,
+     100,
+     98,
+     115
+    ],
+    "h": 3.5,
+    "haut": 6.0
+   },
+   {
     "id": "rempart_sud_o",
     "rect": [
      10,
@@ -973,13 +1008,24 @@
    {
     "id": "bat_echoppe_no",
     "rect": [
-     30,
+     36,
      76,
      44,
      88
     ],
     "h": 3.5,
-    "haut": 0.6
+    "haut": 0.45
+   },
+   {
+    "id": "bat_echoppe_no_o",
+    "rect": [
+     30,
+     79,
+     36,
+     88
+    ],
+    "h": 3.5,
+    "haut": 0.45
    },
    {
     "id": "bat_forge_armurerie",
@@ -1085,7 +1131,7 @@
     "rect": [
      -34,
      84,
-     -18,
+     -24,
      92
     ],
     "h": 3.5,
@@ -1096,7 +1142,7 @@
     "rect": [
      -34,
      100,
-     -18,
+     -24,
      108
     ],
     "h": 3.5,
@@ -1171,7 +1217,7 @@
    {
     "id": "bat_b_terrasse_e2",
     "rect": [
-     90,
+     92,
      44,
      104,
      58
@@ -1189,28 +1235,6 @@
     ],
     "h": 3.5,
     "haut": 4.5
-   },
-   {
-    "id": "tour_chateau_o",
-    "rect": [
-     62,
-     36,
-     66,
-     42
-    ],
-    "h": 8.0,
-    "haut": 7.5
-   },
-   {
-    "id": "tour_chateau_e",
-    "rect": [
-     74,
-     36,
-     78,
-     42
-    ],
-    "h": 8.0,
-    "haut": 7.5
    },
    {
     "id": "colisee_tranche_00",
@@ -1565,17 +1589,6 @@
     "haut": 1.0
    },
    {
-    "id": "gc_place_bras_e",
-    "rect": [
-     84,
-     114.6,
-     86,
-     115
-    ],
-    "h": 3.5,
-    "haut": 1.0
-   },
-   {
     "id": "gc_place_e",
     "rect": [
      68,
@@ -1821,13 +1834,13 @@
      64.0
     ],
     "arrivee": [
-     61.5,
-     23.0,
+     61.0,
+     26.8,
      0.0
     ],
     "orientation": [
-     -1.0,
-     0.0
+     0.0,
+     -1.0
     ]
    }
   ],
@@ -2114,6 +2127,11 @@
       "libelle": "",
       "toit": "2p"
      },
+     "bat_b_bras_est_e": {
+      "categorie": "residentiel_b",
+      "libelle": "",
+      "toit": "2p"
+     },
      "rempart_sud_o": {
       "categorie": "rempart",
       "libelle": "",
@@ -2135,6 +2153,11 @@
       "toit": ""
      },
      "bat_echoppe_no": {
+      "categorie": "commerce",
+      "libelle": "",
+      "toit": ""
+     },
+     "bat_echoppe_no_o": {
       "categorie": "commerce",
       "libelle": "",
       "toit": ""
@@ -2233,22 +2256,12 @@
       "categorie": "rempart",
       "libelle": "",
       "toit": ""
-     },
-     "tour_chateau_o": {
-      "categorie": "rempart",
-      "libelle": "",
-      "toit": ""
-     },
-     "tour_chateau_e": {
-      "categorie": "rempart",
-      "libelle": "",
-      "toit": ""
      }
     },
     "paysage": [
      {
       "rect": [
-       96,
+       100,
        128,
        116,
        136
@@ -2358,7 +2371,7 @@
      },
      {
       "rect": [
-       86,
+       98,
        100,
        104,
        112
@@ -2435,17 +2448,6 @@
      },
      {
       "rect": [
-       20,
-       30,
-       40,
-       66
-      ],
-      "h": 8.0,
-      "haut": 11.0,
-      "toit": "2p"
-     },
-     {
-      "rect": [
        94,
        30,
        114,
@@ -2453,6 +2455,17 @@
       ],
       "h": 8.0,
       "haut": 9.0,
+      "toit": "2p"
+     },
+     {
+      "rect": [
+       20,
+       30,
+       40,
+       44
+      ],
+      "h": 3.5,
+      "haut": 15.5,
       "toit": "2p"
      }
     ],
@@ -2744,13 +2757,13 @@
      }
     ],
     "arrivee_colisee": [
-     34.6,
-     68.8,
+     30.45,
+     68.9,
      3.5
     ],
     "orientation_arrivee_colisee": [
-     1.0,
-     0.0
+     0.0,
+     1.0
     ]
    }
   }
