@@ -110,3 +110,8 @@ Plus aucune image n'est décentrée.
 * **Rendu sur GPU réel** (tout est en rendu logiciel, lavapipe) : intensité des lanternes et de la lumière sous la voûte,
   halo. Je n'ai mis aucun effet de bloom.
 * **Ressenti au clavier** : les parcours sont joués par un pilote automatique.
+
+## Suite (P7.5, commit `a8e5ab3`)
+
+Une porte à deux battants a été ajoutée dans l'**arche sud** du propylée, ouverte par interaction (E). Le point de retour se
+déplace sur le perron, devant l'angle sud-est. Voir `docs/media/p7_5/porte_colisee_4_vues.jpg` et le rapport P7.5.
