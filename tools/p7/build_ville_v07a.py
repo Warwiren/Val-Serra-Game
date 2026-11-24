@@ -65,9 +65,11 @@ def praticable():
     # --- paliers et place (1,75 / 3,5 m)
     s.append(surface("palier_1", rect(56, 121, 68, 126), HP1))
     s.append(surface("balcon_palier", rect(56, 115, 62, 121), H1))            # belvédère au-dessus du palier
+    s.append(surface("belvedere_palier", rect(62, 126, 68, 132), HP1))        # P7.4.1 : prolongement du palier (praticable)
     s.append(surface("grande_place", rect(30, 88, 72, 115), H1))
     s.append(surface("place_bras_est", rect(72, 100, 86, 115), H1))          # bras de la place vers la ruelle
     s.append(surface("rue_colisee", rect(14, 96, 30, 104), H1))               # embranchement ouest
+    s.append(surface("place_ouest", rect(14, 104, 30, 115), H1))              # P7.4.1 : la place rejoint l'embranchement
     s.append(surface("parvis_colisee", rect(-10, 70, 22, 104), H1))      # sous le tambour au nord (solides des tranches)
     s.append(surface("vestibule_colisee", rect(VESTIBULE[0], VESTIBULE[1], VESTIBULE[2], VESTIBULE[3]), H1))
     # --- montée haute et terrasse (5,75 / 8 m)
@@ -97,15 +99,12 @@ BATIMENTS = [
     ("tour_sud_o", rect(53, 150, 57, 157), H0, 12.0, "rempart", "", ""),
     ("tour_sud_e", rect(63, 150, 67, 157), H0, 12.0, "rempart", "", ""),
     # --- palier 1 : bloc de pierre à l'est de la volée A (sous le palier)
-    ("socle_palier", rect(62, 126, 68, 132), H0, HP1, "rempart", "", ""),
     # --- grande place : fronts denses
     ("echoppe_no", rect(30, 76, 44, 88), H1, 3.0, "commerce", "", "2p"),
     ("forge_armurerie", rect(44, 76, 60, 88), H1, 4.0, "forge", "Forge-armurerie", "2p"),    # façade sud
     ("commerce_est", rect(74, 76, 86, 100), H1, 7.0, "commerce", "", "2p"),
     ("socle_palier_2", rect(66, 82, 74, 88), H1, HP2 - H1, "rempart", "", ""),
     ("b_rue_colisee_n", rect(22, 84, 30, 96), H1, 3.0, "commerce", "", "2p"),      # bas, en retrait : le Colisée se découvre
-    ("b_rue_colisee_s", rect(14, 104, 30, 118), H1, 1.2, "rempart", "", ""),           # bas : le Colisée se lit
-    ("b_place_so", rect(20, 112, 30, 118), H1, 3.5, "residentiel", "", "2p"),
     ("b_parvis_ne", rect(22, 62, 30, 84), H1, 2.5, "residentiel_b", "", ""),              # portique bas : le Colisée se voit de la place
     ("b_no_place", rect(30, 60, 40, 76), H1, 3.0, "residentiel", "", "2p"),
     ("b_arriere_forge", rect(40, 71, 60, 76), H1, 4.5, "residentiel_b", "", "plat"),        # contre le mur de la terrasse
@@ -128,7 +127,7 @@ def paysage():
     out = []
     rangs = [
         (H0, [(96, 128, 116, 136, 7.0), (96, 144, 118, 152, 8.0), (118, 128, 136, 152, 6.0),     # rue du chantier, au-delà
-              (8, 120, 30, 150, 7.0), (100, 112, 120, 128, 9.0), (-10, 120, 8, 150, 6.0)]),
+              (8, 120, 30, 150, 7.0), (8, 115, 30, 120, 2.5), (100, 112, 120, 128, 9.0), (-10, 120, 8, 150, 6.0)]),
         (H1, [(86, 76, 104, 100, 8.0), (104, 80, 124, 104, 9.0), (-6, 112, 14, 120, 5.0), (86, 100, 104, 112, 6.0)]),
         (H2, [(104, 40, 124, 72, 10.0), (124, 44, 140, 70, 8.0), (20, 30, 40, 66, 11.0), (94, 30, 114, 40, 9.0)]),
     ]
@@ -143,6 +142,7 @@ def masses():
     return [
         [rect(-160, -300, 300, 115), H1],                 # niveau de la place et au-delà (sous tout le nord)
         [rect(56, 121, 68, 126), HP1],                    # sous le palier 1
+        [rect(62, 126, 68, 132), HP1],                    # sous le belvédère du palier
         [rect(56, 115, 62, 121), H1],                     # belvédère
         [rect(60, 77, 74, 82), HP2],                      # sous le palier 2
         [rect(40, -300, 300, 71), H2],                    # terrasse haute (à l'est de x = 40)
@@ -177,7 +177,7 @@ def construire():
         meta_bat[oid] = {"categorie": cat, "libelle": lib, "toit": toit}
     obstacles += colisee_tranches()
     gc = [  # garde-corps (1 m, collision réelle) aux bords de terrasse qui ne sont pas des volées
-        ("gc_place_o", rect(30, 114.6, 56, 115), H1), ("gc_balcon", rect(56, 120.6, 62, 121), H1),
+        ("gc_place_o", rect(14, 114.6, 56, 115), H1), ("gc_belvedere_s", rect(62, 131.6, 68, 132), HP1), ("gc_balcon", rect(56, 120.6, 62, 121), H1),
         ("gc_palier_e", rect(67.6, 121, 68, 126), HP1),
         ("gc_terrasse_o", rect(56, 70.6, 68, 71), H2), ("gc_terrasse_e", rect(74, 70.6, 90, 71), H2),
         ("gc_palier_2_o", rect(60, 77, 60.4, 82), HP2), ("gc_place_bras_o", rect(72, 114.6, 80, 115), H1), ("gc_place_bras_e", rect(84, 114.6, 86, 115), H1),

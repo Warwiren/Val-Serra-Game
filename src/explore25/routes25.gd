@@ -769,7 +769,9 @@ static func _route_base(name: String) -> Array:
 				{"do": "wait", "t": 0.5},
 				_warp(50.0, 134.0, 0.0), _push("façade de la guilde", Vector2(0, -1), 1.5, {"min_y": 132.2}),
 				_warp(49.0, 140.0, 0.0), _push("front ouest de la placette", Vector2(-1, 0), 1.5, {"min_x": 48.2}),
-				_warp(66.0, 133.0, 0.0), _push("socle du palier (est de la volée A)", Vector2(0, -1), 1.5, {"min_y": 132.2}),
+				_warp(66.0, 133.0, 0.0), _push("mur du belvédère du palier (depuis la placette)", Vector2(0, -1), 1.5, {"min_y": 132.2}),
+				_warp(65.0, 129.0, 1.75), _push("garde-corps du belvédère du palier", Vector2(0, 1), 1.5, {"max_y": 131.4, "h": 1.75}),
+				_warp(20.0, 112.0, 3.5), _push("garde-corps ouest de la place", Vector2(0, 1), 1.5, {"max_y": 114.4, "h": 3.5}),
 				_warp(59.0, 119.0, 3.5), _push("garde-corps du belvédère", Vector2(0, 1), 1.5, {"max_y": 120.4, "h": 3.5}),
 				_warp(64.0, 123.5, 1.75), _push("bâtiment à l'est du palier", Vector2(1, 0), 1.5, {"max_x": 67.4, "h": 1.75}),
 				_warp(40.0, 113.0, 3.5), _push("garde-corps de la place (vide de 3,5 m)", Vector2(0, 1), 1.5, {"max_y": 114.4, "h": 3.5}),
@@ -785,6 +787,23 @@ static func _route_base(name: String) -> Array:
 				_warp(87.0, 140.0, 0.0), _push("barrière du chantier", Vector2(1, 0), 1.5, {"max_x": 89.2}),
 				_warp(82.0, 130.0, 0.0), _push("mur est de la ruelle", Vector2(1, 0), 1.5, {"max_x": 83.8}),
 				_warp(60.0, 160.0, 0.0), _push("barrière de la route sud", Vector2(0, 1), 1.5, {"max_y": 161.2}),
+			]
+		"p7_v07_camera":
+			# P7.4.1 — test de suivi : changements brusques de direction, bords de la scène (parvis du Colisée, x < 0),
+			# abords des bâtiments et de l'entrée du Colisée, allers-retours aux limites des zones de caméra
+			return [
+				_warp(52.0, 106.0, 3.5), {"do": "wait", "t": 1.0},
+				_go(20.0, 100.0, "rue du Colisée", 0.4), _go(-8.0, 100.0, "bord ouest du parvis", 0.4), _go(-8.0, 82.0, "angle nord-ouest du parvis", 0.4),
+				_go(-8.0, 100.0, "demi-tour (sud)", 0.4), _go(20.0, 76.0, "diagonale vers le nord-est", 0.4), _go(-6.0, 90.0, "retour", 0.4),
+				_go(20.0, 90.0, "est", 0.3), _go(-6.0, 90.0, "ouest", 0.3), _go(20.0, 90.0, "est", 0.3), _go(-6.0, 90.0, "ouest", 0.3),
+				_go(14.0, 80.0, "pied du Colisée", 0.4), _go(10.0, 102.0, "sud du parvis", 0.4),
+				_go(65.0, 112.0, "limite de zone (place)", 0.4), _go(65.0, 119.0, "hors zone (volée B)", 0.4), _go(65.0, 112.0, "dans la zone", 0.4),
+				_go(65.0, 119.0, "hors zone", 0.4), _go(65.0, 112.0, "dans la zone", 0.4),
+				_go(31.0, 89.0, "angle nord-ouest de la place", 0.4), _go(71.0, 89.0, "angle nord-est", 0.4), _go(31.0, 113.0, "angle sud-ouest", 0.4),
+				_go(63.0, 89.5, "pied de la volée C", 0.3), _go(63.0, 81.6, "haut de C", 0.3), _go(70.0, 79.5, "palier 2", 0.3),
+				_go(71.0, 77.6, "pied de D", 0.3), _go(71.0, 69.0, "terrasse", 0.3), _go(57.0, 51.0, "angle nord-ouest de la terrasse", 0.4),
+				_go(89.0, 69.0, "angle sud-est", 0.4), _go(57.0, 69.0, "bord sud (ouest)", 0.4), _go(89.0, 51.0, "angle nord-est", 0.4),
+				{"do": "wait", "t": 1.0},
 			]
 		"p7_v07_raccord":
 			# P7.4 — raccord réel Colisée -> ville V0.7-A (avec --etat=tutorial_completed)

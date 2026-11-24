@@ -2451,6 +2451,11 @@ func _secteur_camera(p: Vector2) -> Dictionary:
 ## Commandes : l'azimut des commandes reste celui d'avant la rotation tant qu'une direction est tenue (pas de dérive de
 ## la marche pendant qu'on tient une touche), puis rejoint celui de la caméra au relâchement.
 func _yaw_secteurs(delta: float) -> void:
+	# P7.4.1 : dans la ville, AUCUNE limite écran pour la caméra. Les limites calculées sur l'emprise des données
+	# (x de 0 à 140 m) arrêtaient le suivi près du parvis du Colisée (x < 10) : Aren pouvait sortir de l'écran (mode A ;
+	# en B, elles n'étaient effacées qu'après la première rotation). Le décor couvre toute la vue, rien ne justifie une
+	# borne ; le suivi d'Aren l'emporte sur toute composition.
+	s.cam.bounds = Rect2()
 	if _ville_ver != "v07a":
 		return
 	var hp := Vector2(s.hero.x, s.hero.y)
