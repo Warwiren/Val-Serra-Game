@@ -15,7 +15,8 @@ La **V0.7-A reste intacte en référence** : `scenes/p7/ville_v07a.tscn`, `data/
 | `a8e5ab3` | § 2 — porte du Colisée à deux battants (commit séparé, sur la branche P7.4) |
 | `bcc5cab` | Captures de la porte, vidéo de l'arène P7.4.2 |
 | `1cc6d7f` | § 3 à 8 — V0.7-B : données, scène F6, parcours de test |
-| (ce commit) | Ajustement de lisibilité de l'accès B, plan, comparatifs, vidéo, ce rapport |
+| `5990a58` | Ajustement de lisibilité de l'accès B, plans, comparatifs, ce rapport |
+| (dernier commit) | Vidéo de la visite |
 
 ## 1. La porte du Colisée (§ 2)
 
