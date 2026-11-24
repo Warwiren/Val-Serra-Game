@@ -146,6 +146,10 @@ masque de collision avant / après.
    V0.7-A semi-circulaire : porte sud, placette et guilde, montée en baïonnette, grande place, embranchement vers le parvis du
    Colisée (vue extérieure), montée vers la terrasse haute et la porte du château, ruelle, rues futures fermées (chantier,
    grille). **V** : caméra A (fixe, nord) / B (semi-fixe, 2 secteurs) ; **L** : libellés. Rapport : `docs/P7_4_VILLE_V07A.md`.
+   **P7.4.1** (même branche, EN ATTENTE) : suivi de caméra corrigé dans la ville ; caméra V0.7-A adoptée dans le Colisée
+   (`colisee.tscn`, profil V : distance fixe, molette sans effet, 20° dans l'arène ; touche C : caméras P6 en comparaison) ;
+   tunnel sud de 9 m ; **porte publique** sur la façade est du Colisée, liaison réelle ville ↔ Colisée dans les deux sens.
+   Rapport : `docs/P7_4_1_CAMERA_COLISEE.md`.
 
 ### Commandes — forêt V07B (F5)
 
@@ -189,7 +193,7 @@ masque de collision avant / après.
 | `scenes/p7/ville_v05_blockout.tscn` | P7.1 — blockout V0.1 du quartier central (référence fonctionnelle, comparaison) |
 | `scenes/p6/colisee.tscn` | **P6 — ouverture du jeu** : Colisée de Val'Serra, tutoriel, sortie vers la ville |
 | `scenes/p6/colisee_tunnel_A_6_5m.tscn` | P6.2-D — tunnel sud de 6,5 m (longueur de P6, comparaison) |
-| `scenes/p6/colisee_tunnel_B_8_5m.tscn` | P6.2-D — tunnel sud de 8,5 m (proposé ; = `colisee.tscn`) |
+| `scenes/p6/colisee_tunnel_B_8_5m.tscn` | P6.2-D — tunnel sud de 8,5 m (comparaison ; `colisee.tscn` = 9 m depuis P7.4.1) |
 | `scenes/p6/colisee_tunnel_C_9_5m.tscn` | P6.2-D — tunnel sud de 9,5 m (comparaison) |
 | `scenes/battle/combat_tutoriel.tscn` | P6 — combat tutoriel seul (retourne au Colisée à la fin) |
 | `scenes/battle/combat_foret.tscn` | **P5 — combat refondu** : groupe à gauche, Vorgane à droite, décor = la forêt d'exploration |

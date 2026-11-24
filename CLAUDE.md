@@ -210,6 +210,13 @@
   plan `tools/p7/plan_v07a.py`). Caméra A = caméra V0.6 ; B = même caméra, orientation propre à 2 secteurs des données
   (`zones_camera`, hystérésis, rotation amortie, commandes verrouillées pendant la rotation : `World25.yaw_commande_actif`,
   inactif hors de la ville). Ne pas reconstruire le quartier avant la décision de la direction sur l'agencement et la caméra.
+- **P7.4.1 (branche `p7-4-ville-v07a`, `docs/P7_4_1_CAMERA_COLISEE.md`)** : EN ATTENTE. Caméra de la ville et caméra « V »
+  (V0.7-A) du Colisée SANS limites écran (le suivi d'Aren prime ; outil de continuité : zone confortable). Caméra V0.7-A
+  adoptée provisoirement dans le Colisée (`cam_p6 = "V"` par défaut, `Cam25.verrou` : ni molette ni zoom des parcours ;
+  plongée par secteur `PLONGEE_SECTEURS` : 20° dans l'arène S4, 11° ailleurs). Tunnel sud : LONGUEUR retenue 9,0 m
+  (`TUNNEL_RETENU_M`, largeur inchangée ; variantes A / B / C conservées). Porte publique de la V0.7-A sur la façade EST
+  du tambour (même axe réel que la sortie est du Colisée) ; portail « colisee_porte_publique » (sorties de données,
+  orientation d'arrivée `orientation`, déclencheur inverse désarmé à l'arrivée). Test `--route=p7_v07_portail`.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).

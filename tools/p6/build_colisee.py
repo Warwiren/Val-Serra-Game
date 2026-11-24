@@ -241,8 +241,11 @@ def _colisee_base():
         {"id": "ex_banniere_v", "xy": [26.0, 52.9], "portee_m": 1.5, "texte": "La bannière de la Guilde des Chasseurs : une larme d'Aether entre deux lames."},
         {"id": "ex_lits", "xy": [46.6, 38.8], "portee_m": 1.2, "texte": "Des lits de camp. L'odeur des onguents flotte dans la pièce."},
     ]
-    sortie = {"id": "sortie_est", "rect": rect(63.6, 21.5, 65.0, 24.5), "vers": "res://data/p6/quartier_initial.json",
-              "porte": [65.0, 21.5, 65.0, 24.5], "arrivee": [4.2, 8.0, 0.0]}
+    # P7.4.1 : portail « colisee_porte_publique » côté Colisée (vers la ville V0.7-A : la scène y redirige, arrivée et
+    # orientation lues dans les données de la ville) ; orientation d'arrivée dans le quartier provisoire : vers l'est
+    sortie = {"id": "sortie_est", "portail": "colisee_porte_publique", "rect": rect(63.6, 21.5, 65.0, 24.5),
+              "vers": "res://data/p6/quartier_initial.json", "porte": [65.0, 21.5, 65.0, 24.5], "arrivee": [4.2, 8.0, 0.0],
+              "orientation": [1.0, 0.0]}
 
     p6 = {
         "nom": "Colisée de Val'Serra",

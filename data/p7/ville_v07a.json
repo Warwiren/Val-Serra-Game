@@ -71,8 +71,8 @@
    "id": "colisee",
    "name": "colisee",
    "xy_m": [
-    0.0,
-    82.0
+    29.5,
+    62.0
    ],
    "height_m": 3.5
   },
@@ -449,20 +449,68 @@
    "category": "surface",
    "polygon_xy_m": [
     [
-     -3.0,
-     74.0
+     24.0,
+     60.0
     ],
     [
-     3.0,
-     74.0
+     26.5,
+     60.0
     ],
     [
-     3.0,
-     79.0
+     26.5,
+     64.0
     ],
     [
-     -3.0,
-     79.0
+     24.0,
+     64.0
+    ]
+   ],
+   "height_m": 3.5,
+   "walkable": true
+  },
+  {
+   "id": "perron_colisee",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     26.5,
+     56
+    ],
+    [
+     34,
+     56
+    ],
+    [
+     34,
+     70
+    ],
+    [
+     26.5,
+     70
+    ]
+   ],
+   "height_m": 3.5,
+   "walkable": true
+  },
+  {
+   "id": "allee_colisee",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     22,
+     70
+    ],
+    [
+     30,
+     70
+    ],
+    [
+     30,
+     96
+    ],
+    [
+     22,
+     96
     ]
    ],
    "height_m": 3.5,
@@ -894,7 +942,7 @@
      88
     ],
     "h": 3.5,
-    "haut": 3.0
+    "haut": 2.5
    },
    {
     "id": "bat_forge_armurerie",
@@ -930,37 +978,26 @@
     "haut": 2.25
    },
    {
-    "id": "bat_b_rue_colisee_n",
+    "id": "bat_b_porche_n",
     "rect": [
-     22,
-     84,
-     30,
-     96
+     24,
+     44,
+     40,
+     56
     ],
     "h": 3.5,
-    "haut": 3.0
-   },
-   {
-    "id": "bat_b_parvis_ne",
-    "rect": [
-     22,
-     62,
-     30,
-     84
-    ],
-    "h": 3.5,
-    "haut": 2.5
+    "haut": 6.0
    },
    {
     "id": "bat_b_no_place",
     "rect": [
-     30,
-     60,
+     34,
+     56,
      40,
      76
     ],
     "h": 3.5,
-    "haut": 3.0
+    "haut": 2.5
    },
    {
     "id": "bat_b_arriere_forge",
@@ -1253,7 +1290,7 @@
     "rect": [
      -26.783,
      60.0,
-     26.783,
+     24.0,
      62.0
     ],
     "h": 3.5,
@@ -1264,7 +1301,7 @@
     "rect": [
      -25.957,
      62.0,
-     25.957,
+     24.0,
      64.0
     ],
     "h": 3.5,
@@ -1326,20 +1363,9 @@
     "haut": 18.0
    },
    {
-    "id": "colisee_tranche_22_o",
+    "id": "colisee_tranche_22",
     "rect": [
      -13.555,
-     74.0,
-     -3.0,
-     76.0
-    ],
-    "h": 3.5,
-    "haut": 18.0
-   },
-   {
-    "id": "colisee_tranche_22_e",
-    "rect": [
-     3.0,
      74.0,
      13.555,
      76.0
@@ -1348,20 +1374,9 @@
     "haut": 18.0
    },
    {
-    "id": "colisee_tranche_23_o",
+    "id": "colisee_tranche_23",
     "rect": [
      -7.998,
-     76.0,
-     -3.0,
-     78.0
-    ],
-    "h": 3.5,
-    "haut": 18.0
-   },
-   {
-    "id": "colisee_tranche_23_e",
-    "rect": [
-     3.0,
      76.0,
      7.998,
      78.0
@@ -1522,23 +1537,28 @@
   },
   "sorties": [
    {
-    "id": "entree_colisee",
+    "id": "portail_colisee_public",
+    "portail": "colisee_porte_publique",
     "rect": [
-     -3.0,
-     74.0,
-     3.0,
-     75.0
+     24.0,
+     60.0,
+     25.0,
+     64.0
     ],
     "vers": "res://data/p6/colisee.json",
     "porte": [
-     -3.0,
-     74.0,
-     3.0,
-     74.0
+     24.0,
+     60.0,
+     24.0,
+     64.0
     ],
     "arrivee": [
      61.5,
      23.0,
+     0.0
+    ],
+    "orientation": [
+     -1.0,
      0.0
     ]
    }
@@ -1573,20 +1593,6 @@
      "marque": "fermee",
      "h": 8.0,
      "texte_ferme": "Rue haute — fermée pour l'instant (futur quartier)."
-    },
-    {
-     "id": "portes_colisee_public",
-     "rect": [
-      -3.0,
-      78.6,
-      3.0,
-      79.0
-     ],
-     "type": "porte",
-     "marque": "fermee",
-     "h": 3.5,
-     "fermee_a_partir_de": "coliseum_exited",
-     "texte_ferme": "Les portes du Colisée se sont refermées derrière vous. Elles rouvriront plus tard."
     }
    ],
    "examens": [
@@ -1661,9 +1667,9 @@
      "id": "parvis_colisee",
      "nom": "Parvis du Colisée",
      "rect": [
-      2.0,
-      90.0,
-      30.0,
+      -10.0,
+      56.0,
+      34.0,
       110.0
      ]
     },
@@ -1751,7 +1757,7 @@
      "bat_echoppe_no": {
       "categorie": "commerce",
       "libelle": "",
-      "toit": "2p"
+      "toit": ""
      },
      "bat_forge_armurerie": {
       "categorie": "forge",
@@ -1768,20 +1774,15 @@
       "libelle": "",
       "toit": ""
      },
-     "bat_b_rue_colisee_n": {
-      "categorie": "commerce",
-      "libelle": "",
-      "toit": "2p"
-     },
-     "bat_b_parvis_ne": {
+     "bat_b_porche_n": {
       "categorie": "residentiel_b",
       "libelle": "",
-      "toit": ""
+      "toit": "2p"
      },
      "bat_b_no_place": {
-      "categorie": "residentiel",
+      "categorie": "commerce",
       "libelle": "",
-      "toit": "2p"
+      "toit": ""
      },
      "bat_b_arriere_forge": {
       "categorie": "residentiel_b",
@@ -2126,15 +2127,16 @@
      "h": 3.5,
      "haut": 18.0,
      "porte": [
-      0.0,
-      79.0
+      26.5,
+      62.0
      ],
      "vestibule": [
-      -3.0,
-      74.0,
-      3.0,
-      79.0
-     ]
+      24.0,
+      60.0,
+      26.5,
+      64.0
+     ],
+     "porte_cote": "est"
     },
     "fontaine": [
      42,
@@ -2189,8 +2191,8 @@
       3.5
      ],
      "colisee": [
-      0.0,
-      82.0,
+      29.5,
+      62.0,
       3.5
      ],
      "pied_volee_c": [
@@ -2229,7 +2231,7 @@
       "id": "revelation_colisee",
       "rect": [
        -10.0,
-       70.0,
+       54.0,
        72.0,
        116.0
       ],
@@ -2249,9 +2251,13 @@
      }
     ],
     "arrivee_colisee": [
-     0.0,
-     84.0,
+     29.5,
+     62.0,
      3.5
+    ],
+    "orientation_arrivee_colisee": [
+     1.0,
+     0.0
     ]
    }
   }

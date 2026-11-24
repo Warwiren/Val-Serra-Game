@@ -36,7 +36,9 @@ VOLEES = [
     ("ruelle_escalier", 80.0, 84.0, 115.0, 10.0, H0, H1),   # ruelle secondaire, 4 m de large
 ]
 COLISEE = {"c": (0.0, 54.0), "r": (28.0, 24.0), "haut": 18.0}     # au nord-ouest de la place, entrée publique au SUD
-VESTIBULE = (-3.0, 74.0, 3.0, 79.0)                                  # x0, y0, x1, y1 : porche de l'entrée publique
+# P7.4.1 : porte publique sur la façade EST du tambour (vers la grande place), comme la sortie publique de l'instance du
+# Colisée (couloir de sortie et porte est, x 63,6 à 65 m) : les deux portes regardent le même axe réel, l'est.
+VESTIBULE = (24.0, 60.0, 26.5, 64.0)                                 # x0, y0, x1, y1 : vestibule de la porte est
 
 
 def rect(x0, y0, x1, y1):
@@ -72,6 +74,8 @@ def praticable():
     s.append(surface("place_ouest", rect(14, 104, 30, 115), H1))              # P7.4.1 : la place rejoint l'embranchement
     s.append(surface("parvis_colisee", rect(-10, 70, 22, 104), H1))      # sous le tambour au nord (solides des tranches)
     s.append(surface("vestibule_colisee", rect(VESTIBULE[0], VESTIBULE[1], VESTIBULE[2], VESTIBULE[3]), H1))
+    s.append(surface("perron_colisee", rect(VESTIBULE[2], 56, 34, 70), H1))          # perron devant la porte est
+    s.append(surface("allee_colisee", rect(22, 70, 30, 96), H1))                     # allée parvis -> perron (jusqu'à la rue)
     # --- montée haute et terrasse (5,75 / 8 m)
     s.append(surface("palier_2", rect(60, 77, 74, 82), HP2))
     s.append(surface("terrasse_haute", rect(56, 50, 90, 71), H2))
@@ -100,13 +104,12 @@ BATIMENTS = [
     ("tour_sud_e", rect(63, 150, 67, 157), H0, 12.0, "rempart", "", ""),
     # --- palier 1 : bloc de pierre à l'est de la volée A (sous le palier)
     # --- grande place : fronts denses
-    ("echoppe_no", rect(30, 76, 44, 88), H1, 3.0, "commerce", "", "2p"),
+    ("echoppe_no", rect(30, 76, 44, 88), H1, 2.5, "commerce", "", ""),
     ("forge_armurerie", rect(44, 76, 60, 88), H1, 4.0, "forge", "Forge-armurerie", "2p"),    # façade sud
     ("commerce_est", rect(74, 76, 86, 100), H1, 7.0, "commerce", "", "2p"),
     ("socle_palier_2", rect(66, 82, 74, 88), H1, HP2 - H1, "rempart", "", ""),
-    ("b_rue_colisee_n", rect(22, 84, 30, 96), H1, 3.0, "commerce", "", "2p"),      # bas, en retrait : le Colisée se découvre
-    ("b_parvis_ne", rect(22, 62, 30, 84), H1, 2.5, "residentiel_b", "", ""),              # portique bas : le Colisée se voit de la place
-    ("b_no_place", rect(30, 60, 40, 76), H1, 3.0, "residentiel", "", "2p"),
+    ("b_porche_n", rect(24, 44, 40, 56), H1, 6.0, "residentiel_b", "", "2p"),            # ferme le perron au nord
+    ("b_no_place", rect(34, 56, 40, 76), H1, 2.5, "commerce", "", ""),         # étals bas (caméra B au-dessus)
     ("b_arriere_forge", rect(40, 71, 60, 76), H1, 4.5, "residentiel_b", "", "plat"),        # contre le mur de la terrasse
     ("b_parvis_o", rect(-24, 82, -10, 104), H1, 7.0, "residentiel", "", "2p"),             # front ouest du parvis
     ("b_parvis_s", rect(-10, 104, 14, 112), H1, 1.2, "residentiel_b", "", ""),             # bas : la caméra passe au-dessus
@@ -159,10 +162,8 @@ def colisee_tranches(n=24):
         ym = (y0 + y1) / 2.0
         dx = rx * math.sqrt(max(0.0, 1.0 - ((ym - cy) / ry) ** 2))
         x1 = cx + dx
-        if y1 > VESTIBULE[1] + 1e-6:               # porche : la tranche est coupée en deux de part et d'autre
-            out.append({"id": "colisee_tranche_%02d_o" % k, "rect": rect(cx - dx, y0, VESTIBULE[0], y1), "h": H1, "haut": COLISEE["haut"]})
-            out.append({"id": "colisee_tranche_%02d_e" % k, "rect": rect(VESTIBULE[2], y0, x1, y1), "h": H1, "haut": COLISEE["haut"]})
-            continue
+        if y0 >= VESTIBULE[1] - 1e-6 and y1 <= VESTIBULE[3] + 1e-6:
+            x1 = VESTIBULE[0]                      # vestibule de la porte est évidé
         out.append({"id": "colisee_tranche_%02d" % k, "rect": rect(cx - dx, y0, x1, y1), "h": H1, "haut": COLISEE["haut"]})
     return out
 
@@ -194,9 +195,6 @@ def construire():
          "texte_ferme": "Porte du château — fermée. L'accès s'ouvrira plus tard dans l'histoire."},
         {"id": "grille_rue_haute", "rect": [93.6, 58.0, 94.0, 64.0], "type": "grille", "marque": "fermee", "h": H2,
          "texte_ferme": "Rue haute — fermée pour l'instant (futur quartier)."},
-        {"id": "portes_colisee_public", "rect": [VESTIBULE[0], VESTIBULE[3] - 0.4, VESTIBULE[2], VESTIBULE[3]], "type": "porte",
-         "marque": "fermee", "h": H1, "fermee_a_partir_de": "coliseum_exited",
-         "texte_ferme": "Les portes du Colisée se sont refermées derrière vous. Elles rouvriront plus tard."},
     ]
     examens = [
         {"id": "ex_porte_sud", "xy": [60.0, 160.0], "portee_m": 2.2, "texte": "Porte sud — sortie de la ville (transition non reliée)."},
@@ -208,18 +206,18 @@ def construire():
     zones = [
         {"id": "placette_voyageurs", "nom": "Placette des Voyageurs", "rect": [48.0, 132.0, 72.0, 150.0]},
         {"id": "grande_place", "nom": "Grande place", "rect": [30.0, 88.0, 86.0, 115.0]},
-        {"id": "parvis_colisee", "nom": "Parvis du Colisée", "rect": [2.0, 90.0, 30.0, 110.0]},
+        {"id": "parvis_colisee", "nom": "Parvis du Colisée", "rect": [-10.0, 56.0, 34.0, 110.0]},
         {"id": "terrasse_haute", "nom": "Terrasse haute", "rect": [56.0, 40.4, 94.0, 71.0]},
         {"id": "ruelle", "nom": "Ruelle des Tonneliers", "rect": [72.0, 112.0, 90.0, 144.0]},
     ]
     points = {
         "porte_sud": [60.0, 154.0, H0], "guilde": [50.0, 133.2, H0], "pied_volee_a": [59.0, 132.6, H0],
         "palier_1": [62.0, 123.5, HP1], "haut_volee_b": [65.0, 114.0, H1], "place": [50.0, 106.0, H1],
-        "colisee": [0.0, 82.0, H1], "pied_volee_c": [63.0, 89.0, H1], "palier_2": [67.0, 79.5, HP2],
+        "colisee": [29.5, 62.0, H1], "pied_volee_c": [63.0, 89.0, H1], "palier_2": [67.0, 79.5, HP2],
         "terrasse": [71.0, 66.0, H2], "chateau": [70.0, 41.6, H2], "ruelle_bas": [82.0, 130.0, H0], "chantier": [88.0, 140.0, H0],
     }
     zones_camera = [   # mode B : orientation propre à 2 secteurs ; 0° ailleurs. « marge » = hystérésis de sortie (m)
-        {"id": "revelation_colisee", "rect": [-10.0, 70.0, 72.0, 116.0], "azimut_deg": -16.0, "marge_m": 2.0},
+        {"id": "revelation_colisee", "rect": [-10.0, 54.0, 72.0, 116.0], "azimut_deg": -16.0, "marge_m": 2.0},
         {"id": "montee_chateau", "rect": [56.0, 40.0, 96.0, 85.0], "azimut_deg": 12.0, "marge_m": 2.0},
     ]
     return {
@@ -239,9 +237,11 @@ def construire():
             "obstacles": obstacles,
             "entree": {"xy": [60.0, 154.0], "h": H0},
             "sorties": [
-                {"id": "entree_colisee", "rect": [VESTIBULE[0], VESTIBULE[1], VESTIBULE[2], VESTIBULE[1] + 1.0],
-                 "vers": "res://data/p6/colisee.json", "porte": [VESTIBULE[0], VESTIBULE[1], VESTIBULE[2], VESTIBULE[1]],
-                 "arrivee": [61.5, 23.0, 0.0]},
+                # portail « colisee_porte_publique », côté ville : le fond du vestibule. Arrivée dans le Colisée : couloir de
+                # sortie, devant la porte est (hors de son déclencheur), tourné vers l'ouest (vers l'intérieur)
+                {"id": "portail_colisee_public", "portail": "colisee_porte_publique", "rect": [VESTIBULE[0], VESTIBULE[1], VESTIBULE[0] + 1.0, VESTIBULE[3]],
+                 "vers": "res://data/p6/colisee.json", "porte": [VESTIBULE[0], VESTIBULE[1], VESTIBULE[0], VESTIBULE[3]],
+                 "arrivee": [61.5, 23.0, 0.0], "orientation": [-1.0, 0.0]},
             ],
             "p6": {
                 "nom": "Val'Serra — ville V0.7-A (micro-blockout, expérience)",
@@ -260,14 +260,16 @@ def construire():
                     "volees": [list(v) for v in VOLEES],
                     "niveaux": {"bas": H0, "median": H1, "haut": H2},
                     "colisee": {"centre": list(COLISEE["c"]), "rayons": list(COLISEE["r"]), "h": H1, "haut": COLISEE["haut"],
-                                "porte": [0.0, VESTIBULE[3]], "vestibule": list(VESTIBULE)},
+                                "porte": [VESTIBULE[2], 62.0], "vestibule": list(VESTIBULE), "porte_cote": "est"},
                     "fontaine": rect(42, 96, 48, 102),
                     "chateau": [100.0, -240.0],
                     "porte_sud": [57.0, 63.0, 153.5],
                     "chantier": rect(88.4, 136, 89.4, 144),
                     "points": points,
                     "zones_camera": zones_camera,
-                    "arrivee_colisee": [0.0, 84.0, H1],
+                    # retour du Colisée (portail colisee_porte_publique) : sur le perron, devant la porte, tourné vers l'est
+                    "arrivee_colisee": [29.5, 62.0, H1],
+                    "orientation_arrivee_colisee": [1.0, 0.0],
                 },
             },
         },

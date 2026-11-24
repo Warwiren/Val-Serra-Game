@@ -206,8 +206,10 @@ func _load(file: String, m: String) -> void:
 			continue
 		var q: Array = s["rect"]
 		var arr: Array = s.get("arrivee", [])
+		var ori: Array = s.get("orientation", [])        # P7.4.1 : orientation d'arrivée (plan), facultative
 		triggers.append({"id": s["id"], "rect": Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1]), "to": s["vers"],
-			"arrive": Vector3(arr[0], arr[1], arr[2]) if arr.size() == 3 else Vector3.INF})
+			"arrive": Vector3(arr[0], arr[1], arr[2]) if arr.size() == 3 else Vector3.INF,
+			"orientation": Vector2(ori[0], ori[1]) if ori.size() == 2 else Vector2.ZERO, "portail": str(s.get("portail", ""))})
 		elements.append(_gate(s["id"], s["porte"], 0.0))
 	for reg in regions:
 		max_h = maxf(max_h, maxf(reg["h"], reg["ramp"].get("h_top", reg["h"])))

@@ -108,7 +108,7 @@ func _colisee_v07() -> void:
 		var nrm := Vector2(dirv.x / rr.x, dirv.y / rr.y).normalized()
 		var ang := atan2(nrm.x, nrm.y)
 		for reg in [[0.0, 3.2, 1.7], [4.2, 9.0, 1.6], [10.6, 13.4, 1.0]]:
-			if float(reg[0]) < 4.5 and absf(p.x - c.x) < 5.0:
+			if float(reg[0]) < 4.5 and _pres_porte(p, cd):
 				continue                         # entrée publique
 			var hh: float = float(reg[1]) - float(reg[0])
 			var mi := MeshInstance3D.new()
@@ -121,17 +121,38 @@ func _colisee_v07() -> void:
 			sc.root.add_child(mi)
 		if k % 4 == 2:
 			_banniere_colisee(Vector3(p.x, h0 + 13.6, p.y) + Vector3(nrm.x, 0, nrm.y) * 0.15, ang, Color(0.62, 0.16, 0.18))
-	# entrée publique (sud, face caméra) : porche saillant, baie sombre, fronton, bannière de la Guilde au-dessus
+	# P7.4.1 : porte publique sur la façade EST (vers la grande place, même axe réel que la sortie est de l'instance du
+	# Colisée) : porche saillant sur le perron, baie sombre ouverte (on entre en marchant), fronton, bannière de la Guilde
 	var vb: Array = cd.get("vestibule", [])
 	if vb.size() == 4:
 		var r := Rect2(vb[0], vb[1], vb[2] - vb[0], vb[3] - vb[1])
-		var ye: float = r.end.y
-		for x in [r.position.x - 1.0, r.end.x + 1.0]:
-			sc._box_mesh(Vector3(x, h0 + 4.5, ye - 0.8), Vector3(1.6, 9.0, 1.6), pierre)
-		sc._box_mesh(Vector3(r.get_center().x, h0 + 8.0, ye - 0.8), Vector3(r.size.x + 3.6, 2.0, 1.6), pierre)
-		sc._box_mesh(Vector3(r.get_center().x, h0 + 9.6, ye - 0.8), Vector3(r.size.x + 4.4, 1.2, 1.8), mat(PIERRE_COLISEE.lightened(0.12)))
-		sc._box_mesh(Vector3(r.get_center().x, h0 + 3.5, r.position.y + 0.5), Vector3(r.size.x, 7.0, 1.0), sombre)
-		_banniere_colisee(Vector3(r.get_center().x, h0 + 13.5, ye - 1.0), 0.0, Color(0.22, 0.30, 0.62), 2.6, 3.4)
+		var xe: float = r.end.x
+		var yc := r.get_center().y
+		for y in [r.position.y - 0.9, r.end.y + 0.9]:
+			sc._box_mesh(Vector3(xe + 0.3, h0 + 4.5, y), Vector3(1.6, 9.0, 1.6), pierre)
+		sc._box_mesh(Vector3(xe + 0.3, h0 + 8.0, yc), Vector3(1.6, 2.0, r.size.y + 3.4), pierre)
+		sc._box_mesh(Vector3(xe + 0.3, h0 + 9.6, yc), Vector3(1.8, 1.2, r.size.y + 4.2), mat(PIERRE_COLISEE.lightened(0.12)))
+		# P7.4.1 : avant-corps de 3 m sur le perron (colonnes et entablement), lisible depuis une caméra tournée vers le
+		# nord alors que la porte regarde l'est ; deux lanternes allumées. Affichage seul (le passage reste libre).
+		for y in [r.position.y - 0.9, r.end.y + 0.9]:
+			sc._box_mesh(Vector3(xe + 3.0, h0 + 3.0, y), Vector3(0.7, 6.0, 0.7), pierre)
+			sc._light(Vector3(xe + 3.0, h0 + 2.6, y + (0.6 if y > yc else -0.6)), 1.6, 7.0)
+			sc._halo(Vector3(xe + 3.0, h0 + 2.6, y + (0.6 if y > yc else -0.6)), 1.1, 0.5)
+		sc._box_mesh(Vector3(xe + 1.65, h0 + 6.3, yc), Vector3(3.3, 0.6, r.size.y + 2.6), mat(PIERRE_COLISEE.lightened(0.06)))
+		# joues du vestibule (le tambour est évidé sur 4 m) et fond sombre
+		for y in [r.position.y - 0.1, r.end.y + 0.1]:
+			sc._box_mesh(Vector3(r.get_center().x, h0 + 3.5, y), Vector3(r.size.x, 7.0, 0.2), pierre)
+		sc._box_mesh(Vector3(r.position.x - 0.3, h0 + 3.5, yc), Vector3(0.6, 7.0, r.size.y), sombre)
+		sc._box_mesh(Vector3(r.get_center().x, h0 + 7.2, yc), Vector3(r.size.x, 0.4, r.size.y + 0.4), pierre)
+		_banniere_colisee(Vector3(xe + 1.2, h0 + 13.5, yc), PI * 0.5, Color(0.22, 0.30, 0.62), 2.6, 3.4)
+		_libelle("Colisée — porte publique", Vector3(xe + 1.0, h0 + 11.0, yc))
+
+
+func _pres_porte(p: Vector2, cd: Dictionary) -> bool:
+	var vb: Array = cd.get("vestibule", [])
+	if vb.size() != 4:
+		return false
+	return absf(p.y - (float(vb[1]) + float(vb[3])) * 0.5) < 4.0 and p.x > float(vb[0]) - 3.0
 
 
 func _banniere_colisee(p: Vector3, ang: float, col: Color, larg := 1.4, haut := 3.0) -> void:

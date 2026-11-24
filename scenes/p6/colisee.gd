@@ -1316,14 +1316,31 @@ func _switch(t: Dictionary) -> void:
 		_log("sortie_colisee", {})
 		if _ville_on and str(t.get("to", "")) == ZONE_QUARTIER:
 			# P7.1 : la sortie du Colisée mène au parvis du blockout de la ville (devant l'entrée publique)
-			var aa: Array = JSON.parse_string(FileAccess.open(_zone_ville(), FileAccess.READ).get_as_text())["ajustements"]["p6"]["ville"]["arrivee_colisee"]
+			var vd: Dictionary = JSON.parse_string(FileAccess.open(_zone_ville(), FileAccess.READ).get_as_text())["ajustements"]["p6"]["ville"]
+			var aa: Array = vd["arrivee_colisee"]
 			t = t.duplicate()
 			t["to"] = _zone_ville()
 			t["arrive"] = Vector3(aa[0], aa[1], aa[2])
-	super._switch(t)
+			var oa: Array = vd.get("orientation_arrivee_colisee", [])
+			if oa.size() == 2:
+				t["orientation"] = Vector2(oa[0], oa[1])
+	_log("portail", {"id": str(t.get("id", "")), "portail": str(t.get("portail", "")), "vers": str(t.get("to", "")),
+		"arrivee": [t["arrive"].x, t["arrive"].y, t["arrive"].z] if t.get("arrive", Vector3.INF) != Vector3.INF else []})
+	await super._switch(t)                      # P7.4.1 : attendre la fin du chargement (fondu compris)
 	await get_tree().physics_frame
+	# P7.4.1 : orientation d'arrivée (données du portail), Aren et son compagnon tournés dans le sens de la marche
+	var ori: Vector2 = t.get("orientation", Vector2.ZERO)
+	if ori != Vector2.ZERO:
+		var sd := World25.plan_to_screen_dir(ori)
+		s.hero_dir = sd
+		for k in ["aren", "ilya"]:
+			if actors.has(k) and actors[k].has("actor"):
+				actors[k]["actor"].face_toward(sd)
+	_log("arrivee_portail", {"zone": str(_p6.get("zone", "")), "x": snappedf(s.hero.x, 0.01), "y": snappedf(s.hero.y, 0.01),
+		"h": snappedf(s.hero.z, 0.01), "orientation": [ori.x, ori.y], "declencheurs_armes": s._armed.duplicate()})
 	await get_tree().physics_frame
-	if _p6.get("zone", "") in ["quartier", "ville"] and Progression.au_moins(Progression.COLISEUM_EXITED):
+	var porte_ouverte_v07: bool = _ville_ver == "v07a" and _p6.get("zone", "") == "ville"
+	if _p6.get("zone", "") in ["quartier", "ville"] and Progression.au_moins(Progression.COLISEUM_EXITED) and not porte_ouverte_v07:
 		s.toast("Les portes du Colisée se referment derrière vous.", 3.0)
 
 
