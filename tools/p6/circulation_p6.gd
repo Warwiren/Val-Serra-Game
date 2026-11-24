@@ -12,7 +12,9 @@ const TRONCONS := [
 	["Vestiaires → salle d'attente", Vector2(26.0, 51.5), Vector2(0, -1), ["y<", 44.4]],
 	["Salle d'attente → tunnel → arène", Vector2(26.0, 43.8), Vector2(0, -1), ["y<", 31.0]],
 	["Arène (commandant) → grille est", Vector2(26.0, 23.3), Vector2(1, 0), ["x>", 38.6]],
-	["Tunnel est → coursive → sortie", Vector2(38.6, 23.0), Vector2(1, 0), ["x>", 63.6]],
+	["Tunnel est → coursive → vestibule de sortie", Vector2(38.6, 23.0), Vector2(1, 0), ["x>", 60.4]],
+	# P7.6 : la porte de la ville est au sud du vestibule : on la rejoint en descendant à l'écran
+	["Vestibule → porte de la ville (seuil)", Vector2(61.0, 24.0), Vector2(0, 1), ["y>", 29.1]],
 ]
 const DECALAGES := [-0.7, 0.0, 0.7]
 

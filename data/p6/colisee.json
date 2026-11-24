@@ -294,16 +294,64 @@
      21.5
     ],
     [
-     65.0,
+     58.5,
      21.5
     ],
     [
-     65.0,
+     58.5,
      24.5
     ],
     [
      56.0,
      24.5
+    ]
+   ],
+   "height_m": 0,
+   "walkable": true
+  },
+  {
+   "id": "vestibule_sortie",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     58.5,
+     21.5
+    ],
+    [
+     63.5,
+     21.5
+    ],
+    [
+     63.5,
+     28.5
+    ],
+    [
+     58.5,
+     28.5
+    ]
+   ],
+   "height_m": 0,
+   "walkable": true
+  },
+  {
+   "id": "seuil_sortie",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     60.0,
+     28.5
+    ],
+    [
+     62.0,
+     28.5
+    ],
+    [
+     62.0,
+     29.8
+    ],
+    [
+     60.0,
+     29.8
     ]
    ],
    "height_m": 0,
@@ -628,7 +676,7 @@
     "rect": [
      55.6,
      21.1,
-     65.4,
+     63.9,
      21.5
     ],
     "h": 0.0,
@@ -639,11 +687,88 @@
     "rect": [
      55.6,
      24.5,
-     65.4,
+     58.5,
      24.9
     ],
     "h": 0.0,
     "haut": 1.2
+   },
+   {
+    "id": "cmur_vestibule_sortie_o0",
+    "rect": [
+     58.1,
+     24.9,
+     58.5,
+     28.9
+    ],
+    "h": 0.0,
+    "haut": 2.6
+   },
+   {
+    "id": "cmur_vestibule_sortie_e0",
+    "rect": [
+     63.5,
+     21.5,
+     63.9,
+     28.9
+    ],
+    "h": 0.0,
+    "haut": 2.6
+   },
+   {
+    "id": "cmur_vestibule_sortie_s0",
+    "rect": [
+     58.5,
+     28.5,
+     60.0,
+     28.9
+    ],
+    "h": 0.0,
+    "haut": 1.2
+   },
+   {
+    "id": "cmur_vestibule_sortie_s1",
+    "rect": [
+     62.0,
+     28.5,
+     63.5,
+     28.9
+    ],
+    "h": 0.0,
+    "haut": 1.2
+   },
+   {
+    "id": "cmur_seuil_sortie_o0",
+    "rect": [
+     59.6,
+     28.9,
+     60.0,
+     29.8
+    ],
+    "h": 0.0,
+    "haut": 0.5
+   },
+   {
+    "id": "cmur_seuil_sortie_e0",
+    "rect": [
+     62.0,
+     28.9,
+     62.4,
+     29.8
+    ],
+    "h": 0.0,
+    "haut": 0.5
+   },
+   {
+    "id": "cmur_seuil_sortie_s0",
+    "rect": [
+     59.6,
+     29.8,
+     62.4,
+     30.2
+    ],
+    "h": 0.0,
+    "haut": 0.5
    },
    {
     "id": "cmur_infirmerie_s0",
@@ -2660,17 +2785,17 @@
     "id": "sortie_est",
     "portail": "colisee_porte_publique",
     "rect": [
-     63.6,
-     21.5,
-     65.0,
-     24.5
+     60.0,
+     29.1,
+     62.0,
+     29.8
     ],
     "vers": "res://data/p6/quartier_initial.json",
     "porte": [
-     65.0,
-     21.5,
-     65.0,
-     24.5
+     60.0,
+     28.7,
+     62.0,
+     28.7
     ],
     "arrivee": [
      4.2,
@@ -2696,7 +2821,9 @@
     "coursive": "paves",
     "passage_infirmerie": "paves",
     "infirmerie": "plancher",
-    "couloir_sortie": "paves"
+    "couloir_sortie": "paves",
+    "vestibule_sortie": "paves",
+    "seuil_sortie": "paves"
    },
    "pieces_fermees": {
     "reserve": {
@@ -2950,8 +3077,8 @@
      "rect": [
       56.0,
       21.5,
-      65.0,
-      24.5
+      63.5,
+      29.8
      ]
     }
    ],
@@ -3010,12 +3137,6 @@
      56.0,
      21.5,
      56.4,
-     24.5
-    ],
-    [
-     65.0,
-     21.5,
-     65.4,
      24.5
     ],
     [
@@ -3246,8 +3367,20 @@
       [
        56.0,
        21.5,
-       65.0,
+       58.5,
        24.5
+      ],
+      [
+       58.5,
+       21.5,
+       63.5,
+       28.5
+      ],
+      [
+       60.0,
+       28.5,
+       62.0,
+       29.8
       ]
      ],
      "voisins": [
@@ -3260,8 +3393,8 @@
    ],
    "jours": [
     [
-     64.4,
-     23.0,
+     61.0,
+     29.4,
      2.2,
      1.5,
      6.5

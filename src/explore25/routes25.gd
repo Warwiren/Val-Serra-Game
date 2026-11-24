@@ -122,7 +122,7 @@ static func _route_base(name: String) -> Array:
 				_go(55.0, 23.2, "coursive (est)", 0.3),
 				_go(58.5, 23.4, "couloir de sortie", 0.3),
 				_go(62.5, 23.2, "F sortie est", 0.3),
-				{"do": "go", "to": Vector2(64.4, 23.0), "tol": 0.25, "id": "porte de la ville", "exit": true},
+				{"do": "go", "to": Vector2(61.0, 29.4), "tol": 0.25, "id": "porte de la ville", "exit": true},
 				{"do": "wait", "t": 1.5},
 				_go(10.0, 8.0, "quartier", 0.3),
 				_go(25.8, 8.0, "panneau de la Guilde", 0.3),
@@ -364,7 +364,7 @@ static func _route_base(name: String) -> Array:
 				_go(55.0, 23.2, "coursive (est)", 0.3),
 				_go(58.5, 23.2, "couloir de sortie", 0.3),
 				_go(62.5, 23.2, "sortie est", 0.3),
-				{"do": "go", "to": Vector2(64.4, 23.0), "tol": 0.25, "id": "porte de la ville", "exit": true},
+				{"do": "go", "to": Vector2(61.0, 29.4), "tol": 0.25, "id": "porte de la ville", "exit": true},
 				{"do": "wait", "t": 1.5},
 				_go(10.0, 8.0, "quartier", 0.3),
 				{"do": "wait", "t": 1.5},
@@ -693,7 +693,7 @@ static func _route_base(name: String) -> Array:
 			return [
 				_warp(58.0, 23.0, 0.0), {"do": "wait", "t": 0.8},
 				_go(62.5, 23.0, "couloir de sortie du Colisée", 0.3),
-				{"do": "go", "to": Vector2(64.4, 23.0), "tol": 0.25, "id": "porte est du Colisée", "exit": true},
+				{"do": "go", "to": Vector2(61.0, 29.4), "tol": 0.25, "id": "porte est du Colisée", "exit": true},
 				{"do": "wait", "t": 1.5},
 				_go(52.0, 92.0, "ville V0.6 : grande place", 0.4), {"do": "wait", "t": 1.0},
 			]
@@ -703,7 +703,7 @@ static func _route_base(name: String) -> Array:
 			return [
 				_warp(58.0, 23.0, 0.0), {"do": "wait", "t": 0.8},
 				_go(62.5, 23.0, "couloir de sortie du Colisée", 0.3),
-				{"do": "go", "to": Vector2(64.4, 23.0), "tol": 0.25, "id": "porte est du Colisée", "exit": true},
+				{"do": "go", "to": Vector2(61.0, 29.4), "tol": 0.25, "id": "porte est du Colisée", "exit": true},
 				{"do": "wait", "t": 1.5},
 				_go(72.0, 53.0, "ville : parvis du Colisée", 0.4),
 				_go(88.0, 53.0, "ville : vers la grande place", 0.4),
@@ -865,11 +865,25 @@ static func _route_base(name: String) -> Array:
 		"p7_v07b_diag":
 			var od: Array = []
 			for c in [["d1_caravane", -10.0, 96.0, 3.5], ["d2_ouest_place", 40.0, 96.0, 3.5], ["d3_ouest_place2", 46.0, 100.0, 3.5],
-					["d4_ruelle_bas", 78.0, 130.0, 0.0], ["d5_ruelle_placette", 68.0, 137.0, 0.0], ["d6_parvis_est", 6.0, 96.0, 3.5]]:
+					["d4_ruelle_bas", 82.0, 130.0, 0.0], ["d5_ruelle_placette", 68.0, 137.0, 0.0], ["d6_parvis_est", 6.0, 96.0, 3.5],
+					["d7_pied_A", 59.0, 136.0, 0.0], ["d8_belvedere", 65.0, 129.0, 1.75], ["d9_palier", 64.0, 123.5, 1.75], ["d10_perron", 30.5, 69.0, 3.5],
+					["d11_allee", 26.0, 82.0, 3.5], ["d12_placette_est", 66.0, 140.0, 0.0],
+					["d13_ruelle_pied", 82.0, 129.0, 0.0], ["d14_bras_est", 82.0, 108.0, 3.5], ["d15_bras_est_bout", 85.0, 104.0, 3.5]]:
 				od.append(_warp(c[1], c[2], c[3]))
 				od.append({"do": "wait", "t": 3.0})
 				od.append({"do": "snap", "id": c[0]})
 			return od
+		"p7_76_anomalies":
+			# P7.6 — lieux des anomalies d'affichage (captures avant / après et diagnostics --sans_proche / --sans_ombres /
+			# --sans_cordons)
+			var o76a: Array = []
+			for c in [["x1_tambour", 6.0, 96.0, 3.5], ["x2_faubourgs", -12.0, 96.0, 3.5], ["x3_bras_est", 80.0, 110.0, 3.5],
+					["x4_place_sud", 58.0, 104.0, 3.5], ["x5_perron", 30.5, 69.0, 3.5], ["x6_ruelle_chantier", 86.0, 140.0, 0.0],
+					["x7_terrasse", 72.0, 66.0, 8.0], ["x8_parvis", 12.0, 100.0, 3.5]]:
+				o76a.append(_warp(c[1], c[2], c[3]))
+				o76a.append({"do": "wait", "t": 2.5})
+				o76a.append({"do": "snap", "id": c[0]})
+			return o76a
 		"p7_v07b_vues":
 			# P7.5 — repères de vues de la V0.7-B (caméra A par défaut ; --camera_ville=B pour comparer)
 			var outb: Array = []
@@ -961,12 +975,12 @@ static func _route_base(name: String) -> Array:
 				{"do": "wait", "t": 1.6},
 				_go(58.0, 23.0, "Colisée : couloir de sortie", 0.3), _go(52.0, 23.0, "Colisée : vers la coursive", 0.3),
 				_go(61.5, 23.0, "Colisée : retour vers la porte est", 0.3),
-				{"do": "go", "to": Vector2(64.4, 23.0), "tol": 0.25, "id": "Colisée -> ville (porte est)", "exit": true},
+				{"do": "go", "to": Vector2(61.0, 29.4), "tol": 0.25, "id": "Colisée -> ville (porte est)", "exit": true},
 				{"do": "wait", "t": 1.6},
 				_go(35.0, 69.0, "ville : perron (arrivée)", 0.3), _go(26.0, 80.0, "ville : allée", 0.3), _go(30.5, 69.5, "ville : retour au perron", 0.3),
 				_go(30.45, 68.4, "devant la porte publique", 0.3), {"do": "talk", "id": "ville -> Colisée (2e passage) (porte publique, E)"},
 				{"do": "wait", "t": 1.6},
-				{"do": "go", "to": Vector2(64.4, 23.0), "tol": 0.25, "id": "Colisée -> ville (2e passage)", "exit": true},
+				{"do": "go", "to": Vector2(61.0, 29.4), "tol": 0.25, "id": "Colisée -> ville (2e passage)", "exit": true},
 				{"do": "wait", "t": 1.6}, _go(30.0, 70.0, "ville : perron sud", 0.3),
 			]
 		"p7_v07_raccord":
@@ -974,7 +988,7 @@ static func _route_base(name: String) -> Array:
 			return [
 				_warp(58.0, 23.0, 0.0), {"do": "wait", "t": 0.8},
 				_go(62.5, 23.0, "couloir de sortie du Colisée", 0.3),
-				{"do": "go", "to": Vector2(64.4, 23.0), "tol": 0.25, "id": "porte est du Colisée", "exit": true},
+				{"do": "go", "to": Vector2(61.0, 29.4), "tol": 0.25, "id": "porte est du Colisée", "exit": true},
 				{"do": "wait", "t": 1.5},
 				_go(26.0, 80.0, "ville V0.7-A : allée du Colisée", 0.4), _go(20.0, 100.0, "ville V0.7-A : rue du Colisée", 0.4), {"do": "wait", "t": 1.0},
 			]
@@ -1099,6 +1113,23 @@ static func _route_base(name: String) -> Array:
 				_go(26.0, 34.6, "tunnel sud : milieu", 0.2),
 				_go(26.0, 29.5, "débouché dans l'arène", 0.25),
 				{"do": "wait", "t": 1.5},
+			]
+		"p7_76_sortie":
+			# P7.6 — fin de la coursive est et sortie vers la ville (captures avant / après)
+			var o76: Array = []
+			for c in [["s1_coursive_est", 52.0, 23.0], ["s2_seuil", 56.5, 23.0], ["s3_fin_couloir", 60.0, 24.5], ["s4_porte", 60.5, 27.5]]:
+				o76.append(_warp(c[1], c[2], 0.0))
+				o76.append({"do": "wait", "t": 2.0})
+				o76.append({"do": "snap", "id": c[0]})
+			return o76
+		"p7_76_arrivees":
+			# P7.6 — arrivées du portail colisee_porte_publique (captures) : ville -> vestibule ; vestibule -> perron
+			return [
+				_warp(30.5, 70.5, 3.5), {"do": "wait", "t": 1.0},
+				_go(30.45, 68.4, "devant la porte publique", 0.3), {"do": "talk", "id": "ville -> Colisée (porte publique, E)"},
+				{"do": "wait", "t": 2.5}, {"do": "snap", "id": "a1_arrivee_vestibule"},
+				{"do": "go", "to": Vector2(61.0, 29.4), "tol": 0.25, "id": "Colisée -> ville (porte sud du vestibule)", "exit": true},
+				{"do": "wait", "t": 2.5}, {"do": "snap", "id": "a2_arrivee_perron"},
 			]
 		"p6_extension_coursive":
 			# P6.4.2 — cadrages de la coursive seuls (reprise après réglage des piliers)

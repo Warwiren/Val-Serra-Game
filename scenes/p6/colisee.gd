@@ -715,9 +715,47 @@ func _build(e: Dictionary) -> void:
 		"block":
 			_build_bloc_p6(e)
 		"gate":
-			pass
+			if e["id"] == "sortie_est" and e["a"].y == e["b"].y:
+				_porte_ville_p76(e)
 		_:
 			super._build(e)
+
+
+## P7.6 — porte de la ville, au sud du vestibule de sortie : deux battants de bois ferré OUVERTS vers l'intérieur (rabattus
+## contre les joues de la baie, solides : aucun relief traversable), seuil et piédroits de calcaire clair. Le jour entre par
+## la baie (« jours » des données). Classée par emprise dans le secteur de la sortie comme le reste de la pièce.
+func _porte_ville_p76(e: Dictionary) -> void:
+	var a: Vector2 = e["a"]
+	var b: Vector2 = e["b"]
+	var yi := a.y - 0.2                                    # face intérieure du mur sud
+	var bois := StandardMaterial3D.new()
+	bois.albedo_color = Color(0.33, 0.22, 0.14)
+	bois.roughness = 0.85
+	var fer := StandardMaterial3D.new()
+	fer.albedo_color = Color(0.14, 0.14, 0.15)
+	fer.metallic = 0.6
+	fer.roughness = 0.5
+	var pierre: Material = _hab.mm("mur", "sortie", "monde", 1.0, false, Color(1.12, 1.08, 1.0)) if _hab != null else _surf("pierre")
+	# battants ouverts, rabattus à plat contre la face intérieure du mur sud (vus de face par la caméra, au-dessus du muret)
+	for k in [-1.0, 1.0]:
+		var xc: float = (a.x - 0.5) if k < 0.0 else (b.x + 0.5)
+		var c := Vector3(xc, 1.25, yi - 0.12)
+		_static_box(c, Vector3(1.0, 2.5, 0.1), L_OBST)
+		_box_mesh(c, Vector3(0.96, 2.5, 0.07), bois)
+		for hb in [0.45, 1.25, 2.05]:
+			_box_mesh(Vector3(xc, hb, yi - 0.165), Vector3(0.9, 0.09, 0.03), fer)
+		_box_mesh(Vector3(xc - k * 0.32, 1.15, yi - 0.17), Vector3(0.1, 0.1, 0.03), fer)        # anneau
+	# encadrement de calcaire : piédroits jusqu'à 2,8 m et linteau (la porte se lit au-dessus du muret coupé)
+	for x in [a.x - 0.18, b.x + 0.18]:
+		_box_mesh(Vector3(x, 1.4, a.y + 0.2), Vector3(0.36, 2.8, 0.55), pierre)
+	_box_mesh(Vector3((a.x + b.x) * 0.5, 2.98, a.y + 0.2), Vector3(b.x - a.x + 0.72, 0.36, 0.55), pierre)
+	_box_mesh(Vector3((a.x + b.x) * 0.5, 0.02, a.y + 0.2), Vector3(b.x - a.x, 0.04, 0.5), pierre)        # seuil
+	# jour : tache de lumière sur le seuil, au-delà de la porte (l'extérieur reste voilé depuis l'intérieur)
+	var jour := StandardMaterial3D.new()
+	jour.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	jour.albedo_color = Color(0.97, 0.91, 0.78)
+	_box_mesh(Vector3((a.x + b.x) * 0.5, 0.012, (a.y + 0.45 + 29.8) * 0.5), Vector3(b.x - a.x - 0.02, 0.02, 29.8 - a.y - 0.45), jour)
+
 
 
 func _decor_floor(e: Dictionary) -> void:
