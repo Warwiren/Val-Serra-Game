@@ -116,10 +116,10 @@ BATIMENTS = [
     ("herboriste", rect(80, 84, 94, 100), H1, 7.0, "commerce", "", "2p"),
     ("m_e", rect(80, 100, 96, 112), H1, 8.0, "commerce", "", "2p"),
     ("m_se", rect(80, 112, 96, 118), H1, 6.0, "residentiel_b", "", "2p"),
-    ("m_o", rect(31, 96, 40, 110), H1, 7.0, "commerce", "", "2p"),
-    ("m_so", rect(24, 110, 40, 118), H1, 6.0, "residentiel", "", "2p"),
+    ("m_o", rect(31, 96, 40, 110), H1, 3.5, "commerce", "", "2p"),     # bas : le Colisée se lit depuis la place,
+    ("m_so", rect(24, 110, 40, 118), H1, 3.5, "residentiel", "", "2p"),
     ("m_no", rect(38, 72, 40, 88), H1, 9.0, "residentiel_b", "", "plat"),    # joint entre le Colisée et la place
-    ("m_o_seuil", rect(34, 92, 40, 96), H1, 7.0, "residentiel", "", "2p"),
+    ("m_o_seuil", rect(34, 92, 40, 96), H1, 3.5, "residentiel", "", "2p"),
     # --- niveau haut, quartier civique
     ("archives", rect(30, 34, 54, 50), H2, 12.0, "civique", "", "plat"),
     ("h_o", rect(36, 50, 44, 72), H2, 12.0, "residentiel", "", "2p"),
@@ -189,9 +189,9 @@ def construire():
     obstacles.append({"id": "barriere_route_sud", "rect": rect(56, 181.4, 64, 182), "h": H0, "haut": 1.1})
 
     portes = [
-        {"id": "porte_chateau", "rect": [54.0, 24.0, 66.0, 24.4], "type": "grille", "marque": "fermee",
+        {"id": "porte_chateau", "rect": [54.0, 24.0, 66.0, 24.4], "type": "grille", "marque": "fermee", "h": H2,
          "texte_ferme": "Porte du château — fermée. L'accès s'ouvrira plus tard dans l'histoire."},
-        {"id": "portes_colisee_public", "rect": [VESTIBULE[2] - 0.4, 88.0, VESTIBULE[2], 92.0], "type": "porte", "marque": "fermee",
+        {"id": "portes_colisee_public", "rect": [VESTIBULE[2] - 0.4, 88.0, VESTIBULE[2], 92.0], "type": "porte", "marque": "fermee", "h": H1,
          "fermee_a_partir_de": "coliseum_exited",
          "texte_ferme": "Les portes du Colisée se sont refermées derrière vous. Elles rouvriront plus tard."},
     ]

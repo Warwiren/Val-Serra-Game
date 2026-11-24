@@ -652,6 +652,16 @@ static func _route_base(name: String) -> Array:
 				_go(152.0, 69.0, "T8 passage est", 0.5), _go(186.5, 69.0, "T8 porte du quartier est (fermée)", 0.7),
 				{"do": "wait", "t": 0.5},
 			]
+		"p7_v06_raccord":
+			# P7.3 — raccord réel Colisée -> ville V0.6 (scène ville_v06_montee.tscn avec --etat=tutorial_completed) : sortie
+			# est du Colisée, arrivée dans la rue du Colisée, quelques pas vers la grande place
+			return [
+				_warp(58.0, 23.0, 0.0), {"do": "wait", "t": 0.8},
+				_go(62.5, 23.0, "couloir de sortie du Colisée", 0.3),
+				{"do": "go", "to": Vector2(64.4, 23.0), "tol": 0.25, "id": "porte est du Colisée", "exit": true},
+				{"do": "wait", "t": 1.5},
+				_go(52.0, 92.0, "ville V0.6 : grande place", 0.4), {"do": "wait", "t": 1.0},
+			]
 		"p7_raccord":
 			# P7.1 — raccord réel Colisée -> ville : couloir de sortie du Colisée, porte est, arrivée sur le parvis, quelques
 			# pas vers la grande place (scène ville_v05_blockout.tscn avec --etat=tutorial_completed)
@@ -684,6 +694,15 @@ static func _route_base(name: String) -> Array:
 					outv.append({"do": "wait", "t": 1.6})
 					outv.append({"do": "snap", "id": c[0] + "_" + z[1]})
 			return outv
+		"p7_v05_equiv":
+			# P7.3 — blockout V0.1 (plan V0.5), caméra d'origine P24 ×3, aux positions équivalentes de la V0.6
+			var oute: Array = []
+			for c in [["1_arrivee_sud", 108.5, 150.0, 0.0], ["2_guilde", 124.0, 129.5, 0.0], ["4_pied_montee_1", 108.5, 108.0, 0.0],
+					["7_fontaine", 108.5, 56.0, 1.0], ["13_hotel_de_ville", 147.0, 46.0, 1.0], ["14_avenue_chateau", 108.5, 20.0, 2.0]]:
+				oute.append(_warp(c[1], c[2], c[3]))
+				oute.append({"do": "wait", "t": 1.8})
+				oute.append({"do": "snap", "id": c[0]})
+			return oute
 		"p7_v06_vues":
 			# P7.3 — ville V0.6 : vues de contrôle (même caméra pour toutes ; la caméra vient de la scène / --cam_v06=)
 			var outw: Array = []
@@ -723,7 +742,7 @@ static func _route_base(name: String) -> Array:
 				_go(66.5, 155.0, "T1 placette", 0.4), _go(70.0, 151.4, "T1 arrivée guilde", 0.3),
 				_go(63.0, 140.0, "T2 avenue", 0.4), _go(60.0, 128.4, "T2 pied de la montée", 0.3),
 				_go(60.0, 117.0, "T2 haut de la montée", 0.4), _go(60.0, 105.4, "T2 arrivée fontaine", 0.4),
-				_go(60.0, 86.0, "T3 pied de la montée civique", 0.3), _go(60.0, 71.0, "T3 haut de la montée civique", 0.4),
+				_go(66.0, 100.0, "T3 contour de la fontaine", 0.4), _go(60.0, 86.0, "T3 pied de la montée civique", 0.3), _go(60.0, 71.0, "T3 haut de la montée civique", 0.4),
 				_go(74.0, 51.4, "T3 arrivée hôtel de ville", 0.3),
 				_warp(60.0, 106.0, 3.5), {"do": "wait", "t": 0.5}, _go(60.0, 106.1, "T4 départ fontaine", 0.3),
 				_go(43.0, 90.0, "T4 rue du Colisée", 0.4), _go(39.5, 90.0, "T4 arrivée portes du Colisée", 0.3),

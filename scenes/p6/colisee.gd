@@ -908,8 +908,20 @@ func _banniere(foot: Vector3, col: Color, h := 2.6) -> void:
 	_box_mesh(foot + Vector3(0, h - 0.75, 0.04), Vector3(0.32, 0.32, 0.02), or_)
 
 
-## Porte : fermée = solide (modèle logique + physique) et vantail / grille ; marque au sol aux couleurs du plan.
+## P7.3 : porte à l'altitude de son seuil (« h » des données, ville V0.6) : construite à 0 puis remontée en bloc.
 func _build_porte(p: Dictionary) -> void:
+	var hp := float(p.get("h", 0.0))
+	var n0 := root.get_child_count()
+	_build_porte_0(p)
+	if hp != 0.0:
+		for i in range(n0, root.get_child_count()):
+			var n := root.get_child(i)
+			if n is Node3D:
+				(n as Node3D).position.y += hp
+
+
+## Porte : fermée = solide (modèle logique + physique) et vantail / grille ; marque au sol aux couleurs du plan.
+func _build_porte_0(p: Dictionary) -> void:
 	var q: Array = p["rect"]
 	var r := Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1])
 	var ouverte := porte_ouverte(p)
@@ -934,8 +946,11 @@ func _build_porte(p: Dictionary) -> void:
 				tg.set_meta("secteur", Secteurs.EXT)       # P6.4.3 : avec l'arc de la bouche (sinon isolée vue de la coursive)
 		return
 	_portes_fermees[p["id"]] = {"texte": p.get("texte_ferme", "C'est fermé."), "c": r.get_center()}
+	# P7.3 : altitude du seuil (« h » des données, 0 par défaut : Colisée et quartier inchangés) ; la porte est
+	# construite à 0 puis remontée en bloc (solide logique compris)
+	var hp := float(p.get("h", 0.0))
 	_static_box(_rect_center(r, 0.0, 2.6), Vector3(r.size.x, 2.6, r.size.y), L_OBST)
-	world.solids.append({"id": p["id"], "kind": "rect", "rect": r, "h0": 0.0, "h1": 2.6})
+	world.solids.append({"id": p["id"], "kind": "rect", "rect": r, "h0": hp, "h1": hp + 2.6})
 	if p.get("type", "") == "grille":
 		var fer := StandardMaterial3D.new()
 		fer.albedo_color = Color(0.22, 0.22, 0.26)
@@ -2357,6 +2372,15 @@ func _apply_variante() -> void:
 ## Caméra perspective de la ville V0.6 : même principe que la P30 / P24 (Aren au même point de l'écran, à la même
 ## taille qu'en orthographique), champ propre à la ville (réglable : -- --v06_champ=, --v06_plongee=, --v06_visee=).
 func apply_camera(center: Vector2, zoom: float) -> void:
+	if _cam_ville and cam_mode == "V06O":
+		# orthographique : le socle place la caméra à 120 m d'un plan fixe, ce qui la met devant Aren au sud de la
+		# ville (y > 120 m) ; ici, 150 m derrière la profondeur d'Aren (même cadrage, aucune autre différence)
+		var vpo: Vector2 = Session25.viewport_size(self)
+		cam.projection = Camera3D.PROJECTION_ORTHOGONAL
+		cam.size = vpo.y / (World25.PPM * zoom)
+		var depth_o := body.global_position.dot(World25.cam_back()) if body != null else 0.0
+		cam.position = World25.cam_right() * (center.x / World25.PPM) + World25.cam_up() * (-center.y / World25.PPM) + World25.cam_back() * (depth_o + 150.0)
+		return
 	if not _cam_ville or cam_mode != "V06":
 		super.apply_camera(center, zoom)
 		return

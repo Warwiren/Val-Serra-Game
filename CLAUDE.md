@@ -196,6 +196,15 @@
 - **P6.4.4 (branche `p6-4-4-colisee-vestiaires`, `docs/P6_4_4_COLISEE_VESTIAIRES.md`)** : `colisee.teleport()` (appelé aussi en fin
   de chargement) FORCE le voile de l'extérieur après sa mise à jour immédiate des secteurs (sinon l'arène restait visible
   depuis les vestiaires, le passage et la salle). Diagnostic : `tools/p6/visibilite_vestiaires_p644.gd`.
+- **P7.2 (branche `p7-2-nettoyage`)** : nettoyage S1–S5 de l'audit P7.0 et retrait de l'avant-poste P4, avec l'accord du
+  créateur (23/11/2026) ; tout reste dans l'historique Git (`d88eac4`). S6–S9 restent conditionnels.
+- **P7.3 (branche `p7-3-ville-v06`, `docs/P7_3_VILLE_V06.md`)** : démonstration verticale V0.6 (brief V0.6), PROTOTYPE NON
+  VALIDÉ. Le blockout V0.1 n'est qu'une référence fonctionnelle. Données `tools/p7/build_ville_v06.py` -> `data/p7/ville_v06.json`
+  (ne pas éditer à la main), affichage `scenes/p7/ville_v06.gd`, scène F6 `scenes/p7/ville_v06_montee.tscn`. Caméra de la
+  VILLE seulement (`colisee._camera_de_zone`, CAMS « V06 » / « V06O ») : perspective, plongée 11°, champ 30°, zoom ×3 fixe,
+  altitude lissée (`Session25.cam_lissage_h`, 0 ailleurs) ; Colisée, forêt et autres zones gardent leur caméra.
+  Règle de composition : bâtiments importants façade au sud (face caméra), volumes bas entre la caméra et les lieux
+  d'arrêt. Ne pas reconstruire le quartier entier avant validation de la vidéo par le créateur.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).

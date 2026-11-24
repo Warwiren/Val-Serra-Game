@@ -42,8 +42,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p7-2-nettoyage`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p7-2-nettoyage`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p7-3-ville-v06`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p7-3-ville-v06`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -135,6 +135,13 @@ masque de collision avant / après.
    **Branche `p6-4-4-colisee-vestiaires`** (ticket distinct de la ville) : F5 inchangé ; `colisee.tscn` (F6) : l'arène n'est
    plus visible depuis les vestiaires, le passage et la salle d'attente (voile de l'extérieur forcé après un recalage).
    Rapport : `docs/P6_4_4_COLISEE_VESTIAIRES.md`.
+   **Branche `p7-2-nettoyage`** : avant-poste P4 et médias des étapes terminées retirés (accord du créateur) ; F5 inchangé.
+   **Branche `p7-3-ville-v06`** (PROTOTYPE de caméra et de ville ascendante, NON validé) : F5 inchangé ; **F6 sur
+   `scenes/p7/ville_v06_montee.tscn`** = démonstration verticale V0.6 : porte sud → guilde → montée → grande place →
+   montée vers le quartier civique (hôtel de ville, porte du château fermée), trois niveaux (0 / 3,5 / 8 m), caméra propre
+   à la ville (perspective, plongée 11°, champ 30°, distance unique ×3 : molette sans effet). **C** : V0.6 perspective /
+   V0.6 orthographique / caméra V0.5 (comparaison) ; **L** : libellés. `-- --etat=tutorial_completed` : départ dans le
+   Colisée, dont la sortie mène à la rue du Colisée de la V0.6. Rapport : `docs/P7_3_VILLE_V06.md`.
 
 ### Commandes — forêt V07B (F5)
 
@@ -173,6 +180,8 @@ masque de collision avant / après.
 
 | Scène | Contenu |
 |---|---|
+| `scenes/p7/ville_v06_montee.tscn` | **P7.3 — ville V0.6** : caméra HD-2D de la ville et montée sur trois niveaux (prototype) |
+| `scenes/p7/ville_v05_blockout.tscn` | P7.1 — blockout V0.1 du quartier central (référence fonctionnelle, comparaison) |
 | `scenes/p6/colisee.tscn` | **P6 — ouverture du jeu** : Colisée de Val'Serra, tutoriel, sortie vers la ville |
 | `scenes/p6/colisee_tunnel_A_6_5m.tscn` | P6.2-D — tunnel sud de 6,5 m (longueur de P6, comparaison) |
 | `scenes/p6/colisee_tunnel_B_8_5m.tscn` | P6.2-D — tunnel sud de 8,5 m (proposé ; = `colisee.tscn`) |

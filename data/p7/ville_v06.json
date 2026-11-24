@@ -711,7 +711,7 @@
      110
     ],
     "h": 3.5,
-    "haut": 7.0
+    "haut": 3.5
    },
    {
     "id": "bat_m_so",
@@ -722,7 +722,7 @@
      118
     ],
     "h": 3.5,
-    "haut": 6.0
+    "haut": 3.5
    },
    {
     "id": "bat_m_no",
@@ -744,7 +744,7 @@
      96
     ],
     "h": 3.5,
-    "haut": 7.0
+    "haut": 3.5
    },
    {
     "id": "bat_archives",
@@ -1188,6 +1188,7 @@
      ],
      "type": "grille",
      "marque": "fermee",
+     "h": 8.0,
      "texte_ferme": "Porte du château — fermée. L'accès s'ouvrira plus tard dans l'histoire."
     },
     {
@@ -1200,6 +1201,7 @@
      ],
      "type": "porte",
      "marque": "fermee",
+     "h": 3.5,
      "fermee_a_partir_de": "coliseum_exited",
      "texte_ferme": "Les portes du Colisée se sont refermées derrière vous. Elles rouvriront plus tard."
     }
