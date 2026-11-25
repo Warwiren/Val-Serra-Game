@@ -231,6 +231,14 @@
   `tools/p7/camera_volumes_p76.py` : recouvrements de volumes = 0 attendu. TRANCHE PILOTE (`scenes/p7/tranche_p76.gd`, enduit
   `src/p7/enduit_p76.gdshader`, maçonnerie du Colisée) limitée à l'îlot de l'auberge et à la ruelle des Tonneliers : NE PAS
   étendre matières et façades au reste de la ville avant validation (`--tranche=0` : blockout).
+- **P7.7 (branche `p7-7-controles-composants`, `docs/P7_7_CONTROLES_COMPOSANTS.md`)** : direction de la tranche APPROUVÉE par le
+  créateur le 25/11/2026 (RDC pierre, étages enduits, plusieurs niveaux, toits de tuiles), ainsi que la sortie du Colisée et le
+  muret de 0,6 m. Composants réutilisables `scenes/p7/archi_p77.gd` (les valeurs par défaut = tranche P7.6 au pixel près ;
+  catalogue F6 `scenes/p7/catalogue_archi_p77.tscn`) ; TOUJOURS fusionner les maillages par matière (`Archi.fusionner`,
+  sinon ×2,4 appels de dessin). Masquage des volumes : NET retenu (`--escamotage=fondu` : essai Forward+ seulement).
+  Profilage `tools/p7/profil_gpu_p77.gd` (les captures de ce conteneur passent par le rendu Compatibilité OpenGL sur
+  processeur : temps non significatifs). Prochaine tranche : grande place, selon le plan du rapport, APRÈS validation du
+  plan ; ne pas habiller le reste de la ville, entrées et intérieurs inchangés.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).

@@ -1,0 +1,12 @@
+# {"api":"4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4","carte":"llvmpipe (LLVM 20.1.2, 256 bits)","fabricant":"Mesa","fenetre":"(1280, 720)","godot":"4.7.2-stable (official)","memoire_video_mo":55.8,"pilote":[],"processeur":"Intel(R) Xeon(R) Processor @ 2.10GHz","rendu":"forward_plus","systeme":"Linux 24.04","tranche":"1"}
+point;tranche;images;image_moy_ms;image_p95_ms;image_max_ms;cpu_moy_ms;gpu_moy_ms;gpu_p95_ms;gpu_max_ms;appels_moy;appels_max;primitives_moy;objets_moy
+T1_terrasse_auberge;true;22;190.900;210.415;224.484;170.704;177.064;197.005;206.581;3129;3131;81870;3418
+T2_pied_ruelle;true;25;172.871;186.446;199.206;160.140;164.826;179.261;197.434;3076;3076;79688;3348
+T3_escalier_ruelle;true;24;180.103;217.710;235.021;159.321;163.603;173.421;189.306;2530;2530;36908;2802
+T4_haut_ruelle;true;25;163.992;173.645;186.659;150.948;154.730;167.725;174.565;1409;1409;19934;1681
+T5_bras_est;true;26;160.797;180.847;188.732;143.587;150.315;167.427;178.855;1052;1054;15685;1330
+T6_rue_chantier;true;22;185.896;201.630;216.820;171.516;175.848;191.125;204.842;3255;3257;82701;3542
+T7_placette;true;25;167.000;177.898;197.798;152.941;156.662;168.229;187.305;3062;3064;83173;3346
+B1_grande_place;false;28;145.774;164.832;184.333;129.788;135.151;155.410;169.605;932;934;24701;1208
+B2_terrasse_haute;false;31;131.236;149.995;170.947;115.685;123.889;139.122;157.573;324;326;5177;601
+B3_parvis_colisee;false;31;133.463;156.363;160.491;114.280;122.123;138.521;150.636;705;707;12963;982

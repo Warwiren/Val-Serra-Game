@@ -42,8 +42,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p7-6-tranche-architecturale`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p7-6-tranche-architecturale`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p7-7-controles-composants`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p7-7-controles-composants`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -163,6 +163,11 @@ masque de collision avant / après.
    entrées des bâtiments (E au seuil : instance à venir) et **première tranche architecturale** autour de l'auberge-taverne
    et de la ruelle des Tonneliers (`--tranche=0` : blockout ; `--coupe_ville=0` : trame d'origine). Le Colisée (F6
    `scenes/p6/colisee.tscn`) a son nouveau vestibule de sortie. Rapport : `docs/P7_6_TRANCHE_ARCHITECTURALE.md`.
+   **Branche `p7-7-controles-composants`** : F5 inchangé. Contrôles avant la grande place : masquage net des bâtiments
+   conservé (`--escamotage=fondu` : essai), maillages de la tranche fusionnés par matière, muret à jardinière plantée
+   (`--muret=haie` : P7.6), profilage `tools/p7/profil_gpu_p77.gd` (à lancer sur votre machine), **catalogue des composants
+   en F6 : `scenes/p7/catalogue_archi_p77.tscn`** (← / →). Plan de la grande place à valider. Rapport :
+   `docs/P7_7_CONTROLES_COMPOSANTS.md`.
 
 ### Commandes — forêt V07B (F5)
 
@@ -201,6 +206,7 @@ masque de collision avant / après.
 
 | Scène | Contenu |
 |---|---|
+| `scenes/p7/catalogue_archi_p77.tscn` | **P7.7 — catalogue des composants architecturaux** : façades, fenêtres, volets, portes, balcons, toits (← / →) |
 | `scenes/p7/ville_v07b.tscn` | **P7.5 / P7.6 — ville V0.7-B** : quartier central compact, entrées des bâtiments, tranche architecturale (auberge, ruelle des Tonneliers), caméras A / B (touche V) |
 | `scenes/p7/ville_v07a.tscn` | **P7.4 — ville V0.7-A** : micro-blockout semi-circulaire, caméras A / B (touche V) |
 | `scenes/p7/ville_v06_montee.tscn` | **P7.3 — ville V0.6** : caméra HD-2D de la ville et montée sur trois niveaux (prototype) |
