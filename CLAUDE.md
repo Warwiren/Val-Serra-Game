@@ -239,6 +239,13 @@
   Profilage `tools/p7/profil_gpu_p77.gd` (les captures de ce conteneur passent par le rendu Compatibilité OpenGL sur
   processeur : temps non significatifs). Prochaine tranche : grande place, selon le plan du rapport, APRÈS validation du
   plan ; ne pas habiller le reste de la ville, entrées et intérieurs inchangés.
+- **P7.8 (branche `p7-8-grande-place-lot1`, `docs/P7_8_GRANDE_PLACE_LOT1.md`)** : décisions du 25/11/2026 : masquage NET conservé
+  (fondu expérimental), lot 1 de la grande place SEUL autorisé (revêtement + fontaine octogonale à deux vasques,
+  `scenes/p7/place_p78.gd`, eau opaque `src/p7/eau_p78.gdshader`, `--place=0`) ; NE PAS commencer le lot 2 sans validation.
+  Axe du château RÉSERVÉ (`axe_chateau` des données, x 70 ; contrôle dans `camera_volumes_p76.py`) : ne rien construire
+  qui coupe la vue, ne pas construire le château. Avant le lot 2 : comparatif ciblé de quelques modèles Quaternius (Drive),
+  sans import complet ni remplacement automatique. LIVRABLES : résumé concis, branche et commits, fichiers, tests
+  synthétiques, problèmes non résolus, commandes si elles changent ; PAS de vidéos ni de montages, pas de médias non demandés.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).

@@ -42,8 +42,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p7-7-controles-composants`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p7-7-controles-composants`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p7-8-grande-place-lot1`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p7-8-grande-place-lot1`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -168,6 +168,8 @@ masque de collision avant / après.
    (`--muret=haie` : P7.6), profilage `tools/p7/profil_gpu_p77.gd` (à lancer sur votre machine), **catalogue des composants
    en F6 : `scenes/p7/catalogue_archi_p77.tscn`** (← / →). Plan de la grande place à valider. Rapport :
    `docs/P7_7_CONTROLES_COMPOSANTS.md`.
+   **Branche `p7-8-grande-place-lot1`** : F5 inchangé. **F6 sur `scenes/p7/ville_v07b.tscn`** : grande place revêtue et
+   fontaine octogonale à deux vasques (lot 1 ; `--place=0` : blockout). Rapport : `docs/P7_8_GRANDE_PLACE_LOT1.md`.
 
 ### Commandes — forêt V07B (F5)
 
