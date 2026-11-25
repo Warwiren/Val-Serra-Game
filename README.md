@@ -42,8 +42,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p7-8-grande-place-lot1`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p7-8-grande-place-lot1`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p7-9-forge-comparatif`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p7-9-forge-comparatif`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -170,6 +170,9 @@ masque de collision avant / après.
    `docs/P7_7_CONTROLES_COMPOSANTS.md`.
    **Branche `p7-8-grande-place-lot1`** : F5 inchangé. **F6 sur `scenes/p7/ville_v07b.tscn`** : grande place revêtue et
    fontaine octogonale à deux vasques (lot 1 ; `--place=0` : blockout). Rapport : `docs/P7_8_GRANDE_PLACE_LOT1.md`.
+   **Branche `p7-9-forge-comparatif`** : F5 inchangé. Comparatif de la forge-armurerie en **F6** :
+   `scenes/p7/ville_v07b_forge_a.tscn` (bibliothèque du projet), `…_forge_b.tscn` (Quaternius), `…_forge_c.tscn`
+   (hybride) ; `scenes/p7/ville_v07b.tscn` garde la forge du blockout. Rapport : `docs/P7_9_FORGE_COMPARATIF.md`.
 
 ### Commandes — forêt V07B (F5)
 
@@ -208,6 +211,7 @@ masque de collision avant / après.
 
 | Scène | Contenu |
 |---|---|
+| `scenes/p7/ville_v07b_forge_a.tscn` / `_b` / `_c` | **P7.9 — comparatif de la forge-armurerie** : A bibliothèque du projet, B Quaternius, C hybride |
 | `scenes/p7/catalogue_archi_p77.tscn` | **P7.7 — catalogue des composants architecturaux** : façades, fenêtres, volets, portes, balcons, toits (← / →) |
 | `scenes/p7/ville_v07b.tscn` | **P7.5 / P7.6 — ville V0.7-B** : quartier central compact, entrées des bâtiments, tranche architecturale (auberge, ruelle des Tonneliers), caméras A / B (touche V) |
 | `scenes/p7/ville_v07a.tscn` | **P7.4 — ville V0.7-A** : micro-blockout semi-circulaire, caméras A / B (touche V) |

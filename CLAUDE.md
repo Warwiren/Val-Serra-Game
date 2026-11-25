@@ -246,6 +246,11 @@
   qui coupe la vue, ne pas construire le château. Avant le lot 2 : comparatif ciblé de quelques modèles Quaternius (Drive),
   sans import complet ni remplacement automatique. LIVRABLES : résumé concis, branche et commits, fichiers, tests
   synthétiques, problèmes non résolus, commandes si elles changent ; PAS de vidéos ni de montages, pas de médias non demandés.
+- **P7.9 (branche `p7-9-forge-comparatif`, `docs/P7_9_FORGE_COMPARATIF.md`)** : lot 1 accepté comme base (quadrillage atténué, jets et
+  vasques retouchés). Comparatif de la FORGE SEULE (`scenes/p7/forge_p79.gd`) : A bibliothèque, B Quaternius, C hybride (murs A + toit,
+  vantaux, cheminée, accessoires Quaternius) ; scènes F6 `ville_v07b_forge_{a,b,c}.tscn` ou `--forge=A|B|C`. Modèles Quaternius
+  ajoutés listés dans `art/p63/quaternius/SOURCES.md` (provisoires, mipmaps) ; maillages fusionnés par matière. Accès au Drive :
+  environnement « Val-Serra-Game » (`drive.usercontent.google.com`). NE PAS habiller les autres commerces avant décision.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).
