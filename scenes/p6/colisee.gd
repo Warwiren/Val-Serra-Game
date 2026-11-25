@@ -42,6 +42,7 @@ const CHAMP_V06 := 30.0
 const AIM_V06 := 0.1                      # Aren un peu sous le centre : la vue porte plus loin vers le nord (la montée)
 const ZOOM_V06 := 2                        # ×3, la distance validée du Colisée
 @export var ville_v06 := false
+@export var forge_variante := ""          # P7.9 : comparatif de la forge-armurerie (A / B / C ; vide : blockout)
 ## P7.4 : VILLE V0.7-A (micro-blockout semi-circulaire), scène F6 scenes/p7/ville_v07a.tscn (ou -- --ville=v07a). Même
 ## caméra que la V0.6 (A : fixe vers le nord) ; B : caméra SEMI-FIXE, même projection, même distance, orientation propre
 ## à 2 secteurs des données (« zones_camera », hystérésis), rotation douce, commandes verrouillées pendant la rotation.

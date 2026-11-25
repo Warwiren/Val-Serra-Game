@@ -923,6 +923,15 @@ static func _route_base(name: String) -> Array:
 				_go(63.0, 123.5, "palier", 0.3), _go(65.0, 121.6, "pied de B", 0.3), _go(65.0, 112.0, "grande place", 0.4),
 				{"do": "wait", "t": 1.5},
 			]
+		"p7_79_forge":
+			# P7.9 — forge-armurerie à la distance de jeu (même cadrage pour A / B / C) : face, biais est, cour, entrée
+			var o79: Array = []
+			for c in [["f1_face", 51.0, 97.0, 3.5], ["f2_place", 48.0, 104.0, 3.5], ["f3_cour", 38.0, 92.0, 3.5], ["f4_entree", 51.0, 90.5, 3.5],
+					["f5_volee", 62.0, 95.0, 3.5]]:
+				o79.append(_warp(c[1], c[2], c[3]))
+				o79.append({"do": "wait", "t": 2.5})
+				o79.append({"do": "snap", "id": c[0]})
+			return o79
 		"p7_78_place":
 			# P7.8 — contrôle du lot 1 : fontaine, revêtement, axe du château (captures de vérification)
 			var o78: Array = []

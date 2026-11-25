@@ -18,6 +18,16 @@ func _tr():
 	return tr
 
 
+const Forge := preload("res://scenes/p7/forge_p79.gd")
+var fo                                    # P7.9 : comparatif de la forge (scenes/p7/forge_p79.gd)
+
+
+func _forge():
+	if fo == null:
+		fo = Forge.new(sc, _tr().a, Forge.lire_variante(sc))
+	return fo
+
+
 const Place := preload("res://scenes/p7/place_p78.gd")
 var pl                                    # P7.8 : grande place, lot 1 (scenes/p7/place_p78.gd)
 
@@ -69,6 +79,13 @@ func construit(e: Dictionary) -> bool:
 		return true
 	if _place().actif() and e["type"] == "block" and id == "fontaine":
 		_place().fontaine(e["rect"], e["h0"])
+		return true
+	# P7.9 : forge-armurerie en variante A / B / C (collision : celle des données)
+	if e["type"] == "block" and id == "bat_forge_armurerie" and _forge().variante != "":
+		var rf: Rect2 = e["rect"]
+		sc._static_box(sc._rect_center(rf, e["h0"], e["h1"]), Vector3(rf.size.x, e["h1"] - e["h0"], rf.size.y), sc.L_OBST)
+		_forge().batiment()
+		_libelle("Forge-armurerie (%s)" % _forge().variante, Vector3(rf.get_center().x, e["h1"] + 4.6, rf.get_center().y))
 		return true
 	if e["type"] == "block" and _tr().contient(id):
 		var rb: Rect2 = e["rect"]
@@ -240,7 +257,11 @@ func _mat_plein(c: Color, emission := 0.0) -> StandardMaterial3D:
 func _entrees() -> void:
 	for e in v.get("entrees", []):
 		if str(e["type"]) == "fonctionnelle":
+			if str(e["id"]) == "forge" and _forge().variante != "" and _forge().entree():
+				continue                                  # P7.9 : la variante B dessine sa propre porte
 			_entree_fonctionnelle(e)
+			if str(e["id"]) == "forge":
+				_forge().apres_entree(e)
 		else:
 			_porte_decorative(e)
 

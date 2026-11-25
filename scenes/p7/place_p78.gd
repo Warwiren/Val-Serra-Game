@@ -32,14 +32,18 @@ func actif() -> bool:
 	return str(sc._cli.get("place", "1")) != "0"
 
 
-func eau(chute := false) -> ShaderMaterial:
-	var k := "chute" if chute else "nappe"
+func eau(chute := false, vasque := false) -> ShaderMaterial:
+	var k := "chute" if chute else ("vasque" if vasque else "nappe")
 	if _eau.has(k):
 		return _eau[k]
 	var m := ShaderMaterial.new()
 	m.shader = EAU_SH
 	m.set_shader_parameter("grain", load(HAB.GRAIN))
 	m.set_shader_parameter("chute", 1.0 if chute else 0.0)
+	if vasque:
+		# eau des vasques plus claire et plus vive que celle du bassin : les deux niveaux se distinguent
+		m.set_shader_parameter("profond", Color(0.20, 0.38, 0.40))
+		m.set_shader_parameter("clair", Color(0.46, 0.66, 0.66))
 	_eau[k] = m
 	return m
 
@@ -137,18 +141,20 @@ func sol(r: Rect2, h: float, fontaine: Rect2, axe: Dictionary) -> void:
 	var mi: MeshInstance3D = a.box(Archi.centre(r, h - th, h), Vector3(r.size.x, th, r.size.y), a.macon("dallage2", TEINTE_DALLAGE, h, "monde", false))
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var clair = a.macon("dalle", Color(1.1, 1.07, 1.02), h, "monde", false)
+	# P7.9 : carroyage secondaire atténué (plus fin, teinte proche du dallage)
+	var carroyage = a.macon("dalle", Color(1.0, 0.97, 0.93), h, "monde", false)
 	var joint = a.plein(Color(0.20, 0.18, 0.16))
 	# carroyage discret : bandes de pierre claire tous les 7 m (alignées sur l'axe du château et la fontaine)
 	var x := 70.0 - 7.0 * 5.0
 	while x < r.end.x - 0.5:
 		if x > r.position.x + 0.5 and absf(x - 70.0) > 3.0:
-			a.box(Vector3(x, h + 0.003, r.get_center().y), Vector3(0.28, 0.006, r.size.y - 1.6), clair)
+			a.box(Vector3(x, h + 0.003, r.get_center().y), Vector3(0.18, 0.006, r.size.y - 1.6), carroyage)
 		x += 7.0
 	var yb := fontaine.get_center().y
 	for dy in [-7.0, 7.0, 14.0, -14.0]:
 		var y: float = yb + dy
 		if y > r.position.y + 1.0 and y < r.end.y - 1.0:
-			a.box(Vector3(r.get_center().x, h + 0.0035, y), Vector3(r.size.x - 1.6, 0.007, 0.28), clair)
+			a.box(Vector3(r.get_center().x, h + 0.0035, y), Vector3(r.size.x - 1.6, 0.007, 0.18), carroyage)
 	# bordures nord et sud (pierre claire), caniveau au pied des façades nord avec grilles de fonte
 	for yy in [r.position.y + 0.45, r.end.y - 0.45]:
 		a.box(Vector3(r.get_center().x, h + 0.004, yy), Vector3(r.size.x, 0.008, 0.9), clair)
@@ -194,6 +200,10 @@ func fontaine(r: Rect2, h: float) -> void:
 	var mur = a.macon("mur2", pv, h, "maillage")
 	var socle = a.macon("socle2", pv, h, "maillage")
 	var moul = a.moulure()
+	# P7.9 : lecture des vasques (lèvres plus claires, ombre portée sous la lèvre) et écume aux chutes d'eau
+	var levre = a.macon("moulure", Color(1.3, 1.25, 1.17), h)
+	var ombre_levre = a.plein(Color(0.16, 0.14, 0.12))
+	var ecume = a.plein(Color(0.86, 0.92, 0.92), 0.6, 0.25)
 	var dalle = a.macon("dalle", Color(0.8, 0.78, 0.76), h, "monde", false)
 	# emmarchement bas, paroi du bassin, margelle, fond, eau
 	prisme(c, 8, A + 0.28, A + 0.28, h, h + 0.12, socle)
@@ -212,24 +222,35 @@ func fontaine(r: Rect2, h: float) -> void:
 	prisme(c, 8, 0.62, 0.55, h + 0.5, h + 1.15, mur)
 	prisme(c, 8, 0.72, 0.72, h + 1.1, h + 1.2, moul)
 	prisme(c, 16, 0.55, 1.5, h + 1.2, h + 1.52, moul, 1.36)
-	prisme(c, 16, 1.36, 1.36, h + 1.44, h + 1.45, eau())
-	prisme(c, 16, 1.58, 1.58, h + 1.5, h + 1.56, moul, 1.36)
+	prisme(c, 16, 1.36, 1.36, h + 1.44, h + 1.45, eau(false, true))
+	prisme(c, 16, 1.6, 1.6, h + 1.5, h + 1.58, levre, 1.36)
+	prisme(c, 16, 1.52, 1.52, h + 1.44, h + 1.5, ombre_levre)                          # ombre sous la lèvre
 	for i in 4:
 		var an := TAU * (i + 0.125) / 4.0
 		var d := Vector3(cos(an), 0, sin(an))
 		var bouche = a.box(c + d * 1.62 + Vector3(0, h + 1.43, 0), Vector3(0.22, 0.2, 0.3), moul)
 		bouche.basis = Basis(Vector3.UP, atan2(d.x, d.z))
-		filet(c + d * 1.78 + Vector3(0, h + 1.42, 0), c + d * 2.05 + Vector3(0, h + 0.5, 0), 0.07)
+		# jet en deux segments (courbe de chute) et écume à l'impact
+		var p0 := c + d * 1.76 + Vector3(0, h + 1.42, 0)
+		var pm := c + d * 2.02 + Vector3(0, h + 1.2, 0)
+		var p1 := c + d * 2.18 + Vector3(0, h + 0.5, 0)
+		filet(p0, pm, 0.1)
+		filet(pm, p1, 0.1)
+		prisme(p1 - Vector3(0, p1.y, 0), 12, 0.28, 0.28, h + 0.5, h + 0.515, ecume)
 	prisme(c, 12, 0.2, 0.17, h + 1.5, h + 2.12, mur)
 	prisme(c, 12, 0.27, 0.27, h + 1.72, h + 1.8, moul)
 	prisme(c, 16, 0.24, 0.8, h + 2.1, h + 2.3, moul, 0.7)
-	prisme(c, 16, 0.7, 0.7, h + 2.25, h + 2.26, eau())
-	prisme(c, 16, 0.86, 0.86, h + 2.28, h + 2.33, moul, 0.7)
+	prisme(c, 16, 0.7, 0.7, h + 2.25, h + 2.26, eau(false, true))
+	prisme(c, 16, 0.9, 0.9, h + 2.28, h + 2.35, levre, 0.7)
+	prisme(c, 16, 0.84, 0.84, h + 2.23, h + 2.28, ombre_levre)
 	for i in 4:
 		var an := TAU * (i + 0.375) / 4.0
 		var d := Vector3(cos(an), 0, sin(an))
-		filet(c + d * 0.88 + Vector3(0, h + 2.3, 0), c + d * 0.95 + Vector3(0, h + 1.46, 0), 0.05)
+		filet(c + d * 0.9 + Vector3(0, h + 2.3, 0), c + d * 0.98 + Vector3(0, h + 1.46, 0), 0.07)
+		var pc := c + d * 0.98
+		prisme(Vector3(pc.x, 0, pc.z), 12, 0.16, 0.16, h + 1.45, h + 1.46, ecume)
 	prisme(c, 8, 0.1, 0.1, h + 2.26, h + 2.5, moul)
+	filet(c + Vector3(0, h + 2.82, 0), c + Vector3(0, h + 3.05, 0), 0.05)                  # petit jet sommital
 	var pomme := MeshInstance3D.new()
 	var sm := SphereMesh.new()
 	sm.radius = 0.16

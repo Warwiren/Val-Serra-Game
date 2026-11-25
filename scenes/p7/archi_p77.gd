@@ -528,6 +528,8 @@ func lanterne(f: Dictionary, u: float, v: float) -> void:
 ##   2p_y : faîtage nord-sud, pignon face à la caméra ; croupe : quatre versants ; appentis : un versant montant vers le nord.
 func toit(r: Rect2, h: float, ht: float, c_enduit: Color, type := "2p_x", tuiles := Color(1.05, 1.0, 0.98)) -> void:
 	match type:
+		"aucun":
+			return                                   # P7.9 : toit fourni par ailleurs (comparatif hybride)
 		"2p_y":
 			_toit_2p(r, h, ht, c_enduit, tuiles, true)
 		"croupe":
