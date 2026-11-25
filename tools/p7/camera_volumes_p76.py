@@ -142,6 +142,27 @@ def main():
     for k, v in sorted(masques.items(), key=lambda kv: -len(kv[1]))[:12]:
         zones = sorted({s for s, _x, _y in v})
         print("  %-24s %4d points  (%s)" % (k, len(v), ", ".join(zones)))
+    # P7.8 : axe du château réservé : aucun volume du couloir ne coupe la ligne de vue œil -> sommet de la future porte
+    ax = d["ajustements"]["p6"]["ville"].get("axe_chateau")
+    if ax:
+        cx0, cy0, cx1, cy1 = ax["couloir"]
+        ox, oy, oz = ax["oeil"]
+        px, py, ph = ax["porte"]
+        top = ph + ax["porte_haut_m"]
+        coupes = []
+        for vol in vols:
+            r = vol[1]
+            if r[2] <= cx0 or r[0] >= cx1 or r[3] <= cy0 or r[1] >= cy1:
+                continue
+            for k in range(1, 200):
+                y = oy + (py - oy) * k / 200.0
+                if not (r[1] <= y <= r[3]):
+                    continue
+                z = oz + (top - oz) * k / 200.0
+                if dedans((ox, y, z), vol):
+                    coupes.append(vol[0])
+                    break
+        print("\nAXE DU CHÂTEAU (x %.0f, œil y %.0f -> porte y %.0f) : %s" % (ox, oy, py, "dégagé" if not coupes else "COUPÉ par " + ", ".join(coupes)))
     rec = recouvrements(vols)
     print("\nRECOUVREMENTS DE VOLUMES : %d" % len(rec))
     for a, b, s in rec:

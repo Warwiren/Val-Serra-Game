@@ -16,6 +16,23 @@ func _tr():
 	if tr == null:
 		tr = Tranche.new(self)
 	return tr
+
+
+const Place := preload("res://scenes/p7/place_p78.gd")
+var pl                                    # P7.8 : grande place, lot 1 (scenes/p7/place_p78.gd)
+
+
+func _place():
+	if pl == null:
+		pl = Place.new(sc, _tr().a)
+	return pl
+
+
+## P7.8 : la fontaine de la grande place est dessinée par le lot 1 (sinon : fontaine du blockout).
+func _fontaine_v06() -> void:
+	if _place().actif():
+		return
+	super()
 const TOILE := Color(0.82, 0.76, 0.62)
 
 
@@ -27,6 +44,31 @@ func construit(e: Dictionary) -> bool:
 		var rm: Rect2 = e["rect"]
 		sc._static_box(sc._rect_center(rm, e["h0"], e["h1"]), Vector3(rm.size.x, e["h1"] - e["h0"], rm.size.y), sc.L_OBST)
 		_tr().muret(rm, e["h0"], e["h1"])
+		return true
+	# P7.8 : grande place, lot 1 (revêtement et fontaine ; collision de la fontaine = prisme octogonal du bassin)
+	# P7.8 : surfaces SURÉLEVÉES (bloc « terrasse » du socle) de la tranche et de la place : corps du blockout, dessus revêtu.
+	# (En P7.6, le revêtement du bras est ne s'appliquait pas : seules les surfaces au sol bas passaient par « floor ».)
+	if e["type"] == "block" and e.get("role", "") == "terrasse" and ((_tr().actif() and id in Tranche.SOLS) or (_place().actif() and id in Place.SOLS_SIMPLES)):
+		var rt: Rect2 = e["rect"]
+		sc._static_box(sc._rect_center(rt, e["h0"], e["h1"]), Vector3(rt.size.x, e["h1"] - e["h0"], rt.size.y), sc.L_FLOOR)
+		sc._box_mesh(sc._rect_center(rt, e["h0"], e["h1"] - 0.3), Vector3(rt.size.x, e["h1"] - 0.3 - e["h0"], rt.size.y), mat(Color(0.50, 0.49, 0.46), 0.0, 0.0, e["h0"]))
+		if id in Tranche.SOLS:
+			_tr().sol(id, rt, e["h1"])
+		else:
+			_place().sol_simple(id, rt, e["h1"])
+		return true
+	if _place().actif() and e["type"] == "block" and e.get("role", "") == "terrasse" and id == Place.SOL:
+		# terrasse surélevée : collision et corps du blockout (murs de soutènement), dessus = revêtement du lot 1
+		var rp: Rect2 = e["rect"]
+		var h0: float = e["h0"]
+		var hp: float = e["h1"]
+		sc._static_box(sc._rect_center(rp, h0, hp), Vector3(rp.size.x, hp - h0, rp.size.y), sc.L_FLOOR)
+		sc._box_mesh(sc._rect_center(rp, h0, hp - 0.3), Vector3(rp.size.x, hp - 0.3 - h0, rp.size.y), mat(Color(0.50, 0.49, 0.46), 0.0, 0.0, h0))
+		var q: Array = v.get("fontaine", [42, 96, 48, 102])
+		_place().sol(rp, hp, Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1]), v.get("axe_chateau", {}))
+		return true
+	if _place().actif() and e["type"] == "block" and id == "fontaine":
+		_place().fontaine(e["rect"], e["h0"])
 		return true
 	if e["type"] == "block" and _tr().contient(id):
 		var rb: Rect2 = e["rect"]

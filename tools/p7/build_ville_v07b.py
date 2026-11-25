@@ -274,7 +274,7 @@ def construire():
         {"id": "ex_caravane", "xy": [-12.8, 96.0], "portee_m": 2.0, "texte": "Une caravane bloque le passage vers les faubourgs — on décharge. (Futur secteur de missions.)"},
         {"id": "ex_garde_chateau", "xy": [70.0, 43.6], "portee_m": 2.0, "texte": "« Halte. Le quartier du château est fermé au public pour l'instant. »"},
         {"id": "ex_hotel_de_ville", "xy": [83.0, 50.9], "portee_m": 1.8, "texte": "Hôtel de ville — grand portail. (Intérieur : instance à venir.)"},
-        {"id": "ex_fontaine", "xy": [45.0, 102.6], "portee_m": 1.8, "texte": "Fontaine (repère provisoire)."},
+        {"id": "ex_fontaine", "xy": [45.0, 102.6], "portee_m": 1.8, "texte": "La fontaine de la grande place : l'eau descend de la vasque haute dans la vasque basse, puis dans le bassin."},
     ]
     zones = [
         {"id": "placette_voyageurs", "nom": "Placette des Voyageurs", "rect": [48.0, 132.0, 72.0, 150.0]},
@@ -347,6 +347,11 @@ def construire():
                                 "porte_publique": {"xy": [30.45, 68.2], "portee_m": 2.2, "sortie": "portail_colisee_public",
                                                    "invite": "E  Entrer dans le Colisée"}},
                     "fontaine": rect(42, 96, 48, 102),
+                    # P7.8 : AXE DU CHÂTEAU RÉSERVÉ (décision du 25/11/2026) : vue droite et montante depuis la grande place vers
+                    # une future porte fortifiée centrée en x 70 (y 40). Le château n'est pas construit. Dans le couloir, aucun
+                    # nouveau volume ne doit dépasser la ligne de vue (outil tools/p7/camera_volumes_p76.py : contrôle « axe »).
+                    "axe_chateau": {"x": 70.0, "largeur_voie": 4.0, "couloir": rect(66, 40, 74, 115), "porte": [70.0, 40.0, H2],
+                                    "oeil": [70.0, 110.0, H1 + 1.6], "porte_haut_m": 7.0},
                     "chateau": [100.0, -240.0],
                     "porte_sud": [57.0, 63.0, 153.5],
                     "chantier": rect(88.4, 136, 89.4, 144),

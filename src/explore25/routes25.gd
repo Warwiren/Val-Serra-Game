@@ -913,7 +913,7 @@ static func _route_base(name: String) -> Array:
 				{"do": "go", "to": Vector2(61.0, 29.4), "tol": 0.25, "id": "Colisée : porte de la ville (vers le bas de l'écran)", "exit": true},
 				{"do": "wait", "t": 2.5},
 				_go(32.0, 74.5, "angle dégagé du perron", 0.3), _go(26.0, 82.0, "allée", 0.4), _go(36.0, 93.0, "ouest de la place", 0.4),
-				_go(54.0, 106.0, "fontaine", 0.4), _go(70.0, 105.0, "est de la place", 0.4), _go(82.0, 108.0, "bras est", 0.3),
+				_go(39.0, 106.0, "sud-ouest de la fontaine", 0.4), _go(54.0, 106.0, "fontaine", 0.4), _go(70.0, 105.0, "est de la place", 0.4), _go(82.0, 108.0, "bras est", 0.3),
 				_push("bout du bras est : fermé par du bâti", Vector2(1, 0), 1.2, {"max_x": 83.8}),
 				_go(82.0, 114.6, "haut de la ruelle des Tonneliers", 0.3), _go(82.0, 126.0, "bas de l'escalier", 0.3),
 				_go(82.0, 133.0, "ruelle", 0.3), _go(76.5, 134.4, "devant l'auberge-taverne", 0.3),
@@ -923,6 +923,15 @@ static func _route_base(name: String) -> Array:
 				_go(63.0, 123.5, "palier", 0.3), _go(65.0, 121.6, "pied de B", 0.3), _go(65.0, 112.0, "grande place", 0.4),
 				{"do": "wait", "t": 1.5},
 			]
+		"p7_78_place":
+			# P7.8 — contrôle du lot 1 : fontaine, revêtement, axe du château (captures de vérification)
+			var o78: Array = []
+			for c in [["p1_fontaine_sud", 45.0, 107.0, 3.5], ["p2_fontaine_proche", 45.0, 104.0, 3.5], ["p3_centre", 56.0, 104.0, 3.5],
+					["p4_axe_chateau", 70.0, 110.0, 3.5], ["p5_nord", 52.0, 92.0, 3.5], ["p6_ouest", 34.0, 100.0, 3.5]]:
+				o78.append(_warp(c[1], c[2], c[3]))
+				o78.append({"do": "wait", "t": 2.5})
+				o78.append({"do": "snap", "id": c[0]})
+			return o78
 		"p7_77_escamotage":
 			# P7.7 — comparaison masquage net / fondu (même trajet) : flanc de la Guilde, bras est (auberge), ruelle, rue du
 			# chantier, montée, retour vers la Guilde
@@ -1003,6 +1012,7 @@ static func _route_base(name: String) -> Array:
 				_go(52.0, 134.0, "T1 arrivée Guilde", 0.4),
 				_go(59.0, 134.0, "T2 pied de la volée A", 0.3), _go(59.0, 125.6, "T2 haut de A", 0.3), _go(63.0, 123.5, "T2 palier", 0.3),
 				_go(65.0, 121.6, "T2 pied de B", 0.3), _go(65.0, 113.0, "T2 arrivée grande place", 0.4),
+				_go(52.0, 107.0, "T3 sud de la fontaine", 0.4),
 				_go(36.0, 93.0, "T3 ouest de la place", 0.4), _go(26.0, 82.0, "T3 allée", 0.4), _go(30.5, 69.4, "T3 arrivée porte du Colisée", 0.3),
 				_warp(54.0, 107.0, 3.5), {"do": "wait", "t": 0.5}, _go(54.1, 107.0, "T4 départ fontaine", 0.3),
 				_go(62.0, 89.5, "T4 pied de C", 0.3), _go(62.0, 81.6, "T4 haut de C", 0.3), _go(71.0, 79.5, "T4 palier", 0.3),

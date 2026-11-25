@@ -2062,7 +2062,7 @@
       102.6
      ],
      "portee_m": 1.8,
-     "texte": "Fontaine (repère provisoire)."
+     "texte": "La fontaine de la grande place : l'eau descend de la vasque haute dans la vasque basse, puis dans le bassin."
     }
    ],
    "zones_nommees": [
@@ -2905,6 +2905,27 @@
      48,
      102
     ],
+    "axe_chateau": {
+     "x": 70.0,
+     "largeur_voie": 4.0,
+     "couloir": [
+      66,
+      40,
+      74,
+      115
+     ],
+     "porte": [
+      70.0,
+      40.0,
+      8.0
+     ],
+     "oeil": [
+      70.0,
+      110.0,
+      5.1
+     ],
+     "porte_haut_m": 7.0
+    },
     "chateau": [
      100.0,
      -240.0
