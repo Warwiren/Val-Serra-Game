@@ -19,7 +19,18 @@ func _tr():
 
 
 const Forge := preload("res://scenes/p7/forge_p79.gd")
+const Boutique := preload("res://scenes/p7/boutique_p710.gd")
+var bo                                    # P7.10 : boutique de fournitures (scenes/p7/boutique_p710.gd)
 var fo                                    # P7.9 : comparatif de la forge (scenes/p7/forge_p79.gd)
+
+
+## Boutique P7.10 : active avec la forge hybride (C), sauf --boutique=0.
+func _boutique():
+	if bo == null and _forge().variante == "C":
+		var b = Boutique.new(sc, _tr().a, _forge())
+		if b.actif:
+			bo = b
+	return bo
 
 
 func _forge():
@@ -86,6 +97,13 @@ func construit(e: Dictionary) -> bool:
 		sc._static_box(sc._rect_center(rf, e["h0"], e["h1"]), Vector3(rf.size.x, e["h1"] - e["h0"], rf.size.y), sc.L_OBST)
 		_forge().batiment()
 		_libelle("Forge-armurerie (%s)" % _forge().variante, Vector3(rf.get_center().x, e["h1"] + 4.6, rf.get_center().y))
+		return true
+	# P7.10 : boutique de fournitures (langage hybride ; collision : celle des données + étal)
+	if e["type"] == "block" and id == "bat_boutique_fournitures" and _boutique() != null:
+		var rbo: Rect2 = e["rect"]
+		sc._static_box(sc._rect_center(rbo, e["h0"], e["h1"]), Vector3(rbo.size.x, e["h1"] - e["h0"], rbo.size.y), sc.L_OBST)
+		_boutique().batiment()
+		_libelle("Boutique de fournitures", Vector3(rbo.get_center().x, 17.0, rbo.get_center().y))
 		return true
 	if e["type"] == "block" and _tr().contient(id):
 		var rb: Rect2 = e["rect"]
@@ -297,7 +315,9 @@ func _entree_fonctionnelle(e: Dictionary) -> void:
 		var lx: float = x + k * (L * 0.5 + 0.7)
 		sc._box_mesh(Vector3(lx, h + H - 0.2, y + 0.3), Vector3(0.05, 0.05, 0.3), fer)
 		sc._box_mesh(Vector3(lx, h + H - 0.45, y + 0.45), Vector3(0.22, 0.34, 0.22), _mat_plein(Color(1.0, 0.72, 0.36), 1.6))
-	# enseigne
+	# enseigne (P7.10 : la forge C+ a sa propre enseigne d'armurerie)
+	if str(e["id"]) == "forge" and _forge().variante == "C":
+		return
 	var en: Array = ENSEIGNES.get(str(e["enseigne"]), [Color(0.5, 0.5, 0.5), "potence"])
 	var col: Color = en[0]
 	if str(en[1]) == "banniere":

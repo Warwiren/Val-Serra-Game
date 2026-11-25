@@ -932,6 +932,14 @@ static func _route_base(name: String) -> Array:
 				o79.append({"do": "wait", "t": 2.5})
 				o79.append({"do": "snap", "id": c[0]})
 			return o79
+		"p7_710_boutique":
+			# P7.10 — boutique de fournitures et forge C+ à la distance de jeu (contrôle, aucune capture livrée)
+			var o710: Array = []
+			for c in [["b1_face", 76.0, 98.0, 3.5], ["b2_place", 66.0, 104.0, 3.5], ["b3_entree", 78.0, 90.6, 3.5], ["b4_ensemble", 62.0, 99.0, 3.5]]:
+				o710.append(_warp(c[1], c[2], c[3]))
+				o710.append({"do": "wait", "t": 2.5})
+				o710.append({"do": "snap", "id": c[0]})
+			return o710
 		"p7_78_place":
 			# P7.8 — contrôle du lot 1 : fontaine, revêtement, axe du château (captures de vérification)
 			var o78: Array = []

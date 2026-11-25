@@ -294,7 +294,7 @@ func baie(f: Dictionary, u: float, v0: float, w: float, h: float, style: String,
 	if style == "oeil_de_boeuf":
 		_oeil_de_boeuf(f, u, v0 + w * 0.5, w * 0.5)
 		return
-	var cintre := style in ["fenetre_cintree", "porte_cochere"]
+	var cintre := style in ["fenetre_cintree", "porte_cochere", "baie_cintree"]
 	boite(f, u0, u1, v0, v1, 0.0, 0.02, sombre)
 	if style in ["porte_deco", "devanture", "porte_cloutee", "porte_cochere"]:
 		# vantail (vantaux) plein(s) de bois, planches marquées
@@ -317,7 +317,7 @@ func baie(f: Dictionary, u: float, v0: float, w: float, h: float, style: String,
 		boite(f, u0 + 0.14, u1 - 0.14, v0 + h * 0.42, v1 - 0.16, 0.0, 0.055, _verre())
 		boite(f, u - 0.025, u + 0.025, v0 + h * 0.42, v1 - 0.16, 0.0, 0.06, bois())
 		boite(f, u0 + 0.14, u1 - 0.14, v0 + 0.12, v0 + h * 0.36, 0.0, 0.06, plein(Color(0.24, 0.17, 0.11)))   # panneau bas
-	elif style == "baie":
+	elif style in ["baie", "baie_cintree"]:
 		# grande baie de salle : petits bois en grille, lumière chaude derrière les carreaux
 		boite(f, u0 + 0.06, u1 - 0.06, v0 + 0.06, v1 - 0.06, 0.0, 0.025, plein(Color(0.95, 0.66, 0.32), 0.6, 0.7))
 		var nx := 4

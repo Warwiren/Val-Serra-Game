@@ -251,6 +251,12 @@
   vantaux, cheminée, accessoires Quaternius) ; scènes F6 `ville_v07b_forge_{a,b,c}.tscn` ou `--forge=A|B|C`. Modèles Quaternius
   ajoutés listés dans `art/p63/quaternius/SOURCES.md` (provisoires, mipmaps) ; maillages fusionnés par matière. Accès au Drive :
   environnement « Val-Serra-Game » (`drive.usercontent.google.com`). NE PAS habiller les autres commerces avant décision.
+- **P7.10 (branche `p7-10-forge-boutique`, `docs/P7_10_FORGE_BOUTIQUE.md`)** : variante C retenue comme base de production
+  (C+ = forge par défaut de `ville_v07b.tscn`, `--forge=0` : blockout) : toit Quaternius NON fusionné en terre cuite désaturée
+  (`forge_p79._terre_cuite`), cheminée de pierre, enseigne d'armurerie, atelier de la cour, baie cintrée (`baie_cintree`
+  dans `archi_p77.gd`) ; emprise, collisions et entrée inchangées. Boutique de fournitures (`scenes/p7/boutique_p710.gd`,
+  `--boutique=0`) : maison haute à pignon sud, étal adossé à `bat_commerce_e2` (seule collision ajoutée). EN ATTENTE de
+  validation de la cohérence forge / boutique : NE PAS habiller d'autres bâtiments ; axe du château préservé.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).
