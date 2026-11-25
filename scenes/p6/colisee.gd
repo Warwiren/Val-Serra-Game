@@ -1517,7 +1517,7 @@ func _physics_process(delta: float) -> void:
 		_profil_colisee(delta)                  # P7.4.1 : plongée propre à l'arène (caméra V0.7-A dans le Colisée)
 	super._physics_process(delta)
 	if _cam_ville and not _switching and world != null and _ville != null and _ville.has_method("coupes_camera") and body != null:
-		_ville.coupes_camera(cam.global_position, body.global_position)      # P7.6 : volumes entre la caméra et Aren
+		_ville.coupes_camera(cam.global_position, body.global_position, delta)      # P7.6 : volumes entre la caméra et Aren
 	if _switching or world == null or _bloque:
 		return
 	_pnj_step(delta)

@@ -330,7 +330,17 @@ func _dist_rect(r: Rect2, p: Vector2) -> float:
 	return sqrt(dx * dx + dy * dy)
 
 
-func coupes_camera(cam: Vector3, heros: Vector3) -> void:
+## P7.7 : deux modes comparés (--escamotage=net|fondu, --fondu_s=0.15). « net » (défaut, retenu) : le volume disparaît
+## d'une image à l'autre. « fondu » : sa transparence d'objet (GeometryInstance3D.transparency, aucune trame) passe de 0 à 1
+## en fondu_s secondes. Chaque bascule est journalisée (« P7 escamotage ») pour mesurer la stabilité.
+var _t_coupes := 0.0
+var bascules := 0
+
+
+func coupes_camera(cam: Vector3, heros: Vector3, delta := 1.0 / 60.0) -> void:
+	_t_coupes += delta
+	var fondu: bool = str(sc._cli.get("escamotage", "net")) == "fondu"
+	var duree := maxf(0.01, float(sc._cli.get("fondu_s", 0.15)))
 	var pc := Vector2(cam.x, cam.z)
 	for vo in _vols:
 		var r: Rect2 = vo["rect"]
@@ -340,8 +350,27 @@ func coupes_camera(cam: Vector3, heros: Vector3) -> void:
 		var masque: bool = entre and hauteur_ok and _dist_rect(r, pc) < marge
 		if masque != vo["masque"]:
 			vo["masque"] = masque
-			(vo["node"] as Node3D).visible = not masque
+			bascules += 1
+			print("P7 escamotage ", JSON.stringify({"id": vo["id"], "masque": masque, "t": snappedf(_t_coupes, 0.01),
+				"dernier_s": snappedf(_t_coupes - float(vo.get("t_bascule", -99.0)), 0.01)}))
+			vo["t_bascule"] = _t_coupes
 			if masque:
 				masques[vo["id"]] = true
 			else:
 				masques.erase(vo["id"])
+		var cible := 0.0 if vo["masque"] else 1.0
+		var a: float = vo.get("alpha", 1.0)
+		if not fondu:
+			a = cible
+		elif a != cible:
+			a = move_toward(a, cible, delta / duree)
+		if a == vo.get("alpha", 1.0) and vo.has("alpha"):
+			continue
+		vo["alpha"] = a
+		var nd := vo["node"] as Node3D
+		nd.visible = a > 0.001
+		if fondu:
+			if not vo.has("geoms"):
+				vo["geoms"] = nd.find_children("*", "GeometryInstance3D", true, false)
+			for g in vo["geoms"]:
+				(g as GeometryInstance3D).transparency = 1.0 - a

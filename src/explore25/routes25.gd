@@ -923,6 +923,36 @@ static func _route_base(name: String) -> Array:
 				_go(63.0, 123.5, "palier", 0.3), _go(65.0, 121.6, "pied de B", 0.3), _go(65.0, 112.0, "grande place", 0.4),
 				{"do": "wait", "t": 1.5},
 			]
+		"p7_77_escamotage":
+			# P7.7 — comparaison masquage net / fondu (même trajet) : flanc de la Guilde, bras est (auberge), ruelle, rue du
+			# chantier, montée, retour vers la Guilde
+			return [
+				_warp(50.0, 106.0, 3.5), {"do": "wait", "t": 1.5},
+				_go(66.0, 104.0, "place sud (Guilde)", 0.3), _go(76.0, 106.0, "vers le bras est", 0.3), _go(82.0, 108.0, "bras est", 0.3),
+				_go(82.0, 114.6, "haut de la ruelle", 0.3), _go(82.0, 126.0, "bas de l'escalier", 0.3), _go(82.0, 133.0, "ruelle", 0.3),
+				_go(76.0, 134.5, "terrasse", 0.3), _go(64.0, 140.0, "placette", 0.3), _go(59.0, 134.0, "pied de A", 0.3),
+				_go(59.0, 125.6, "haut de A", 0.3), _go(63.0, 123.5, "palier", 0.3), _go(65.0, 121.6, "pied de B", 0.3),
+				_go(65.0, 112.0, "place", 0.3), _go(60.0, 106.0, "place sud", 0.3), _go(48.0, 104.0, "devant la Guilde", 0.3),
+				_go(57.5, 104.0, "angle de la Guilde", 0.3), _go(57.5, 112.0, "le long de la Guilde", 0.3), _go(57.5, 104.0, "retour", 0.3),
+				{"do": "wait", "t": 1.0},
+			]
+		"p7_77_vestibule":
+			# P7.7 — raccord visuel du vestibule de sortie du Colisée (--etat=tutorial_completed)
+			var o77v: Array = []
+			for c in [["v1_arene_est", 36.0, 24.0], ["v2_tunnel_est", 41.5, 23.0], ["v3_coursive", 52.0, 24.0], ["v4_coursive_sud", 52.0, 31.0],
+					["v5_couloir", 57.5, 23.0], ["v6_vestibule", 61.0, 24.5], ["v7_porte", 61.0, 27.8], ["v8_infirmerie", 46.5, 38.0]]:
+				o77v.append(_warp(c[1], c[2], 0.0))
+				o77v.append({"do": "wait", "t": 2.5})
+				o77v.append({"do": "snap", "id": c[0]})
+			return o77v
+		"p7_77_muret":
+			# P7.7 — finition du muret (jardinière) : rue du chantier, terrasse de l'auberge, placette (--muret=haie : P7.6)
+			var o77m: Array = []
+			for c in [["m1_rue_chantier", 84.0, 140.0, 0.0], ["m2_terrasse", 76.0, 135.0, 0.0], ["m3_ouest", 74.0, 141.5, 0.0]]:
+				o77m.append(_warp(c[1], c[2], c[3]))
+				o77m.append({"do": "wait", "t": 2.5})
+				o77m.append({"do": "snap", "id": c[0]})
+			return o77m
 		"p7_76_tranche":
 			# P7.6 (C) — tranche architecturale : îlot de l'auberge et ruelle des Tonneliers (captures ; --tranche=0 : blockout)
 			var o76t: Array = []
