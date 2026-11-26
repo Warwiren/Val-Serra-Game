@@ -42,8 +42,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p7-12-1-civique-consolidation`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p7-12-1-civique-consolidation`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p7-12-2-coherence-terrasse`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p7-12-2-coherence-terrasse`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -195,6 +195,11 @@ masque de collision avant / après.
    lointain (plongée adoucie sur la terrasse et l'avenue), corps de garde et pavillon de raccord en calcaire clair. Options :
    `--visee_dialogue=1`, `--escamotage_partiel=0`, `--plongee_civique=0` (comportements précédents). Rapport :
    `docs/P7_12_1_CONSOLIDATION_CIVIQUE.md`.
+   **Branche `p7-12-2-coherence-terrasse`** (EN ATTENTE) : F5 inchangé. **F6 sur `scenes/p7/ville_v07b.tscn`** : portes et
+   ouvertures du quartier civique rendues cohérentes, **terrasse du belvédère** accessible de plain-pied depuis le palier de la
+   volée C (tables, balustrades, vue sur la place), escamotage avec marge de réapparition et coupe finie (plancher et arase de
+   pierre). Options : `--escamotage_partiel=0` (escamotage P7.6), `--escamotage_delai=<s>` (marge de réapparition, 0,6 s).
+   Rapport : `docs/P7_12_2_COHERENCE_TERRASSE.md`.
 
 ### Commandes — forêt V07B (F5)
 

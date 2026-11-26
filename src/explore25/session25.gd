@@ -454,6 +454,8 @@ func _pilot_dir(delta: float) -> Vector2:
 	var hp := Vector2(hero.x, hero.y)
 	match s["do"]:
 		"go":
+			if "force_run" in host:                     # P7.12.2 : un trajet de parcours peut aussi courir (Maj maintenue)
+				host.force_run = bool(s.get("run", false))
 			var g: Vector2 = s["to"]
 			var d := g - hp
 			var dist := d.length()

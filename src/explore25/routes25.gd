@@ -957,6 +957,22 @@ static func _route_base(name: String) -> Array:
 				_push("balustrade sud (terrasse)", Vector2(0, 1), 2.0, {"max_y": 87.62, "min_y": 86.9}),
 				_go(70.0, 84.0, "terrasse : centre", 0.3), _push("balustrade ouest (terrasse)", Vector2(-1, 0), 2.0, {"min_x": 66.38, "max_x": 67.1}),
 				_go(70.0, 80.5, "retour au palier", 0.3)]
+		"p7_7122_aller_retour":
+			# P7.12.2 — escamotage autour des deux premières volées : montée A + B en marchant, arrêts et demi-tours au bord sud
+			# de la place (Guilde, auberge), descente, puis même montée en courant avec zigzags (mesure :
+			# tools/p7/escamotage_p7122.gd)
+			var o7a: Array = [_warp(60.0, 140.0, 0.0), {"do": "wait", "t": 0.8}]
+			for run in [false, true]:
+				for p in [[59.0, 134.5], [59.0, 127.5], [61.5, 124.0], [64.6, 121.6], [65.0, 116.0], [65.0, 112.0]]:
+					o7a.append({"do": "go", "to": Vector2(p[0], p[1]), "tol": 0.4, "run": run, "id": "montée"})
+				o7a.append({"do": "wait", "t": 0.8})
+				for p in [[65.0, 114.3], [65.0, 111.0], [50.0, 112.8], [53.0, 111.0], [50.0, 113.6], [58.0, 113.0], [74.0, 113.4],
+						[71.0, 111.0], [76.0, 113.6], [65.0, 114.4]]:
+					o7a.append({"do": "go", "to": Vector2(p[0], p[1]), "tol": 0.4, "run": run, "id": "bord sud de la place"})
+					o7a.append({"do": "wait", "t": 0.4 if run else 0.7})
+				for p in [[64.8, 121.4], [61.0, 124.0], [59.0, 128.0], [59.0, 134.0], [60.0, 139.0]]:
+					o7a.append({"do": "go", "to": Vector2(p[0], p[1]), "tol": 0.4, "run": run, "id": "descente"})
+			return o7a
 		"p7_7122_terrasse_vues":
 			var o7v: Array = []
 			for c in [["v1_terrasse", 71.0, 84.2, 5.75], ["v2_terrasse_ouest", 67.5, 83.2, 5.75], ["v3_place", 70.0, 97.0, 3.5]]:
@@ -1089,6 +1105,8 @@ static func _route_base(name: String) -> Array:
 				_go(59.0, 134.0, "T2 pied de la volée A", 0.3), _go(59.0, 125.6, "T2 haut de A", 0.3), _go(63.0, 123.5, "T2 palier", 0.3),
 				_go(65.0, 121.6, "T2 pied de B", 0.3), _go(65.0, 113.0, "T2 arrivée grande place", 0.4),
 				_go(52.0, 107.0, "T3 sud de la fontaine", 0.4),
+				# P7.12.2 : contourner la fontaine (le trajet direct la traversait à 1,4 m de son centre et comptait sur le glissement)
+				_go(41.0, 104.5, "T3 contour de la fontaine", 0.5),
 				_go(36.0, 93.0, "T3 ouest de la place", 0.4), _go(26.0, 82.0, "T3 allée", 0.4), _go(30.5, 69.4, "T3 arrivée porte du Colisée", 0.3),
 				_warp(54.0, 107.0, 3.5), {"do": "wait", "t": 0.5}, _go(54.1, 107.0, "T4 départ fontaine", 0.3),
 				_go(62.0, 89.5, "T4 pied de C", 0.3), _go(62.0, 81.6, "T4 haut de C", 0.3), _go(71.0, 79.5, "T4 palier", 0.3),

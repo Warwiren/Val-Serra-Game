@@ -457,7 +457,7 @@ func _classer_volumes() -> void:
 				break
 	# P7.12.1 : chaque volume assez haut est coupé à hauteur d'étage (bas / haut) : l'escamotage peut ne retirer que les
 	# étages et le toit quand la ligne de vue vers Aren passe au-dessus du rez-de-chaussée (--escamotage_partiel=0 : P7.6)
-	if str(sc._cli.get("escamotage_partiel", "1")) != "0":
+	if _partiel():
 		for vo in _vols:
 			_decouper(vo)
 
@@ -500,6 +500,17 @@ func coupes_camera(cam: Vector3, heros: Vector3, delta := 1.0 / 60.0) -> void:
 				var seuil: float = float(vo["coupe"]) + (0.05 if int(vo.get("mode", 0)) == 1 else 0.25)
 				if h_los >= seuil:
 					mode = 1
+		# P7.12.2 : marge de réapparition : masquer est immédiat (Aren d'abord), ré-afficher attend que la vue soit dégagée
+		# pendant `escamotage_delai` s (0,6 s par défaut) : plus de clignotement aux arrêts et demi-tours
+		var cour := int(vo.get("mode", 0))
+		if mode < cour and _partiel():
+			vo["t_relache"] = float(vo.get("t_relache", 0.0)) + delta
+			if float(vo["t_relache"]) < float(sc._cli.get("escamotage_delai", 0.6)):
+				mode = cour
+			else:
+				vo["t_relache"] = 0.0
+		else:
+			vo["t_relache"] = 0.0
 		if mode != int(vo.get("mode", 0)):
 			vo["mode"] = mode
 			vo["masque"] = mode > 0
@@ -530,6 +541,8 @@ func coupes_camera(cam: Vector3, heros: Vector3, delta := 1.0 / 60.0) -> void:
 		nd.visible = a > 0.001
 		if vo.has("haut"):
 			(vo["haut"] as Node3D).visible = ah > 0.001
+		if vo.has("chapeau"):
+			(vo["chapeau"] as Node3D).visible = a > 0.001 and ah <= 0.001
 		if fondu:
 			if not vo.has("geoms"):
 				vo["geoms"] = nd.find_children("*", "GeometryInstance3D", true, false)
@@ -575,6 +588,7 @@ func _decouper(vo: Dictionary) -> void:
 			gi.reparent(haut, true)
 	vo["haut"] = haut
 	vo["coupe"] = coupe
+	_chapeau(vo)
 
 
 ## Boîte alignée coupée en deux boîtes (même matière, matières en coordonnées monde : raccord invisible).
@@ -663,4 +677,43 @@ func _coupe_vue(vo: Dictionary, cam: Vector3, cible: Vector3, marge: float) -> b
 		if t0 > t1:
 			return false
 	return true
+
+
+func _partiel() -> bool:
+	return str(sc._cli.get("escamotage_partiel", "1")) != "0"
+
+
+## P7.12.2 — Finition de la coupe (visible seulement quand les étages sont escamotés) : plancher de bois de l'étage posé
+## sur le haut réel de la partie conservée, bordé d'une arase de pierre (épaisseur du mur) : lecture d'une coupe
+## volontaire (maquette), au lieu du dessus brut du volume.
+func _chapeau(vo: Dictionary) -> void:
+	var nd := vo["node"] as Node3D
+	var r: Rect2 = vo["rect"]
+	var h := float(vo["h0"])
+	for g in nd.get_children():
+		if g is GeometryInstance3D and not (g is Label3D):
+			var ab: AABB = (g as GeometryInstance3D).global_transform * (g as GeometryInstance3D).get_aabb()
+			var c := ab.get_center()
+			if r.grow(0.2).has_point(Vector2(c.x, c.z)):
+				h = maxf(h, ab.end.y)
+	h = minf(h, float(vo["coupe"]) + 0.05)
+	var a = _tr().a
+	var ch := Node3D.new()
+	ch.name = "chapeau"
+	ch.visible = false
+	nd.add_child(ch)
+	var d0: int = a.racine.get_child_count()
+	var ri := r.grow(-0.35)
+	var pl: MeshInstance3D = a.box(Vector3(r.get_center().x, h + 0.015, r.get_center().y), Vector3(ri.size.x, 0.03, ri.size.y), a.macon("plancher", Color(1.05, 0.98, 0.9), h, "monde", false))
+	pl.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var ar: Material = a.macon("mur2", Color(1.2, 1.12, 1.0), h)
+	for b in [[r.position.x, r.end.x, r.position.y, r.position.y + 0.35], [r.position.x, r.end.x, r.end.y - 0.35, r.end.y],
+			[r.position.x, r.position.x + 0.35, r.position.y, r.end.y], [r.end.x - 0.35, r.end.x, r.position.y, r.end.y]]:
+		var m: MeshInstance3D = a.box(Vector3((b[0] + b[1]) * 0.5, h + 0.06, (b[2] + b[3]) * 0.5), Vector3(b[1] - b[0], 0.12, b[3] - b[2]), ar)
+		m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	a.fusionner(d0, "chapeau_" + str(vo["id"]))
+	for i in range(a.racine.get_child_count() - 1, d0 - 1, -1):
+		var n: Node = a.racine.get_child(i)
+		n.reparent(ch, true)
+	vo["chapeau"] = ch
 

@@ -292,6 +292,11 @@
   vu par l'arc (herse relevée, accès fermé par la grille des données et les gardes) ; ardoise RÉSERVÉE au château. Corps de garde
   et pavillon de raccord (partie ouest de l'hôtel de ville, reste en blockout retinté pierre) en calcaire clair, façades
   maçonnées en épaisseur, comme l'administration.
+- **P7.12.2 (branche `p7-12-2-coherence-terrasse`, `docs/P7_12_2_COHERENCE_TERRASSE.md`)** : EN ATTENTE. Règle : toute ouverture a une
+  fonction compréhensible, toute porte un accès crédible (porte sans accès -> fenêtre, porte-fenêtre derrière un balcon). Terrasse du
+  belvédère (`terrasse_cafe` des données, x 66 -> 76, y 82 -> 88, h 5,75, de plain-pied avec le palier 2 ; tables `decor_cafe_*` ;
+  `emplacements_pnj` = emplacements seulement, aucun PNJ). Escamotage : marge de réapparition (`--escamotage_delai`, 0,6 s ; masquer
+  reste immédiat), coupe finie par un « chapeau » (plancher + arase) ; mesure `tools/p7/escamotage_p7122.gd`. Fondu toujours expérimental.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).
