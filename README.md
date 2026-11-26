@@ -42,8 +42,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p7-12-quartier-civique`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p7-12-quartier-civique`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p7-12-1-civique-consolidation`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p7-12-1-civique-consolidation`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -190,6 +190,11 @@ masque de collision avant / après.
    forge D et boutique P7.11 approuvées ; **quartier civique et perspective du château** (volées et soutènements de pierre,
    balustrades, administration à porche, corps de garde, porte fortifiée, remparts, château lointain sur l'axe ; `--civique=0` :
    état P7.11). Rapports : `docs/P7_12_QUARTIER_CIVIQUE.md`, audit du projet `docs/AUDIT_P7_12.md`.
+   **Branche `p7-12-1-civique-consolidation`** (EN ATTENTE) : F5 inchangé. **F6 sur `scenes/p7/ville_v07b.tscn`** : cadrage stable
+   pendant les examens, escamotage des seules parties hautes des bâtiments, porte ouverte sur une rampe et un château
+   lointain (plongée adoucie sur la terrasse et l'avenue), corps de garde et pavillon de raccord en calcaire clair. Options :
+   `--visee_dialogue=1`, `--escamotage_partiel=0`, `--plongee_civique=0` (comportements précédents). Rapport :
+   `docs/P7_12_1_CONSOLIDATION_CIVIQUE.md`.
 
 ### Commandes — forêt V07B (F5)
 

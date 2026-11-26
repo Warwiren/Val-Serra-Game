@@ -1514,6 +1514,7 @@ func _physics_process(delta: float) -> void:
 	_auto_dialog_t = -1.0e9                     # l'avancée automatique héritée de l'avant-poste ne doit pas choisir à notre place
 	if _cam_ville and not _switching and world != null:
 		_yaw_secteurs(delta)                    # P7.4 : caméra semi-fixe (B) ; sans effet en A
+		_profil_ville(delta)                    # P7.12.1 : plongée adoucie sur la terrasse civique et l'avenue du château
 	elif cam_mode == "V06" and not _switching and world != null:
 		_profil_colisee(delta)                  # P7.4.1 : plongée propre à l'arène (caméra V0.7-A dans le Colisée)
 	super._physics_process(delta)
@@ -2677,3 +2678,41 @@ func _profil_colisee(delta: float) -> void:
 	var hero_avant := World25.screen(s.hero)
 	World25.pitch = nouv
 	_recaler_vue(hero_avant)
+
+
+## P7.12.1 — Plongée locale de la ville : sur la terrasse civique et l'avenue du château (niveau haut, y < 71), la plongée
+## passe progressivement de 11° à 6,5° (bord haut du cadre ≈ 4° -> 8,5° au-dessus de l'horizon) pour que la porte fortifiée
+## et le château lointain entrent dans le cadre ; même lissage critique et même recalage que dans le Colisée (aucun saut,
+## aucun zoom). Ailleurs, 11° (inchangé). --plongee_civique=0 : désactivé.
+const PLONGEE_CIVIQUE := 6.5
+
+
+func _profil_ville(delta: float) -> void:
+	if not _cam_ville or cam_mode != "V06" or str(_cli.get("plongee_civique", "1")) == "0" or _p6.get("ville", {}).get("version", "") != "v07b":
+		return
+	var base := float(_cli.get("v06_plongee", PLONGEE_V06))
+	var p := base
+	if s.hero.z > 7.0:
+		var t := clampf((71.0 - s.hero.y) / 12.0, 0.0, 1.0)
+		p = lerpf(base, float(_cli.get("plongee_civique_deg", PLONGEE_CIVIQUE)), smoothstep(0.0, 1.0, t))
+	var cible := deg_to_rad(p)
+	var avant := World25.pitch
+	var nouv := avant
+	if _pitch_snap:
+		nouv = cible
+		_pitch_vit = 0.0
+		_pitch_snap = false
+	else:
+		var w := 1.0 / 0.6
+		_pitch_vit += (w * w * (cible - avant) - 2.0 * w * _pitch_vit) * delta
+		_pitch_vit = clampf(_pitch_vit, -deg_to_rad(12.0), deg_to_rad(12.0))
+		nouv = avant + _pitch_vit * delta
+		if absf(cible - nouv) < 0.0002 and absf(_pitch_vit) < 0.002:
+			nouv = cible
+			_pitch_vit = 0.0
+	if absf(nouv - avant) < 1e-7:
+		return
+	var hero_avant := World25.screen(s.hero)
+	World25.pitch = nouv
+	_recaler_vue(hero_avant)
+

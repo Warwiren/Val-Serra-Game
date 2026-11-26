@@ -283,6 +283,15 @@
   courtines, ville haute (affichage seul, méta « vol » = « aucun ») ; château lointain recentré (x 70, générateur).
   Cadrage : seule la bande 8 -> 14 m de la porte est visible depuis la place (≈ 4° au-dessus de l'horizon). Hôtel de ville
   NON traité (autre lot). Nettoyage : audit `docs/AUDIT_P7_12.md`, suppressions EN ATTENTE de l'accord du créateur.
+- **P7.12.1 (branche `p7-12-1-civique-consolidation`, `docs/P7_12_1_CONSOLIDATION_CIVIQUE.md`)** : EN ATTENTE. Caméra : `Cam25.visee_fixe`
+  (ville et caméra V du Colisée) : plus de recentrage de 72 px aux examens (mesure `tools/p7/stabilite_interactions_p7121.gd`,
+  0 attendu ; `--visee_dialogue=1` : P3). Occultation : volumes coupés à h0 + 3,5 m au chargement, escamotage des SEULES parties
+  hautes quand la ligne de vue vers les pieds d'Aren passe au-dessus, volume entier sinon ; escamotage aussi si le volume coupe
+  la ligne de vue (`--escamotage_partiel=0` : P7.6). Pas de transparence ni de trame. Plongée locale de la ville : 11° -> 6,5° sur
+  la terrasse civique et l'avenue (`colisee._profil_ville`, `--plongee_civique=0`). Château décoratif à ≈ 150 m derrière la porte,
+  vu par l'arc (herse relevée, accès fermé par la grille des données et les gardes) ; ardoise RÉSERVÉE au château. Corps de garde
+  et pavillon de raccord (partie ouest de l'hôtel de ville, reste en blockout retinté pierre) en calcaire clair, façades
+  maçonnées en épaisseur, comme l'administration.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).
