@@ -50,8 +50,14 @@ PIECES = {
     "coursive":          ([44.0, 12.0, 56.0, 34.0], "paves"),
     "passage_infirmerie": ([45.5, 34.0, 47.5, 35.0], "paves"),
     "infirmerie":        ([44.0, 35.0, 49.5, 41.0], "plancher"),
-    "couloir_sortie":    ([56.0, 21.5, 65.0, 24.5], "paves"),
+    # P7.6 : couloir de sortie raccourci ; il débouche sur un VESTIBULE dont la porte est au SUD (on la rejoint en
+    # descendant à l'écran, vers la caméra, et non plus en continuant vers la droite dans le noir) ; seuil au-delà de la porte
+    "couloir_sortie":    ([56.0, 21.5, 58.5, 24.5], "paves"),
+    "vestibule_sortie":  ([58.5, 21.5, 63.5, 28.5], "paves"),
+    "seuil_sortie":      ([60.0, 28.5, 62.0, 29.8], "paves"),
 }
+# P7.6 : porte de la ville (mur sud du vestibule), x 60 -> 62
+PORTE_VILLE = (60.0, 62.0, 28.5)
 # Pièces visibles mais non accessibles (porte fermée) : sol dessiné, aucune surface praticable
 PIECES_FERMEES = {
     "reserve": ([50.5, 35.0, 56.0, 41.0], "plancher"),
@@ -117,6 +123,9 @@ def anneau():
 TUNNEL_REF = 6.5                # longueur du tunnel sud de P6 (y 31 -> 37,5, dont 5,5 m couverts au-delà de l'anneau)
 TUNNEL_VARIANTES = {"A": 6.5, "B": 8.5, "C": 9.5}
 TUNNEL_RETENU = "B"             # P6.2-D : proposition (8,5 m), comparaison A / C en F6 (docs/P6_2D_COLISEE_COMPLET.md)
+## P7.4.1 : LONGUEUR retenue par la direction le 24/11/2026 : 9,0 m (la largeur, 3 m, ne change pas). colisee.json est
+## écrit à cette longueur ; les variantes A / B / C restent des fichiers de comparaison (suppression S6 non autorisée).
+TUNNEL_RETENU_M = 9.0
 SUD_Y = 37.0                    # au-delà (vers le sud), entre x 15 et 37 : bloc sud décalé
 SUD_X = (15.0, 37.0)
 
@@ -143,7 +152,8 @@ def _decaler(o, dy, cle=""):
 
 
 def colisee(variante=None):
-    variante = variante or TUNNEL_RETENU
+    if variante is None:
+        return _finir(_colisee_base(), TUNNEL_RETENU_M - TUNNEL_REF, "retenu_9m")
     dy = TUNNEL_VARIANTES[variante] - TUNNEL_REF
     return _finir(_colisee_base(), dy, variante)
 
@@ -172,7 +182,20 @@ def _colisee_base():
     murs += murs_piece("coursive", P["coursive"],
                        [("o", 21.5, 24.5), ("e", 21.5, 24.5), ("s", 45.5, 47.5), ("s", 52.0, 54.0),
                         ("n", 49.0, 51.0), ("e", 15.0, 17.0)])
-    murs += murs_piece("couloir_sortie", P["couloir_sortie"], [("e", 21.5, 24.5)], cotes="nse", hauteurs={"s": 1.2})
+    # P7.6 : couloir + vestibule = une pièce en L (murs posés à la main : aucune face confondue entre les deux)
+    t = MUR_EP
+    px0, px1, py = PORTE_VILLE
+    for mid, r, h in [("cmur_couloir_sortie_n0", (56.0 - t, 21.5 - t, 63.5 + t, 21.5), H_NORD),
+                      ("cmur_couloir_sortie_s0", (56.0 - t, 24.5, 58.5, 24.5 + t), 1.2),
+                      ("cmur_vestibule_sortie_o0", (58.5 - t, 24.5 + t, 58.5, 28.5 + t), H_COTE),
+                      ("cmur_vestibule_sortie_e0", (63.5, 21.5, 63.5 + t, 28.5 + t), H_COTE),
+                      ("cmur_vestibule_sortie_s0", (58.5, py, px0, py + t), 1.2),
+                      ("cmur_vestibule_sortie_s1", (px1, py, 63.5, py + t), 1.2),
+                      # joues du seuil (au-delà de la porte) : on ne quitte le seuil que par le déclencheur
+                      ("cmur_seuil_sortie_o0", (px0 - t, py + t, px0, 29.8), 0.5),
+                      ("cmur_seuil_sortie_e0", (px1, py + t, px1 + t, 29.8), 0.5),
+                      ("cmur_seuil_sortie_s0", (px0 - t, 29.8, px1 + t, 29.8 + t), 0.5)]:
+        murs.append({"id": mid, "rect": rect(*r), "h": 0.0, "haut": h})
     murs += murs_piece("infirmerie", P["infirmerie"], [("n", 45.5, 47.5)], cotes="soe")
     murs += murs_piece("reserve", PIECES_FERMEES["reserve"][0], [], cotes="soe")
     # cloison nord de l'infirmerie et de la réserve = mur sud de la coursive (déjà posé)
@@ -237,8 +260,12 @@ def _colisee_base():
         {"id": "ex_banniere_v", "xy": [26.0, 52.9], "portee_m": 1.5, "texte": "La bannière de la Guilde des Chasseurs : une larme d'Aether entre deux lames."},
         {"id": "ex_lits", "xy": [46.6, 38.8], "portee_m": 1.2, "texte": "Des lits de camp. L'odeur des onguents flotte dans la pièce."},
     ]
-    sortie = {"id": "sortie_est", "rect": rect(63.6, 21.5, 65.0, 24.5), "vers": "res://data/p6/quartier_initial.json",
-              "porte": [65.0, 21.5, 65.0, 24.5], "arrivee": [4.2, 8.0, 0.0]}
+    # P7.4.1 : portail « colisee_porte_publique » côté Colisée (vers la ville V0.7-A : la scène y redirige, arrivée et
+    # orientation lues dans les données de la ville) ; orientation d'arrivée dans le quartier provisoire : vers l'est
+    # P7.6 : déclencheur sur le seuil, au-delà de la porte sud du vestibule (on y entre en descendant à l'écran)
+    sortie = {"id": "sortie_est", "portail": "colisee_porte_publique", "rect": rect(60.0, 29.1, 62.0, 29.8),
+              "vers": "res://data/p6/quartier_initial.json", "porte": [60.0, 28.7, 62.0, 28.7], "arrivee": [4.2, 8.0, 0.0],
+              "orientation": [1.0, 0.0]}
 
     p6 = {
         "nom": "Colisée de Val'Serra",
@@ -257,7 +284,7 @@ def _colisee_base():
             {"id": "arene", "nom": "Arène centrale", "rect": [13.5, 14.0, 38.5, 32.0]},
             {"id": "coursive", "nom": "Coursive", "rect": [44.0, 12.0, 56.0, 34.0]},
             {"id": "infirmerie", "nom": "Infirmerie", "rect": PIECES["infirmerie"][0]},
-            {"id": "sortie", "nom": "Sortie est", "rect": PIECES["couloir_sortie"][0]},
+            {"id": "sortie", "nom": "Sortie est", "rect": [56.0, 21.5, 63.5, 29.8]},
         ],
         "camera_vue_dessus": [8.0, 6.0, 66.0, 57.0],
         # P6.2-B — linteaux des portes intérieures (décor : encadrement, structure continue au-dessus de 2,7 m)
@@ -267,7 +294,7 @@ def _colisee_base():
                      [24.1, 31.6, 27.9, 32.0, 2.3, 3.1],
                      # P6.3 : ouvertures des murs prolongés du reste du bâtiment (au-dessus : un trou noir jusqu'à 6 m)
                      [49.0, 11.6, 51.0, 12.0], [56.0, 15.0, 56.4, 17.0], [43.6, 21.5, 44.0, 24.5],
-                     [56.0, 21.5, 56.4, 24.5], [65.0, 21.5, 65.4, 24.5],
+                     [56.0, 21.5, 56.4, 24.5],
                      # P6.3.1 : passage coursive / infirmerie (la cloison est désormais rendue sur toute la hauteur)
                      [45.5, 34.0, 47.5, 34.4], [52.0, 34.0, 54.0, 34.4]],
         # P6.2-C : vue depuis le tunnel = lignes de vue réelles à travers sa bouche (voir src/p6/vue_tunnel.gdshader)
@@ -301,11 +328,12 @@ def _colisee_base():
              "fond": "sombre", "plafond_h": 3.2, "camera": False},
             {"id": "S8", "nom": "Réserve", "rects": [PIECES_FERMEES["reserve"][0]], "voisins": [], "fond": "sombre",
              "plafond_h": 3.2, "camera": False},
-            {"id": "S9", "nom": "Couloir de sortie", "rects": [PIECES["couloir_sortie"][0]], "voisins": ["S6"], "fond": "sombre",
+            {"id": "S9", "nom": "Couloir de sortie", "rects": [PIECES["couloir_sortie"][0], PIECES["vestibule_sortie"][0],
+                                                              PIECES["seuil_sortie"][0]], "voisins": ["S6"], "fond": "sombre",
              "plafond_h": 3.4, "camera": False},
         ],
         # P6.2-D : lumière du jour aux bouches vers l'extérieur [x, y, h, énergie, portée] (tunnel sud : voir la scène)
-        "jours": [[64.4, 23.0, 2.2, 1.5, 6.5], [38.8, 23.0, 2.2, 1.2, 5.5]],
+        "jours": [[61.0, 29.4, 2.2, 1.5, 6.5], [38.8, 23.0, 2.2, 1.2, 5.5]],
         # [x, y, h, dx, dz] : applique murale ; (dx, dz) = décalage de la lumière vers la pièce (P6.2 : murs latéraux
         # et mur du fond des vestiaires, plus aucune lumière plaquée devant les casiers)
         "lumieres": [[16.2, 48.3, 2.3, 0.7, 0.0], [35.8, 54.0, 2.3, -0.7, 0.0], [23.4, 46.55, 2.5, 0.0, 0.6], [28.6, 46.55, 2.5, 0.0, 0.6],

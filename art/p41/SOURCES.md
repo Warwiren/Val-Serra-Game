@@ -8,3 +8,9 @@ Régénérable : `python3 tools/p41/decor_p41.py` (décor). **Rien n'est déclar
 | Dossier | Contenu | Source | Statut |
 |---|---|---|---|
 | `decor/` | 16 arbres / accessoires sans « plaque de sol » peinte ; 4 touffes d'herbe | `art/p4/` (packs P4_ENV_MODULES_v01, P4_PILOTES_TECH_v01) nettoyés ; touffes générées aux couleurs de SOL-01 | à tester |
+
+## P7.2 — retrait de l'avant-poste (accord du créateur, 23/11/2026)
+
+Retirés (historique Git, commit `d88eac4` ; régénérables par `tools/p41/decor_p41.py`) : arbres `arb0*`, rocher `roc01`,
+touffes `touffe_sol_*`, propres à l'avant-poste. Les accessoires nettoyés (caisses, tonneaux, lanternes…) restent :
+le Colisée les utilise.

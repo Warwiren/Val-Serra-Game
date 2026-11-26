@@ -1,5 +1,8 @@
 # P6.4 — Pilote de direction artistique HD-2D du Colisée
 
+> **P7.2 (nettoyage autorisé par le créateur)** : les médias de ce rapport (`docs/media/…`) ont été retirés du projet
+> actif. Ils restent dans l'historique Git : `git checkout d88eac4 -- docs/media/<dossier>`.
+
 Branche **`p6-4-colisee-direction-artistique`**, issue de `p6-3-2-colisee-corrections-finales`.
 
 C'est un **pilote**, en attente de votre validation artistique : rien n'est final et rien n'est généralisé. Le reste du

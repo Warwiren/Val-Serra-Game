@@ -192,7 +192,7 @@ const P642_ZONES := {
 ## pièce des données (id des murs « cmur_<pièce>_<côté><n> », id des sols) -> zone de matière
 const P642_PIECES := {"vestiaires": "vestiaires", "passage_vestiaires": "vestiaires", "salle_attente": "salle",
 	"tunnel_sud": "tunnel", "tunnel_est": "tunnel", "coursive": "coursive", "passage_infirmerie": "infirmerie",
-	"infirmerie": "infirmerie", "reserve": "reserve", "couloir_sortie": "sortie", "arene": "arene"}
+	"infirmerie": "infirmerie", "reserve": "reserve", "couloir_sortie": "sortie", "vestibule_sortie": "sortie", "seuil_sortie": "sortie", "arene": "arene"}
 ## secteur de la visibilité -> zone de matière (éléments posés entre deux pièces : linteaux)
 const P642_SECTEURS := {"S1": "vestiaires", "P12": "vestiaires", "S2": "salle", "S3": "tunnel", "S4": "arene",
 	"S5": "tunnel", "S6": "coursive", "S7": "infirmerie", "S8": "reserve", "S9": "sortie"}

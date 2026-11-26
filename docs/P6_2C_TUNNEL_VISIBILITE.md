@@ -1,5 +1,8 @@
 # P6.2-C — Caméra, tunnel et découverte de l'arène
 
+> **P7.2 (nettoyage autorisé par le créateur)** : les médias de ce rapport (`docs/media/…`) ont été retirés du projet
+> actif. Ils restent dans l'historique Git : `git checkout d88eac4 -- docs/media/<dossier>`.
+
 Branche **`p6-2c-tunnel-visibilite`**, issue de `p6-2b-transitions-interieurs` (conservée).
 
 Sont inchangés :

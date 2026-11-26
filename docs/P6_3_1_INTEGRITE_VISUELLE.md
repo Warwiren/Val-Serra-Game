@@ -1,5 +1,8 @@
 # P6.3.1 — Stabilisation visuelle du Colisée
 
+> **P7.2 (nettoyage autorisé par le créateur)** : les médias de ce rapport (`docs/media/…`) ont été retirés du projet
+> actif. Ils restent dans l'historique Git : `git checkout d88eac4 -- docs/media/<dossier>`.
+
 Branche **`p6-3-1-colisee-integrite-visuelle`**, issue de `p6-3-colisee-art`.
 
 Sont inchangés :

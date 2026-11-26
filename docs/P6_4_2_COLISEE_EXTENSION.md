@@ -1,5 +1,8 @@
 # P6.4.2 — Extension artistique du Colisée
 
+> **P7.2 (nettoyage autorisé par le créateur)** : les médias de ce rapport (`docs/media/…`) ont été retirés du projet
+> actif. Ils restent dans l'historique Git : `git checkout d88eac4 -- docs/media/<dossier>`.
+
 Branche **`p6-4-2-colisee-extension`**, issue de `p6-4-1-colisee-second-pilote`. Elle étend à tout le Colisée les choix
 retenus par le créateur après le second pilote (23/11/2026) :
 * **galerie B**, structure mixte (maçonnerie dominante, terrasse, parapets, arcades, bande couverte près des gradins) ;

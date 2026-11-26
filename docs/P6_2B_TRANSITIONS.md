@@ -1,5 +1,8 @@
 # P6.2-B — Transitions visuelles des intérieurs (vestiaires, passage, salle d'attente, tunnel)
 
+> **P7.2 (nettoyage autorisé par le créateur)** : les médias de ce rapport (`docs/media/…`) ont été retirés du projet
+> actif. Ils restent dans l'historique Git : `git checkout d88eac4 -- docs/media/<dossier>`.
+
 Branche **`p6-2b-transitions-interieurs`**, issue de `p6-2-colisee-circulation-visibilite` (conservée pour comparaison).
 Godot 4.7.2, ombres douces qualité 4, azimut 0° du Colisée, collisions, parcours, dialogues, progression, combat
 tutoriel et saut du tutoriel **inchangés**. F5 inchangé.

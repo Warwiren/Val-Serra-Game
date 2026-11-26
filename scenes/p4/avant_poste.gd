@@ -44,6 +44,9 @@ const CAMS := {
 	"P38": {"label": "P38 — perspective, plongée 38°, champ 22°, flou de distance léger", "pitch": 38.0, "persp": true, "fov": 22.0, "tilt": 0.3},
 	## P6.1 : réglage de démarrage de la forêt V07B (plongée 24°, azimut 20°, champ 30°) ; hors du cycle C de l'avant-poste
 	"P24": {"label": "P24 — perspective, plongée 24°, champ 30° (réglage de la forêt)", "pitch": 24.0, "persp": true, "fov": 30.0, "tilt": 0.3},
+	## P7.3 : caméra de la VILLE V0.6 seulement (prototype) : plongée abaissée, perspective / orthographique comparées
+	"V06": {"label": "V0.6 — perspective, plongée 11°, champ 30° (réglée par colisee.gd)", "pitch": 11.0, "persp": true, "fov": 30.0, "tilt": 0.5},
+	"V06O": {"label": "V0.6 — orthographique, même plongée (comparaison)", "pitch": 11.0, "persp": false, "tilt": 0.5},
 }
 const CAM_ORDER := ["P30", "B28", "P38"]
 const BANK_TINT := Color(0.86, 0.78, 0.86)        # berge BER-01 moins orangée (raccord avec le talus et l'eau)

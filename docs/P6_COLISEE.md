@@ -1,5 +1,8 @@
 # P6 — Colisée de Val'Serra : ouverture jouable (blockout et tutoriel narratif)
 
+> **P7.2 (nettoyage autorisé par le créateur)** : les médias de ce rapport (`docs/media/…`) ont été retirés du projet
+> actif. Ils restent dans l'historique Git : `git checkout d88eac4 -- docs/media/<dossier>`.
+
 Branche **`p6-colisee-ouverture`**, depuis `p5-3b-v3-hybride` @ `1f29e41` (terrain P5.3-B V3 hybride, ombres douces
 qualité 4). Godot **4.7.2**. Inventaire et allègement : [`P6_INVENTAIRE.md`](P6_INVENTAIRE.md).
 

@@ -80,4 +80,4 @@ func test_vorgane_exploration_grounded() -> void:
 	check(src.contains("res://art/p45/chars/vorgane/") and src.contains("_blob(foot, w * 1.15, 0.6)"), "Vorgane : nouvelles images et ombre de contact")
 	check(not DirAccess.dir_exists_absolute("res://art/p41/chars/vorgane"), "ancien Vorgane de profil retiré")
 	check_eq(ProjectSettings.get_setting("application/run/main_scene"), "res://ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn", "F5 : forêt V07B (décision du créateur, 15/11/2026)")
-	check(ResourceLoader.exists("res://scenes/p4/avant_poste.tscn"), "démo de l'avant-poste toujours présente (F6)")
+	check(not ResourceLoader.exists("res://scenes/p4/avant_poste.tscn"), "P7.2 : démo de l'avant-poste retirée (accord du créateur, 23/11/2026)")

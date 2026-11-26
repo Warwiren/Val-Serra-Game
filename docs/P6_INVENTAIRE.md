@@ -1,5 +1,8 @@
 # P6 — Inventaire du projet et allègement (étape A)
 
+> **P7.2 (nettoyage autorisé par le créateur)** : les médias de ce rapport (`docs/media/…`) ont été retirés du projet
+> actif. Ils restent dans l'historique Git : `git checkout d88eac4 -- docs/media/<dossier>`.
+
 Branche `p6-colisee-ouverture`, créée le 21/11/2026 depuis **`p5-3b-v3-hybride` @ `1f29e41`**
 (« P5.3-B : V3 hybride — matières V2, forme des zones mixtes de la V1 »), dernière base stable contenant le terrain
 **P5.3-B V3 hybride** et les **ombres douces qualité 4** (P5.3 étape A, `77e6f4b`, incluse).

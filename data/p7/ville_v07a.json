@@ -1,0 +1,2397 @@
+{
+ "project": "Val'Serra — Les Larmes d'Aether",
+ "stage": "P7.4 — Ville V0.7-A : micro-blockout semi-circulaire, caméras A / B comparées (EXPÉRIENCE, NON VALIDÉE)",
+ "godot_target": "4.7.2",
+ "_note": "Généré par tools/p7/build_ville_v07a.py — ne pas éditer à la main.",
+ "world": {
+  "axes": "x droite (est), y bas du plan (sud), h altitude",
+  "unit": "mètre",
+  "extent_m": [
+   140.0,
+   170.0
+  ],
+  "reference_native_px_per_m": 20
+ },
+ "checkpoints": [
+  {
+   "id": "porte_sud",
+   "name": "porte_sud",
+   "xy_m": [
+    60.0,
+    154.0
+   ],
+   "height_m": 0.0
+  },
+  {
+   "id": "guilde",
+   "name": "guilde",
+   "xy_m": [
+    50.0,
+    133.2
+   ],
+   "height_m": 0.0
+  },
+  {
+   "id": "pied_volee_a",
+   "name": "pied_volee_a",
+   "xy_m": [
+    59.0,
+    132.6
+   ],
+   "height_m": 0.0
+  },
+  {
+   "id": "palier_1",
+   "name": "palier_1",
+   "xy_m": [
+    62.0,
+    123.5
+   ],
+   "height_m": 1.75
+  },
+  {
+   "id": "haut_volee_b",
+   "name": "haut_volee_b",
+   "xy_m": [
+    65.0,
+    114.0
+   ],
+   "height_m": 3.5
+  },
+  {
+   "id": "place",
+   "name": "place",
+   "xy_m": [
+    50.0,
+    106.0
+   ],
+   "height_m": 3.5
+  },
+  {
+   "id": "colisee",
+   "name": "colisee",
+   "xy_m": [
+    29.5,
+    62.0
+   ],
+   "height_m": 3.5
+  },
+  {
+   "id": "pied_volee_c",
+   "name": "pied_volee_c",
+   "xy_m": [
+    63.0,
+    89.0
+   ],
+   "height_m": 3.5
+  },
+  {
+   "id": "palier_2",
+   "name": "palier_2",
+   "xy_m": [
+    67.0,
+    79.5
+   ],
+   "height_m": 5.75
+  },
+  {
+   "id": "terrasse",
+   "name": "terrasse",
+   "xy_m": [
+    71.0,
+    66.0
+   ],
+   "height_m": 8.0
+  },
+  {
+   "id": "chateau",
+   "name": "chateau",
+   "xy_m": [
+    70.0,
+    41.6
+   ],
+   "height_m": 8.0
+  },
+  {
+   "id": "ruelle_bas",
+   "name": "ruelle_bas",
+   "xy_m": [
+    82.0,
+    130.0
+   ],
+   "height_m": 0.0
+  },
+  {
+   "id": "chantier",
+   "name": "chantier",
+   "xy_m": [
+    88.0,
+    140.0
+   ],
+   "height_m": 0.0
+  }
+ ],
+ "assets": [
+  {
+   "id": "route_sud",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     57,
+     156
+    ],
+    [
+     63,
+     156
+    ],
+    [
+     63,
+     162
+    ],
+    [
+     57,
+     162
+    ]
+   ],
+   "height_m": 0.0,
+   "walkable": true
+  },
+  {
+   "id": "porte_sud",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     57,
+     150
+    ],
+    [
+     63,
+     150
+    ],
+    [
+     63,
+     156
+    ],
+    [
+     57,
+     156
+    ]
+   ],
+   "height_m": 0.0,
+   "walkable": true
+  },
+  {
+   "id": "placette_voyageurs",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     48,
+     132
+    ],
+    [
+     72,
+     132
+    ],
+    [
+     72,
+     150
+    ],
+    [
+     48,
+     150
+    ]
+   ],
+   "height_m": 0.0,
+   "walkable": true
+  },
+  {
+   "id": "rue_chantier",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     72,
+     136
+    ],
+    [
+     90,
+     136
+    ],
+    [
+     90,
+     144
+    ],
+    [
+     72,
+     144
+    ]
+   ],
+   "height_m": 0.0,
+   "walkable": true
+  },
+  {
+   "id": "ruelle",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     80,
+     125
+    ],
+    [
+     84,
+     125
+    ],
+    [
+     84,
+     136
+    ],
+    [
+     80,
+     136
+    ]
+   ],
+   "height_m": 0.0,
+   "walkable": true
+  },
+  {
+   "id": "palier_1",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     56,
+     121
+    ],
+    [
+     68,
+     121
+    ],
+    [
+     68,
+     126
+    ],
+    [
+     56,
+     126
+    ]
+   ],
+   "height_m": 1.75,
+   "walkable": true
+  },
+  {
+   "id": "balcon_palier",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     56,
+     115
+    ],
+    [
+     62,
+     115
+    ],
+    [
+     62,
+     121
+    ],
+    [
+     56,
+     121
+    ]
+   ],
+   "height_m": 3.5,
+   "walkable": true
+  },
+  {
+   "id": "belvedere_palier",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     62,
+     126
+    ],
+    [
+     68,
+     126
+    ],
+    [
+     68,
+     132
+    ],
+    [
+     62,
+     132
+    ]
+   ],
+   "height_m": 1.75,
+   "walkable": true
+  },
+  {
+   "id": "grande_place",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     30,
+     88
+    ],
+    [
+     72,
+     88
+    ],
+    [
+     72,
+     115
+    ],
+    [
+     30,
+     115
+    ]
+   ],
+   "height_m": 3.5,
+   "walkable": true
+  },
+  {
+   "id": "place_bras_est",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     72,
+     100
+    ],
+    [
+     86,
+     100
+    ],
+    [
+     86,
+     115
+    ],
+    [
+     72,
+     115
+    ]
+   ],
+   "height_m": 3.5,
+   "walkable": true
+  },
+  {
+   "id": "rue_colisee",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     14,
+     96
+    ],
+    [
+     30,
+     96
+    ],
+    [
+     30,
+     104
+    ],
+    [
+     14,
+     104
+    ]
+   ],
+   "height_m": 3.5,
+   "walkable": true
+  },
+  {
+   "id": "place_ouest",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     14,
+     104
+    ],
+    [
+     30,
+     104
+    ],
+    [
+     30,
+     115
+    ],
+    [
+     14,
+     115
+    ]
+   ],
+   "height_m": 3.5,
+   "walkable": true
+  },
+  {
+   "id": "parvis_colisee",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     -10,
+     70
+    ],
+    [
+     22,
+     70
+    ],
+    [
+     22,
+     104
+    ],
+    [
+     -10,
+     104
+    ]
+   ],
+   "height_m": 3.5,
+   "walkable": true
+  },
+  {
+   "id": "vestibule_colisee",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     24.0,
+     60.0
+    ],
+    [
+     26.5,
+     60.0
+    ],
+    [
+     26.5,
+     64.0
+    ],
+    [
+     24.0,
+     64.0
+    ]
+   ],
+   "height_m": 3.5,
+   "walkable": true
+  },
+  {
+   "id": "perron_colisee",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     26.5,
+     56
+    ],
+    [
+     36,
+     56
+    ],
+    [
+     36,
+     70
+    ],
+    [
+     26.5,
+     70
+    ]
+   ],
+   "height_m": 3.5,
+   "walkable": true
+  },
+  {
+   "id": "allee_colisee",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     22,
+     70
+    ],
+    [
+     30,
+     70
+    ],
+    [
+     30,
+     96
+    ],
+    [
+     22,
+     96
+    ]
+   ],
+   "height_m": 3.5,
+   "walkable": true
+  },
+  {
+   "id": "palier_2",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     60,
+     77
+    ],
+    [
+     74,
+     77
+    ],
+    [
+     74,
+     82
+    ],
+    [
+     60,
+     82
+    ]
+   ],
+   "height_m": 5.75,
+   "walkable": true
+  },
+  {
+   "id": "terrasse_haute",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     56,
+     50
+    ],
+    [
+     90,
+     50
+    ],
+    [
+     90,
+     71
+    ],
+    [
+     56,
+     71
+    ]
+   ],
+   "height_m": 8.0,
+   "walkable": true
+  },
+  {
+   "id": "avenue_chateau",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     66,
+     40.4
+    ],
+    [
+     74,
+     40.4
+    ],
+    [
+     74,
+     50
+    ],
+    [
+     66,
+     50
+    ]
+   ],
+   "height_m": 8.0,
+   "walkable": true
+  },
+  {
+   "id": "rue_haute_est",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     90,
+     58
+    ],
+    [
+     94,
+     58
+    ],
+    [
+     94,
+     64
+    ],
+    [
+     90,
+     64
+    ]
+   ],
+   "height_m": 8.0,
+   "walkable": true
+  },
+  {
+   "id": "pied_volee_a",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     56.0,
+     131.6
+    ],
+    [
+     62.0,
+     131.6
+    ],
+    [
+     62.0,
+     132.0
+    ],
+    [
+     56.0,
+     132.0
+    ]
+   ],
+   "height_m": 0.0,
+   "walkable": true
+  },
+  {
+   "id": "pied_volee_b",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     62.0,
+     120.6
+    ],
+    [
+     68.0,
+     120.6
+    ],
+    [
+     68.0,
+     121.0
+    ],
+    [
+     62.0,
+     121.0
+    ]
+   ],
+   "height_m": 1.75,
+   "walkable": true
+  },
+  {
+   "id": "pied_volee_c",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     60.0,
+     87.6
+    ],
+    [
+     66.0,
+     87.6
+    ],
+    [
+     66.0,
+     88.0
+    ],
+    [
+     60.0,
+     88.0
+    ]
+   ],
+   "height_m": 3.5,
+   "walkable": true
+  },
+  {
+   "id": "pied_volee_d",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     68.0,
+     76.6
+    ],
+    [
+     74.0,
+     76.6
+    ],
+    [
+     74.0,
+     77.0
+    ],
+    [
+     68.0,
+     77.0
+    ]
+   ],
+   "height_m": 5.75,
+   "walkable": true
+  },
+  {
+   "id": "pied_ruelle_escalier",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     80.0,
+     124.6
+    ],
+    [
+     84.0,
+     124.6
+    ],
+    [
+     84.0,
+     125.0
+    ],
+    [
+     80.0,
+     125.0
+    ]
+   ],
+   "height_m": 0.0,
+   "walkable": true
+  },
+  {
+   "id": "volee_a",
+   "category": "transition",
+   "bounds_xy_m": [
+    56.0,
+    126.0,
+    62.0,
+    132.0
+   ],
+   "bottom_h_m": 0.0,
+   "top_h_m": 1.75,
+   "risers": 11,
+   "tread_depth_m": 0.505
+  },
+  {
+   "id": "volee_b",
+   "category": "transition",
+   "bounds_xy_m": [
+    62.0,
+    115.0,
+    68.0,
+    121.0
+   ],
+   "bottom_h_m": 1.75,
+   "top_h_m": 3.5,
+   "risers": 11,
+   "tread_depth_m": 0.505
+  },
+  {
+   "id": "volee_c",
+   "category": "transition",
+   "bounds_xy_m": [
+    60.0,
+    82.0,
+    66.0,
+    88.0
+   ],
+   "bottom_h_m": 3.5,
+   "top_h_m": 5.75,
+   "risers": 14,
+   "tread_depth_m": 0.397
+  },
+  {
+   "id": "volee_d",
+   "category": "transition",
+   "bounds_xy_m": [
+    68.0,
+    71.0,
+    74.0,
+    77.0
+   ],
+   "bottom_h_m": 5.75,
+   "top_h_m": 8.0,
+   "risers": 14,
+   "tread_depth_m": 0.397
+  },
+  {
+   "id": "ruelle_escalier",
+   "category": "transition",
+   "bounds_xy_m": [
+    80.0,
+    115.0,
+    84.0,
+    125.0
+   ],
+   "bottom_h_m": 0.0,
+   "top_h_m": 3.5,
+   "risers": 21,
+   "tread_depth_m": 0.455
+  }
+ ],
+ "ajustements": {
+  "parametres": {
+   "pas_franchissable_m": 0.25,
+   "rayon_personnage_m": 0.28,
+   "vitesse_m_s": 2.2,
+   "vitesse_course_m_s": 3.6,
+   "ecart_compagnon_m": 1.0,
+   "assistance_escalier": 0.3
+  },
+  "escalier": {
+   "palier_bas_m": 0.22,
+   "palier_haut_m": 0.22
+  },
+  "decor_marge": [
+   -60.0,
+   -80.0,
+   200.0,
+   190.0
+  ],
+  "obstacles": [
+   {
+    "id": "bat_guilde",
+    "rect": [
+     32,
+     115,
+     56,
+     132
+    ],
+    "h": 0.0,
+    "haut": 9.0
+   },
+   {
+    "id": "bat_b_est",
+    "rect": [
+     68,
+     115,
+     80,
+     132
+    ],
+    "h": 0.0,
+    "haut": 6.0
+   },
+   {
+    "id": "bat_b_o_placette",
+    "rect": [
+     30,
+     132,
+     48,
+     150
+    ],
+    "h": 0.0,
+    "haut": 8.0
+   },
+   {
+    "id": "bat_b_e_placette",
+    "rect": [
+     72,
+     144,
+     96,
+     150
+    ],
+    "h": 0.0,
+    "haut": 1.2
+   },
+   {
+    "id": "bat_b_e_ruelle",
+    "rect": [
+     84,
+     115,
+     100,
+     136
+    ],
+    "h": 0.0,
+    "haut": 8.0
+   },
+   {
+    "id": "bat_b_chantier_n",
+    "rect": [
+     72,
+     132,
+     80,
+     136
+    ],
+    "h": 0.0,
+    "haut": 6.0
+   },
+   {
+    "id": "rempart_sud_o",
+    "rect": [
+     10,
+     152,
+     53,
+     155
+    ],
+    "h": 0.0,
+    "haut": 9.0
+   },
+   {
+    "id": "rempart_sud_e",
+    "rect": [
+     67,
+     152,
+     120,
+     155
+    ],
+    "h": 0.0,
+    "haut": 9.0
+   },
+   {
+    "id": "tour_sud_o",
+    "rect": [
+     53,
+     150,
+     57,
+     157
+    ],
+    "h": 0.0,
+    "haut": 12.0
+   },
+   {
+    "id": "tour_sud_e",
+    "rect": [
+     63,
+     150,
+     67,
+     157
+    ],
+    "h": 0.0,
+    "haut": 12.0
+   },
+   {
+    "id": "bat_echoppe_no",
+    "rect": [
+     30,
+     76,
+     44,
+     88
+    ],
+    "h": 3.5,
+    "haut": 0.6
+   },
+   {
+    "id": "bat_forge_armurerie",
+    "rect": [
+     44,
+     76,
+     60,
+     88
+    ],
+    "h": 3.5,
+    "haut": 4.0
+   },
+   {
+    "id": "bat_commerce_est",
+    "rect": [
+     74,
+     76,
+     86,
+     100
+    ],
+    "h": 3.5,
+    "haut": 7.0
+   },
+   {
+    "id": "socle_palier_2",
+    "rect": [
+     66,
+     82,
+     74,
+     88
+    ],
+    "h": 3.5,
+    "haut": 2.25
+   },
+   {
+    "id": "bat_b_porche_n",
+    "rect": [
+     24,
+     44,
+     40,
+     56
+    ],
+    "h": 3.5,
+    "haut": 6.0
+   },
+   {
+    "id": "bat_b_no_place",
+    "rect": [
+     36,
+     56,
+     40,
+     76
+    ],
+    "h": 3.5,
+    "haut": 0.6
+   },
+   {
+    "id": "bat_b_arriere_forge",
+    "rect": [
+     40,
+     71,
+     60,
+     76
+    ],
+    "h": 3.5,
+    "haut": 4.5
+   },
+   {
+    "id": "bat_b_parvis_o",
+    "rect": [
+     -24,
+     82,
+     -10,
+     104
+    ],
+    "h": 3.5,
+    "haut": 7.0
+   },
+   {
+    "id": "bat_b_parvis_s",
+    "rect": [
+     -10,
+     104,
+     14,
+     112
+    ],
+    "h": 3.5,
+    "haut": 1.2
+   },
+   {
+    "id": "bat_b_terrasse_o",
+    "rect": [
+     40,
+     44,
+     56,
+     71
+    ],
+    "h": 8.0,
+    "haut": 10.0
+   },
+   {
+    "id": "bat_b_terrasse_no",
+    "rect": [
+     56,
+     36,
+     66,
+     50
+    ],
+    "h": 8.0,
+    "haut": 11.0
+   },
+   {
+    "id": "bat_b_terrasse_ne",
+    "rect": [
+     74,
+     36,
+     90,
+     50
+    ],
+    "h": 8.0,
+    "haut": 11.0
+   },
+   {
+    "id": "bat_b_terrasse_e",
+    "rect": [
+     90,
+     64,
+     104,
+     72
+    ],
+    "h": 8.0,
+    "haut": 8.0
+   },
+   {
+    "id": "bat_b_terrasse_e2",
+    "rect": [
+     90,
+     44,
+     104,
+     58
+    ],
+    "h": 8.0,
+    "haut": 9.0
+   },
+   {
+    "id": "socle_palier_2b",
+    "rect": [
+     60,
+     71,
+     68,
+     77
+    ],
+    "h": 3.5,
+    "haut": 4.5
+   },
+   {
+    "id": "tour_chateau_o",
+    "rect": [
+     62,
+     36,
+     66,
+     42
+    ],
+    "h": 8.0,
+    "haut": 7.5
+   },
+   {
+    "id": "tour_chateau_e",
+    "rect": [
+     74,
+     36,
+     78,
+     42
+    ],
+    "h": 8.0,
+    "haut": 7.5
+   },
+   {
+    "id": "colisee_tranche_00",
+    "rect": [
+     -7.998,
+     30.0,
+     7.998,
+     32.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_01",
+    "rect": [
+     -13.555,
+     32.0,
+     13.555,
+     34.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_02",
+    "rect": [
+     -17.107,
+     34.0,
+     17.107,
+     36.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_03",
+    "rect": [
+     -19.765,
+     36.0,
+     19.765,
+     38.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_04",
+    "rect": [
+     -21.857,
+     38.0,
+     21.857,
+     40.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_05",
+    "rect": [
+     -23.537,
+     40.0,
+     23.537,
+     42.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_06",
+    "rect": [
+     -24.886,
+     42.0,
+     24.886,
+     44.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_07",
+    "rect": [
+     -25.957,
+     44.0,
+     25.957,
+     46.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_08",
+    "rect": [
+     -26.783,
+     46.0,
+     26.783,
+     48.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_09",
+    "rect": [
+     -27.386,
+     48.0,
+     27.386,
+     50.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_10",
+    "rect": [
+     -27.78,
+     50.0,
+     27.78,
+     52.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_11",
+    "rect": [
+     -27.976,
+     52.0,
+     27.976,
+     54.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_12",
+    "rect": [
+     -27.976,
+     54.0,
+     27.976,
+     56.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_13",
+    "rect": [
+     -27.78,
+     56.0,
+     27.78,
+     58.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_14",
+    "rect": [
+     -27.386,
+     58.0,
+     27.386,
+     60.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_15",
+    "rect": [
+     -26.783,
+     60.0,
+     24.0,
+     62.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_16",
+    "rect": [
+     -25.957,
+     62.0,
+     24.0,
+     64.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_17",
+    "rect": [
+     -24.886,
+     64.0,
+     24.886,
+     66.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_18",
+    "rect": [
+     -23.537,
+     66.0,
+     23.537,
+     68.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_19",
+    "rect": [
+     -21.857,
+     68.0,
+     21.857,
+     70.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_20",
+    "rect": [
+     -19.765,
+     70.0,
+     19.765,
+     72.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_21",
+    "rect": [
+     -17.107,
+     72.0,
+     17.107,
+     74.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_22",
+    "rect": [
+     -13.555,
+     74.0,
+     13.555,
+     76.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "colisee_tranche_23",
+    "rect": [
+     -7.998,
+     76.0,
+     7.998,
+     78.0
+    ],
+    "h": 3.5,
+    "haut": 18.0
+   },
+   {
+    "id": "gc_place_o",
+    "rect": [
+     14,
+     114.6,
+     56,
+     115
+    ],
+    "h": 3.5,
+    "haut": 1.0
+   },
+   {
+    "id": "gc_belvedere_s",
+    "rect": [
+     62,
+     131.6,
+     68,
+     132
+    ],
+    "h": 1.75,
+    "haut": 1.0
+   },
+   {
+    "id": "gc_balcon",
+    "rect": [
+     56,
+     120.6,
+     62,
+     121
+    ],
+    "h": 3.5,
+    "haut": 1.0
+   },
+   {
+    "id": "gc_palier_e",
+    "rect": [
+     67.6,
+     121,
+     68,
+     126
+    ],
+    "h": 1.75,
+    "haut": 1.0
+   },
+   {
+    "id": "gc_terrasse_o",
+    "rect": [
+     56,
+     70.6,
+     68,
+     71
+    ],
+    "h": 8.0,
+    "haut": 1.0
+   },
+   {
+    "id": "gc_terrasse_e",
+    "rect": [
+     74,
+     70.6,
+     90,
+     71
+    ],
+    "h": 8.0,
+    "haut": 1.0
+   },
+   {
+    "id": "gc_palier_2_o",
+    "rect": [
+     60,
+     77,
+     60.4,
+     82
+    ],
+    "h": 5.75,
+    "haut": 1.0
+   },
+   {
+    "id": "gc_place_bras_o",
+    "rect": [
+     72,
+     114.6,
+     80,
+     115
+    ],
+    "h": 3.5,
+    "haut": 1.0
+   },
+   {
+    "id": "gc_place_bras_e",
+    "rect": [
+     84,
+     114.6,
+     86,
+     115
+    ],
+    "h": 3.5,
+    "haut": 1.0
+   },
+   {
+    "id": "gc_place_e",
+    "rect": [
+     68,
+     114.6,
+     72,
+     115
+    ],
+    "h": 3.5,
+    "haut": 1.0
+   },
+   {
+    "id": "barriere_chantier",
+    "rect": [
+     89.4,
+     136,
+     90,
+     144
+    ],
+    "h": 0.0,
+    "haut": 1.2
+   },
+   {
+    "id": "barriere_route_sud",
+    "rect": [
+     57,
+     161.4,
+     63,
+     162
+    ],
+    "h": 0.0,
+    "haut": 1.1
+   },
+   {
+    "id": "fontaine",
+    "rect": [
+     42,
+     96,
+     48,
+     102
+    ],
+    "h": 3.5,
+    "haut": 1.0
+   },
+   {
+    "id": "porche_pile_no",
+    "rect": [
+     26.5,
+     57.0,
+     28.1,
+     58.6
+    ],
+    "h": 3.5,
+    "haut": 9.5
+   },
+   {
+    "id": "porche_pile_ne",
+    "rect": [
+     33.4,
+     57.0,
+     35.0,
+     58.6
+    ],
+    "h": 3.5,
+    "haut": 9.5
+   },
+   {
+    "id": "porche_pile_se",
+    "rect": [
+     33.4,
+     65.4,
+     35.0,
+     67.0
+    ],
+    "h": 3.5,
+    "haut": 9.5
+   },
+   {
+    "id": "porche_pile_so",
+    "rect": [
+     26.5,
+     65.4,
+     27.5,
+     67.0
+    ],
+    "h": 3.5,
+    "haut": 9.5
+   },
+   {
+    "id": "porche_mur_n",
+    "rect": [
+     28.1,
+     57.0,
+     33.4,
+     57.8
+    ],
+    "h": 3.5,
+    "haut": 9.5
+   },
+   {
+    "id": "porche_porte",
+    "rect": [
+     27.5,
+     66.2,
+     33.4,
+     66.4
+    ],
+    "h": 3.5,
+    "haut": 7.4
+   },
+   {
+    "id": "porche_arche_est",
+    "rect": [
+     34.6,
+     58.6,
+     35.0,
+     65.4
+    ],
+    "h": 3.5,
+    "haut": 9.5
+   }
+  ],
+  "entree": {
+   "xy": [
+    60.0,
+    154.0
+   ],
+   "h": 0.0
+  },
+  "sorties": [
+   {
+    "id": "portail_colisee_public",
+    "portail": "colisee_porte_publique",
+    "rect": [
+     24.0,
+     60.0,
+     25.0,
+     64.0
+    ],
+    "vers": "res://data/p6/colisee.json",
+    "porte": [
+     24.0,
+     60.0,
+     24.0,
+     64.0
+    ],
+    "arrivee": [
+     61.5,
+     23.0,
+     0.0
+    ],
+    "orientation": [
+     -1.0,
+     0.0
+    ]
+   }
+  ],
+  "p6": {
+   "nom": "Val'Serra — ville V0.7-A (micro-blockout, expérience)",
+   "zone": "ville",
+   "sols": {},
+   "portes": [
+    {
+     "id": "porte_chateau",
+     "rect": [
+      66.0,
+      40.0,
+      74.0,
+      40.4
+     ],
+     "type": "grille",
+     "marque": "fermee",
+     "h": 8.0,
+     "texte_ferme": "Porte du château — fermée. L'accès s'ouvrira plus tard dans l'histoire."
+    },
+    {
+     "id": "grille_rue_haute",
+     "rect": [
+      93.6,
+      58.0,
+      94.0,
+      64.0
+     ],
+     "type": "grille",
+     "marque": "fermee",
+     "h": 8.0,
+     "texte_ferme": "Rue haute — fermée pour l'instant (futur quartier)."
+    }
+   ],
+   "examens": [
+    {
+     "id": "ex_porte_sud",
+     "xy": [
+      60.0,
+      160.0
+     ],
+     "portee_m": 2.2,
+     "texte": "Porte sud — sortie de la ville (transition non reliée)."
+    },
+    {
+     "id": "ex_guilde",
+     "xy": [
+      50.0,
+      132.6
+     ],
+     "portee_m": 1.8,
+     "texte": "Guilde des Chasseurs (volume provisoire)."
+    },
+    {
+     "id": "ex_forge",
+     "xy": [
+      52.0,
+      88.6
+     ],
+     "portee_m": 1.8,
+     "texte": "Forge-armurerie (volume provisoire)."
+    },
+    {
+     "id": "ex_chantier",
+     "xy": [
+      88.6,
+      140.0
+     ],
+     "portee_m": 2.0,
+     "texte": "Chantier — la rue est barrée (futur quartier)."
+    },
+    {
+     "id": "ex_fontaine",
+     "xy": [
+      45.0,
+      102.6
+     ],
+     "portee_m": 1.8,
+     "texte": "Fontaine (repère provisoire)."
+    }
+   ],
+   "zones_nommees": [
+    {
+     "id": "placette_voyageurs",
+     "nom": "Placette des Voyageurs",
+     "rect": [
+      48.0,
+      132.0,
+      72.0,
+      150.0
+     ]
+    },
+    {
+     "id": "grande_place",
+     "nom": "Grande place",
+     "rect": [
+      30.0,
+      88.0,
+      86.0,
+      115.0
+     ]
+    },
+    {
+     "id": "parvis_colisee",
+     "nom": "Parvis du Colisée",
+     "rect": [
+      -10.0,
+      56.0,
+      34.0,
+      110.0
+     ]
+    },
+    {
+     "id": "terrasse_haute",
+     "nom": "Terrasse haute",
+     "rect": [
+      56.0,
+      40.4,
+      94.0,
+      71.0
+     ]
+    },
+    {
+     "id": "ruelle",
+     "nom": "Ruelle des Tonneliers",
+     "rect": [
+      72.0,
+      112.0,
+      90.0,
+      144.0
+     ]
+    }
+   ],
+   "camera_vue_dessus": [
+    -60.0,
+    -40.0,
+    140.0,
+    170.0
+   ],
+   "lumieres": [],
+   "ville": {
+    "version": "v07a",
+    "batiments": {
+     "bat_guilde": {
+      "categorie": "guilde",
+      "libelle": "Guilde des Chasseurs",
+      "toit": "2p"
+     },
+     "bat_b_est": {
+      "categorie": "residentiel_b",
+      "libelle": "",
+      "toit": "2p"
+     },
+     "bat_b_o_placette": {
+      "categorie": "residentiel",
+      "libelle": "",
+      "toit": "2p"
+     },
+     "bat_b_e_placette": {
+      "categorie": "residentiel_b",
+      "libelle": "",
+      "toit": ""
+     },
+     "bat_b_e_ruelle": {
+      "categorie": "residentiel",
+      "libelle": "",
+      "toit": "2p"
+     },
+     "bat_b_chantier_n": {
+      "categorie": "residentiel",
+      "libelle": "",
+      "toit": "2p"
+     },
+     "rempart_sud_o": {
+      "categorie": "rempart",
+      "libelle": "",
+      "toit": ""
+     },
+     "rempart_sud_e": {
+      "categorie": "rempart",
+      "libelle": "",
+      "toit": ""
+     },
+     "tour_sud_o": {
+      "categorie": "rempart",
+      "libelle": "",
+      "toit": ""
+     },
+     "tour_sud_e": {
+      "categorie": "rempart",
+      "libelle": "",
+      "toit": ""
+     },
+     "bat_echoppe_no": {
+      "categorie": "commerce",
+      "libelle": "",
+      "toit": ""
+     },
+     "bat_forge_armurerie": {
+      "categorie": "forge",
+      "libelle": "Forge-armurerie",
+      "toit": "2p"
+     },
+     "bat_commerce_est": {
+      "categorie": "commerce",
+      "libelle": "",
+      "toit": "2p"
+     },
+     "socle_palier_2": {
+      "categorie": "rempart",
+      "libelle": "",
+      "toit": ""
+     },
+     "bat_b_porche_n": {
+      "categorie": "residentiel_b",
+      "libelle": "",
+      "toit": "2p"
+     },
+     "bat_b_no_place": {
+      "categorie": "commerce",
+      "libelle": "",
+      "toit": ""
+     },
+     "bat_b_arriere_forge": {
+      "categorie": "residentiel_b",
+      "libelle": "",
+      "toit": "plat"
+     },
+     "bat_b_parvis_o": {
+      "categorie": "residentiel",
+      "libelle": "",
+      "toit": "2p"
+     },
+     "bat_b_parvis_s": {
+      "categorie": "residentiel_b",
+      "libelle": "",
+      "toit": ""
+     },
+     "bat_b_terrasse_o": {
+      "categorie": "civique",
+      "libelle": "",
+      "toit": "plat"
+     },
+     "bat_b_terrasse_no": {
+      "categorie": "residentiel_b",
+      "libelle": "",
+      "toit": "2p"
+     },
+     "bat_b_terrasse_ne": {
+      "categorie": "civique",
+      "libelle": "",
+      "toit": "2p"
+     },
+     "bat_b_terrasse_e": {
+      "categorie": "residentiel",
+      "libelle": "",
+      "toit": "2p"
+     },
+     "bat_b_terrasse_e2": {
+      "categorie": "residentiel_b",
+      "libelle": "",
+      "toit": "2p"
+     },
+     "socle_palier_2b": {
+      "categorie": "rempart",
+      "libelle": "",
+      "toit": ""
+     },
+     "tour_chateau_o": {
+      "categorie": "rempart",
+      "libelle": "",
+      "toit": ""
+     },
+     "tour_chateau_e": {
+      "categorie": "rempart",
+      "libelle": "",
+      "toit": ""
+     }
+    },
+    "paysage": [
+     {
+      "rect": [
+       96,
+       128,
+       116,
+       136
+      ],
+      "h": 0.0,
+      "haut": 7.0,
+      "toit": "2p"
+     },
+     {
+      "rect": [
+       96,
+       144,
+       118,
+       152
+      ],
+      "h": 0.0,
+      "haut": 8.0,
+      "toit": "2p"
+     },
+     {
+      "rect": [
+       118,
+       128,
+       136,
+       152
+      ],
+      "h": 0.0,
+      "haut": 6.0,
+      "toit": "2p"
+     },
+     {
+      "rect": [
+       8,
+       120,
+       30,
+       150
+      ],
+      "h": 0.0,
+      "haut": 7.0,
+      "toit": "2p"
+     },
+     {
+      "rect": [
+       8,
+       115,
+       30,
+       120
+      ],
+      "h": 0.0,
+      "haut": 2.5,
+      "toit": "2p"
+     },
+     {
+      "rect": [
+       100,
+       112,
+       120,
+       128
+      ],
+      "h": 0.0,
+      "haut": 9.0,
+      "toit": "2p"
+     },
+     {
+      "rect": [
+       -10,
+       120,
+       8,
+       150
+      ],
+      "h": 0.0,
+      "haut": 6.0,
+      "toit": "2p"
+     },
+     {
+      "rect": [
+       86,
+       76,
+       104,
+       100
+      ],
+      "h": 3.5,
+      "haut": 8.0,
+      "toit": "2p"
+     },
+     {
+      "rect": [
+       104,
+       80,
+       124,
+       104
+      ],
+      "h": 3.5,
+      "haut": 9.0,
+      "toit": "2p"
+     },
+     {
+      "rect": [
+       -6,
+       112,
+       14,
+       120
+      ],
+      "h": 3.5,
+      "haut": 5.0,
+      "toit": "2p"
+     },
+     {
+      "rect": [
+       86,
+       100,
+       104,
+       112
+      ],
+      "h": 3.5,
+      "haut": 6.0,
+      "toit": "2p"
+     },
+     {
+      "rect": [
+       104,
+       40,
+       124,
+       72
+      ],
+      "h": 8.0,
+      "haut": 10.0,
+      "toit": "2p"
+     },
+     {
+      "rect": [
+       124,
+       44,
+       140,
+       70
+      ],
+      "h": 8.0,
+      "haut": 8.0,
+      "toit": "2p"
+     },
+     {
+      "rect": [
+       20,
+       30,
+       40,
+       66
+      ],
+      "h": 8.0,
+      "haut": 11.0,
+      "toit": "2p"
+     },
+     {
+      "rect": [
+       94,
+       30,
+       114,
+       40
+      ],
+      "h": 8.0,
+      "haut": 9.0,
+      "toit": "2p"
+     }
+    ],
+    "masses": [
+     [
+      [
+       -160,
+       -300,
+       300,
+       115
+      ],
+      3.5
+     ],
+     [
+      [
+       56,
+       121,
+       68,
+       126
+      ],
+      1.75
+     ],
+     [
+      [
+       62,
+       126,
+       68,
+       132
+      ],
+      1.75
+     ],
+     [
+      [
+       56,
+       115,
+       62,
+       121
+      ],
+      3.5
+     ],
+     [
+      [
+       60,
+       77,
+       74,
+       82
+      ],
+      5.75
+     ],
+     [
+      [
+       40,
+       -300,
+       300,
+       71
+      ],
+      8.0
+     ]
+    ],
+    "volees": [
+     [
+      "volee_a",
+      56.0,
+      62.0,
+      126.0,
+      6.0,
+      0.0,
+      1.75
+     ],
+     [
+      "volee_b",
+      62.0,
+      68.0,
+      115.0,
+      6.0,
+      1.75,
+      3.5
+     ],
+     [
+      "volee_c",
+      60.0,
+      66.0,
+      82.0,
+      6.0,
+      3.5,
+      5.75
+     ],
+     [
+      "volee_d",
+      68.0,
+      74.0,
+      71.0,
+      6.0,
+      5.75,
+      8.0
+     ],
+     [
+      "ruelle_escalier",
+      80.0,
+      84.0,
+      115.0,
+      10.0,
+      0.0,
+      3.5
+     ]
+    ],
+    "niveaux": {
+     "bas": 0.0,
+     "median": 3.5,
+     "haut": 8.0
+    },
+    "colisee": {
+     "centre": [
+      0.0,
+      54.0
+     ],
+     "rayons": [
+      28.0,
+      24.0
+     ],
+     "h": 3.5,
+     "haut": 18.0,
+     "porte": [
+      26.5,
+      62.0
+     ],
+     "vestibule": [
+      24.0,
+      60.0,
+      26.5,
+      64.0
+     ],
+     "porte_cote": "est",
+     "propylee": {
+      "emprise": [
+       26.5,
+       57.0,
+       35.0,
+       67.0
+      ],
+      "piles": {
+       "no": [
+        26.5,
+        57.0,
+        28.1,
+        58.6
+       ],
+       "ne": [
+        33.4,
+        57.0,
+        35.0,
+        58.6
+       ],
+       "se": [
+        33.4,
+        65.4,
+        35.0,
+        67.0
+       ],
+       "so": [
+        26.5,
+        65.4,
+        27.5,
+        67.0
+       ]
+      },
+      "mur_n": [
+       28.1,
+       57.0,
+       33.4,
+       57.8
+      ]
+     },
+     "porte_battants": [
+      27.5,
+      66.2,
+      33.4,
+      66.4
+     ],
+     "porte_publique": {
+      "xy": [
+       30.45,
+       68.2
+      ],
+      "portee_m": 2.2,
+      "sortie": "portail_colisee_public",
+      "invite": "E  Entrer dans le Colisée"
+     }
+    },
+    "fontaine": [
+     42,
+     96,
+     48,
+     102
+    ],
+    "chateau": [
+     100.0,
+     -240.0
+    ],
+    "porte_sud": [
+     57.0,
+     63.0,
+     153.5
+    ],
+    "chantier": [
+     88.4,
+     136,
+     89.4,
+     144
+    ],
+    "points": {
+     "porte_sud": [
+      60.0,
+      154.0,
+      0.0
+     ],
+     "guilde": [
+      50.0,
+      133.2,
+      0.0
+     ],
+     "pied_volee_a": [
+      59.0,
+      132.6,
+      0.0
+     ],
+     "palier_1": [
+      62.0,
+      123.5,
+      1.75
+     ],
+     "haut_volee_b": [
+      65.0,
+      114.0,
+      3.5
+     ],
+     "place": [
+      50.0,
+      106.0,
+      3.5
+     ],
+     "colisee": [
+      29.5,
+      62.0,
+      3.5
+     ],
+     "pied_volee_c": [
+      63.0,
+      89.0,
+      3.5
+     ],
+     "palier_2": [
+      67.0,
+      79.5,
+      5.75
+     ],
+     "terrasse": [
+      71.0,
+      66.0,
+      8.0
+     ],
+     "chateau": [
+      70.0,
+      41.6,
+      8.0
+     ],
+     "ruelle_bas": [
+      82.0,
+      130.0,
+      0.0
+     ],
+     "chantier": [
+      88.0,
+      140.0,
+      0.0
+     ]
+    },
+    "zones_camera": [
+     {
+      "id": "revelation_colisee",
+      "rect": [
+       -10.0,
+       54.0,
+       72.0,
+       116.0
+      ],
+      "azimut_deg": -16.0,
+      "marge_m": 2.0
+     },
+     {
+      "id": "montee_chateau",
+      "rect": [
+       56.0,
+       40.0,
+       96.0,
+       85.0
+      ],
+      "azimut_deg": 12.0,
+      "marge_m": 2.0
+     }
+    ],
+    "arrivee_colisee": [
+     34.6,
+     68.8,
+     3.5
+    ],
+    "orientation_arrivee_colisee": [
+     1.0,
+     0.0
+    ]
+   }
+  }
+ }
+}
