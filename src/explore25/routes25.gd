@@ -946,6 +946,16 @@ static func _route_base(name: String) -> Array:
 				o7121.append({"do": "talk", "id": c[0] + "_fermeture"})
 				o7121.append({"do": "wait", "t": 1.6})
 			return o7121
+		"p7_7122_inspection":
+			# P7.12.2 — inspection de la montée civique (cohérence des portes, raccords) : points de vue de jeu
+			var o7i: Array = []
+			for c in [["i1_pied_c", 62.0, 90.5, 3.5], ["i2_palier_ouest", 60.0, 80.0, 5.75], ["i3_palier_est", 72.0, 79.5, 5.75],
+					["i4_haut_d", 72.0, 69.0, 8.0], ["i5_terrasse_ouest", 58.5, 62.0, 8.0], ["i6_terrasse_est", 86.0, 58.0, 8.0],
+					["i7_place_montee", 66.0, 97.0, 3.5]]:
+				o7i.append(_warp(c[1], c[2], c[3]))
+				o7i.append({"do": "wait", "t": 2.5})
+				o7i.append({"do": "snap", "id": c[0]})
+			return o7i
 		"p7_7121_escamotage":
 			# P7.12.1 — escamotage partiel (étages et toit seuls) : bords de la place au nord de la Guilde et de l'auberge
 			var o7e: Array = []

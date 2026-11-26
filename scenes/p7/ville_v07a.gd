@@ -68,7 +68,9 @@ func _masses() -> void:
 		sc._box_mesh(Vector3(r.get_center().x, h - 0.005, r.get_center().y), Vector3(r.size.x, 0.01, r.size.y), mat(_sol(h + 0.01).darkened(0.12), 1.0))
 		if r.size.x < 200.0:
 			sc._box_mesh(Vector3(r.get_center().x, h - 0.12, r.end.y + 0.12), Vector3(r.size.x, 0.24, 0.24), cordon)
-	# joues des volées (murets latéraux)
+	# joues des volées (murets latéraux) ; P7.12.2 : la V0.7-B les remplace par les murs d'échiffre de ses escaliers de pierre
+	if has_method("sans_joues") and call("sans_joues"):
+		return
 	for vo in v.get("volees", []):
 		var x0: float = vo[1]
 		var x1: float = vo[2]

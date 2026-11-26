@@ -25,6 +25,11 @@ const Civique := preload("res://scenes/p7/civique_p712.gd")
 var ci                                    # P7.12 : quartier civique et porte du château (scenes/p7/civique_p712.gd)
 
 
+## P7.12.2 : escaliers de pierre (volées A à D et ruelle) : les joues pleines du blockout ne sont plus dessinées.
+func sans_joues() -> bool:
+	return _civ().actif
+
+
 func _civ():
 	if ci == null:
 		ci = Civique.new(sc, self, _tr().a, _forge())

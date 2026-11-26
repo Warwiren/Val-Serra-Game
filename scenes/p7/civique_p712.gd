@@ -17,7 +17,7 @@ const AXE := 70.0
 const ARDOISE := Color(0.30, 0.31, 0.35)
 
 const TERRASSES := ["palier_2", "terrasse_haute", "avenue_chateau", "pied_volee_c", "pied_volee_d"]
-const VOLEES := ["volee_c", "volee_d"]
+const VOLEES := ["volee_a", "volee_b", "volee_c", "volee_d"]   # P7.12.2 : A et B aussi (murs d'échiffre, plus de joues pleines)
 const SOCLES := ["socle_palier_2", "socle_palier_2b", "bat_b_arriere_forge"]
 const GARDE_CORPS := ["gc_terrasse_o", "gc_terrasse_e", "gc_palier_2_o"]
 const ADMIN := "bat_administration"
@@ -110,7 +110,10 @@ func construit(e: Dictionary) -> void:
 		_socle(id, r, h0, h1)
 	elif id in GARDE_CORPS:
 		sc._static_box(sc._rect_center(r, h0, h1), Vector3(r.size.x, h1 - h0, r.size.y), sc.L_OBST)
-		_balustrade(r, h0, h1)
+		if id == "gc_palier_2_o":
+			_banquette(r, h0)                                    # P7.12.2 : contre le mur de la forge, pas de balustrade
+		else:
+			_balustrade(r, h0, h1)
 	elif id == ADMIN:
 		sc._static_box(sc._rect_center(r, h0, h1), Vector3(r.size.x, h1 - h0, r.size.y), sc.L_OBST)
 		_administration(r, h0, h1)
@@ -174,6 +177,12 @@ func _socle(id: String, r: Rect2, h0: float, h1: float) -> void:
 	if id == "socle_palier_2":
 		_blason(Archi.face(r, "s"), AXE - r.position.x, h0 + 1.25, 0.1)
 	a.fusionner(d0, "civique_" + id)
+	if id == "socle_palier_2b":
+		# P7.12.2 : son dessus (8 m, hors de la balustrade de la terrasse) se lisait comme une terrasse inaccessible :
+		# jardin suspendu planté, bordé d'une margelle
+		var dj: int = a.racine.get_child_count()
+		a.jardiniere(Rect2(r.position.x + 0.1, r.position.y + 0.5, r.size.x - 0.2, r.size.y - 0.6), h1)
+		a.fusionner(dj, "civique_jardin_socle_2b")
 
 
 ## Blason de Val'Serra (relief) : écu de gueules, bande d'or, chef d'azur, couronne de pierre ; cartouche.
@@ -247,7 +256,8 @@ func _administration(r: Rect2, h0: float, h1: float) -> void:
 		u += 3.1
 	_batiment_civique(ra, niv, {"e": fe.call([2.0, 5.6, 9.2])}, m["mur"], m["bossage"], true)
 	var fs_s: Array = fe.call(us_s)
-	fs_s.append([8.25, 9.75, h0, 10.9, 0.6, "porte"])                     # porte des données (x 49)
+	# P7.12.2 : la porte décorative des données (x 49) donnait sur le toit de l'arrière-forge (non praticable) : fenêtre
+	fs_s.append([8.45, 9.55, h0 + 1.3, h0 + 3.0, 0.15, "croisee"])
 	_batiment_civique(rb, niv, {"e": fe.call([2.0, 5.6, 9.2]), "s": fs_s}, m["mur"], m["bossage"], true)
 	# corps central : étages au-dessus du porche (porte-fenêtre sur balcon de pierre, croisée)
 	_batiment_civique(porche, [12.2, 15.4, h1], {"e": [[1.45, 2.75, 12.3, 14.9, 0.5, "cintree"], [1.6, 2.6, 15.8, 17.1, 0.12, "croisee"]]}, m["mur"], m["mur"], false)
@@ -354,7 +364,8 @@ func _garnir(f: Dictionary, u0: float, u1: float, bas: float, sp: float, rise: f
 		"archere":
 			pass
 		_:
-			a.boite(f, u0 - 0.22, u1 + 0.22, bas - 0.14, bas, -0.45, 0.16, m["taille_a"])
+			if not style.begins_with("porte_fenetre"):
+				a.boite(f, u0 - 0.22, u1 + 0.22, bas - 0.14, bas, -0.45, 0.16, m["taille_a"])
 			a.boite(f, u0 + 0.04, u1 - 0.04, bas + 0.04, crown - 0.04, -0.44, -0.435, m["vitre_chaude"] if style.ends_with("_l") else m["vitre"])
 			a.boite(f, uc - 0.05, uc + 0.05, bas, sp, -0.435, -0.36, m["taille_a"])
 			if style.begins_with("croisee") or style == "barreaux":
@@ -532,7 +543,7 @@ func _corps_de_garde(r: Rect2, h0: float, h1: float) -> void:
 	var d0: int = a.racine.get_child_count()
 	var top: float = NIV_GARDE[3]
 	var s := [[4.1, 5.9, h0, 10.6, 0.7, "porte"], [1.1, 2.3, 9.1, 10.9, 0.12, "croisee_l"], [7.7, 8.9, 9.1, 10.9, 0.12, "croisee"],
-		[1.15, 2.45, 12.8, 14.7, 0.65, "cintree"], [4.35, 5.65, 12.8, 14.7, 0.65, "cintree_l"], [7.55, 8.85, 12.8, 14.7, 0.65, "cintree"],
+		[1.15, 2.45, 12.8, 14.7, 0.65, "cintree"], [4.35, 5.65, 12.45, 14.7, 0.65, "porte_fenetre_l"], [7.55, 8.85, 12.8, 14.7, 0.65, "cintree"],
 		[1.4, 2.2, 16.35, 17.3, 0.1, "croisee"], [4.6, 5.4, 16.35, 17.3, 0.1, "croisee"], [7.8, 8.6, 16.35, 17.3, 0.1, "croisee"]]
 	var e := [[1.6, 2.7, 9.0, 10.8, 0.12, "croisee"], [4.6, 4.8, 9.2, 10.9, 0.06, "archere"],
 		[1.5, 2.8, 12.8, 14.7, 0.65, "cintree"], [5.4, 6.6, 12.8, 14.6, 0.12, "croisee"], [2.0, 2.3, 16.3, 17.4, 0.06, "archere"],
@@ -541,8 +552,9 @@ func _corps_de_garde(r: Rect2, h0: float, h1: float) -> void:
 	var fs := Archi.face(r, "s")
 	var fe := Archi.face(r, "e")
 	# couronnement (corbeaux, parapet, créneaux) en calcaire, sur un attique plein
-	for f2 in [fs, fe]:
-		_couronnement(f2, -0.3, float(f2["L"]) + 0.3, h1 - 1.0, 0.45, m["calcaire"])
+	# P7.12.2 : le couronnement est s'arrête au châtelet (y 40 : u 10) au lieu de le traverser
+	_couronnement(fs, -0.3, float(fs["L"]) + 0.3, h1 - 1.0, 0.45, m["calcaire"])
+	_couronnement(fe, -0.3, 9.9, h1 - 1.0, 0.45, m["calcaire"])
 	# porte principale : blason sous fronton, lanternes, balconnet de l'étage noble au-dessus
 	_blason(fs, 5.0, 11.75, 0.04)
 	a.boite(fs, 3.9, 6.1, 12.25, 12.4, 0.0, 0.2, m["taille_a"])
@@ -588,9 +600,9 @@ func _hotel_raccord(r: Rect2, h0: float, h1: float) -> void:
 	var s := [[2.15, 3.35, 9.0, 10.8, 0.12, "croisee"], [2.05, 3.45, 12.8, 14.7, 0.65, "cintree"], [2.35, 3.15, 16.35, 17.3, 0.1, "croisee"]]
 	_batiment_civique(rp, NIV_GARDE, {"o": o, "s": s}, m["calcaire"], m["bossage_c"], false)
 	a.box(Archi.centre(rp, top, top + 1.0), Vector3(rp.size.x, 1.0, rp.size.y), m["calcaire"])
-	for cote: String in ["o", "s"]:
-		var f2 := Archi.face(rp, cote)
-		_couronnement(f2, -0.3, float(f2["L"]) + 0.3, top + 1.0, 0.45, m["calcaire"])
+	# P7.12.2 : le couronnement ouest commence après le châtelet (y 40,5 : u 8,5)
+	_couronnement(Archi.face(rp, "o"), 8.5, rp.size.y + 0.3, top + 1.0, 0.45, m["calcaire"])
+	_couronnement(Archi.face(rp, "s"), -0.3, rp.size.x + 0.3, top + 1.0, 0.45, m["calcaire"])
 	var fo2 := Archi.face(rp, "o")
 	_blason(fo2, 13.3, 16.9, 0.04)
 	a.fusionner(d0, "civique_pavillon_hotel")
@@ -721,4 +733,12 @@ func _tour_chateau(base: Vector3, rayon: float, top: float) -> void:
 	_cyl(Vector3(base.x, top + 1.6 + 3.6, base.z), 0.0, rayon + 0.8, 7.2, m["ardoise_loin"], 16)
 	for hy: float in [base.y + 4.0, base.y + 8.0]:
 		a.box(Vector3(base.x, hy, base.z + rayon + 0.1), Vector3(0.2, 1.4, 0.1), m["sombre"])
+
+
+## P7.12.2 — Banquette de pierre adossée au mur de la forge (collision du garde-corps des données inchangée).
+func _banquette(r: Rect2, h0: float) -> void:
+	var d0: int = a.racine.get_child_count()
+	a.box(Archi.centre(r, h0, h0 + 0.42), Vector3(r.size.x, 0.42, r.size.y), m["taille_b"])
+	a.box(Archi.centre(r.grow(0.04), h0 + 0.42, h0 + 0.5), Vector3(r.size.x + 0.08, 0.08, r.size.y + 0.08), m["taille_a"])
+	a.fusionner(d0, "civique_banquette")
 
