@@ -1026,7 +1026,9 @@ func _build_porte_0(p: Dictionary) -> void:
 	var hp := float(p.get("h", 0.0))
 	_static_box(_rect_center(r, 0.0, 2.6), Vector3(r.size.x, 2.6, r.size.y), L_OBST)
 	world.solids.append({"id": p["id"], "kind": "rect", "rect": r, "h0": hp, "h1": hp + 2.6})
-	if p.get("type", "") == "grille":
+	if p.get("type", "") == "grille" and _ville != null and _ville.has_method("grille_dessinee") and not _ville.grille_dessinee(p):
+		pass                                               # P7.13 : grille retirée (la herse du châtelet ferme), collision gardée
+	elif p.get("type", "") == "grille":
 		var fer := StandardMaterial3D.new()
 		fer.albedo_color = Color(0.22, 0.22, 0.26)
 		fer.metallic = 0.6

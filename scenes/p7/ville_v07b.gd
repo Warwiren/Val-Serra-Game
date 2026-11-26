@@ -30,6 +30,12 @@ func sans_joues() -> bool:
 	return _civ().actif
 
 
+## P7.13 : la grille des données devant le château n'est plus dessinée quand la herse du châtelet est baissée (sa
+## collision et son texte « fermée » restent : c'est la herse qui ferme) ; --herse=relevee : état P7.12.2.
+func grille_dessinee(p: Dictionary) -> bool:
+	return not (str(p.get("id", "")) == "porte_chateau" and _civ().actif and _civ().herse_baissee())
+
+
 func _civ():
 	if ci == null:
 		ci = Civique.new(sc, self, _tr().a, _forge())

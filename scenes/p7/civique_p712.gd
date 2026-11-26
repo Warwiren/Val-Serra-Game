@@ -32,6 +32,11 @@ var fo                                  # forge (helpers Quaternius)
 var ref                                 # forge D (outils d'arcs : _mur_perce, _claveaux)
 var m := {}
 var actif := true
+var _herse := true                        # P7.13 : herse baissée (défaut) ; --herse=relevee : P7.12.2 (grille des données)
+
+
+func herse_baissee() -> bool:
+	return _herse
 
 
 func _init(scene, ville, archi, forge) -> void:
@@ -40,6 +45,7 @@ func _init(scene, ville, archi, forge) -> void:
 	a = archi
 	fo = forge
 	actif = str(scene._cli.get("civique", "1")) != "0"
+	_herse = str(scene._cli.get("herse", "baissee")) != "relevee"
 	if actif:
 		ref = Refonte.new(forge)
 		_matieres()
@@ -419,7 +425,36 @@ func _chatelet() -> void:
 	pv.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	ref._mur_perce(f, 0.0, 8.8, H2, top, -1.2, 0.0, [{"u0": uc - hs, "u1": uc + hs, "bas": H2, "spring": sp, "rise": hs - 0.01}], m["chateau"])
 	ref._claveaux(f, uc, sp, hs, hs - 0.01, 0.55, 15, -1.2, 0.1)
-	# herse RELEVÉE dans la voûte : seules ses pointes dépassent sous l'arc (bas à 13,2 m)
+	if _herse:
+		_herse_baissee(f, uc, hs, sp)
+	else:
+		_herse_relevee(f, uc, hs, sp)
+	_chatelet_suite(f, uc, hs, sp, top)
+
+
+## P7.13 — HERSE BAISSÉE dans la feuillure de l'arc (juste derrière le parement, y 39,8 -> 39,92) : elle ferme la porte à la
+## place de la grille des données (dont la collision reste). Treillis de chêne ferré à mailles larges (montants de 0,09 m tous
+## les 0,58 m, traverses de 0,09 m tous les 0,95 m : ≈ 76 % de vide) pour garder la rampe et le château lisibles au travers ;
+## pointes de fer au sol, coulisses de pierre dans les piédroits.
+func _herse_baissee(f: Dictionary, uc: float, hs: float, sp: float) -> void:
+	var x := uc - hs + 0.29
+	while x < uc + hs - 0.1:
+		var hb := sp + sqrt(maxf(0.0, hs * hs - pow(x - uc, 2.0))) - 0.03
+		a.boite(f, x - 0.045, x + 0.045, H2 + 0.16, hb, -0.2, -0.1, m["chene"])
+		a.boite(f, x - 0.032, x + 0.032, H2, H2 + 0.2, -0.185, -0.115, m["fer"])
+		x += 0.58
+	var y := H2 + 0.55
+	while y < sp + hs - 0.2:
+		var hw := sqrt(maxf(0.0, hs * hs - pow(maxf(y - sp, 0.0), 2.0)))
+		a.boite(f, uc - hw + 0.04, uc + hw - 0.04, y - 0.045, y + 0.045, -0.1, -0.02, m["chene"])
+		a.boite(f, uc - hw + 0.04, uc + hw - 0.04, y - 0.015, y + 0.015, -0.02, -0.005, m["fer"])
+		y += 0.95
+	for s: float in [-1.0, 1.0]:
+		a.boite(f, uc + s * hs - 0.12, uc + s * hs + 0.12, H2, sp, -0.26, -0.04, m["taille_b"])        # coulisses
+
+
+## P7.12.1 : herse RELEVÉE dans la voûte : seules ses pointes dépassent sous l'arc (comparaison : --herse=relevee).
+func _herse_relevee(f: Dictionary, uc: float, hs: float, sp: float) -> void:
 	var hbas := 15.0
 	var x := uc - hs + 0.25
 	while x < uc + hs - 0.1:
@@ -433,6 +468,9 @@ func _chatelet() -> void:
 		var hw := sqrt(maxf(0.0, hs * hs - pow(maxf(y - sp, 0.0), 2.0)))
 		a.boite(f, uc - hw + 0.05, uc + hw - 0.05, y - 0.06, y + 0.06, -0.62, -0.5, m["chene"])
 		y += 0.62
+
+
+func _chatelet_suite(f: Dictionary, uc: float, hs: float, sp: float, top: float) -> void:
 	# piédroits harpés (blocs de taille dans l'épaisseur), socle, cordon, blason, archères
 	var v := H2
 	var k := 0
