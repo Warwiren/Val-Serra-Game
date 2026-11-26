@@ -946,6 +946,24 @@ static func _route_base(name: String) -> Array:
 				o7121.append({"do": "talk", "id": c[0] + "_fermeture"})
 				o7121.append({"do": "wait", "t": 1.6})
 			return o7121
+		"p7_7122_terrasse":
+			# P7.12.2 — accès réel à la terrasse du belvédère : de la place, volée C, palier, entrée de plain-pied, tour des
+			# tables, poussées contre les balustrades sud et ouest (collisions), retour au palier
+			return [_warp(63.0, 90.0, 3.5), {"do": "wait", "t": 0.5},
+				_go(62.0, 84.0, "volée C", 0.4), _go(64.0, 80.5, "palier 2", 0.4), _go(70.0, 83.3, "terrasse : entrée", 0.3),
+				_go(66.9, 84.4, "terrasse : coin ouest", 0.3), _go(70.0, 84.4, "terrasse : passage nord", 0.3),
+				_go(73.1, 86.9, "terrasse : entre les tables", 0.35), _go(75.4, 83.2, "terrasse : coin est", 0.3),
+				_go(70.15, 84.2, "terrasse : couloir entre les tables", 0.25),
+				_push("balustrade sud (terrasse)", Vector2(0, 1), 2.0, {"max_y": 87.62, "min_y": 86.9}),
+				_go(70.0, 84.0, "terrasse : centre", 0.3), _push("balustrade ouest (terrasse)", Vector2(-1, 0), 2.0, {"min_x": 66.38, "max_x": 67.1}),
+				_go(70.0, 80.5, "retour au palier", 0.3)]
+		"p7_7122_terrasse_vues":
+			var o7v: Array = []
+			for c in [["v1_terrasse", 71.0, 84.2, 5.75], ["v2_terrasse_ouest", 67.5, 83.2, 5.75], ["v3_place", 70.0, 97.0, 3.5]]:
+				o7v.append(_warp(c[1], c[2], c[3]))
+				o7v.append({"do": "wait", "t": 2.5})
+				o7v.append({"do": "snap", "id": c[0]})
+			return o7v
 		"p7_7122_inspection":
 			# P7.12.2 — inspection de la montée civique (cohérence des portes, raccords) : points de vue de jeu
 			var o7i: Array = []

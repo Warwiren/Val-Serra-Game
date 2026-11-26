@@ -16,10 +16,10 @@ const H2 := 8.0
 const AXE := 70.0
 const ARDOISE := Color(0.30, 0.31, 0.35)
 
-const TERRASSES := ["palier_2", "terrasse_haute", "avenue_chateau", "pied_volee_c", "pied_volee_d"]
+const TERRASSES := ["palier_2", "terrasse_haute", "avenue_chateau", "pied_volee_c", "pied_volee_d", "terrasse_cafe"]
 const VOLEES := ["volee_a", "volee_b", "volee_c", "volee_d"]   # P7.12.2 : A et B aussi (murs d'échiffre, plus de joues pleines)
 const SOCLES := ["socle_palier_2", "socle_palier_2b", "bat_b_arriere_forge"]
-const GARDE_CORPS := ["gc_terrasse_o", "gc_terrasse_e", "gc_palier_2_o"]
+const GARDE_CORPS := ["gc_terrasse_o", "gc_terrasse_e", "gc_palier_2_o", "gc_cafe_s", "gc_cafe_o"]
 const ADMIN := "bat_administration"
 const GARDE := "bat_b_terrasse_no"        # corps de garde du châtelet (flanc ouest de l'avenue)
 const PORTES_DECO := {"bat_administration": "s", "bat_b_terrasse_no": "s"}
@@ -146,6 +146,8 @@ func _terrasse(id: String, r: Rect2, h0: float, h1: float) -> void:
 			y -= 2.4
 	if id == "terrasse_haute":
 		a.box(Vector3(r.get_center().x, h1 + 0.005, r.end.y - 0.45), Vector3(r.size.x, 0.008, 0.9), m["taille_b"])
+	if id == "terrasse_cafe":
+		_facade_soutenement(r, H1, h1, ["s", "o"], true)
 	a.fusionner(d0, "civique_" + id)
 
 
@@ -164,18 +166,7 @@ func _socle(id: String, r: Rect2, h0: float, h1: float) -> void:
 			faces = ["s", "o"]
 		"bat_b_arriere_forge":
 			faces = ["e"]
-	for cote: String in faces:
-		var f := Archi.face(r, cote)
-		var L: float = f["L"]
-		a.boite(f, -0.06, L + 0.06, h0, h0 + 0.5, 0.0, 0.1, m["taille_b"])                # soubassement
-		a.boite(f, -0.08, L + 0.08, h1 - 0.42, h1 - 0.3, 0.0, 0.1, m["taille_a"])         # cordon
-		a.boite(f, -0.1, L + 0.1, h1 - 0.12, h1 + 0.06, 0.0, 0.14, m["taille_a"])         # couronnement
-		var n := maxi(1, int(round(L / 3.2)))
-		for i in range(1, n):
-			var u := L * i / n
-			a.boite(f, u - 0.32, u + 0.32, h0 + 0.5, h1 - 0.42, 0.0, 0.08, m["taille_b"])  # pilastre
-	if id == "socle_palier_2":
-		_blason(Archi.face(r, "s"), AXE - r.position.x, h0 + 1.25, 0.1)
+	_facade_soutenement(r, h0, h1, faces, id == "socle_palier_2")
 	a.fusionner(d0, "civique_" + id)
 	if id == "socle_palier_2b":
 		# P7.12.2 : son dessus (8 m, hors de la balustrade de la terrasse) se lisait comme une terrasse inaccessible :
@@ -741,4 +732,56 @@ func _banquette(r: Rect2, h0: float) -> void:
 	a.box(Archi.centre(r, h0, h0 + 0.42), Vector3(r.size.x, 0.42, r.size.y), m["taille_b"])
 	a.box(Archi.centre(r.grow(0.04), h0 + 0.42, h0 + 0.5), Vector3(r.size.x + 0.08, 0.08, r.size.y + 0.08), m["taille_a"])
 	a.fusionner(d0, "civique_banquette")
+
+
+## Façade d'un mur de soutènement : soubassement, cordon, couronnement, pilastres plats ; blason de la ville sur l'axe.
+func _facade_soutenement(r: Rect2, h0: float, h1: float, faces: Array, blason: bool) -> void:
+	for cote: String in faces:
+		var f := Archi.face(r, cote)
+		var L: float = f["L"]
+		a.boite(f, -0.06, L + 0.06, h0, h0 + 0.5, 0.0, 0.1, m["taille_b"])                # soubassement
+		a.boite(f, -0.08, L + 0.08, h1 - 0.42, h1 - 0.3, 0.0, 0.1, m["taille_a"])         # cordon
+		a.boite(f, -0.1, L + 0.1, h1 - 0.12, h1 + 0.06, 0.0, 0.14, m["taille_a"])         # couronnement
+		var n := maxi(1, int(round(L / 3.2)))
+		for i in range(1, n):
+			var u := L * i / n
+			a.boite(f, u - 0.32, u + 0.32, h0 + 0.5, h1 - 0.42, 0.0, 0.08, m["taille_b"])  # pilastre
+	if blason:
+		_blason(Archi.face(r, "s"), AXE - r.position.x, h0 + 1.25, 0.1)
+
+
+# ------------------------------------------------------------------------------------------------ P7.12.2 : terrasse du belvédère
+## Table de la terrasse (collision des données : carré de 1,3 m, 0,8 m) : guéridon de fonte à plateau de pierre, trois
+## tabourets (Quaternius, déjà importés) ; pots fleuris aux angles de la balustrade (affichage, au pied du garde-corps).
+func cafe(r: Rect2, h0: float) -> void:
+	var d0: int = a.racine.get_child_count()
+	var c := r.get_center()
+	_cyl(Vector3(c.x, h0 + 0.02, c.y), 0.22, 0.26, 0.04, m["fer"], 10)
+	_cyl(Vector3(c.x, h0 + 0.38, c.y), 0.05, 0.05, 0.7, m["fer"], 8)
+	_cyl(Vector3(c.x, h0 + 0.75, c.y), 0.42, 0.42, 0.05, m["taille_a"], 16)
+	a.fusionner(d0, "civique_cafe_table")
+	var d1: int = a.racine.get_child_count()
+	for k in 3:
+		var an := TAU * (k + 0.25) / 3.0 + c.x
+		fo._modele("fp/Stool", Vector3(c.x + cos(an) * 0.52, h0, c.y + sin(an) * 0.52), -an, Vector3.ONE * 0.85)
+	fo._fusion_gltf(d1, "civique_cafe_tabourets")
+	if c.x < 69.0:
+		_pots()
+
+
+func _pots() -> void:
+	var d0: int = a.racine.get_child_count()
+	var terre: Material = a.plein(Color(0.62, 0.36, 0.24), 0.85)
+	var feuilles := [a.plein(Color(0.30, 0.42, 0.22)), a.plein(Color(0.38, 0.50, 0.26))]
+	var fleurs := [a.plein(Color(0.85, 0.30, 0.32)), a.plein(Color(0.92, 0.80, 0.36)), a.plein(Color(0.70, 0.45, 0.78))]
+	var h := 5.75
+	for p in [Vector2(66.8, 87.1), Vector2(75.5, 87.1), Vector2(66.8, 82.9)]:
+		_cyl(Vector3(p.x, h + 0.22, p.y), 0.3, 0.22, 0.44, terre, 12)
+		_cyl(Vector3(p.x, h + 0.46, p.y), 0.34, 0.31, 0.06, terre, 12)
+		for k in 5:
+			var an := TAU * k / 5.0
+			var b: MeshInstance3D = a.box(Vector3(p.x + cos(an) * 0.13, h + 0.6 + (k % 2) * 0.08, p.y + sin(an) * 0.13), Vector3(0.26, 0.22, 0.26), feuilles[k % 2])
+			b.rotation.y = an
+			a.box(Vector3(p.x + cos(an) * 0.18, h + 0.74 + (k % 2) * 0.06, p.y + sin(an) * 0.18), Vector3(0.08, 0.06, 0.08), fleurs[k % 3])
+	a.fusionner(d0, "civique_cafe_pots")
 

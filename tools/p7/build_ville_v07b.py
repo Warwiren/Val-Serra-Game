@@ -110,6 +110,8 @@ def praticable():
     s.append(surface("passage_faubourgs", rect(-18, 92, -10, 100), H1))              # B : vers les faubourgs (caravane)
     # --- montée haute et terrasse (5,75 / 8 m)
     s.append(surface("palier_2", rect(58, 77, 76, 82), HP2))
+    # P7.12.2 : le socle à l'est de la volée C devient une petite terrasse praticable (accès de plain-pied depuis le palier 2)
+    s.append(surface("terrasse_cafe", rect(66, 82, 76, 88), HP2))
     s.append(surface("terrasse_haute", rect(56, 50, 90, 71), H2))
     s.append(surface("avenue_chateau", rect(66, 40.4, 74, 50), H2))
     # pieds des volées (le palier bas du socle n'a pas de dessous physique)
@@ -142,7 +144,7 @@ BATIMENTS = [
     ("forge_armurerie", rect(44, 76, 58, 88), H1, 4.0, "forge", "Forge-armurerie", "2p"),    # façade sud
     ("boutique_fournitures", rect(76, 76, 88, 88), H1, 5.0, "commerce", "Boutique de fournitures", "2p"),   # façade sud (recoin)
     ("commerce_e2", rect(80, 88, 88, 100), H1, 6.0, "commerce", "", "2p"),
-    ("socle_palier_2", rect(66, 82, 76, 88), H1, HP2 - H1, "rempart", "", ""),
+    # P7.12.2 : socle_palier_2 (66..76 × 82..88) -> surface praticable « terrasse_cafe » (voir praticable())
     ("b_porche_n", rect(24, 44, 40, 56), H1, 6.0, "residentiel_b", "", "2p"),            # ferme le perron au nord
     ("b_no_place", rect(36, 56, 40, 76), H1, 0.6, "commerce", "", ""),         # P7.4.2 : étals bas (caméra B au-dessus)
     ("b_arriere_forge", rect(40, 71, 58, 76), H1, 4.5, "residentiel_b", "", "plat"),        # contre le mur de la terrasse
@@ -212,6 +214,15 @@ def colisee_tranches(n=24):
     return out
 
 
+# P7.12.2 : terrasse du belvédère (petit café de quartier, sans commerce) : tables et emplacements de PNJ (non implémentés)
+CAFE_TABLES = [(68.3, 85.7), (71.6, 86.1), (74.6, 85.4)]
+EMPLACEMENTS_PNJ = [
+    {"id": "cafe_assis_1", "xy": [69.0, 85.7], "h": HP2, "pose": "assis", "regard": [-1.0, 0.0], "lieu": "terrasse_cafe"},
+    {"id": "cafe_assis_2", "xy": [71.6, 86.8], "h": HP2, "pose": "assis", "regard": [0.0, -1.0], "lieu": "terrasse_cafe"},
+    {"id": "cafe_debout_3", "xy": [73.2, 87.1], "h": HP2, "pose": "debout, accoudé à la balustrade", "regard": [0.0, 1.0], "lieu": "terrasse_cafe"},
+]
+
+
 def construire():
     assets = praticable()
     obstacles = []
@@ -227,6 +238,8 @@ def construire():
         ("gc_terrasse_o", rect(56, 70.6, 68, 71), H2), ("gc_terrasse_e", rect(76, 70.6, 90, 71), H2),
         ("gc_palier_2_o", rect(58, 77, 58.4, 82), HP2), ("gc_place_bras_o", rect(72, 114.6, 80, 115), H1),
         ("gc_place_e", rect(68, 114.6, 72, 115), H1),
+        # P7.12.2 : balustrades de la terrasse du belvédère (bord sud sur la place, bord ouest sur la volée C)
+        ("gc_cafe_s", rect(66, 87.6, 76, 88), HP2), ("gc_cafe_o", rect(66, 82.4, 66.4, 87.6), HP2),
     ]
     for gid, r, h in gc:
         obstacles.append({"id": gid, "rect": r, "h": h, "haut": 1.0})
@@ -243,6 +256,10 @@ def construire():
     obstacles.append({"id": "decor_guerite_e", "rect": rect(72.4, 41.0, 74.0, 42.6), "h": H2, "haut": 3.0})
     obstacles.append({"id": "decor_garde_o", "rect": rect(67.9, 41.6, 68.6, 42.3), "h": H2, "haut": 1.9})
     obstacles.append({"id": "decor_garde_e", "rect": rect(71.4, 41.6, 72.1, 42.3), "h": H2, "haut": 1.9})
+    # P7.12.2 : terrasse du belvédère : trois tables et leurs chaises (collision basse ; passage de 2,6 m au nord, 1,5 m
+    # entre les tables)
+    for i, (cx, cy) in enumerate(CAFE_TABLES):
+        obstacles.append({"id": "decor_cafe_%d" % (i + 1), "rect": rect(cx - 0.65, cy - 0.65, cx + 0.65, cy + 0.65), "h": HP2, "haut": 0.8})
     # P7.4.2 : propylée de l'entrée publique (avant-corps devant la porte est) : quatre piles et un mur nord. Arche EST
     # (axe de la porte) et arche SUD (vers l'allée d'approche, face caméra) ; dessin dans scenes/p7/ville_v07a.gd
     for pid, r in PROPYLEE["piles"].items():
@@ -274,6 +291,7 @@ def construire():
         {"id": "ex_caravane", "xy": [-12.8, 96.0], "portee_m": 2.0, "texte": "Une caravane bloque le passage vers les faubourgs — on décharge. (Futur secteur de missions.)"},
         {"id": "ex_garde_chateau", "xy": [70.0, 43.6], "portee_m": 2.0, "texte": "« Halte. Le quartier du château est fermé au public pour l'instant. »"},
         {"id": "ex_hotel_de_ville", "xy": [83.0, 50.9], "portee_m": 1.8, "texte": "Hôtel de ville — grand portail. (Intérieur : instance à venir.)"},
+        {"id": "ex_terrasse_cafe", "xy": [70.0, 83.4], "portee_m": 1.8, "texte": "La terrasse du belvédère : quelques tables où l'on vient bavarder en regardant la grande place."},
         {"id": "ex_fontaine", "xy": [45.0, 102.6], "portee_m": 1.8, "texte": "La fontaine de la grande place : l'eau descend de la vasque haute dans la vasque basse, puis dans le bassin."},
     ]
     zones = [
@@ -281,6 +299,7 @@ def construire():
         {"id": "grande_place", "nom": "Grande place", "rect": [30.0, 88.0, 86.0, 115.0]},
         {"id": "parvis_colisee", "nom": "Parvis du Colisée", "rect": [-10.0, 56.0, 34.0, 110.0]},
         {"id": "terrasse_haute", "nom": "Terrasse civique", "rect": [56.0, 40.4, 94.0, 71.0]},
+        {"id": "terrasse_cafe", "nom": "Terrasse du belvédère", "rect": [66.0, 82.0, 76.0, 88.0]},
         {"id": "passage_faubourgs", "nom": "Passage des Faubourgs", "rect": [-18.0, 92.0, -10.0, 100.0]},
         {"id": "ruelle", "nom": "Ruelle des Tonneliers", "rect": [72.0, 112.0, 90.0, 144.0]},
     ]
@@ -350,6 +369,7 @@ def construire():
                     # P7.8 : AXE DU CHÂTEAU RÉSERVÉ (décision du 25/11/2026) : vue droite et montante depuis la grande place vers
                     # une future porte fortifiée centrée en x 70 (y 40). Le château n'est pas construit. Dans le couloir, aucun
                     # nouveau volume ne doit dépasser la ligne de vue (outil tools/p7/camera_volumes_p76.py : contrôle « axe »).
+                    "emplacements_pnj": EMPLACEMENTS_PNJ,
                     "axe_chateau": {"x": 70.0, "largeur_voie": 4.0, "couloir": rect(66, 40, 74, 115), "porte": [70.0, 40.0, H2],
                                     "oeil": [70.0, 110.0, H1 + 1.6], "porte_haut_m": 7.0},
                     "chateau": [70.0, -240.0],           # P7.12 : silhouette du château centrée sur l'axe (x 70) de la porte fortifiée

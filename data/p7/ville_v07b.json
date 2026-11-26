@@ -637,6 +637,30 @@
    "walkable": true
   },
   {
+   "id": "terrasse_cafe",
+   "category": "surface",
+   "polygon_xy_m": [
+    [
+     66,
+     82
+    ],
+    [
+     76,
+     82
+    ],
+    [
+     76,
+     88
+    ],
+    [
+     66,
+     88
+    ]
+   ],
+   "height_m": 5.75,
+   "walkable": true
+  },
+  {
    "id": "terrasse_haute",
    "category": "surface",
    "polygon_xy_m": [
@@ -1059,17 +1083,6 @@
     ],
     "h": 3.5,
     "haut": 6.0
-   },
-   {
-    "id": "socle_palier_2",
-    "rect": [
-     66,
-     82,
-     76,
-     88
-    ],
-    "h": 3.5,
-    "haut": 2.25
    },
    {
     "id": "bat_b_porche_n",
@@ -1600,6 +1613,28 @@
     "haut": 1.0
    },
    {
+    "id": "gc_cafe_s",
+    "rect": [
+     66,
+     87.6,
+     76,
+     88
+    ],
+    "h": 5.75,
+    "haut": 1.0
+   },
+   {
+    "id": "gc_cafe_o",
+    "rect": [
+     66,
+     82.4,
+     66.4,
+     87.6
+    ],
+    "h": 5.75,
+    "haut": 1.0
+   },
+   {
     "id": "barriere_chantier",
     "rect": [
      89.4,
@@ -1730,6 +1765,39 @@
     ],
     "h": 8.0,
     "haut": 1.9
+   },
+   {
+    "id": "decor_cafe_1",
+    "rect": [
+     67.65,
+     85.05,
+     68.95,
+     86.35
+    ],
+    "h": 5.75,
+    "haut": 0.8
+   },
+   {
+    "id": "decor_cafe_2",
+    "rect": [
+     70.95,
+     85.45,
+     72.25,
+     86.75
+    ],
+    "h": 5.75,
+    "haut": 0.8
+   },
+   {
+    "id": "decor_cafe_3",
+    "rect": [
+     73.95,
+     84.75,
+     75.25,
+     86.05
+    ],
+    "h": 5.75,
+    "haut": 0.8
    },
    {
     "id": "porche_pile_no",
@@ -2056,6 +2124,15 @@
      "texte": "Hôtel de ville — grand portail. (Intérieur : instance à venir.)"
     },
     {
+     "id": "ex_terrasse_cafe",
+     "xy": [
+      70.0,
+      83.4
+     ],
+     "portee_m": 1.8,
+     "texte": "La terrasse du belvédère : quelques tables où l'on vient bavarder en regardant la grande place."
+    },
+    {
      "id": "ex_fontaine",
      "xy": [
       45.0,
@@ -2104,6 +2181,16 @@
       40.4,
       94.0,
       71.0
+     ]
+    },
+    {
+     "id": "terrasse_cafe",
+     "nom": "Terrasse du belvédère",
+     "rect": [
+      66.0,
+      82.0,
+      76.0,
+      88.0
      ]
     },
     {
@@ -2286,11 +2373,6 @@
       "categorie": "commerce",
       "libelle": "",
       "toit": "2p"
-     },
-     "socle_palier_2": {
-      "categorie": "rempart",
-      "libelle": "",
-      "toit": ""
      },
      "bat_b_porche_n": {
       "categorie": "residentiel_b",
@@ -2904,6 +2986,50 @@
      96,
      48,
      102
+    ],
+    "emplacements_pnj": [
+     {
+      "id": "cafe_assis_1",
+      "xy": [
+       69.0,
+       85.7
+      ],
+      "h": 5.75,
+      "pose": "assis",
+      "regard": [
+       -1.0,
+       0.0
+      ],
+      "lieu": "terrasse_cafe"
+     },
+     {
+      "id": "cafe_assis_2",
+      "xy": [
+       71.6,
+       86.8
+      ],
+      "h": 5.75,
+      "pose": "assis",
+      "regard": [
+       0.0,
+       -1.0
+      ],
+      "lieu": "terrasse_cafe"
+     },
+     {
+      "id": "cafe_debout_3",
+      "xy": [
+       73.2,
+       87.1
+      ],
+      "h": 5.75,
+      "pose": "debout, accoudé à la balustrade",
+      "regard": [
+       0.0,
+       1.0
+      ],
+      "lieu": "terrasse_cafe"
+     }
     ],
     "axe_chateau": {
      "x": 70.0,

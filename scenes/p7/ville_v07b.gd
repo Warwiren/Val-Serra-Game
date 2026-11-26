@@ -159,6 +159,8 @@ func construit(e: Dictionary) -> bool:
 			_guerite(r, h0)
 		elif id.begins_with("decor_garde"):
 			_garde(r, h0)
+		elif id.begins_with("decor_cafe") and _civ().actif:
+			_civ().cafe(r, h0)                                # P7.12.2 : terrasse du belvédère
 		return true
 	return super(e)
 
