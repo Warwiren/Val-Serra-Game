@@ -267,6 +267,13 @@
   architecturale de Val'Serra.** Correctif local (commit distinct) : pignons assis sur la corniche latérale (0,42 m), angles de
   corniche d'équerre, rampants de rive en pierre, appentis couvert de tuiles canal (matière « tuiles » du Colisée, UV en mètres)
   sous les corbeaux. Ne plus refondre la forge.
+- **P7.11 (branche `p7-11-boutique`, `docs/P7_11_BOUTIQUE.md`)** : passe artistique de la boutique de fournitures, forge D comme
+  référence de qualité. `scenes/p7/boutique_p711.gd` (défaut ; `--boutique=710` ou F6 `ville_v07b_boutique_710.tscn` = P7.10 ;
+  `--boutique=0` : blockout) : RDC de pierre en épaisseur, devanture de bois peint (poteaux = piédroits à collision), porte vitrée
+  en embrasure, étages en pan de bois sur encorbellement (0,4 m) aux hourdis miel, pignon sur rue, potence de grenier, enseigne
+  au flacon ; étal (seule collision ajoutée) déplacé à l'angle ouest (x 73,9 -> 76,45, y 88,05 -> 89,05), hors de l'ombre de
+  `bat_commerce_e2`. Éléments rattachés au volume d'escamotage par la méta « vol » (`ville_v07b._classer_volumes`), sommet du
+  volume porté à 17,5 m. EN ATTENTE de validation : ne pas commencer d'autres bâtiments.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).

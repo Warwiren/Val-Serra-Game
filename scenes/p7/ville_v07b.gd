@@ -20,16 +20,23 @@ func _tr():
 
 const Forge := preload("res://scenes/p7/forge_p79.gd")
 const Boutique := preload("res://scenes/p7/boutique_p710.gd")
+const Boutique711 := preload("res://scenes/p7/boutique_p711.gd")
 var bo                                    # P7.10 : boutique de fournitures (scenes/p7/boutique_p710.gd)
 var fo                                    # P7.9 : comparatif de la forge (scenes/p7/forge_p79.gd)
 
 
-## Boutique P7.10 : active avec la forge hybride (C), sauf --boutique=0.
+## Boutique : P7.11 par défaut (scenes/p7/boutique_p711.gd) ; « 710 » = version P7.10 (comparaison avant / après, option
+## --boutique=710 ou métadonnée boutique_variante de la scène) ; --boutique=0 : blockout. Active avec la forge C ou D.
 func _boutique():
 	if bo == null and _forge().variante in ["C", "D"]:
-		var b = Boutique.new(sc, _tr().a, _forge())
-		if b.actif:
-			bo = b
+		var meta := str(sc.get_meta("boutique_variante", "711")) if sc.has_meta("boutique_variante") else "711"
+		var choix := str(sc._cli.get("boutique", meta))
+		if choix == "710":
+			var b = Boutique.new(sc, _tr().a, _forge())
+			if b.actif:
+				bo = b
+		elif choix != "0":
+			bo = Boutique711.new(sc, _tr().a, _forge())
 	return bo
 
 
@@ -277,6 +284,8 @@ func _entrees() -> void:
 		if str(e["type"]) == "fonctionnelle":
 			if str(e["id"]) == "forge" and _forge().variante != "" and _forge().entree():
 				continue                                  # P7.9 : la variante B dessine sa propre porte
+			if str(e["id"]) == "boutique" and _boutique() != null and _boutique().get_script() == Boutique711:
+				continue                                  # P7.11 : devanture dessinée par la boutique (boutique_p711.gd)
 			_entree_fonctionnelle(e)
 			if str(e["id"]) == "forge":
 				_forge().apres_entree(e)
@@ -381,7 +390,10 @@ func _classer_volumes() -> void:
 		var h0 := float(o["h"])
 		var h1 := h0 + float(o["haut"])
 		var toit := 6.0 if Tranche.BATIMENTS.has(oid) else minf(clampf(minf(r.size.x, r.size.y) * 0.42, 1.4, 6.0), maxf((h1 - h0) * 0.7, 1.0))
-		defs.append([oid, r, h0, h1 + toit])
+		var top := h1 + toit
+		if oid == "bat_boutique_fournitures" and bo != null and bo.get_script() == Boutique711:
+			top = maxf(top, 17.5)                            # P7.11 : étages et toit au-dessus du bloc des données
+		defs.append([oid, r, h0, top])
 	for i in v.get("paysage", []).size():
 		var p: Dictionary = v["paysage"][i]
 		var q: Array = p["rect"]
@@ -400,6 +412,12 @@ func _classer_volumes() -> void:
 		if ab.size.x > 60.0 or ab.size.z > 60.0 or (ab.size.y < 0.06 and ab.size.x * ab.size.z > 4.0):
 			continue
 		var c := ab.get_center()
+		if gi.has_meta("vol"):
+			for vo in _vols:
+				if str(vo["id"]) == str(gi.get_meta("vol")):
+					gi.reparent(vo["node"], true)
+					break
+			continue
 		for vo in _vols:
 			var rr: Rect2 = vo["rect"]
 			if rr.grow(0.7).has_point(Vector2(c.x, c.z)) and c.y >= float(vo["h0"]) - 0.3 and c.y <= float(vo["top"]) + 1.5:
