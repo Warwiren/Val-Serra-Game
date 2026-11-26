@@ -26,7 +26,7 @@ var fo                                    # P7.9 : comparatif de la forge (scene
 
 ## Boutique P7.10 : active avec la forge hybride (C), sauf --boutique=0.
 func _boutique():
-	if bo == null and _forge().variante == "C":
+	if bo == null and _forge().variante in ["C", "D"]:
 		var b = Boutique.new(sc, _tr().a, _forge())
 		if b.actif:
 			bo = b

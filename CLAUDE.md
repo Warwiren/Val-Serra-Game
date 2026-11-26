@@ -257,6 +257,13 @@
   dans `archi_p77.gd`) ; emprise, collisions et entrée inchangées. Boutique de fournitures (`scenes/p7/boutique_p710.gd`,
   `--boutique=0`) : maison haute à pignon sud, étal adossé à `bat_commerce_e2` (seule collision ajoutée). EN ATTENTE de
   validation de la cohérence forge / boutique : NE PAS habiller d'autres bâtiments ; axe du château préservé.
+- **P7.10.1 (branche `p7-10-1-forge-refonte`, `docs/P7_10_1_FORGE_REFONTE.md`)** : progrès techniques de P7.10 validés, qualité
+  artistique de la forge NON validée. Refonte D (`scenes/p7/forge_p7101.gd`, défaut de `ville_v07b.tscn` ; `--forge=C` ou F6
+  `ville_v07b_forge_c.tscn` = C+ avant) : façade sud maçonnée en épaisseur (0,45 m, baies en retrait, arcs segmentaires),
+  entrée dans un avant-corps de la saillie des piédroits à collision (0,35 m), pierre chaude, porte de bois sombre ferrée,
+  seuil raccordé au dallage ; foyer à hotte + souche sur le pignon ouest, lumière du foyer (OmniLight sans ombre), fumée ;
+  pignons de pierre (maillage triangulé fusionné À PART : la fusion avec les boîtes le perd) ; tuiles `src/p7/tuiles_p7101.gdshader`.
+  Emprise, collisions, interaction inchangées. Boutique NON modifiée (à réévaluer après validation de la forge). EN ATTENTE.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).

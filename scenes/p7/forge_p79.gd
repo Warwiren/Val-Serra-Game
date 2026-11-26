@@ -12,6 +12,7 @@ extends RefCounted
 ## scènes F6 scenes/p7/ville_v07b_forge_{a,b,c}.tscn.
 
 const Archi := preload("res://scenes/p7/archi_p77.gd")
+const Refonte := preload("res://scenes/p7/forge_p7101.gd")
 const QUAT := "res://art/p63/quaternius/"
 const R := Rect2(44.0, 76.0, 14.0, 12.0)
 const H0 := 3.5
@@ -31,13 +32,14 @@ func _init(scene, archi, v: String) -> void:
 	variante = v
 
 
-## P7.10 : C (C+) retenue comme base de production : c'est la forge par défaut de la V0.7-B ; --forge=0 : blockout.
+## P7.10.1 : D (refonte artistique de C+, scenes/p7/forge_p7101.gd) est la forge par défaut de la V0.7-B ; C = C+ de P7.10
+## (comparaison avant / après) ; --forge=0 : blockout.
 static func lire_variante(scene) -> String:
-	var defaut := "C"
+	var defaut := "D"
 	if scene.get("forge_variante") != null and str(scene.get("forge_variante")) != "":
 		defaut = str(scene.get("forge_variante"))
 	var v := str(scene._cli.get("forge", defaut)).to_upper()
-	return v if v in ["A", "B", "C"] else ""
+	return v if v in ["A", "B", "C", "D"] else ""
 
 
 # ------------------------------------------------------------------------------------------------ construction
@@ -52,6 +54,8 @@ func batiment() -> void:
 		"C":
 			_archi(true)
 			_atelier_c()
+		"D":
+			Refonte.new(self).construire()
 
 
 ## Entrée fonctionnelle de la forge (données ENTREES) : true si la variante la dessine elle-même.
@@ -59,6 +63,8 @@ func entree() -> bool:
 	if variante == "B":
 		_porte_quaternius()
 		return true
+	if variante == "D":
+		return true                                       # P7.10.1 : entrée dessinée par la refonte (forge_p7101.gd)
 	return false
 
 
