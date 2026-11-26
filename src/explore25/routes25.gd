@@ -948,11 +948,12 @@ static func _route_base(name: String) -> Array:
 			return o7121
 		"p7_7122_terrasse":
 			# P7.12.2 — accès réel à la terrasse du belvédère : de la place, volée C, palier, entrée de plain-pied, tour des
-			# tables, poussées contre les balustrades sud et ouest (collisions), retour au palier
+			# tables, poussées contre les balustrades sud et ouest (collisions), retour au palier ; P7.13 : comptoir de la buvette
 			return [_warp(63.0, 90.0, 3.5), {"do": "wait", "t": 0.5},
 				_go(62.0, 84.0, "volée C", 0.4), _go(64.0, 80.5, "palier 2", 0.4), _go(70.0, 83.3, "terrasse : entrée", 0.3),
 				_go(66.9, 84.4, "terrasse : coin ouest", 0.3), _go(70.0, 84.4, "terrasse : passage nord", 0.3),
-				_go(73.1, 86.9, "terrasse : entre les tables", 0.35), _go(75.4, 83.2, "terrasse : coin est", 0.3),
+				_go(70.0, 87.1, "terrasse : devant la balustrade", 0.3), _go(72.8, 87.15, "terrasse : entre les tables", 0.35), _go(74.2, 82.9, "terrasse : devant la buvette", 0.3),
+				_push("comptoir de la buvette", Vector2(1, 0), 1.5, {"max_x": 74.82, "min_x": 74.2}),
 				_go(70.15, 84.2, "terrasse : couloir entre les tables", 0.25),
 				_push("balustrade sud (terrasse)", Vector2(0, 1), 2.0, {"max_y": 87.62, "min_y": 86.9}),
 				_go(70.0, 84.0, "terrasse : centre", 0.3), _push("balustrade ouest (terrasse)", Vector2(-1, 0), 2.0, {"min_x": 66.38, "max_x": 67.1}),

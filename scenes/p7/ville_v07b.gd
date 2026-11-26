@@ -161,6 +161,8 @@ func construit(e: Dictionary) -> bool:
 			_garde(r, h0)
 		elif id.begins_with("decor_cafe") and _civ().actif:
 			_civ().cafe(r, h0)                                # P7.12.2 : terrasse du belvédère
+		elif id == "decor_buvette" and _civ().actif:
+			_civ().buvette(r, h0)                             # P7.13 : buvette adossée à la boutique
 		return true
 	return super(e)
 

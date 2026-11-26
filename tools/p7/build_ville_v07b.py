@@ -215,11 +215,14 @@ def colisee_tranches(n=24):
 
 
 # P7.12.2 : terrasse du belvédère (petit café de quartier, sans commerce) : tables et emplacements de PNJ (non implémentés)
-CAFE_TABLES = [(68.3, 85.7), (71.6, 86.1), (74.6, 85.4)]
+# P7.13 : buvette adossée au mur ouest de la boutique (entre ses deux fenêtres d'étage), table 3 décalée vers l'ouest ;
+# deux clients et le serveur (derrière le comptoir) : emplacements seulement, aucun PNJ
+CAFE_TABLES = [(68.3, 85.7), (71.6, 86.1), (73.85, 85.95)]
+BUVETTE = rect(74.8, 82.0, 76.0, 83.8)
 EMPLACEMENTS_PNJ = [
     {"id": "cafe_assis_1", "xy": [69.0, 85.7], "h": HP2, "pose": "assis", "regard": [-1.0, 0.0], "lieu": "terrasse_cafe"},
     {"id": "cafe_assis_2", "xy": [71.6, 86.8], "h": HP2, "pose": "assis", "regard": [0.0, -1.0], "lieu": "terrasse_cafe"},
-    {"id": "cafe_debout_3", "xy": [73.2, 87.1], "h": HP2, "pose": "debout, accoudé à la balustrade", "regard": [0.0, 1.0], "lieu": "terrasse_cafe"},
+    {"id": "cafe_serveur", "xy": [75.55, 82.9], "h": HP2, "pose": "debout, derrière le comptoir", "regard": [-1.0, 0.0], "lieu": "terrasse_cafe"},
 ]
 
 
@@ -260,6 +263,7 @@ def construire():
     # entre les tables)
     for i, (cx, cy) in enumerate(CAFE_TABLES):
         obstacles.append({"id": "decor_cafe_%d" % (i + 1), "rect": rect(cx - 0.65, cy - 0.65, cx + 0.65, cy + 0.65), "h": HP2, "haut": 0.8})
+    obstacles.append({"id": "decor_buvette", "rect": BUVETTE, "h": HP2, "haut": 1.1})
     # P7.4.2 : propylée de l'entrée publique (avant-corps devant la porte est) : quatre piles et un mur nord. Arche EST
     # (axe de la porte) et arche SUD (vers l'allée d'approche, face caméra) ; dessin dans scenes/p7/ville_v07a.gd
     for pid, r in PROPYLEE["piles"].items():
@@ -292,6 +296,7 @@ def construire():
         {"id": "ex_garde_chateau", "xy": [70.0, 43.6], "portee_m": 2.0, "texte": "« Halte. Le quartier du château est fermé au public pour l'instant. »"},
         {"id": "ex_hotel_de_ville", "xy": [83.0, 50.9], "portee_m": 1.8, "texte": "Hôtel de ville — grand portail. (Intérieur : instance à venir.)"},
         {"id": "ex_terrasse_cafe", "xy": [70.0, 83.4], "portee_m": 1.8, "texte": "La terrasse du belvédère : quelques tables où l'on vient bavarder en regardant la grande place."},
+        {"id": "ex_buvette", "xy": [74.2, 82.9], "portee_m": 1.4, "texte": "La buvette du belvédère : un comptoir adossé à la boutique ; on y sert du cidre et des infusions."},
         {"id": "ex_fontaine", "xy": [45.0, 102.6], "portee_m": 1.8, "texte": "La fontaine de la grande place : l'eau descend de la vasque haute dans la vasque basse, puis dans le bassin."},
     ]
     zones = [
