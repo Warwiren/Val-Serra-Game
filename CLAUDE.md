@@ -190,7 +190,7 @@
 - **P7.1 (branche `p7-1-ville-blockout-v01`, `docs/P7_1_VILLE_BLOCKOUT_V01.md`)** : BLOCKOUT V0.1 du quartier central d'après le
   plan directeur V0.5 (validé comme base fonctionnelle) ; PROTOTYPE NON VALIDÉ. Données générées par
   `tools/p7/build_ville_v05.py` (ne pas éditer `data/p7/ville_v05.json` à la main ; échelle tirée des durées cibles à 2,2 m/s),
-  affichage `scenes/p7/ville_blockout.gd` + `src/p7/blockout_p7.gdshader`, scène F6 `scenes/p7/ville_v05_blockout.tscn`
+  affichage `scenes/p7/ville_blockout.gd` + `src/p7/blockout_p7.gdshader`, `--ville=v05` (scène F6 retirée en P7.12.2)
   (`colisee.gd`, `ville_v05 = true`). Le Colisée garde le quartier provisoire par défaut. Pas d'habillage définitif, pas
   d'intérieurs, pas de foule ; le quartier P4 provisoire n'est ni figé ni reconstruit.
 - **P6.4.4 (branche `p6-4-4-colisee-vestiaires`, `docs/P6_4_4_COLISEE_VESTIAIRES.md`)** : `colisee.teleport()` (appelé aussi en fin
@@ -200,13 +200,13 @@
   créateur (23/11/2026) ; tout reste dans l'historique Git (`d88eac4`). S6–S9 restent conditionnels.
 - **P7.3 (branche `p7-3-ville-v06`, `docs/P7_3_VILLE_V06.md`)** : démonstration verticale V0.6 (brief V0.6), PROTOTYPE NON
   VALIDÉ. Le blockout V0.1 n'est qu'une référence fonctionnelle. Données `tools/p7/build_ville_v06.py` -> `data/p7/ville_v06.json`
-  (ne pas éditer à la main), affichage `scenes/p7/ville_v06.gd`, scène F6 `scenes/p7/ville_v06_montee.tscn`. Caméra de la
+  (ne pas éditer à la main), affichage `scenes/p7/ville_v06.gd`, `--ville=v06` (scène F6 retirée en P7.12.2). Caméra de la
   VILLE seulement (`colisee._camera_de_zone`, CAMS « V06 » / « V06O ») : perspective, plongée 11°, champ 30°, zoom ×3 fixe,
   altitude lissée (`Session25.cam_lissage_h`, 0 ailleurs) ; Colisée, forêt et autres zones gardent leur caméra.
   Règle de composition : bâtiments importants façade au sud (face caméra), volumes bas entre la caméra et les lieux
   d'arrêt. Ne pas reconstruire le quartier entier avant validation de la vidéo par le créateur.
 - **P7.4 (branche `p7-4-ville-v07a`, `docs/P7_4_VILLE_V07A.md`)** : V0.7-A, EXPÉRIENCE NON VALIDÉE (brief P7.4) : micro-blockout
-  semi-circulaire (`tools/p7/build_ville_v07a.py` -> `data/p7/ville_v07a.json`, `scenes/p7/ville_v07a.gd`, F6 `scenes/p7/ville_v07a.tscn`,
+  semi-circulaire (`tools/p7/build_ville_v07a.py` -> `data/p7/ville_v07a.json`, `scenes/p7/ville_v07a.gd`, `--ville=v07a` (scène F6 retirée en P7.12.2),
   plan `tools/p7/plan_v07a.py`). Caméra A = caméra V0.6 ; B = même caméra, orientation propre à 2 secteurs des données
   (`zones_camera`, hystérésis, rotation amortie, commandes verrouillées pendant la rotation : `World25.yaw_commande_actif`,
   inactif hors de la ville). Ne pas reconstruire le quartier avant la décision de la direction sur l'agencement et la caméra.
@@ -248,7 +248,7 @@
   synthétiques, problèmes non résolus, commandes si elles changent ; PAS de vidéos ni de montages, pas de médias non demandés.
 - **P7.9 (branche `p7-9-forge-comparatif`, `docs/P7_9_FORGE_COMPARATIF.md`)** : lot 1 accepté comme base (quadrillage atténué, jets et
   vasques retouchés). Comparatif de la FORGE SEULE (`scenes/p7/forge_p79.gd`) : A bibliothèque, B Quaternius, C hybride (murs A + toit,
-  vantaux, cheminée, accessoires Quaternius) ; scènes F6 `ville_v07b_forge_{a,b,c}.tscn` ou `--forge=A|B|C`. Modèles Quaternius
+  vantaux, cheminée, accessoires Quaternius) ; `--forge=A|B|C` (scènes F6 retirées en P7.12.2). Modèles Quaternius
   ajoutés listés dans `art/p63/quaternius/SOURCES.md` (provisoires, mipmaps) ; maillages fusionnés par matière. Accès au Drive :
   environnement « Val-Serra-Game » (`drive.usercontent.google.com`). NE PAS habiller les autres commerces avant décision.
 - **P7.10 (branche `p7-10-forge-boutique`, `docs/P7_10_FORGE_BOUTIQUE.md`)** : variante C retenue comme base de production
@@ -258,8 +258,7 @@
   `--boutique=0`) : maison haute à pignon sud, étal adossé à `bat_commerce_e2` (seule collision ajoutée). EN ATTENTE de
   validation de la cohérence forge / boutique : NE PAS habiller d'autres bâtiments ; axe du château préservé.
 - **P7.10.1 (branche `p7-10-1-forge-refonte`, `docs/P7_10_1_FORGE_REFONTE.md`)** : progrès techniques de P7.10 validés, qualité
-  artistique de la forge NON validée. Refonte D (`scenes/p7/forge_p7101.gd`, défaut de `ville_v07b.tscn` ; `--forge=C` ou F6
-  `ville_v07b_forge_c.tscn` = C+ avant) : façade sud maçonnée en épaisseur (0,45 m, baies en retrait, arcs segmentaires),
+  artistique de la forge NON validée. Refonte D (`scenes/p7/forge_p7101.gd`, défaut de `ville_v07b.tscn` ; `--forge=C` = C+ avant) : façade sud maçonnée en épaisseur (0,45 m, baies en retrait, arcs segmentaires),
   entrée dans un avant-corps de la saillie des piédroits à collision (0,35 m), pierre chaude, porte de bois sombre ferrée,
   seuil raccordé au dallage ; foyer à hotte + souche sur le pignon ouest, lumière du foyer (OmniLight sans ombre), fumée ;
   pignons de pierre (maillage triangulé fusionné À PART : la fusion avec les boîtes le perd) ; tuiles `src/p7/tuiles_p7101.gdshader`.
@@ -268,7 +267,7 @@
   corniche d'équerre, rampants de rive en pierre, appentis couvert de tuiles canal (matière « tuiles » du Colisée, UV en mètres)
   sous les corbeaux. Ne plus refondre la forge.
 - **P7.11 (branche `p7-11-boutique`, `docs/P7_11_BOUTIQUE.md`)** : passe artistique de la boutique de fournitures, forge D comme
-  référence de qualité. `scenes/p7/boutique_p711.gd` (défaut ; `--boutique=710` ou F6 `ville_v07b_boutique_710.tscn` = P7.10 ;
+  référence de qualité. `scenes/p7/boutique_p711.gd` (défaut ; `--boutique=710` = P7.10 ;
   `--boutique=0` : blockout) : RDC de pierre en épaisseur, devanture de bois peint (poteaux = piédroits à collision), porte vitrée
   en embrasure, étages en pan de bois sur encorbellement (0,4 m) aux hourdis miel, pignon sur rue, potence de grenier, enseigne
   au flacon ; étal (seule collision ajoutée) déplacé à l'angle ouest (x 73,9 -> 76,45, y 88,05 -> 89,05), hors de l'ombre de
@@ -296,7 +295,8 @@
   fonction compréhensible, toute porte un accès crédible (porte sans accès -> fenêtre, porte-fenêtre derrière un balcon). Terrasse du
   belvédère (`terrasse_cafe` des données, x 66 -> 76, y 82 -> 88, h 5,75, de plain-pied avec le palier 2 ; tables `decor_cafe_*` ;
   `emplacements_pnj` = emplacements seulement, aucun PNJ). Escamotage : marge de réapparition (`--escamotage_delai`, 0,6 s ; masquer
-  reste immédiat), coupe finie par un « chapeau » (plancher + arase) ; mesure `tools/p7/escamotage_p7122.gd`. Fondu toujours expérimental.
+  reste immédiat), coupe finie par un « chapeau » (plancher + arase) ; mesure `tools/p7/escamotage_p7122.gd`. Fondu toujours expérimental. Nettoyage : scènes F6 des comparatifs forge / boutique et
+  des villes V0.5 / V0.6 / V0.7-A retirées (options `--forge`, `--boutique`, `--ville` conservées ; restauration depuis `d0e387a`).
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).

@@ -688,7 +688,7 @@ static func _route_base(name: String) -> Array:
 				{"do": "wait", "t": 0.5},
 			]
 		"p7_v06_raccord":
-			# P7.3 — raccord réel Colisée -> ville V0.6 (scène ville_v06_montee.tscn avec --etat=tutorial_completed) : sortie
+			# P7.3 — raccord réel Colisée -> ville V0.6 (colisee.tscn -- --ville=v06 --etat=tutorial_completed) : sortie
 			# est du Colisée, arrivée dans la rue du Colisée, quelques pas vers la grande place
 			return [
 				_warp(58.0, 23.0, 0.0), {"do": "wait", "t": 0.8},
@@ -699,7 +699,7 @@ static func _route_base(name: String) -> Array:
 			]
 		"p7_raccord":
 			# P7.1 — raccord réel Colisée -> ville : couloir de sortie du Colisée, porte est, arrivée sur le parvis, quelques
-			# pas vers la grande place (scène ville_v05_blockout.tscn avec --etat=tutorial_completed)
+			# pas vers la grande place (colisee.tscn -- --ville=v05 --etat=tutorial_completed)
 			return [
 				_warp(58.0, 23.0, 0.0), {"do": "wait", "t": 0.8},
 				_go(62.5, 23.0, "couloir de sortie du Colisée", 0.3),

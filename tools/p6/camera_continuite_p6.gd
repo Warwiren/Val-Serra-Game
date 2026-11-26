@@ -52,7 +52,7 @@ func _initialize() -> void:
 	var scene := "res://scenes/p6/colisee.tscn"
 	for a0 in OS.get_cmdline_user_args():
 		if a0.begins_with("--scene="):
-			scene = a0.substr(8)                  # P7.3 : autre scène (ville V0.6 : scenes/p7/ville_v06_montee.tscn)
+			scene = a0.substr(8)                  # P7.3 : autre scène (ville V0.6 : colisee.tscn avec --ville=v06 ; scène retirée en P7.12.2)
 	change_scene_to_file(scene)
 
 

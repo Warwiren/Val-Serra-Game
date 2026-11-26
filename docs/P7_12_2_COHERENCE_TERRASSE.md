@@ -76,6 +76,48 @@ Aren descend la volée B ou passe la porte sud (progression continue, sans retou
 **Interactions** : `tools/p7/stabilite_interactions_p7121.gd` (7 examens sur les trois niveaux) : écart du centre de caméra
 **0 px**, caméras A et B.
 
+## D. Nettoyage contrôlé
+
+**Retirés** (sept scènes F6, chacune un simple nœud `colisee.gd` avec un drapeau) :
+
+| Scène retirée | Équivalent conservé |
+|---|---|
+| `scenes/p7/ville_v07b_forge_a.tscn` | `scenes/p7/ville_v07b.tscn -- --forge=A` |
+| `scenes/p7/ville_v07b_forge_b.tscn` | `scenes/p7/ville_v07b.tscn -- --forge=B` |
+| `scenes/p7/ville_v07b_forge_c.tscn` | `scenes/p7/ville_v07b.tscn -- --forge=C` |
+| `scenes/p7/ville_v07b_boutique_710.tscn` | `scenes/p7/ville_v07b.tscn -- --boutique=710` |
+| `scenes/p7/ville_v05_blockout.tscn` | `scenes/p6/colisee.tscn -- --ville=v05` |
+| `scenes/p7/ville_v06_montee.tscn` | `scenes/p6/colisee.tscn -- --ville=v06` |
+| `scenes/p7/ville_v07a.tscn` | `scenes/p6/colisee.tscn -- --ville=v07a` |
+
+**Vérifications avant retrait** :
+* aucun chargement direct, `preload` ni chemin construit à l'exécution ;
+* aucune référence `uid://` (ces scènes n'en ont pas) ;
+* aucun test, parcours, outil ou transition ne les ouvre. Elles n'étaient citées que dans le README, CLAUDE.md, les rapports
+  et trois commentaires (`colisee.gd`, `routes25.gd`, `camera_continuite_p6.gd`), mis à jour ;
+* chaque équivalent a été chargé sans erreur, et la version effectivement construite contrôlée (`_ville_ver` = v05, v06,
+  v07a ; variantes de forge et de boutique par les mêmes champs que les scènes).
+
+Aucun outil de test n'est retiré. Seule ma série de contrôle locale cessait de charger ces scènes ; elle charge désormais les
+équivalents.
+
+**Restauration** (commit de référence `d0e387a`, dernier commit qui les contient) :
+
+```bash
+git checkout d0e387a -- scenes/p7/ville_v07b_forge_a.tscn scenes/p7/ville_v07b_forge_b.tscn scenes/p7/ville_v07b_forge_c.tscn scenes/p7/ville_v07b_boutique_710.tscn scenes/p7/ville_v05_blockout.tscn scenes/p7/ville_v06_montee.tscn scenes/p7/ville_v07a.tscn
+```
+
+**Conservés malgré leur ancien numéro de phase** (encore utilisés) :
+* chaîne d'héritage `scenes/p7/ville_blockout.gd` → `ville_v06.gd` → `ville_v07a.gd` → `ville_v07b.gd` ;
+* `scenes/p4/avant_poste.gd` (base du Colisée et de la ville) ;
+* modules `archi_p77.gd`, `tranche_p76.gd`, `place_p78.gd`, `forge_p79.gd` (utilitaires Quaternius et `--forge=A|B|C`),
+  `forge_p7101.gd`, `boutique_p710.gd` (`--boutique=710`), `boutique_p711.gd`, `civique_p712.gd` ;
+* `data/p7/ville_v05.json`, `ville_v06.json`, `ville_v07a.json` et leurs générateurs `tools/p7/build_ville_v05.py`,
+  `build_ville_v06.py`, `build_ville_v07a.py`, `plan_v07a.py` : lus par `colisee.gd` avec `--ville=…` ;
+* parcours `p7_v05_*`, `p7_v06_*`, `p7_v07_*` (dont `p7_v07_portail`, utilisé par la V0.7-B) ;
+* variantes du tunnel du Colisée (scènes et `data/p6/colisee_tunnel_A/B/C.json`, lus par les tests unitaires) : exclues ;
+* `scenes/p7/catalogue_archi_p77.tscn` (outil des prochains lots), forêt, combats, dialogues.
+
 ## Appels de dessin
 
 Zone du fond nord (x 26 → 118, y 8 → 89) : **686** surfaces, contre 638 en P7.12.1 (+48 : mobilier et pots de la terrasse,
@@ -90,6 +132,7 @@ hors escamotage partiel.
 * `src/explore25/session25.gd` (course dans les parcours), `routes25.gd` (parcours `p7_7122_*` ; trajet T3 de
   `p7_v07b_trajets` : point de contournement de la fontaine, voir Problèmes).
 * `tools/p7/escamotage_p7122.gd` (nouveau).
+* Commit D : sept scènes retirées ; README (tableau « Autres scènes »), CLAUDE.md, trois commentaires.
 
 ## Problèmes
 

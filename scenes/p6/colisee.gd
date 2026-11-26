@@ -20,7 +20,7 @@ const ZONE_COLISEE := "res://data/p6/colisee.json"
 const Routes = preload("res://src/explore25/routes25.gd")
 const ZONE_QUARTIER := "res://data/p6/quartier_initial.json"
 ## P7.1 : blockout V0.1 du quartier central (plan directeur V0.5), PROTOTYPE NON VALIDÉ. Actif seulement dans la scène
-## F6 scenes/p7/ville_v05_blockout.tscn (ou -- --ville=v05) : la sortie est du Colisée y mène au lieu du quartier
+## -- --ville=v05 (scène F6 retirée en P7.12.2) : la sortie est du Colisée y mène au lieu du quartier
 ## provisoire, qui reste la destination par défaut du Colisée (aucune scène validée n'est remplacée).
 const ZONE_VILLE := "res://data/p7/ville_v05.json"
 const VilleBlockout := preload("res://scenes/p7/ville_blockout.gd")
@@ -28,7 +28,7 @@ const VilleBlockout := preload("res://scenes/p7/ville_blockout.gd")
 var _ville_on := false
 var _ville
 ## P7.3 : VILLE V0.6, démonstration verticale (porte sud -> guilde -> grande place -> quartier haut), PROTOTYPE NON
-## VALIDÉ. Scène F6 scenes/p7/ville_v06_montee.tscn (ou -- --ville=v06). Caméra propre à la ville (CAMS « V06 » de
+## VALIDÉ. -- --ville=v06 (scène F6 retirée en P7.12.2). Caméra propre à la ville (CAMS « V06 » de
 ## avant_poste.gd) : une seule distance (zoom ×3 fixe, molette et PgPréc / PgSuiv sans effet), plongée abaissée,
 ## altitude lissée ; touche C : V0.6 perspective / V0.6 orthographique / caméra V0.5 (P24, comparaison).
 ## Le Colisée et la forêt gardent leur caméra (elle est rétablie en quittant la ville).
@@ -43,7 +43,7 @@ const AIM_V06 := 0.1                      # Aren un peu sous le centre : la vue 
 const ZOOM_V06 := 2                        # ×3, la distance validée du Colisée
 @export var ville_v06 := false
 @export var forge_variante := ""          # P7.9 : comparatif de la forge-armurerie (A / B / C ; vide : blockout)
-## P7.4 : VILLE V0.7-A (micro-blockout semi-circulaire), scène F6 scenes/p7/ville_v07a.tscn (ou -- --ville=v07a). Même
+## P7.4 : VILLE V0.7-A (micro-blockout semi-circulaire), -- --ville=v07a (scène F6 retirée en P7.12.2). Même
 ## caméra que la V0.6 (A : fixe vers le nord) ; B : caméra SEMI-FIXE, même projection, même distance, orientation propre
 ## à 2 secteurs des données (« zones_camera », hystérésis), rotation douce, commandes verrouillées pendant la rotation.
 ## Touche V ou -- --camera_ville=A|B. Repli sur A : touche V, ou B sans zones dans les données.

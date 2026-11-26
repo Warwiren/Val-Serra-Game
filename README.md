@@ -256,18 +256,23 @@ créateur.
 | `scenes/p7/catalogue_archi_p77.tscn` | **P7.7 — catalogue des composants architecturaux** : façades, fenêtres, volets, portes, balcons, toits (← / →) |
 | `tests/test_runner.tscn` | tests automatiques dans l'éditeur |
 
-**Comparaisons et prototypes — candidats au retrait (en attente de validation)**
+**Comparaisons et prototypes — options en ligne de commande** (scènes F6 retirées en P7.12.2 ; restauration :
+`docs/P7_12_2_COHERENCE_TERRASSE.md` § D)
 
 | Scène | Contenu |
 |---|---|
-| `scenes/p7/ville_v07b_boutique_710.tscn` | P7.11 — boutique de fournitures « avant » (version P7.10) ; aussi `--boutique=710` |
-| `scenes/p7/ville_v07b_forge_a.tscn` / `_b` / `_c` | P7.9 — comparatif de la forge-armurerie (A bibliothèque, B Quaternius, C = C+ de P7.10) ; aussi `--forge=A\|B\|C` |
-| `scenes/p7/ville_v07a.tscn` | P7.4 — ville V0.7-A (micro-blockout semi-circulaire) |
-| `scenes/p7/ville_v06_montee.tscn` | P7.3 — ville V0.6 (montée sur trois niveaux, prototype) |
-| `scenes/p7/ville_v05_blockout.tscn` | P7.1 — blockout V0.1 du quartier central |
+| `scenes/p7/ville_v07b.tscn` + `--boutique=710` | P7.11 — boutique de fournitures « avant » (version P7.10) |
+| `scenes/p7/ville_v07b.tscn` + `--forge=A\|B\|C` | P7.9 — comparatif de la forge-armurerie (A bibliothèque, B Quaternius, C = C+ de P7.10) |
+| `scenes/p6/colisee.tscn` + `--ville=v07a` | P7.4 — ville V0.7-A (micro-blockout semi-circulaire) |
+| `scenes/p6/colisee.tscn` + `--ville=v06` | P7.3 — ville V0.6 (montée sur trois niveaux, prototype) |
+| `scenes/p6/colisee.tscn` + `--ville=v05` | P7.1 — blockout V0.1 du quartier central |
 | `scenes/p6/colisee_tunnel_A_6_5m.tscn` | P6.2-D — tunnel sud de 6,5 m (comparaison ; `colisee.tscn` = 9 m depuis P7.4.1) — proposé séparément |
 | `scenes/p6/colisee_tunnel_B_8_5m.tscn` | P6.2-D — tunnel sud de 8,5 m (comparaison) — proposé séparément |
 | `scenes/p6/colisee_tunnel_C_9_5m.tscn` | P6.2-D — tunnel sud de 9,5 m (comparaison) — proposé séparément |
+
+Les options s'ajoutent après `--` (par exemple `godot --path . res://scenes/p6/colisee.tscn -- --ville=v06 --etat=tutorial_completed`,
+ou `godot --path . res://scenes/p7/ville_v07b.tscn -- --forge=A`) ; dans l'éditeur : **Débogage → Personnaliser les instances
+d'exécution** (arguments de lancement), puis F6 sur la scène indiquée.
 
 ## Vérifications
 
