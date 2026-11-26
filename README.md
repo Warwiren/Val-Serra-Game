@@ -42,8 +42,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p7-12-2-coherence-terrasse`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p7-12-2-coherence-terrasse`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p7-13-bordures-place`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p7-13-bordures-place`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -200,6 +200,11 @@ masque de collision avant / après.
    volée C (tables, balustrades, vue sur la place), escamotage avec marge de réapparition et coupe finie (plancher et arase de
    pierre). Options : `--escamotage_partiel=0` (escamotage P7.6), `--escamotage_delai=<s>` (marge de réapparition, 0,6 s).
    Rapport : `docs/P7_12_2_COHERENCE_TERRASSE.md`.
+   **Branche `p7-13-bordures-place`** (EN ATTENTE) : F5 inchangé. **F6 sur `scenes/p7/ville_v07b.tscn`** : buvette du belvédère,
+   herse du château baissée (grille retirée), portes et pignons corrigés, bordures de la grande place (draperie, étals de
+   marché, halle sur quai), scintillements de faces coplanaires corrigés. Options : `--herse=relevee` (porte P7.12.2),
+   `--bordures=0` (bordures en blockout), `--ombres_ville=200` (essai d'ombres en 4 tranches, à juger sur GPU).
+   Rapport : `docs/P7_13_BORDURES_PLACE.md`.
 
 ### Commandes — forêt V07B (F5)
 

@@ -32,6 +32,11 @@ var fo                                  # forge (helpers Quaternius)
 var ref                                 # forge D (outils d'arcs : _mur_perce, _claveaux)
 var m := {}
 var actif := true
+var _herse := true                        # P7.13 : herse baissée (défaut) ; --herse=relevee : P7.12.2 (grille des données)
+
+
+func herse_baissee() -> bool:
+	return _herse
 
 
 func _init(scene, ville, archi, forge) -> void:
@@ -40,6 +45,7 @@ func _init(scene, ville, archi, forge) -> void:
 	a = archi
 	fo = forge
 	actif = str(scene._cli.get("civique", "1")) != "0"
+	_herse = str(scene._cli.get("herse", "baissee")) != "relevee"
 	if actif:
 		ref = Refonte.new(forge)
 		_matieres()
@@ -300,7 +306,16 @@ func _batiment_civique(r: Rect2, niv: Array, faces: Dictionary, m_mur: Material,
 		ref._mur_perce(f, 0.0, L, n1, top, -ep, 0.0, ouv_haut, m_mur)
 		for o in faces[cote]:
 			_garnir(f, float(o[0]), float(o[1]), float(o[2]), float(o[3]), maxf(0.06, float(o[4])), str(o[5]))
-		a.boite(f, -0.12, L + 0.12, h0, h0 + 0.55, 0.0, 0.1, m["taille_b"])
+		# P7.13 : soubassement interrompu au droit des portes (il passait devant leur pied : porte « surélevée » sans accès)
+		var us := [-0.12]
+		for o in faces[cote]:
+			if float(o[2]) < h0 + 0.55:
+				us.append(float(o[0]) - 0.17)
+				us.append(float(o[1]) + 0.17)
+		us.append(L + 0.12)
+		for i in range(0, us.size(), 2):
+			if float(us[i + 1]) - float(us[i]) > 0.02:
+				a.boite(f, float(us[i]), float(us[i + 1]), h0, h0 + 0.55, 0.0, 0.1, m["taille_b"])
 		for i in range(1, niv.size() - 1):
 			a.boite(f, -0.06, L + 0.06, float(niv[i]) - 0.1, float(niv[i]) + 0.12, 0.0, 0.08, m["taille_a"])
 		if corniche:
@@ -419,7 +434,36 @@ func _chatelet() -> void:
 	pv.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	ref._mur_perce(f, 0.0, 8.8, H2, top, -1.2, 0.0, [{"u0": uc - hs, "u1": uc + hs, "bas": H2, "spring": sp, "rise": hs - 0.01}], m["chateau"])
 	ref._claveaux(f, uc, sp, hs, hs - 0.01, 0.55, 15, -1.2, 0.1)
-	# herse RELEVÉE dans la voûte : seules ses pointes dépassent sous l'arc (bas à 13,2 m)
+	if _herse:
+		_herse_baissee(f, uc, hs, sp)
+	else:
+		_herse_relevee(f, uc, hs, sp)
+	_chatelet_suite(f, uc, hs, sp, top)
+
+
+## P7.13 — HERSE BAISSÉE dans la feuillure de l'arc (juste derrière le parement, y 39,8 -> 39,92) : elle ferme la porte à la
+## place de la grille des données (dont la collision reste). Treillis de chêne ferré à mailles larges (montants de 0,09 m tous
+## les 0,58 m, traverses de 0,09 m tous les 0,95 m : ≈ 76 % de vide) pour garder la rampe et le château lisibles au travers ;
+## pointes de fer au sol, coulisses de pierre dans les piédroits.
+func _herse_baissee(f: Dictionary, uc: float, hs: float, sp: float) -> void:
+	var x := uc - hs + 0.29
+	while x < uc + hs - 0.1:
+		var hb := sp + sqrt(maxf(0.0, hs * hs - pow(x - uc, 2.0))) - 0.03
+		a.boite(f, x - 0.045, x + 0.045, H2 + 0.16, hb, -0.2, -0.1, m["chene"])
+		a.boite(f, x - 0.032, x + 0.032, H2, H2 + 0.2, -0.185, -0.115, m["fer"])
+		x += 0.58
+	var y := H2 + 0.55
+	while y < sp + hs - 0.2:
+		var hw := sqrt(maxf(0.0, hs * hs - pow(maxf(y - sp, 0.0), 2.0)))
+		a.boite(f, uc - hw + 0.04, uc + hw - 0.04, y - 0.045, y + 0.045, -0.1, -0.02, m["chene"])
+		a.boite(f, uc - hw + 0.04, uc + hw - 0.04, y - 0.015, y + 0.015, -0.02, -0.005, m["fer"])
+		y += 0.95
+	for s: float in [-1.0, 1.0]:
+		a.boite(f, uc + s * hs - 0.12, uc + s * hs + 0.12, H2, sp, -0.26, -0.04, m["taille_b"])        # coulisses
+
+
+## P7.12.1 : herse RELEVÉE dans la voûte : seules ses pointes dépassent sous l'arc (comparaison : --herse=relevee).
+func _herse_relevee(f: Dictionary, uc: float, hs: float, sp: float) -> void:
 	var hbas := 15.0
 	var x := uc - hs + 0.25
 	while x < uc + hs - 0.1:
@@ -433,6 +477,9 @@ func _chatelet() -> void:
 		var hw := sqrt(maxf(0.0, hs * hs - pow(maxf(y - sp, 0.0), 2.0)))
 		a.boite(f, uc - hw + 0.05, uc + hw - 0.05, y - 0.06, y + 0.06, -0.62, -0.5, m["chene"])
 		y += 0.62
+
+
+func _chatelet_suite(f: Dictionary, uc: float, hs: float, sp: float, top: float) -> void:
 	# piédroits harpés (blocs de taille dans l'épaisseur), socle, cordon, blason, archères
 	var v := H2
 	var k := 0
@@ -767,6 +814,102 @@ func cafe(r: Rect2, h0: float) -> void:
 	fo._fusion_gltf(d1, "civique_cafe_tabourets")
 	if c.x < 69.0:
 		_pots()
+
+
+## P7.13 — Buvette du belvédère, adossée au mur ouest de la boutique entre ses deux fenêtres d'étage (y 80,1 -> 83,9) :
+## comptoir de bois peint du vert de la boutique à plateau de pierre, retours, étagère et pots sur le mur, deux poteaux et un
+## appentis de tuiles canal (même construction que l'appentis de la forge D), lanterne, ardoise. Collision : bloc des données
+## (le serveur se tient derrière le comptoir). Jamais escamotée (méta « vol » = « aucun ») : basse, adossée, hors des vues.
+func buvette(r: Rect2, h0: float) -> void:
+	var d0: int = a.racine.get_child_count()
+	var vert: Material = a.plein(Color(0.16, 0.27, 0.21), 0.7)
+	var vert_c: Material = a.plein(Color(0.22, 0.37, 0.29), 0.75)
+	var xw := r.end.x                       # mur de la boutique
+	var xf := r.position.x + 0.05           # face du comptoir
+	var y0 := r.position.y
+	var y1 := r.end.y
+	var hc := h0 + 1.05                     # dessus du comptoir
+	# comptoir : caisson, panneaux à cadres, plinthe, plateau de pierre
+	a.box(Vector3(xf + 0.1, (h0 + hc) * 0.5, (y0 + y1) * 0.5), Vector3(0.2, hc - h0, y1 - y0 - 0.1), vert)
+	a.box(Vector3(xf - 0.01, h0 + 0.06, (y0 + y1) * 0.5), Vector3(0.06, 0.12, y1 - y0 - 0.06), m["chene"])
+	var np := 3
+	for k in np:
+		var ya := y0 + 0.12 + (y1 - y0 - 0.24) * k / np
+		var yb := y0 + 0.12 + (y1 - y0 - 0.24) * (k + 1) / np
+		a.box(Vector3(xf - 0.015, h0 + 0.58, (ya + yb) * 0.5), Vector3(0.03, 0.66, yb - ya - 0.1), vert_c)
+	for yr: float in [y0 + 0.06, y1 - 0.06]:
+		a.box(Vector3((xf + xw) * 0.5 + 0.05, (h0 + hc) * 0.5, yr), Vector3(xw - xf - 0.1, hc - h0, 0.1), vert)      # retours
+	a.box(Vector3(xf + 0.12, hc + 0.04, (y0 + y1) * 0.5), Vector3(0.42, 0.08, y1 - y0 + 0.04), m["taille_a"])
+	for yr: float in [y0 + 0.06, y1 - 0.06]:
+		a.box(Vector3((xf + xw) * 0.5 + 0.05, hc + 0.03, yr), Vector3(xw - xf - 0.1, 0.06, 0.16), m["chene"])
+	# étagère sur le mur, pots et flacons ; tonnelet
+	var ye := h0 + 1.55
+	a.box(Vector3(xw - 0.13, ye, (y0 + y1) * 0.5), Vector3(0.24, 0.05, y1 - y0 - 0.5), m["chene"])
+	for yy: float in [y0 + 0.45, y1 - 0.45]:
+		a.box(Vector3(xw - 0.05, ye - 0.12, yy), Vector3(0.08, 0.2, 0.05), m["chene"])
+	var pots := [a.plein(Color(0.62, 0.40, 0.26), 0.85), a.plein(Color(0.22, 0.30, 0.24), 0.3), a.plein(Color(0.50, 0.24, 0.16), 0.3)]
+	var yy2 := y0 + 0.4
+	var k2 := 0
+	while yy2 < y1 - 0.35:
+		var hp := 0.16 + 0.06 * (k2 % 3)
+		a.box(Vector3(xw - 0.13, ye + 0.025 + hp * 0.5, yy2), Vector3(0.1, hp, 0.1), pots[k2 % 3])
+		yy2 += 0.17
+		k2 += 1
+	_cyl(Vector3(xw - 0.3, h0 + 0.32, y1 - 0.45), 0.24, 0.24, 0.62, m["chene_c"], 12)
+	_cyl(Vector3(xw - 0.3, h0 + 0.2, y1 - 0.45), 0.255, 0.255, 0.05, m["fer"], 12)
+	_cyl(Vector3(xw - 0.3, h0 + 0.46, y1 - 0.45), 0.255, 0.255, 0.05, m["fer"], 12)
+	# poteaux, sablière d'égout, aisseliers
+	var he := h0 + 2.2                      # égout de l'appentis
+	var hf := h0 + 2.55                     # faîtage contre le mur (sous les fenêtres d'étage, au-dessus de la bande de chêne)
+	for yp: float in [y0 + 0.08, y1 - 0.08]:
+		a.box(Vector3(xf - 0.05, (h0 + he) * 0.5, yp), Vector3(0.14, he - h0, 0.14), m["chene"])
+		a.box(Vector3(xf - 0.05, h0 + 0.05, yp), Vector3(0.24, 0.1, 0.24), m["taille_a"])
+		var ai: MeshInstance3D = a.box(Vector3(xf + 0.15, he - 0.2, yp), Vector3(0.5, 0.08, 0.08), m["chene"])
+		ai.basis = Basis(Vector3(0, 0, 1), 0.7)
+	a.box(Vector3(xf - 0.05, he - 0.08, (y0 + y1) * 0.5), Vector3(0.16, 0.16, y1 - y0 + 0.1), m["chene"])
+	a.box(Vector3(xw - 0.06, hf - 0.1, (y0 + y1) * 0.5), Vector3(0.12, 0.14, y1 - y0 + 0.1), m["chene"])        # lambourde
+	# ardoise du jour sur le poteau sud, lanterne sous l'égout
+	a.box(Vector3(xf - 0.14, h0 + 1.45, y1 - 0.08), Vector3(0.03, 0.5, 0.38), m["chene"])
+	a.box(Vector3(xf - 0.16, h0 + 1.45, y1 - 0.08), Vector3(0.02, 0.42, 0.3), m["sombre"])
+	a.box(Vector3(xf - 0.1, he - 0.32, (y0 + y1) * 0.5), Vector3(0.14, 0.2, 0.14), m["lanterne"])
+	a.box(Vector3(xf - 0.1, he - 0.2, (y0 + y1) * 0.5), Vector3(0.18, 0.04, 0.18), m["fer"])
+	a.fusionner(d0, "civique_buvette")
+	_appentis_buvette(xf - 0.35, xw, he, hf, y0 - 0.1, y1 + 0.1)
+	_ecarter(d0)
+
+
+func _appentis_buvette(xe: float, xw: float, ye: float, yf: float, za: float, zb: float) -> void:
+	var dx := xw - xe
+	var dy := yf - ye
+	var lg := sqrt(dx * dx + dy * dy)
+	var ang := atan2(dy, dx)
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var n := Vector3(-dy, dx, 0.0).normalized()
+	var pa := Vector3(xe, ye, za)
+	var pb := Vector3(xe, ye, zb)
+	var pc := Vector3(xw, yf, zb)
+	var pd := Vector3(xw, yf, za)
+	var uvs := {pa: Vector2(za, 0.0), pb: Vector2(zb, 0.0), pc: Vector2(zb, -lg), pd: Vector2(za, -lg)}
+	for tri in [[pa, pc, pb], [pa, pd, pc]]:
+		for v: Vector3 in tri:
+			st.set_normal(n)
+			st.set_uv(uvs[v])
+			st.add_vertex(v)
+	var mi := MeshInstance3D.new()
+	mi.name = "civique_buvette_tuiles"
+	mi.mesh = st.commit()
+	mi.material_override = a.macon("tuiles", Color(1.32, 1.1, 0.98), ye, "maillage")
+	a.racine.add_child(mi)
+	var d0: int = a.racine.get_child_count()
+	var c := Vector3((xe + xw) * 0.5, (ye + yf) * 0.5, (za + zb) * 0.5)
+	var vo: MeshInstance3D = a.box(c - n * 0.045, Vector3(lg + 0.04, 0.07, zb - za), m["chene_c"])
+	vo.basis = Basis(Vector3(0, 0, 1), ang)
+	a.box(Vector3(xe - 0.02, ye - 0.06, (za + zb) * 0.5), Vector3(0.05, 0.16, zb - za + 0.08), m["chene"])          # égout
+	for zr: float in [za - 0.03, zb + 0.03]:
+		var rv: MeshInstance3D = a.box(c + Vector3(0, 0.01, zr - c.z), Vector3(lg + 0.06, 0.16, 0.05), m["chene"])  # rives
+		rv.basis = Basis(Vector3(0, 0, 1), ang)
+	a.fusionner(d0, "civique_buvette_bois")
 
 
 func _pots() -> void:

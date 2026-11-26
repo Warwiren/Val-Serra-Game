@@ -30,6 +30,35 @@ func sans_joues() -> bool:
 	return _civ().actif
 
 
+## P7.13 : la grille des données devant le château n'est plus dessinée quand la herse du châtelet est baissée (sa
+## collision et son texte « fermée » restent : c'est la herse qui ferme) ; --herse=relevee : état P7.12.2.
+func grille_dessinee(p: Dictionary) -> bool:
+	return not (str(p.get("id", "")) == "porte_chateau" and _civ().actif and _civ().herse_baissee())
+
+
+## P7.13 — Essai d'ombres pour la ville (--ombres_ville=<distance m>, ex. 200) : soleil en 4 tranches (PSSM) jusqu'à cette
+## distance au lieu de l'ombre orthogonale unique limitée à 120 m (fondu dès ≈ 96 m : les volées lointaines y entrent et en
+## sortent quand la caméra avance). NON activé par défaut : à juger en Forward+ sur GPU (ce conteneur rend en Compatibilité).
+func _ombres_ville() -> void:
+	var od := str(sc._cli.get("ombres_ville", ""))
+	if od == "" or sc.get("_sun") == null:
+		return
+	var s: DirectionalLight3D = sc._sun
+	s.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+	s.directional_shadow_max_distance = float(od)
+	s.directional_shadow_blend_splits = true
+
+
+const Bordures := preload("res://scenes/p7/bordures_p713.gd")
+var bd                                    # P7.13 : bordures de la grande place (scenes/p7/bordures_p713.gd)
+
+
+func _bord():
+	if bd == null:
+		bd = Bordures.new(sc, _tr().a, _forge())
+	return bd
+
+
 func _civ():
 	if ci == null:
 		ci = Civique.new(sc, self, _tr().a, _forge())
@@ -86,6 +115,14 @@ func construit(e: Dictionary) -> bool:
 		if lib0 != "":
 			var r0: Rect2 = e["rect"]
 			_libelle(lib0, Vector3(r0.get_center().x, float(e["h1"]) + 5.0, r0.get_center().y))
+		return true
+	# P7.13 : bordures de la grande place (draperie, étals, halle sur quai ; collisions des données)
+	if e["type"] == "block" and _bord().gere(id):
+		_bord().construit(e)
+		var lib1: String = str(v.get("batiments", {}).get(id, {}).get("libelle", ""))
+		if lib1 != "":
+			var r1: Rect2 = e["rect"]
+			_libelle(lib1, Vector3(r1.get_center().x, float(e["h1"]) + 4.0, r1.get_center().y))
 		return true
 	# P7.6 : tranche architecturale (bâtiments, sols ; l'escalier passe par _escalier). Collisions : celles des données.
 	if e["type"] == "block" and id == "bat_b_e_placette" and _tr().actif():
@@ -161,6 +198,8 @@ func construit(e: Dictionary) -> bool:
 			_garde(r, h0)
 		elif id.begins_with("decor_cafe") and _civ().actif:
 			_civ().cafe(r, h0)                                # P7.12.2 : terrasse du belvédère
+		elif id == "decor_buvette" and _civ().actif:
+			_civ().buvette(r, h0)                             # P7.13 : buvette adossée à la boutique
 		return true
 	return super(e)
 
@@ -175,6 +214,8 @@ func decorer() -> void:
 		_tour_decor(tr)
 	_entrees()
 	_civ().decorer()
+	_bord().finaliser()                                   # P7.13 : étals de la place (fusion commune)
+	_ombres_ville()
 	_classer_volumes()
 	_libelle("Faubourgs — passage bloqué", Vector3(-14.0, 3.5 + 4.0, 96.0))
 	_libelle("Quartier du château — accès gardé", Vector3(70.0, 8.0 + 5.0, 41.0))
@@ -316,6 +357,8 @@ func _entrees() -> void:
 			_entree_fonctionnelle(e)
 			if str(e["id"]) == "forge":
 				_forge().apres_entree(e)
+		elif str(e.get("batiment", "")) == Bordures.DRAPERIE and _bord().actif:
+			continue                                      # P7.13 : porte cintrée dessinée par la draperie (bordures_p713.gd)
 		else:
 			_porte_decorative(e)
 
@@ -388,10 +431,16 @@ func _porte_decorative(e: Dictionary) -> void:
 	sc._box_mesh(Vector3(x, h + H + 0.1, y + 0.04), Vector3(L + 0.3, 0.2, 0.08), mat(CALCAIRE.darkened(0.12)))
 
 
+## P7.13 : côtés des volées adossés à un mur (Guilde, auberge, forge, socle du palier) : échiffre non dessiné.
+const CONTRE_MUR := {"volee_a": ["o"], "volee_b": ["e"], "volee_c": ["o"], "volee_d": ["o"]}
+
+
 ## P7.6 : escalier de la ruelle des Tonneliers dessiné par la tranche (pierre, murs d'échiffre) ; les autres : socle.
 func _escalier(e: Dictionary) -> void:
 	if str(e.get("id", "")) in Civique.VOLEES and _civ().actif:
-		_tr().escalier(e)                                   # P7.12 : volées C et D en pierre (mêmes collisions)
+		var ee := e.duplicate()
+		ee["contre_mur"] = CONTRE_MUR.get(str(e["id"]), [])  # P7.13 : pas d'échiffre plaqué contre un mur
+		_tr().escalier(ee)                                  # P7.12 : volées C et D en pierre (mêmes collisions)
 		return
 	if str(e.get("id", "")) == Tranche.ESCALIER and _tr().actif():
 		_tr().escalier(e)
@@ -425,6 +474,8 @@ func _classer_volumes() -> void:
 		var top := h1 + toit
 		if oid == "bat_boutique_fournitures" and bo != null and bo.get_script() == Boutique711:
 			top = maxf(top, 17.5)                            # P7.11 : étages et toit au-dessus du bloc des données
+		if oid == Bordures.HALLE and _bord().actif:
+			top = maxf(top, h1 + 5.2)                        # P7.13 : halle de charpente sur le quai
 		defs.append([oid, r, h0, top])
 	for i in v.get("paysage", []).size():
 		var p: Dictionary = v["paysage"][i]

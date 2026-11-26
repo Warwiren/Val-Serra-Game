@@ -1705,7 +1705,7 @@
     "rect": [
      66,
      89,
-     70,
+     69.3,
      91
     ],
     "h": 3.5,
@@ -1791,13 +1791,24 @@
    {
     "id": "decor_cafe_3",
     "rect": [
-     73.95,
-     84.75,
-     75.25,
-     86.05
+     73.2,
+     85.3,
+     74.5,
+     86.6
     ],
     "h": 5.75,
     "haut": 0.8
+   },
+   {
+    "id": "decor_buvette",
+    "rect": [
+     74.8,
+     82.0,
+     76.0,
+     83.8
+    ],
+    "h": 5.75,
+    "haut": 1.1
    },
    {
     "id": "porche_pile_no",
@@ -2131,6 +2142,15 @@
      ],
      "portee_m": 1.8,
      "texte": "La terrasse du belvédère : quelques tables où l'on vient bavarder en regardant la grande place."
+    },
+    {
+     "id": "ex_buvette",
+     "xy": [
+      74.2,
+      82.9
+     ],
+     "portee_m": 1.4,
+     "texte": "La buvette du belvédère : un comptoir adossé à la boutique ; on y sert du cidre et des infusions."
     },
     {
      "id": "ex_fontaine",
@@ -3017,16 +3037,16 @@
       "lieu": "terrasse_cafe"
      },
      {
-      "id": "cafe_debout_3",
+      "id": "cafe_serveur",
       "xy": [
-       73.2,
-       87.1
+       75.55,
+       82.9
       ],
       "h": 5.75,
-      "pose": "debout, accoudé à la balustrade",
+      "pose": "debout, derrière le comptoir",
       "regard": [
-       0.0,
-       1.0
+       -1.0,
+       0.0
       ],
       "lieu": "terrasse_cafe"
      }

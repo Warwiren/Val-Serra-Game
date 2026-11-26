@@ -297,6 +297,13 @@
   `emplacements_pnj` = emplacements seulement, aucun PNJ). Escamotage : marge de réapparition (`--escamotage_delai`, 0,6 s ; masquer
   reste immédiat), coupe finie par un « chapeau » (plancher + arase) ; mesure `tools/p7/escamotage_p7122.gd`. Fondu toujours expérimental. Nettoyage : scènes F6 des comparatifs forge / boutique et
   des villes V0.5 / V0.6 / V0.7-A retirées (options `--forge`, `--boutique`, `--ville` conservées ; restauration depuis `d0e387a`).
+- **P7.13 (branche `p7-13-bordures-place`, `docs/P7_13_BORDURES_PLACE.md`)** : P7.12.2 validé globalement par le créateur. EN ATTENTE.
+  Belvédère : buvette `decor_buvette` adossée à la boutique (emplacements PNJ : 2 clients + serveur, aucun PNJ). Château : herse
+  baissée, grille des données non dessinée (collision gardée ; `--herse=relevee`). Bordures (`scenes/p7/bordures_p713.gd`,
+  `--bordures=0`) : draperie sur `bat_commerce_e2` (plus basse que le blockout), étals 0 à 3, halle sur `bat_echoppe_no_o`.
+  Cohérence : pas d'échiffre plaqué contre un mur (`CONTRE_MUR`), soubassement civique interrompu aux portes. Rendu : faces
+  coplanaires corrigées par décalages de quelques mm ; outils `tools/p7/scintillement_p713.gd` (détecteur au rendu) et
+  `coplanaires_p713.gd/.py`. Ombres : `--ombres_ville` = essai non activé, à juger en Forward+.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).
