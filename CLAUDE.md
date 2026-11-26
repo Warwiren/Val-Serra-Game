@@ -263,7 +263,10 @@
   entrée dans un avant-corps de la saillie des piédroits à collision (0,35 m), pierre chaude, porte de bois sombre ferrée,
   seuil raccordé au dallage ; foyer à hotte + souche sur le pignon ouest, lumière du foyer (OmniLight sans ombre), fumée ;
   pignons de pierre (maillage triangulé fusionné À PART : la fusion avec les boîtes le perd) ; tuiles `src/p7/tuiles_p7101.gdshader`.
-  Emprise, collisions, interaction inchangées. Boutique NON modifiée (à réévaluer après validation de la forge). EN ATTENTE.
+  Emprise, collisions, interaction inchangées. **Refonte D APPROUVÉE par le créateur (26/11/2026) : nouvelle référence
+  architecturale de Val'Serra.** Correctif local (commit distinct) : pignons assis sur la corniche latérale (0,42 m), angles de
+  corniche d'équerre, rampants de rive en pierre, appentis couvert de tuiles canal (matière « tuiles » du Colisée, UV en mètres)
+  sous les corbeaux. Ne plus refondre la forge.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).

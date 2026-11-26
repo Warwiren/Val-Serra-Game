@@ -44,6 +44,7 @@ func construire() -> void:
 	_facade_est()
 	_facade_ouest()
 	_corniches()
+	_rives()
 	_foyer()
 	_atelier()
 	_enseigne()
@@ -56,6 +57,7 @@ func construire() -> void:
 	a.fusionner(dp, "forge_d_pignons")
 	_modeles()
 	_toit()
+	_tuiles_appentis()
 	_lumiere_et_fumee()
 
 
@@ -413,7 +415,7 @@ func _facade_ouest() -> void:
 	# porte de service vers la cour (planches, arc segmentaire, piédroits)
 	var uc := 8.6
 	var hs := 0.75
-	var sp := 5.75
+	var sp := 5.5
 	var rise := 0.3
 	for s: float in [-1.0, 1.0]:
 		_b(f, uc + s * hs - (0.22 if s < 0.0 else 0.0), uc + s * hs + (0.22 if s > 0.0 else 0.0), COUR_H, sp, 0.0, 0.14, m["taille_a"] if s < 0.0 else m["taille_b"])
@@ -455,8 +457,13 @@ func _corniches() -> void:
 	for cote: String in ["s", "e", "o"]:
 		var f := _f(cote)
 		var L: float = f["L"]
-		_b(f, -0.3, L + 0.3, CORNICHE, CORNICHE + 0.13, 0.0, 0.3, m["taille_a"])
-		_b(f, -0.2, L + 0.2, CORNICHE - 0.1, CORNICHE, 0.0, 0.16, m["taille_b"])
+		# P7.10.1 (correctif) : angles d'équerre. Sud : 0,3 m de saillie, retourné jusqu'au nu des corniches latérales ;
+		# est / ouest : 0,42 m (assise des pignons de pierre, qui débordent de 0,38 m), arrêtées au nu de la corniche sud.
+		if cote == "s":
+			_b(f, -0.42, L + 0.42, CORNICHE, CORNICHE + 0.13, 0.0, 0.3, m["taille_a"])
+		else:
+			_b(f, -0.3, L + 0.3, CORNICHE, CORNICHE + 0.13, 0.0, 0.42, m["taille_a"])
+		_b(f, -0.16, L + 0.16, CORNICHE - 0.1, CORNICHE, 0.0, 0.16, m["taille_b"])
 		var u := 0.45
 		var k := 0
 		while u < L - 0.3:
@@ -473,9 +480,37 @@ func _corniches() -> void:
 
 ## Pignons de pierre sous les rives du toit (est, ouest) : triangle extrudé, mur courant.
 func _pignons() -> void:
-	# au nu des rives du toit (débord de 0,3 m) : le pignon reçoit la lumière comme le mur
+	# au nu des rives du toit (débord de 0,3 m) : le pignon reçoit la lumière comme le mur. P7.10.1 (correctif) : il est
+	# ASSIS sur la corniche latérale (plus de pied flottant ni d'extrémité en porte-à-faux), sur toute la longueur de la
+	# corniche ; rampants de pierre sous la rive des tuiles et sommiers aux pieds.
+	var y0 := CORNICHE + 0.13
+	var yp := 10.4
+	var z0 := R.position.y - 0.3
+	var z1 := R.end.y + 0.3
 	for x0: float in [R.position.x - 0.38, R.end.x - 0.4]:
-		_prisme_pignon(x0, x0 + 0.78, R.position.y + 0.25, R.end.y - 0.25, H1 - 0.05, 10.4)
+		_prisme_pignon(x0, x0 + 0.78, z0, z1, y0, yp)
+
+
+## Rampants (finition de rive) et sommiers des pignons : pierre de taille, à l'aplomb du pignon, sous les tuiles.
+func _rives() -> void:
+	var y0 := CORNICHE + 0.13
+	var yp := 10.4
+	var z0 := R.position.y - 0.3
+	var z1 := R.end.y + 0.3
+	var zm := (z0 + z1) * 0.5
+	var dz := zm - z0
+	var dy := yp - y0
+	var lg := sqrt(dz * dz + dy * dy)
+	var th := atan2(dy, dz)
+	for xc: float in [R.position.x - 0.26, R.end.x + 0.26]:
+		for s: float in [-1.0, 1.0]:
+			var ang := -th if s < 0.0 else th
+			var c := Vector3(xc, (y0 + yp) * 0.5, (z0 + zm) * 0.5 if s < 0.0 else (zm + z1) * 0.5)
+			var up := Vector3(0, cos(ang), sin(ang))
+			var rp: MeshInstance3D = a.box(c + up * 0.07, Vector3(0.36, 0.14, lg + 0.06), m["taille_b"])
+			rp.basis = Basis(Vector3(1, 0, 0), ang)
+			var zs := z0 + 0.22 if s < 0.0 else z1 - 0.22
+			a.box(Vector3(xc, y0 + 0.14, zs), Vector3(0.42, 0.28, 0.44), m["taille_a"])
 
 
 func _prisme_pignon(x0: float, x1: float, z0: float, z1: float, yb: float, yp: float) -> void:
@@ -581,21 +616,68 @@ func _atelier() -> void:
 	p1.basis = Basis(Vector3(0, 0, 1), 0.12)
 	a.box(Vector3(42.25, COUR_H + 0.95, 77.45), Vector3(0.95, 0.1, 0.56), m["cuir"])
 	a.box(Vector3(42.95, COUR_H + 0.93, 77.75), Vector3(0.06, 0.06, 0.55), m["fer"])
-	# appentis : 2 poteaux, sablière, toit de planches en pente vers l'ouest sur la zone de travail (z 80,3 -> 85,8)
-	var za := 80.3
-	var zb := 85.8
+	# appentis (P7.10.1, correctif) : couverture de tuiles canal (demi-toiture Quaternius, faîtage noyé dans le mur de la
+	# forge, même matière que le grand toit) en pente vers l'ouest, SOUS les corbeaux de la corniche ; poteaux, jambes de
+	# force, sablière et chevrons visibles dessous.
+	var za := 80.45
+	var zb := 85.9
+	var bas := 5.5                       # dessus de la sablière (rive basse x 39,6)
+	var haut := 6.42                     # contre le mur, sous les corbeaux (6,59)
+	var pente := (haut - bas) / (R.position.x - 39.6)
 	for zp: float in [za + 0.25, zb - 0.25]:
-		a.box(Vector3(39.75, COUR_H + 1.02, zp), Vector3(0.18, 2.04, 0.18), m["bois2"])
-		var jf: MeshInstance3D = a.box(Vector3(39.95, COUR_H + 1.8, zp), Vector3(0.5, 0.08, 0.08), m["bois2"])
+		a.box(Vector3(39.75, (COUR_H + bas - 0.16) * 0.5, zp), Vector3(0.18, bas - 0.16 - COUR_H, 0.18), m["bois2"])
+		var jf: MeshInstance3D = a.box(Vector3(39.95, bas - 0.42, zp), Vector3(0.5, 0.08, 0.08), m["bois2"])
 		jf.basis = Basis(Vector3(0, 0, 1), 0.7)
-	a.box(Vector3(39.75, COUR_H + 2.04, (za + zb) * 0.5), Vector3(0.2, 0.16, zb - za), m["bois2"])
-	var toit: MeshInstance3D = a.box(Vector3(41.85, COUR_H + 2.55, (za + zb) * 0.5), Vector3(4.6, 0.08, zb - za + 0.3), m["bois_clair"])
-	toit.basis = Basis(Vector3(0, 0, 1), 0.17)
-	var x := 39.6
-	while x < 44.0:
-		var c: MeshInstance3D = a.box(Vector3(x, COUR_H + 2.55 + (x - 41.85) * 0.172 - 0.065, (za + zb) * 0.5), Vector3(0.05, 0.05, zb - za + 0.32), m["bois3"])
-		c.basis = Basis(Vector3(0, 0, 1), 0.17)
+	a.box(Vector3(39.75, bas - 0.08, (za + zb) * 0.5), Vector3(0.2, 0.16, zb - za), m["bois2"])
+	var x := 39.65
+	while x < R.position.x:
+		var c: MeshInstance3D = a.box(Vector3(x, bas + (x - 39.6) * pente - 0.05, (za + zb) * 0.5), Vector3(0.06, 0.07, zb - za + 0.2), m["bois3"])
+		c.basis = Basis(Vector3(0, 0, 1), atan(pente))
 		x += 0.55
+
+
+## Couverture de l'appentis : pan de tuiles canal procédurales (matière « tuiles » de la galerie B du Colisée, rangs de
+## 32 cm, teintée sur la terre cuite de la forge), UV en mètres (rangs parallèles à l'égout) ; voligeage de planches
+## dessous (épaisseur visible aux rives), planche d'égout et planches de rive. Maillage à part (hors fusion des boîtes).
+func _tuiles_appentis() -> void:
+	var za := 80.45
+	var zb := 85.9
+	var xe := 39.45
+	var xf := R.position.x
+	var ye := 5.56
+	var yf := 6.5
+	var dx := xf - xe
+	var dy := yf - ye
+	var lg := sqrt(dx * dx + dy * dy)
+	var ang := atan2(dy, dx)
+	var mt := (a.macon("tuiles", Color(1.32, 1.1, 0.98), ye, "maillage") as ShaderMaterial)
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var n := Vector3(-dy, dx, 0.0).normalized()
+	var pa := Vector3(xe, ye, za)
+	var pb := Vector3(xe, ye, zb)
+	var pc := Vector3(xf, yf, zb)
+	var pd := Vector3(xf, yf, za)
+	var uvs := {pa: Vector2(za, 0.0), pb: Vector2(zb, 0.0), pc: Vector2(zb, -lg), pd: Vector2(za, -lg)}
+	for tri in [[pa, pc, pb], [pa, pd, pc]]:
+		for v: Vector3 in tri:
+			st.set_normal(n)
+			st.set_uv(uvs[v])
+			st.add_vertex(v)
+	var mi := MeshInstance3D.new()
+	mi.name = "forge_d_appentis_tuiles"
+	mi.mesh = st.commit()
+	mi.material_override = mt
+	a.racine.add_child(mi)
+	var d0: int = a.racine.get_child_count()
+	var c := Vector3((xe + xf) * 0.5, (ye + yf) * 0.5, (za + zb) * 0.5)
+	var vol: MeshInstance3D = a.box(c - n * 0.045, Vector3(lg + 0.04, 0.07, zb - za), m["bois3"])
+	vol.basis = Basis(Vector3(0, 0, 1), ang)
+	a.box(Vector3(xe - 0.02, ye - 0.06, (za + zb) * 0.5), Vector3(0.05, 0.16, zb - za + 0.08), m["bois2"])          # égout
+	for zr: float in [za - 0.03, zb + 0.03]:
+		var rv: MeshInstance3D = a.box(c + Vector3(0, 0.01, zr - c.z), Vector3(lg + 0.06, 0.16, 0.05), m["bois2"])  # rives
+		rv.basis = Basis(Vector3(0, 0, 1), ang)
+	a.fusionner(d0, "forge_d_appentis_bois")
 
 
 ## Enseigne d'armurerie : potence de fer forgé (bras, jambe de force, volute), chaînes ; bouclier et épées (modèles).
@@ -654,6 +736,11 @@ func _modeles() -> void:
 func _toit() -> void:
 	var kz := (R.size.y + 0.9) / 9.96
 	var toit: Node3D = fo._modele("mv/Roof_RoundTiles_8x12", Vector3(R.get_center().x, H1, R.get_center().y), PI * 0.5, Vector3(kz, 0.55, (R.size.x + 0.6) / 14.14))
+	_habiller_tuiles(toit, true)
+
+
+## Matière des tuiles (tuiles_p7101) sur un toit Quaternius ; rives de bois assombries.
+func _habiller_tuiles(toit: Node3D, suie: bool) -> void:
 	for mi in toit.find_children("*", "MeshInstance3D", true, false):
 		var mm := mi as MeshInstance3D
 		for s in mm.mesh.get_surface_count():
@@ -662,20 +749,24 @@ func _toit() -> void:
 				continue
 			var sm := m0 as StandardMaterial3D
 			var chemin := str(sm.albedo_texture.resource_path if sm.albedo_texture else "")
-			if chemin.contains("RoundTiles"):
-				var sh := ShaderMaterial.new()
-				sh.shader = TUILES_SH
-				sh.set_shader_parameter("albedo_tex", sm.albedo_texture)
-				sh.set_shader_parameter("normal_tex", sm.normal_texture)
-				sh.set_shader_parameter("uv_echelle", sm.uv1_scale)
-				sh.set_shader_parameter("uv_decalage", sm.uv1_offset)
-				sh.set_shader_parameter("suie_centre", Vector3(43.35, 0.0, 79.0))
-				sh.set_shader_parameter("suie_rayon", 2.6)
-				mm.set_surface_override_material(s, sh)
-			else:
-				var m1 := sm.duplicate() as StandardMaterial3D
-				m1.albedo_color = Color(0.62, 0.52, 0.46)
-				mm.set_surface_override_material(s, m1)
+			var cle := "p7101|tuiles|%s|%s" % [chemin, suie]
+			if not a._mats.has(cle):
+				if chemin.contains("RoundTiles"):
+					var sh := ShaderMaterial.new()
+					sh.shader = TUILES_SH
+					sh.set_shader_parameter("albedo_tex", sm.albedo_texture)
+					sh.set_shader_parameter("normal_tex", sm.normal_texture)
+					sh.set_shader_parameter("uv_echelle", sm.uv1_scale)
+					sh.set_shader_parameter("uv_decalage", sm.uv1_offset)
+					if suie:
+						sh.set_shader_parameter("suie_centre", Vector3(43.35, 0.0, 79.0))
+						sh.set_shader_parameter("suie_rayon", 2.6)
+					a._mats[cle] = sh
+				else:
+					var m1 := sm.duplicate() as StandardMaterial3D
+					m1.albedo_color = Color(0.62, 0.52, 0.46)
+					a._mats[cle] = m1
+			mm.set_surface_override_material(s, a._mats[cle])
 
 
 func _lumiere_et_fumee() -> void:

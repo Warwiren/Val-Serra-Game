@@ -62,6 +62,28 @@ fontaine, Colisée, boutique.
 * Carreaux gradués : plus chauds et plus vifs en bas, plus doux en haut et dans l'imposte cintrée.
 * Silhouette d'établi derrière les carreaux, petits bois, barreaux de fer dans l'embrasure.
 
+## Correctif après examen (refonte approuvée par le créateur, commit distinct)
+
+Raccord suspect vu depuis l'ouest, sous le bord gauche de la toiture, près du pignon et de l'appentis. Causes trouvées :
+
+1. Le pignon de pierre débordait du mur sans appui, et son pied flottait au-dessus de la corniche.
+2. Les corniches sud et ouest s'arrêtaient en décalé à l'angle sud-ouest, ce qui montrait leurs extrémités.
+3. La couverture de l'appentis montait jusqu'à 6,9 m contre le mur, en plein dans les corbeaux et la corniche. Elle se
+   lisait comme un plan brun uni.
+
+Corrections :
+
+* Les corniches latérales ont 0,42 m de saillie : les pignons sont **assis** dessus, sur toute leur longueur.
+* La corniche sud est retournée jusqu'au nu des corniches latérales : angles d'équerre.
+* **Finition de rive** : rampants de pierre de taille sous la rive des tuiles, et sommiers au pied des pignons.
+* L'appentis est couvert de **tuiles canal**, avec la matière « tuiles » de la galerie B du Colisée teintée sur la terre
+  cuite de la forge et des UV en mètres. Dessous : voligeage, planche d'égout, planches de rive.
+  * La couverture passe **sous les corbeaux** (6,5 m au mur), et sa pente est plus lisible.
+  * La sablière, les poteaux et les chevrons sont recalés.
+  * La porte de service est abaissée de 0,25 m pour rester sous la couverture.
+
+Ce qui ne change pas : silhouette et palette du toit, façade, entrée, atelier, lumières, collisions, interactions.
+
 ## Fichiers
 
 * `scenes/p7/forge_p7101.gd` (nouveau) : refonte D.
