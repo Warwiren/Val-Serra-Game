@@ -249,8 +249,9 @@ def construire():
     obstacles.append({"id": "barriere_chantier", "rect": rect(89.4, 136, 90, 144), "h": H0, "haut": 1.2})
     obstacles.append({"id": "barriere_route_sud", "rect": rect(57, 161.4, 63, 162), "h": H0, "haut": 1.1})
     obstacles.append({"id": "fontaine", "rect": rect(42, 96, 48, 102), "h": H1, "haut": 1.0})
-    # étals à auvent intégrés aux bords de la place (pas de seconde place de marché)
-    for i, r in enumerate([rect(31, 110.6, 35, 112.6), rect(37, 110.6, 41, 112.6), rect(72.6, 95, 75, 98.5), rect(66, 89, 70, 91)]):
+    # étals à auvent intégrés aux bords de la place (pas de seconde place de marché) ; P7.13 : étal 3 raccourci à l'est
+    # (x 70 -> 69,3) pour dégager le blason du soutènement et l'axe du château (x 70)
+    for i, r in enumerate([rect(31, 110.6, 35, 112.6), rect(37, 110.6, 41, 112.6), rect(72.6, 95, 75, 98.5), rect(66, 89, 69.3, 91)]):
         obstacles.append({"id": "etal_%d" % i, "rect": r, "h": H1, "haut": 1.6})
     # B : caravane en travers du passage des faubourgs (chargement en cours, chevaux dételés)
     obstacles.append({"id": "decor_caravane", "rect": rect(-17.5, 92.6, -13.5, 99.4), "h": H1, "haut": 2.6})
