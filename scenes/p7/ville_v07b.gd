@@ -36,6 +36,19 @@ func grille_dessinee(p: Dictionary) -> bool:
 	return not (str(p.get("id", "")) == "porte_chateau" and _civ().actif and _civ().herse_baissee())
 
 
+## P7.13 — Essai d'ombres pour la ville (--ombres_ville=<distance m>, ex. 200) : soleil en 4 tranches (PSSM) jusqu'à cette
+## distance au lieu de l'ombre orthogonale unique limitée à 120 m (fondu dès ≈ 96 m : les volées lointaines y entrent et en
+## sortent quand la caméra avance). NON activé par défaut : à juger en Forward+ sur GPU (ce conteneur rend en Compatibilité).
+func _ombres_ville() -> void:
+	var od := str(sc._cli.get("ombres_ville", ""))
+	if od == "" or sc.get("_sun") == null:
+		return
+	var s: DirectionalLight3D = sc._sun
+	s.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+	s.directional_shadow_max_distance = float(od)
+	s.directional_shadow_blend_splits = true
+
+
 const Bordures := preload("res://scenes/p7/bordures_p713.gd")
 var bd                                    # P7.13 : bordures de la grande place (scenes/p7/bordures_p713.gd)
 
@@ -202,6 +215,7 @@ func decorer() -> void:
 	_entrees()
 	_civ().decorer()
 	_bord().finaliser()                                   # P7.13 : étals de la place (fusion commune)
+	_ombres_ville()
 	_classer_volumes()
 	_libelle("Faubourgs — passage bloqué", Vector3(-14.0, 3.5 + 4.0, 96.0))
 	_libelle("Quartier du château — accès gardé", Vector3(70.0, 8.0 + 5.0, 41.0))

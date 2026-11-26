@@ -158,7 +158,9 @@ func _mur_perce(f: Dictionary, u0: float, u1: float, v0: float, v1: float, d0: f
 		trous.sort_custom(func(p, q): return p[0] < q[0])
 		for t in trous:
 			if t[0] > y + 0.001:
-				_b(f, xa, xb, y, t[0], d0, d1, mt)
+				# P7.13 : le pan sous une baie s'arrête 6 mm sous son bas : le dessus de l'appui (ou de la tablette) n'est plus
+				# dans le même plan que le dessus du mur (z-fighting mesuré sur les appuis : tools/p7/scintillement_p713.gd)
+				_b(f, xa, xb, y, t[0] - (0.006 if t[0] > v0 + 0.001 else 0.0), d0, d1, mt)
 			y = maxf(y, t[1])
 		if v1 > y + 0.001:
 			_b(f, xa, xb, y, v1, d0, d1, mt)

@@ -122,7 +122,8 @@ func _mur_perce(f: Dictionary, u0: float, u1: float, v0: float, v1: float, d0: f
 		var y := v0
 		for t in trous:
 			if t[0] > y + 0.001:
-				_b(f, xa, xb, y, minf(t[0], v1), d0, d1, mt)
+				# P7.13 : 6 mm sous le bas de la baie (appui hors du plan du dessus du mur : z-fighting mesuré)
+				_b(f, xa, xb, y, minf(t[0], v1) - (0.006 if t[0] > v0 + 0.001 and t[0] < v1 else 0.0), d0, d1, mt)
 			y = maxf(y, t[1])
 		if v1 > y + 0.001:
 			_b(f, xa, xb, y, v1, d0, d1, mt)
@@ -174,15 +175,16 @@ func _devanture() -> void:
 		_b(f, p[0] + 0.08, p[1] - 0.08, 4.1, ht - 0.2, 0.35, 0.37, m["vert_clair"])         # panneau en creux (filet)
 		_b(f, p[0] - 0.05, p[1] + 0.05, ht + 0.05, ht + 0.17, 0.0, 0.4, m["vert"])           # chapiteau
 	# piédroits de l'embrasure (pierre, dans l'épaisseur du mur), linteau de pierre
+	# P7.13 : piédroits et linteau à 5 mm en avant du parement (ils étaient dans son plan : z-fighting autour de la porte)
 	for s in [[u0 - 0.04, u0 + 0.03], [u1 - 0.03, u1 + 0.04]]:
-		_b(f, s[0], s[1], H0, ht, -EP, 0.0, m["taille_a"])
-	_b(f, u0 - 0.05, u1 + 0.05, ht - 0.02, ht + 0.25, -EP, 0.0, m["taille_b"])
+		_b(f, s[0], s[1], H0, ht, -EP, 0.005, m["taille_a"])
+	_b(f, u0 - 0.05, u1 + 0.05, ht - 0.02, ht + 0.25, -EP, 0.005, m["taille_b"])
 	# bandeau d'enseigne et corniche (de bois peint), filet doré, emblème au flacon
 	_b(f, 0.1, 3.9, ht + 0.17, ht + 0.62, 0.0, 0.36, m["vert"])
 	_b(f, 0.18, 3.82, ht + 0.24, ht + 0.27, 0.36, 0.375, m["or"])
 	_b(f, 0.18, 3.82, ht + 0.52, ht + 0.55, 0.36, 0.375, m["or"])
 	_b(f, 0.05, 3.95, ht + 0.62, ht + 0.72, 0.0, 0.44, m["vert_clair"])
-	_b(f, 0.0, 4.0, ht + 0.72, ht + 0.78, 0.0, 0.48, m["vert"])
+	_b(f, 0.0, 4.0, ht + 0.72, ht + 0.772, 0.0, 0.48, m["vert"])      # P7.13 : 8 mm sous la sablière (plans confondus)
 	_flacon(f, uc, ht + 0.4, 0.375, 0.26)
 	# porte à deux vantaux, au fond de l'embrasure : soubassement à panneaux, partie haute vitrée (petits carreaux
 	# éclairés), imposte vitrée à grille de fer
@@ -274,7 +276,8 @@ func _pan_de_bois_sud() -> void:
 	# ossature : poteaux corniers et de travée, sablières de plancher, sablière haute
 	for up: float in [0.0, 4.0, 8.0, 12.0]:
 		var ua := clampf(up, 0.11, R.size.x - 0.11)
-		_b(f, ua - 0.11, ua + 0.11, N1, N3, d0, d1, m["chene"])
+		# P7.13 : poteaux corniers débordant de 12 mm (faces d'about hors du plan des hourdis : z-fighting à l'angle)
+		_b(f, ua - 0.11 - (0.012 if up == 0.0 else 0.0), ua + 0.11 + (0.012 if up == R.size.x else 0.0), N1, N3, d0, d1, m["chene"])
 	for vv: float in [N1 + 0.1, N2, N3 - 0.1]:
 		_b(f, -0.02, R.size.x + 0.02, vv - 0.1, vv + 0.1, d0, d1 + 0.01, m["chene"])
 	# encadrements des fenêtres (linteau, appui, montants) et décharges dans les parties pleines
@@ -496,7 +499,8 @@ func _etal_bois() -> void:
 	var n := 7
 	var w := (r.size.x + 0.2) / n
 	for i in n:
-		var b: MeshInstance3D = a.box(Vector3(r.position.x - 0.1 + w * (i + 0.5), 5.4, y0 + 0.62), Vector3(w + 0.002, 0.04, 1.3), m["toile_v"] if i % 2 == 0 else m["toile_c"])
+		# P7.13 : bandes alternées décalées de 4 mm (le recouvrement de 2 mm était dans le même plan : z-fighting)
+		var b: MeshInstance3D = a.box(Vector3(r.position.x - 0.1 + w * (i + 0.5), 5.4 + (0.004 if i % 2 == 1 else 0.0), y0 + 0.62), Vector3(w + 0.002, 0.04, 1.3), m["toile_v"] if i % 2 == 0 else m["toile_c"])
 		b.basis = Basis(Vector3(1, 0, 0), 0.38)
 		a.box(Vector3(r.position.x - 0.1 + w * (i + 0.5), 5.02, y0 + 1.22), Vector3(w * 0.92, 0.2, 0.03), m["toile_c"] if i % 2 == 0 else m["toile_v"])
 	for xb: float in [r.position.x - 0.08, r.end.x + 0.08]:

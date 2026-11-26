@@ -314,7 +314,8 @@ func _etal(r: Rect2, h0: float, k: int) -> void:
 	for sw: float in [-1.0, 1.0]:
 		for i in nb:
 			var uu := -L * 0.5 - 0.1 + (L + 0.2) * (i + 0.5) / nb
-			var b := _bx(ctr, ax, aw, uu, (he + hf) * 0.5 + 0.03, sw * demi * 0.5, (L + 0.2) / nb + 0.002, 0.02, lg, mt0 if i % 2 == 0 else mt1)
+			# bandes alternées décalées de 4 mm : leur léger recouvrement n'est pas dans un même plan (pas de z-fighting)
+			var b := _bx(ctr, ax, aw, uu, (he + hf) * 0.5 + 0.03 + (0.004 if i % 2 == 1 else 0.0), sw * demi * 0.5, (L + 0.2) / nb + 0.002, 0.02, lg, mt0 if i % 2 == 0 else mt1)
 			b.rotate(ax, sw * pente if long_x else -sw * pente)
 		# lambrequin (bord festonné)
 		for i in nb:
