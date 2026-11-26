@@ -226,23 +226,38 @@ masque de collision avant / après.
 
 ### Autres scènes (ouvrir dans l'éditeur, puis **F6**)
 
+Classement de l'audit P7.12 (`docs/AUDIT_P7_12.md`). Aucun chemin ne change ; les retraits attendent la validation du
+créateur.
+
+**Scènes jouables**
+
 | Scène | Contenu |
 |---|---|
-| `scenes/p7/ville_v07b_boutique_710.tscn` | **P7.11 — boutique de fournitures « avant »** : version P7.10, pour comparer avec la boutique P7.11 de `ville_v07b.tscn` |
-| `scenes/p7/ville_v07b_forge_a.tscn` / `_b` / `_c` | **P7.9 — comparatif de la forge-armurerie** : A bibliothèque du projet, B Quaternius, C hybride (C+ de P7.10 : « avant » de la refonte D de P7.10.1 ; sans la boutique en A / B) |
-| `scenes/p7/catalogue_archi_p77.tscn` | **P7.7 — catalogue des composants architecturaux** : façades, fenêtres, volets, portes, balcons, toits (← / →) |
-| `scenes/p7/ville_v07b.tscn` | **P7.5 à P7.12 — ville V0.7-B (scène de référence de la ville)** : forge D, boutique P7.11, quartier civique et porte du château (P7.12), quartier central compact, entrées des bâtiments, tranche architecturale (auberge, ruelle des Tonneliers), caméras A / B (touche V) |
-| `scenes/p7/ville_v07a.tscn` | **P7.4 — ville V0.7-A** : micro-blockout semi-circulaire, caméras A / B (touche V) |
-| `scenes/p7/ville_v06_montee.tscn` | **P7.3 — ville V0.6** : caméra HD-2D de la ville et montée sur trois niveaux (prototype) |
-| `scenes/p7/ville_v05_blockout.tscn` | P7.1 — blockout V0.1 du quartier central (référence fonctionnelle, comparaison) |
+| `scenes/p7/ville_v07b.tscn` | **Ville de référence (V0.7-B, P7.5 à P7.12)** : grande place et fontaine, forge D, boutique P7.11, quartier civique et porte du château, tranche de l'auberge et ruelle des Tonneliers, entrées des bâtiments, caméras A / B (touche V) |
 | `scenes/p6/colisee.tscn` | **P6 — ouverture du jeu** : Colisée de Val'Serra, tutoriel, sortie vers la ville |
-| `scenes/p6/colisee_tunnel_A_6_5m.tscn` | P6.2-D — tunnel sud de 6,5 m (longueur de P6, comparaison) |
-| `scenes/p6/colisee_tunnel_B_8_5m.tscn` | P6.2-D — tunnel sud de 8,5 m (comparaison ; `colisee.tscn` = 9 m depuis P7.4.1) |
-| `scenes/p6/colisee_tunnel_C_9_5m.tscn` | P6.2-D — tunnel sud de 9,5 m (comparaison) |
 | `scenes/battle/combat_tutoriel.tscn` | P6 — combat tutoriel seul (retourne au Colisée à la fin) |
 | `scenes/battle/combat_foret.tscn` | **P5 — combat refondu** : groupe à gauche, Vorgane à droite, décor = la forêt d'exploration |
 | `scenes/battle/battle_scene.tscn` | combat seul (avec `--start=proto-battle --arena=lisiere` ou `--arena=foret` en ligne de commande) |
+
+**Outils de développement**
+
+| Scène | Contenu |
+|---|---|
+| `scenes/p7/catalogue_archi_p77.tscn` | **P7.7 — catalogue des composants architecturaux** : façades, fenêtres, volets, portes, balcons, toits (← / →) |
 | `tests/test_runner.tscn` | tests automatiques dans l'éditeur |
+
+**Comparaisons et prototypes — candidats au retrait (en attente de validation)**
+
+| Scène | Contenu |
+|---|---|
+| `scenes/p7/ville_v07b_boutique_710.tscn` | P7.11 — boutique de fournitures « avant » (version P7.10) ; aussi `--boutique=710` |
+| `scenes/p7/ville_v07b_forge_a.tscn` / `_b` / `_c` | P7.9 — comparatif de la forge-armurerie (A bibliothèque, B Quaternius, C = C+ de P7.10) ; aussi `--forge=A\|B\|C` |
+| `scenes/p7/ville_v07a.tscn` | P7.4 — ville V0.7-A (micro-blockout semi-circulaire) |
+| `scenes/p7/ville_v06_montee.tscn` | P7.3 — ville V0.6 (montée sur trois niveaux, prototype) |
+| `scenes/p7/ville_v05_blockout.tscn` | P7.1 — blockout V0.1 du quartier central |
+| `scenes/p6/colisee_tunnel_A_6_5m.tscn` | P6.2-D — tunnel sud de 6,5 m (comparaison ; `colisee.tscn` = 9 m depuis P7.4.1) — proposé séparément |
+| `scenes/p6/colisee_tunnel_B_8_5m.tscn` | P6.2-D — tunnel sud de 8,5 m (comparaison) — proposé séparément |
+| `scenes/p6/colisee_tunnel_C_9_5m.tscn` | P6.2-D — tunnel sud de 9,5 m (comparaison) — proposé séparément |
 
 ## Vérifications
 
