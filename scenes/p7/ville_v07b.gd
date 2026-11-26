@@ -448,6 +448,11 @@ func _classer_volumes() -> void:
 			if rr.grow(0.7).has_point(Vector2(c.x, c.z)) and c.y >= float(vo["h0"]) - 0.3 and c.y <= float(vo["top"]) + 1.5:
 				gi.reparent(vo["node"], true)
 				break
+	# P7.12.1 : chaque volume assez haut est coupé à hauteur d'étage (bas / haut) : l'escamotage peut ne retirer que les
+	# étages et le toit quand la ligne de vue vers Aren passe au-dessus du rez-de-chaussée (--escamotage_partiel=0 : P7.6)
+	if str(sc._cli.get("escamotage_partiel", "1")) != "0":
+		for vo in _vols:
+			_decouper(vo)
 
 
 func _dist_rect(r: Rect2, p: Vector2) -> float:
@@ -472,31 +477,183 @@ func coupes_camera(cam: Vector3, heros: Vector3, delta := 1.0 / 60.0) -> void:
 		var r: Rect2 = vo["rect"]
 		var entre: bool = r.position.y > heros.z - 1.0                 # le volume est au sud d'Aren : entre lui et la caméra
 		var hauteur_ok: bool = cam.y <= float(vo["top"]) + 0.5 and cam.y >= float(vo["h0"]) - 1.0
-		var marge := 4.0 if vo["masque"] else 2.6                        # hystérésis : pas de clignotement en longeant
+		var marge := 4.0 if int(vo.get("mode", 0)) > 0 else 2.6         # hystérésis : pas de clignotement en longeant
 		var masque: bool = entre and hauteur_ok and _dist_rect(r, pc) < marge
-		if masque != vo["masque"]:
-			vo["masque"] = masque
+		# P7.12.1 : le volume coupe la ligne de vue caméra -> buste d'Aren (Aren et ses chemins restent visibles)
+		if not masque and entre and vo.has("haut"):
+			masque = _coupe_vue(vo, cam, heros + Vector3(0, 1.0, 0), 0.5 if int(vo.get("mode", 0)) > 0 else 0.0)
+		# P7.12.1 : 1 = étages et toit seuls (la ligne de vue caméra -> pieds d'Aren passe au-dessus de la coupe, au droit
+		# de la face nord du volume), 2 = volume entier (comportement P7.6)
+		var mode := 0
+		if masque:
+			mode = 2
+			if vo.has("haut") and cam.z > heros.z + 0.5:
+				var tf := clampf((r.position.y - heros.z) / (cam.z - heros.z), 0.0, 1.0)
+				var h_los := heros.y + tf * (cam.y - heros.y)
+				var seuil: float = float(vo["coupe"]) + (0.05 if int(vo.get("mode", 0)) == 1 else 0.25)
+				if h_los >= seuil:
+					mode = 1
+		if mode != int(vo.get("mode", 0)):
+			vo["mode"] = mode
+			vo["masque"] = mode > 0
 			bascules += 1
-			print("P7 escamotage ", JSON.stringify({"id": vo["id"], "masque": masque, "t": snappedf(_t_coupes, 0.01),
-				"dernier_s": snappedf(_t_coupes - float(vo.get("t_bascule", -99.0)), 0.01)}))
+			print("P7 escamotage ", JSON.stringify({"id": vo["id"], "masque": mode > 0, "partie": ["aucune", "haut", "tout"][mode],
+				"t": snappedf(_t_coupes, 0.01), "dernier_s": snappedf(_t_coupes - float(vo.get("t_bascule", -99.0)), 0.01)}))
 			vo["t_bascule"] = _t_coupes
-			if masque:
+			if mode > 0:
 				masques[vo["id"]] = true
 			else:
 				masques.erase(vo["id"])
-		var cible := 0.0 if vo["masque"] else 1.0
+		# alpha du volume entier et de sa partie haute (net : immédiat ; fondu : expérimental, Forward+ seulement)
+		var cible := 0.0 if mode == 2 else 1.0
+		var cible_h := 0.0 if mode >= 1 else 1.0
 		var a: float = vo.get("alpha", 1.0)
+		var ah: float = vo.get("alpha_h", 1.0)
 		if not fondu:
 			a = cible
-		elif a != cible:
+			ah = cible_h
+		else:
 			a = move_toward(a, cible, delta / duree)
-		if a == vo.get("alpha", 1.0) and vo.has("alpha"):
+			ah = move_toward(ah, cible_h, delta / duree)
+		if vo.has("alpha") and a == float(vo["alpha"]) and ah == float(vo["alpha_h"]):
 			continue
 		vo["alpha"] = a
+		vo["alpha_h"] = ah
 		var nd := vo["node"] as Node3D
 		nd.visible = a > 0.001
+		if vo.has("haut"):
+			(vo["haut"] as Node3D).visible = ah > 0.001
 		if fondu:
 			if not vo.has("geoms"):
 				vo["geoms"] = nd.find_children("*", "GeometryInstance3D", true, false)
 			for g in vo["geoms"]:
-				(g as GeometryInstance3D).transparency = 1.0 - a
+				var dans_haut: bool = vo.has("haut") and (vo["haut"] as Node).is_ancestor_of(g)
+				(g as GeometryInstance3D).transparency = 1.0 - minf(a, ah if dans_haut else 1.0)
+
+
+# ------------------------------------------------------------------------------------------------ P7.12.1 : découpe bas / haut
+const COUPE_ETAGE := 3.5                     # hauteur conservée (rez-de-chaussée) quand seuls les étages sont escamotés
+
+
+## Découpe d'un volume à h0 + 3,5 m : boîtes coupées en deux, maillages (fusionnés, modèles) répartis par triangle selon
+## la hauteur de leur centre, autres géométries selon le centre de leur boîte. Les pièces hautes passent sous un nœud
+## « haut » du volume ; tout le reste (rez-de-chaussée) reste sous le volume. Aucun volume bas (< 5 m) n'est découpé.
+func _decouper(vo: Dictionary) -> void:
+	var nd := vo["node"] as Node3D
+	var coupe: float = float(vo["h0"]) + COUPE_ETAGE
+	if float(vo["top"]) - coupe < 1.5:
+		return
+	var haut := Node3D.new()
+	haut.name = "haut"
+	nd.add_child(haut)
+	for g in nd.get_children():
+		if g == haut or not (g is GeometryInstance3D):
+			continue
+		var gi := g as GeometryInstance3D
+		var ab: AABB = gi.global_transform * gi.get_aabb()
+		if ab.end.y <= coupe + 0.02:
+			continue
+		if ab.position.y >= coupe - 0.02:
+			gi.reparent(haut, true)
+			continue
+		if gi is MeshInstance3D and (gi as MeshInstance3D).mesh != null:
+			var mi := gi as MeshInstance3D
+			if mi.mesh is BoxMesh and mi.global_transform.basis.is_equal_approx(Basis.from_scale(mi.global_transform.basis.get_scale())):
+				_couper_boite(mi, coupe, haut)
+				continue
+			if mi.mesh is ArrayMesh:
+				_couper_maillage(mi, coupe, haut)
+				continue
+		if ab.get_center().y > coupe:
+			gi.reparent(haut, true)
+	vo["haut"] = haut
+	vo["coupe"] = coupe
+
+
+## Boîte alignée coupée en deux boîtes (même matière, matières en coordonnées monde : raccord invisible).
+func _couper_boite(mi: MeshInstance3D, coupe: float, haut: Node3D) -> void:
+	var bm := mi.mesh as BoxMesh
+	var s := mi.global_transform.basis.get_scale()
+	var c := mi.global_position
+	var y0 := c.y - bm.size.y * s.y * 0.5
+	var y1 := c.y + bm.size.y * s.y * 0.5
+	var b_bas := bm.duplicate() as BoxMesh
+	b_bas.size = Vector3(bm.size.x, (coupe - y0) / s.y, bm.size.z)
+	var b_haut := bm.duplicate() as BoxMesh
+	b_haut.size = Vector3(bm.size.x, (y1 - coupe) / s.y, bm.size.z)
+	var mh := mi.duplicate() as MeshInstance3D
+	mh.mesh = b_haut
+	haut.add_child(mh)
+	mh.global_position = Vector3(c.x, (coupe + y1) * 0.5, c.z)
+	mi.mesh = b_bas
+	mi.global_position = Vector3(c.x, (y0 + coupe) * 0.5, c.z)
+
+
+## Maillage réparti par triangle (centre au-dessus de la coupe -> haut) ; sommets conservés, index séparés.
+func _couper_maillage(mi: MeshInstance3D, coupe: float, haut: Node3D) -> void:
+	var src := mi.mesh as ArrayMesh
+	var gt := mi.global_transform
+	var m_bas := ArrayMesh.new()
+	var m_haut := ArrayMesh.new()
+	for si in src.get_surface_count():
+		if src.surface_get_primitive_type(si) != Mesh.PRIMITIVE_TRIANGLES:
+			return
+		var arr := src.surface_get_arrays(si)
+		var vx: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+		var idx: PackedInt32Array = arr[Mesh.ARRAY_INDEX] if arr[Mesh.ARRAY_INDEX] != null else PackedInt32Array()
+		if idx.is_empty():
+			idx.resize(vx.size())
+			for i in vx.size():
+				idx[i] = i
+		var ib := PackedInt32Array()
+		var ih := PackedInt32Array()
+		for k in range(0, idx.size(), 3):
+			var cy := (gt * vx[idx[k]]).y + (gt * vx[idx[k + 1]]).y + (gt * vx[idx[k + 2]]).y
+			if cy / 3.0 > coupe:
+				ih.append_array([idx[k], idx[k + 1], idx[k + 2]])
+			else:
+				ib.append_array([idx[k], idx[k + 1], idx[k + 2]])
+		var mat: Material = mi.get_active_material(si) if mi.material_override == null else src.surface_get_material(si)
+		for p in [[m_bas, ib], [m_haut, ih]]:
+			if (p[1] as PackedInt32Array).is_empty():
+				continue
+			var a2 := arr.duplicate()
+			a2[Mesh.ARRAY_INDEX] = p[1]
+			(p[0] as ArrayMesh).add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, a2)
+			(p[0] as ArrayMesh).surface_set_material((p[0] as ArrayMesh).get_surface_count() - 1, mat)
+	if m_haut.get_surface_count() == 0:
+		return
+	if m_bas.get_surface_count() == 0:
+		mi.reparent(haut, true)
+		return
+	var mh := mi.duplicate() as MeshInstance3D
+	mh.mesh = m_haut
+	haut.add_child(mh)
+	mh.global_transform = gt
+	mi.mesh = m_bas
+	for m2 in [mi, mh]:
+		for k in (m2 as MeshInstance3D).get_surface_override_material_count():
+			(m2 as MeshInstance3D).set_surface_override_material(k, null)
+
+
+## Le segment caméra -> cible traverse-t-il la boîte du volume (emprise, h0 -> sommet), élargie de `marge` ?
+func _coupe_vue(vo: Dictionary, cam: Vector3, cible: Vector3, marge: float) -> bool:
+	var r: Rect2 = (vo["rect"] as Rect2).grow(marge)
+	var lo := Vector3(r.position.x, float(vo["h0"]), r.position.y)
+	var hi := Vector3(r.end.x, float(vo["top"]) + marge, r.end.y)
+	var d := cible - cam
+	var t0 := 0.0
+	var t1 := 1.0
+	for k in 3:
+		if absf(d[k]) < 1e-6:
+			if cam[k] < lo[k] or cam[k] > hi[k]:
+				return false
+			continue
+		var ta := (lo[k] - cam[k]) / d[k]
+		var tb := (hi[k] - cam[k]) / d[k]
+		t0 = maxf(t0, minf(ta, tb))
+		t1 = minf(t1, maxf(ta, tb))
+		if t0 > t1:
+			return false
+	return true
+

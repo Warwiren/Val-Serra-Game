@@ -946,6 +946,14 @@ static func _route_base(name: String) -> Array:
 				o7121.append({"do": "talk", "id": c[0] + "_fermeture"})
 				o7121.append({"do": "wait", "t": 1.6})
 			return o7121
+		"p7_7121_escamotage":
+			# P7.12.1 — escamotage partiel (étages et toit seuls) : bords de la place au nord de la Guilde et de l'auberge
+			var o7e: Array = []
+			for c in [["e1_guilde", 44.0, 113.6, 3.5], ["e2_auberge", 74.0, 113.6, 3.5], ["e3_palier_b", 65.0, 122.0, 1.75]]:
+				o7e.append(_warp(c[1], c[2], c[3]))
+				o7e.append({"do": "wait", "t": 2.5})
+				o7e.append({"do": "snap", "id": c[0]})
+			return o7e
 		"p7_712_civique":
 			# P7.12 — perspective du château et quartier civique à la distance de jeu (contrôle, aucune capture livrée)
 			var o712: Array = []
