@@ -932,6 +932,15 @@ static func _route_base(name: String) -> Array:
 				o79.append({"do": "wait", "t": 2.5})
 				o79.append({"do": "snap", "id": c[0]})
 			return o79
+		"p7_712_civique":
+			# P7.12 — perspective du château et quartier civique à la distance de jeu (contrôle, aucune capture livrée)
+			var o712: Array = []
+			for c in [["c1_place_axe", 70.0, 104.0, 3.5], ["c2_pied_c", 62.0, 90.5, 3.5], ["c3_palier", 66.0, 79.5, 5.75],
+					["c4_terrasse", 70.0, 63.0, 8.0], ["c5_avenue", 70.0, 47.0, 8.0], ["c6_administration", 60.0, 57.5, 8.0]]:
+				o712.append(_warp(c[1], c[2], c[3]))
+				o712.append({"do": "wait", "t": 2.5})
+				o712.append({"do": "snap", "id": c[0]})
+			return o712
 		"p7_710_boutique":
 			# P7.10 — boutique de fournitures et forge C+ à la distance de jeu (contrôle, aucune capture livrée)
 			var o710: Array = []

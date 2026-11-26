@@ -21,6 +21,14 @@ func _tr():
 const Forge := preload("res://scenes/p7/forge_p79.gd")
 const Boutique := preload("res://scenes/p7/boutique_p710.gd")
 const Boutique711 := preload("res://scenes/p7/boutique_p711.gd")
+const Civique := preload("res://scenes/p7/civique_p712.gd")
+var ci                                    # P7.12 : quartier civique et porte du château (scenes/p7/civique_p712.gd)
+
+
+func _civ():
+	if ci == null:
+		ci = Civique.new(sc, self, _tr().a, _forge())
+	return ci
 var bo                                    # P7.10 : boutique de fournitures (scenes/p7/boutique_p710.gd)
 var fo                                    # P7.9 : comparatif de la forge (scenes/p7/forge_p79.gd)
 
@@ -66,6 +74,14 @@ const TOILE := Color(0.82, 0.76, 0.62)
 
 func construit(e: Dictionary) -> bool:
 	var id := str(e.get("id", ""))
+	# P7.12 : quartier civique (terrasses, socles, garde-corps, administration ; collisions des données)
+	if e["type"] == "block" and _civ().gere(id):
+		_civ().construit(e)
+		var lib0: String = str(v.get("batiments", {}).get(id, {}).get("libelle", ""))
+		if lib0 != "":
+			var r0: Rect2 = e["rect"]
+			_libelle(lib0, Vector3(r0.get_center().x, float(e["h1"]) + 5.0, r0.get_center().y))
+		return true
 	# P7.6 : tranche architecturale (bâtiments, sols ; l'escalier passe par _escalier). Collisions : celles des données.
 	if e["type"] == "block" and id == "bat_b_e_placette" and _tr().actif():
 		# P7.6 : muret bas au sud de la rue du chantier (bord de la tranche, côté caméra) : pierre et chaperon
@@ -151,6 +167,7 @@ func decorer() -> void:
 	for tr in v.get("decor_tours", []):
 		_tour_decor(tr)
 	_entrees()
+	_civ().decorer()
 	_classer_volumes()
 	_libelle("Faubourgs — passage bloqué", Vector3(-14.0, 3.5 + 4.0, 96.0))
 	_libelle("Quartier du château — accès gardé", Vector3(70.0, 8.0 + 5.0, 41.0))
@@ -193,6 +210,9 @@ func _caravane(r: Rect2, h0: float) -> void:
 
 ## Guérite (C) : petite loge de pierre à toit de tuiles, ouverte vers l'avenue.
 func _guerite(r: Rect2, h0: float) -> void:
+	if _civ().actif:
+		_civ().guerite(r, h0)                               # P7.12 : guérites de pierre à toit d'ardoise
+		return
 	sc._box_mesh(sc._rect_center(r, h0, h0 + 2.6), Vector3(r.size.x, 2.6, r.size.y), mat(Color(0.70, 0.67, 0.62), 0.0, 0.0, h0))
 	_toit(r, h0 + 2.6, "2p", 3)
 
@@ -345,6 +365,8 @@ func _entree_fonctionnelle(e: Dictionary) -> void:
 
 ## Porte décorative : battant unique de bois sombre affleurant, petit linteau, sans saillie ni interaction.
 func _porte_decorative(e: Dictionary) -> void:
+	if _civ().porte_deco(e):
+		return                                              # P7.12 : portes du quartier civique
 	if _tr().contient(str(e["batiment"])) and _tr().rects.has(str(e["batiment"])):
 		var rr: Rect2 = _tr().rects[str(e["batiment"])]
 		var dt: Dictionary = Tranche.BATIMENTS[str(e["batiment"])]
@@ -361,6 +383,9 @@ func _porte_decorative(e: Dictionary) -> void:
 
 ## P7.6 : escalier de la ruelle des Tonneliers dessiné par la tranche (pierre, murs d'échiffre) ; les autres : socle.
 func _escalier(e: Dictionary) -> void:
+	if str(e.get("id", "")) in Civique.VOLEES and _civ().actif:
+		_tr().escalier(e)                                   # P7.12 : volées C et D en pierre (mêmes collisions)
+		return
 	if str(e.get("id", "")) == Tranche.ESCALIER and _tr().actif():
 		_tr().escalier(e)
 		return

@@ -273,7 +273,16 @@
   en embrasure, étages en pan de bois sur encorbellement (0,4 m) aux hourdis miel, pignon sur rue, potence de grenier, enseigne
   au flacon ; étal (seule collision ajoutée) déplacé à l'angle ouest (x 73,9 -> 76,45, y 88,05 -> 89,05), hors de l'ombre de
   `bat_commerce_e2`. Éléments rattachés au volume d'escamotage par la méta « vol » (`ville_v07b._classer_volumes`), sommet du
-  volume porté à 17,5 m. EN ATTENTE de validation : ne pas commencer d'autres bâtiments.
+  volume porté à 17,5 m. **Approuvée par le créateur (26/11/2026) : deuxième référence architecturale** (pan de bois, trois
+  niveaux, entrée, matériaux). Réserves pour les lots de bordure : enseignes au flacon à différencier, profondeur des
+  fenêtres éclairées, visibilité de la boutique et de l'étal à préserver en traitant `bat_commerce_e2`, étals provisoires.
+- **P7.12 (branche `p7-12-quartier-civique`, `docs/P7_12_QUARTIER_CIVIQUE.md`)** : lot 4 (fond nord, montée civique, administration)
+  et perspective du château : `scenes/p7/civique_p712.gd` (`--civique=0` : état P7.11) ; volées C / D par `Tranche.escalier`,
+  terrasses dallées avec voie processionnelle sur l'axe x 70, soutènements, balustrades (collisions `gc_*` inchangées),
+  administration à porche, corps de garde (`bat_b_terrasse_no`), porte fortifiée (châtelet, herse, tours rondes, ardoise),
+  courtines, ville haute (affichage seul, méta « vol » = « aucun ») ; château lointain recentré (x 70, générateur).
+  Cadrage : seule la bande 8 -> 14 m de la porte est visible depuis la place (≈ 4° au-dessus de l'horizon). Hôtel de ville
+  NON traité (autre lot). Nettoyage : audit `docs/AUDIT_P7_12.md`, suppressions EN ATTENTE de l'accord du créateur.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).

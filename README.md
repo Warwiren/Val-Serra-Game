@@ -42,8 +42,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p7-11-boutique`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p7-11-boutique`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p7-12-quartier-civique`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p7-12-quartier-civique`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -186,6 +186,10 @@ masque de collision avant / après.
    embrasure, étages en pan de bois sur encorbellement, pignon sur rue, enseigne au flacon, étal déplacé à l'angle ouest.
    Avant / après : `scenes/p7/ville_v07b_boutique_710.tscn` (boutique P7.10) ou `--boutique=710` ; `--boutique=0` :
    blockout. Rapport : `docs/P7_11_BOUTIQUE.md`.
+   **Branche `p7-12-quartier-civique`** (EN ATTENTE de validation artistique) : F5 inchangé. **F6 sur `scenes/p7/ville_v07b.tscn`** :
+   forge D et boutique P7.11 approuvées ; **quartier civique et perspective du château** (volées et soutènements de pierre,
+   balustrades, administration à porche, corps de garde, porte fortifiée, remparts, château lointain sur l'axe ; `--civique=0` :
+   état P7.11). Rapports : `docs/P7_12_QUARTIER_CIVIQUE.md`, audit du projet `docs/AUDIT_P7_12.md`.
 
 ### Commandes — forêt V07B (F5)
 
@@ -227,7 +231,7 @@ masque de collision avant / après.
 | `scenes/p7/ville_v07b_boutique_710.tscn` | **P7.11 — boutique de fournitures « avant »** : version P7.10, pour comparer avec la boutique P7.11 de `ville_v07b.tscn` |
 | `scenes/p7/ville_v07b_forge_a.tscn` / `_b` / `_c` | **P7.9 — comparatif de la forge-armurerie** : A bibliothèque du projet, B Quaternius, C hybride (C+ de P7.10 : « avant » de la refonte D de P7.10.1 ; sans la boutique en A / B) |
 | `scenes/p7/catalogue_archi_p77.tscn` | **P7.7 — catalogue des composants architecturaux** : façades, fenêtres, volets, portes, balcons, toits (← / →) |
-| `scenes/p7/ville_v07b.tscn` | **P7.5 à P7.11 — ville V0.7-B** : forge D (P7.10.1) et boutique de fournitures P7.11, quartier central compact, entrées des bâtiments, tranche architecturale (auberge, ruelle des Tonneliers), caméras A / B (touche V) |
+| `scenes/p7/ville_v07b.tscn` | **P7.5 à P7.12 — ville V0.7-B (scène de référence de la ville)** : forge D, boutique P7.11, quartier civique et porte du château (P7.12), quartier central compact, entrées des bâtiments, tranche architecturale (auberge, ruelle des Tonneliers), caméras A / B (touche V) |
 | `scenes/p7/ville_v07a.tscn` | **P7.4 — ville V0.7-A** : micro-blockout semi-circulaire, caméras A / B (touche V) |
 | `scenes/p7/ville_v06_montee.tscn` | **P7.3 — ville V0.6** : caméra HD-2D de la ville et montée sur trois niveaux (prototype) |
 | `scenes/p7/ville_v05_blockout.tscn` | P7.1 — blockout V0.1 du quartier central (référence fonctionnelle, comparaison) |

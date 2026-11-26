@@ -352,7 +352,7 @@ def construire():
                     # nouveau volume ne doit dépasser la ligne de vue (outil tools/p7/camera_volumes_p76.py : contrôle « axe »).
                     "axe_chateau": {"x": 70.0, "largeur_voie": 4.0, "couloir": rect(66, 40, 74, 115), "porte": [70.0, 40.0, H2],
                                     "oeil": [70.0, 110.0, H1 + 1.6], "porte_haut_m": 7.0},
-                    "chateau": [100.0, -240.0],
+                    "chateau": [70.0, -240.0],           # P7.12 : silhouette du château centrée sur l'axe (x 70) de la porte fortifiée
                     "porte_sud": [57.0, 63.0, 153.5],
                     "chantier": rect(88.4, 136, 89.4, 144),
                     "points": points,
