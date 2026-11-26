@@ -417,10 +417,16 @@ func _porte_decorative(e: Dictionary) -> void:
 	sc._box_mesh(Vector3(x, h + H + 0.1, y + 0.04), Vector3(L + 0.3, 0.2, 0.08), mat(CALCAIRE.darkened(0.12)))
 
 
+## P7.13 : côtés des volées adossés à un mur (Guilde, auberge, forge, socle du palier) : échiffre non dessiné.
+const CONTRE_MUR := {"volee_a": ["o"], "volee_b": ["e"], "volee_c": ["o"], "volee_d": ["o"]}
+
+
 ## P7.6 : escalier de la ruelle des Tonneliers dessiné par la tranche (pierre, murs d'échiffre) ; les autres : socle.
 func _escalier(e: Dictionary) -> void:
 	if str(e.get("id", "")) in Civique.VOLEES and _civ().actif:
-		_tr().escalier(e)                                   # P7.12 : volées C et D en pierre (mêmes collisions)
+		var ee := e.duplicate()
+		ee["contre_mur"] = CONTRE_MUR.get(str(e["id"]), [])  # P7.13 : pas d'échiffre plaqué contre un mur
+		_tr().escalier(ee)                                  # P7.12 : volées C et D en pierre (mêmes collisions)
 		return
 	if str(e.get("id", "")) == Tranche.ESCALIER and _tr().actif():
 		_tr().escalier(e)

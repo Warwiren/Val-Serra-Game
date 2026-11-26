@@ -151,8 +151,11 @@ func escalier(e: Dictionary) -> void:
 		var y0 := yb - tread * (i + 1)
 		a.box(Vector3(r.get_center().x, (e["h0"] + top - 0.06) / 2.0, (y0 + y1) / 2.0), Vector3(r.size.x - 0.24, top - 0.06 - e["h0"], y1 - y0), mc)
 		a.box(Vector3(r.get_center().x, top - 0.03, (y0 + y1) / 2.0 + 0.02), Vector3(r.size.x - 0.24, 0.06, y1 - y0 + 0.04), md)
-		# murs d'échiffre : un gradin par marche, 0,9 m au-dessus du giron, de part et d'autre
+		# murs d'échiffre : un gradin par marche, 0,9 m au-dessus du giron, de part et d'autre ; P7.13 : pas contre un mur
+		# de bâtiment ou de soutènement (« contre_mur » : côtés "o" / "e" ; les collisions restent des deux côtés)
 		for xj in [r.position.x + 0.06, r.end.x - 0.06]:
+			if ("o" if xj < r.get_center().x else "e") in e.get("contre_mur", []):
+				continue
 			a.box(Vector3(xj, (e["h0"] + top + 0.9) / 2.0, (y0 + y1) / 2.0), Vector3(0.12, top + 0.9 - e["h0"], y1 - y0), pierre)
 			a.box(Vector3(xj, top + 0.93, (y0 + y1) / 2.0), Vector3(0.2, 0.06, y1 - y0), moulure())
 	a.box(Vector3(r.get_center().x, e["h1"] / 2.0, (r.position.y + yt) / 2.0), Vector3(r.size.x, e["h1"], yt - r.position.y), md)

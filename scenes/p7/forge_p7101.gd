@@ -404,8 +404,8 @@ func _facade_est() -> void:
 	var f := _f("e")
 	_b(f, -0.12, R.size.y, H0, 3.98, 0.0, 0.13, m["socle"])
 	_b(f, -0.12, R.size.y, 3.98, 4.06, 0.0, 0.065, m["taille_b"])
-	for uc: float in [3.0, 7.5]:
-		_fenetre_plaquee(f, uc, 4.4, 0.9, 1.1)
+	# P7.13 : les deux fenêtres plaquées de ce pignon (appui 4,4 m, y 85 et 80,5) étaient enterrées par la volée C (4,6 m)
+	# et le palier 2 (5,75 m) qui longent ce mur : pignon aveugle, comme un mur d'échiffre
 
 
 func _facade_ouest() -> void:

@@ -306,7 +306,16 @@ func _batiment_civique(r: Rect2, niv: Array, faces: Dictionary, m_mur: Material,
 		ref._mur_perce(f, 0.0, L, n1, top, -ep, 0.0, ouv_haut, m_mur)
 		for o in faces[cote]:
 			_garnir(f, float(o[0]), float(o[1]), float(o[2]), float(o[3]), maxf(0.06, float(o[4])), str(o[5]))
-		a.boite(f, -0.12, L + 0.12, h0, h0 + 0.55, 0.0, 0.1, m["taille_b"])
+		# P7.13 : soubassement interrompu au droit des portes (il passait devant leur pied : porte « surélevée » sans accès)
+		var us := [-0.12]
+		for o in faces[cote]:
+			if float(o[2]) < h0 + 0.55:
+				us.append(float(o[0]) - 0.17)
+				us.append(float(o[1]) + 0.17)
+		us.append(L + 0.12)
+		for i in range(0, us.size(), 2):
+			if float(us[i + 1]) - float(us[i]) > 0.02:
+				a.boite(f, float(us[i]), float(us[i + 1]), h0, h0 + 0.55, 0.0, 0.1, m["taille_b"])
 		for i in range(1, niv.size() - 1):
 			a.boite(f, -0.06, L + 0.06, float(niv[i]) - 0.1, float(niv[i]) + 0.12, 0.0, 0.08, m["taille_a"])
 		if corniche:
