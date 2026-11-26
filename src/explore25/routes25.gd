@@ -932,6 +932,20 @@ static func _route_base(name: String) -> Array:
 				o79.append({"do": "wait", "t": 2.5})
 				o79.append({"do": "snap", "id": c[0]})
 			return o79
+		"p7_7121_interactions":
+			# P7.12.1 — stabilité de la caméra à l'ouverture / fermeture des examens, sur les trois niveaux de la ville
+			# (mesure : tools/p7/stabilite_interactions_p7121.gd)
+			var o7121: Array = []
+			for c in [["ex_guilde", 52.0, 133.4, 0.0], ["ex_auberge", 76.0, 133.4, 0.0], ["ex_forge", 51.0, 89.4, 3.5],
+					["ex_boutique", 78.0, 89.4, 3.5], ["ex_fontaine", 45.0, 103.4, 3.5], ["ex_garde_chateau", 70.0, 44.2, 8.0],
+					["ex_hotel_de_ville", 83.0, 51.5, 8.0]]:
+				o7121.append(_warp(c[1], c[2], c[3]))
+				o7121.append({"do": "wait", "t": 2.0})
+				o7121.append({"do": "talk", "id": c[0]})
+				o7121.append({"do": "wait", "t": 1.6})
+				o7121.append({"do": "talk", "id": c[0] + "_fermeture"})
+				o7121.append({"do": "wait", "t": 1.6})
+			return o7121
 		"p7_712_civique":
 			# P7.12 — perspective du château et quartier civique à la distance de jeu (contrôle, aucune capture livrée)
 			var o712: Array = []

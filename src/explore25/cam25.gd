@@ -29,6 +29,9 @@ var snap := false                         # centre arrondi au pixel d'écran : a
 var aim_frac := 0.0
 var _aim_cur := 0.0
 var ui_lock := false                      # dialogue / menu ouvert : la molette ne change pas le zoom
+## P7.12.1 : visée conservée pendant les dialogues et examens (la ville et la caméra « V » du Colisée l'activent) : le
+## retour au centrage de P3 provoquait un recentrage vertical de ≈ 72 px à chaque ouverture / fermeture d'un examen.
+var visee_fixe := false
 var verrou := false                       # P7.4.1 : distance unique (caméra V0.7-A) : ni molette ni zoom des parcours
 var wheel_ignored := 0                    # compteur (vérification : molette bloquée pendant l'UI)
 
@@ -81,7 +84,7 @@ func aim() -> Vector2:
 
 func snap_to(target: Vector2) -> void:
 	focus = target
-	_aim_cur = 0.0 if ui_lock else aim_frac
+	_aim_cur = 0.0 if (ui_lock and not visee_fixe) else aim_frac
 	center = clamp_center(target + aim())
 
 
@@ -95,7 +98,7 @@ func update(target: Vector2, delta: float) -> void:
 		focus.x = target.x - signf(off.x) * DEAD.x
 	if absf(off.y) > DEAD.y:
 		focus.y = target.y - signf(off.y) * DEAD.y
-	var want := 0.0 if ui_lock else aim_frac
+	var want := 0.0 if (ui_lock and not visee_fixe) else aim_frac
 	_aim_cur = move_toward(_aim_cur, want, aim_frac * AIM_BLEND * delta)   # transition en ≈ 0,33 s
 	var goal := clamp_center(focus + aim())
 	center = center.lerp(goal, 1.0 - exp(-SMOOTH * delta))

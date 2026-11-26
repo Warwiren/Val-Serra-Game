@@ -2517,9 +2517,12 @@ func _camera_de_zone() -> void:
 
 func _apply_variante() -> void:
 	super._apply_variante()
+	# P7.12.1 : cadrage stable pendant les interactions ordinaires (ville, caméra « V » du Colisée) ; --visee_dialogue=1 : P3
+	s.cam.visee_fixe = false
 	if (_cam_ville and cam_mode != "P24") or cam_mode == "V06":
 		World25.pitch = deg_to_rad(float(_cli.get("v06_plongee", PLONGEE_V06)))
 		s.cam.aim_frac = float(_cli.get("v06_visee", AIM_V06))
+		s.cam.visee_fixe = str(_cli.get("visee_dialogue", "0")) != "1"
 
 
 ## Caméra perspective de la ville V0.6 : même principe que la P30 / P24 (Aren au même point de l'écran, à la même
