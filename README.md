@@ -42,8 +42,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p8-1a-finition-quartier`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p8-1a-finition-quartier`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p8-1a2-coherence`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p8-1a2-coherence`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -229,6 +229,12 @@ masque de collision avant / après.
    arcades, bâtiments secondaires et fonds habillés, jardinières plantées, limites en bois et pierre, marchandises
    reconnaissables. Comparaison : `--finition=0` (état P8.0-C) ou un lot seul, `--f_sols|f_colisee|f_batiments|f_vegetation|f_limites|f_etals=0`.
    Rapport : `docs/P8_1A_FINITION.md`.
+   **Branche `p8-1a2-coherence`** (EN ATTENTE de revue) : F5 inchangé. **F6 sur `scenes/p7/ville_v07b.tscn`** (ou
+   `ville_v07b_p80b.tscn` en lumière B) : cohérence architecturale. Portes au sol sans soubassement traversant, baies sans
+   superposition, murs mitoyens aveugles, quatre types de façades (ordinaire, aisée, commerce, service), plateformes
+   transformées en annexes et en quai, massifs plus bas et pots du belvédère plantés, travées du Colisée variées.
+   Comparaison : `--f_coherence=0` (état P8.1-A). Contrôle : `godot --headless --path . --script res://tools/p8/coherence_facades_p81a2.gd`.
+   Rapport, avec la proposition de fortifications pour P8.1-A3 : `docs/P8_1A2_COHERENCE.md`.
 
 ### Commandes — forêt V07B (F5)
 

@@ -340,6 +340,13 @@
   Affichage seulement : collisions identiques (151 formes), `--finition=0` = P8.0-C exact (MD5), `--f_<lot>=0` par lot. Forge D,
   boutique P7.11, tranche, civique validé, grande place : non modifiés. Aucun PNJ, aucun achat, imports CC0 du Drive listés dans
   `art/p63/quaternius/SOURCES.md`. Coût : +25 % d'appels, primitives ×2,5 (rapport § 6) : à mesurer sur GPU.
+- **P8.1-A2 (branche `p8-1a2-coherence`, `docs/P8_1A2_COHERENCE.md`)** : cohérence architecturale, EN ATTENTE de revue. Corrections À LA
+  SOURCE dans `Archi._batiment` (activées par la ville, `--f_coherence=0` = P8.1-A) : soubassement interrompu aux portes, portes de RDC
+  au sol, baies bornées sous bandeau / corniche, baies omises sur murs mitoyens (`libre`), porte décorative obstruée non dessinée.
+  Contrôle `tools/p8/coherence_facades_p81a2.gd` : 0 superposition, 0 porte hors sol, 0 soubassement traversant, 0 obstacle attendus.
+  Types de façades `finition_p81.TYPES` (ordinaire, aisée, commerce, service ; civique inchangé). Plateformes : `bat_b_parvis_s/_o2`
+  = annexes en appentis, `bat_b_no_place` = quai ; collisions identiques. Tours et remparts sud : proposition « rempart terrassé sur
+  fossé sec » pour P8.1-A3 (rapport § 6), rien de construit. Ne pas construire l'enceinte sans accord.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).
