@@ -43,6 +43,7 @@ const PORTES := ["porte_deco", "porte_cloutee", "porte_vitree", "porte_cochere",
 var racine: Node3D
 var _mats := {}
 var elements := 0          # maillages ajoutés (coût d'affichage)
+var plantes = null                # P8.1-A : végétation par modèles (scenes/p8/vegetation_p81.gd) ; null : sphères P7.7
 var preset_tuiles := "tuiles_a"   # P8.0-B : matière des versants (« tuiles » = terre cuite de la forge D)
 
 
@@ -724,6 +725,9 @@ func _toit_appentis(r: Rect2, h: float, ht: float, c_enduit: Color, tuiles: Colo
 func jardiniere(r: Rect2, h: float) -> void:
 	var ri := r.grow(-0.45)
 	box(centre(ri, h - 0.02, h + 0.03), Vector3(ri.size.x, 0.05, ri.size.y), plein(Color(0.29, 0.24, 0.18)))
+	if plantes != null:
+		_jardiniere_plantee(ri, h)
+		return
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(r.position.x * 131.0 + r.position.y * 17.0)
 	var verts := [Color(0.32, 0.44, 0.22), Color(0.38, 0.50, 0.25), Color(0.44, 0.52, 0.28), Color(0.28, 0.40, 0.22), Color(0.48, 0.54, 0.32)]
@@ -771,6 +775,26 @@ func jardiniere(r: Rect2, h: float) -> void:
 		racine.add_child(p)
 		elements += 1
 	# lisière de pierres le long du bord nord
+	box(Vector3(ri.get_center().x, h + 0.06, ri.position.y + 0.06), Vector3(ri.size.x, 0.12, 0.12), macon("socle2", PIERRE_VILLE, h))
+	elements += 2
+
+
+## P8.1-A (L4) : même jardinière (terre, deux pots de terre cuite, lisière de pierre), plantée par le module végétal.
+func _jardiniere_plantee(ri: Rect2, h: float) -> void:
+	plantes.garnir(Rect2(ri.position.x, ri.position.y + 0.1, ri.size.x, ri.size.y - 0.1), h + 0.03)
+	for px in [ri.position.x + ri.size.x * 0.27, ri.position.x + ri.size.x * 0.71]:
+		var p := MeshInstance3D.new()
+		var cm := CylinderMesh.new()
+		cm.top_radius = 0.32
+		cm.bottom_radius = 0.24
+		cm.height = 0.5
+		cm.radial_segments = 12
+		p.mesh = cm
+		p.material_override = plein(Color(0.62, 0.36, 0.24))
+		p.position = Vector3(px, h + 0.25, ri.position.y + 0.4)
+		racine.add_child(p)
+		elements += 1
+		plantes.pot(Vector3(px, h + 0.48, ri.position.y + 0.4), int(px * 37.0))
 	box(Vector3(ri.get_center().x, h + 0.06, ri.position.y + 0.06), Vector3(ri.size.x, 0.12, 0.12), macon("socle2", PIERRE_VILLE, h))
 	elements += 2
 

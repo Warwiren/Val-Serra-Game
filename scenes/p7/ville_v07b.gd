@@ -15,7 +15,13 @@ var tr                                    # P7.6 : tranche architecturale (scene
 func _tr():
 	if tr == null:
 		tr = Tranche.new(self)
+		# P8.1-A (L4) : jardinières plantées par modèles (--f_vegetation=0 : sphères P7.7)
+		if _fin().actif("vegetation"):
+			tr.a.plantes = Vegetation.new(self, tr.a)
 	return tr
+
+
+const Vegetation := preload("res://scenes/p8/vegetation_p81.gd")
 
 
 const Forge := preload("res://scenes/p7/forge_p79.gd")

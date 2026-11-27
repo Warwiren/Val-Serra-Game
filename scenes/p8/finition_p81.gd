@@ -390,6 +390,12 @@ func batiment(e: Dictionary, genre: String, entrees: Array, toit_max: float) -> 
 	var id := str(e["id"])
 	sc._static_box(sc._rect_center(r, h0, h1), Vector3(r.size.x, h1 - h0, r.size.y), sc.L_OBST)
 	a.batiment(r, h0, fiche(id, r, h0, h1, genre, entrees, toit_max))
+	# L4 : une vigne grimpante au pied de la façade sud d'une maison sur trois (angle, jamais devant une entrée)
+	if genre == "maison" and a.plantes != null and absi(id.hash()) % 3 == 0 and r.size.x > 6.0:
+		var g := absi(id.hash())
+		var u := 1.1 if g % 2 == 0 else r.size.x - 1.1
+		if not _devant_entree(Archi.face(r, "s"), u, entrees):
+			a.plantes.vigne(Vector3(r.position.x + u, h0, r.end.y + 0.06), 0.0, g, 1.15)
 
 
 ## Socle bas (moins de 2,5 m : quais, murets, plates-formes) : même collision, corps de soutènement, dessus dallé et

@@ -37,3 +37,15 @@ existants (aucun doublon des quinze modèles de P6.3, qui sont réutilisés : `B
 | `fp/` | Anvil, Workbench, Whetstone, Bucket_Metal, Shield_Wooden, Sword_Bronze | Trim_Props |
 
 **Statut** : PROVISOIRE, comparatif P7.9 seulement (`scenes/p7/forge_p79.gd`). Aucune généralisation avant décision.
+
+## Ajout P8.1-A — végétation de la cité (27/11/2026)
+
+Même provenance (archive Standard du Drive, Medieval Village MegaKit, CC0). Seule une sélection est importée.
+
+| Dossier | Modèles ajoutés | Texture ajoutée |
+|---|---|---|
+| `mv/` | Prop_Vine1, Prop_Vine2, Prop_Vine4 (plantes grimpantes de façade) | T_VineLeaf_png (512², taille d'origine) |
+
+Les arbustes, plantes, fleurs et couvre-sols de la cité réutilisent les modèles Quaternius de la forêt F5
+(`ValSerra_P49_V07B_PREFLIGHT_GODOT/assets/models/`, CC0, licence dans `ValSerra_P49_V07B_PREFLIGHT_GODOT/docs/`), sans
+copie. Module : `scenes/p8/vegetation_p81.gd`. **Statut** : PROVISOIRE, en attente de la revue du créateur.
