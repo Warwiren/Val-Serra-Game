@@ -597,10 +597,11 @@ func coupes_camera(cam: Vector3, heros: Vector3, delta := 1.0 / 60.0) -> void:
 		vo["alpha_h"] = ah
 		var nd := vo["node"] as Node3D
 		nd.visible = a > 0.001
+		var parapet: bool = vo.get("parapet", false)       # P8.0-B : coupe permanente (porte sud), dessus toujours affiché
 		if vo.has("haut"):
-			(vo["haut"] as Node3D).visible = ah > 0.001
+			(vo["haut"] as Node3D).visible = ah > 0.001 and not parapet
 		if vo.has("chapeau"):
-			(vo["chapeau"] as Node3D).visible = a > 0.001 and ah <= 0.001
+			(vo["chapeau"] as Node3D).visible = a > 0.001 and (ah <= 0.001 or parapet)
 		if fondu:
 			if not vo.has("geoms"):
 				vo["geoms"] = nd.find_children("*", "GeometryInstance3D", true, false)
@@ -670,6 +671,14 @@ func _decouper(vo: Dictionary) -> void:
 	vo["haut"] = haut
 	vo["coupe"] = coupe
 	_chapeau(vo)
+	# P8.0-B (correctif) : le style « pierre » (porte sud) est une coupe PERMANENTE. Ces volumes ne sont dessinés qu'en muret de
+	# 1,6 m coiffé d'une tranche sombre (ville_blockout) et ne sont presque jamais escamotés depuis la placette (la visée passe
+	# entre les tours) : le dessus de pierre, réservé au mode « haut », ne s'affichait donc pas et la tranche sombre restait
+	# visible (dessus bleu-noir). Parapet de 1,2 m et chemin de ronde toujours affichés ; collision des données inchangée.
+	if str(cd[1]) == "pierre":
+		vo["parapet"] = true
+		haut.visible = false
+		(vo["chapeau"] as Node3D).visible = true
 
 
 ## Boîte alignée coupée en deux boîtes (même matière, matières en coordonnées monde : raccord invisible).
