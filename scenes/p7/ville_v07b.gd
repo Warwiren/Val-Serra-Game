@@ -165,7 +165,7 @@ func _batiment_secondaire(e: Dictionary) -> bool:
 		_fin().socle(e)
 		return true
 	var cat := str(v.get("batiments", {}).get(id, {}).get("categorie", "residentiel"))
-	var genre := "civique" if cat in ["guilde", "civique"] else "maison"
+	var genre: String = _fin().type_de(id, cat, r, h0, h1)          # P8.1-A2 : types d'immeubles
 	var entrees := (v.get("entrees", []) as Array).filter(func(x): return str(x.get("batiment", "")) == id)
 	var toit_max := minf(clampf(minf(r.size.x, r.size.y) * 0.42, 1.4, 6.0), maxf((h1 - h0) * 0.7, 1.0))
 	_fin().batiment(e, genre, entrees, toit_max)

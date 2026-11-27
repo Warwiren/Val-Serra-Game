@@ -318,9 +318,51 @@ const NIVEAU_ETAGE := 2.8
 const PALETTES_MAISONS := ["miel", "ocre", "gris_chaud", "rose", "creme", "terre"]
 
 
+## P8.1-A2 — Types d'immeubles (au lieu d'une seule distribution répétée) : chaque type a SA logique structurelle,
+## constante sur tout le bâtiment ; seules les dimensions varient, dans une plage propre au type, selon la graine.
+##   ordinaire : RDC de pierre, travées 2,6 à 2,9 m, fenêtres moyennes à volets pleins, soupiraux grillagés au RDC ;
+##   aisee     : RDC à bossage, étage noble (1er) aux baies hautes, portes-fenêtres sur un balcon filant au centre de la
+##               façade sur rue, étage supérieur plus bas, volets persiennés, corniche à consoles, enduit clair ;
+##   commerce  : devantures et vitrines au RDC sur rue (faces libres), étages de maison ordinaire ;
+##   service   : peu d'ouvertures (travées 3,4 à 3,8 m), petites fenêtres sans croisée aux volets fermés, soupiraux ;
+##   civique, fond : inchangés (Guilde / hôtel de ville ; fonds lointains simplifiés).
+const TYPES := {
+	"ordinaire": {"pas": [2.6, 2.9], "w": 0.9, "h": 1.35, "rdc": "pierre", "volets": "pleins", "corniche": "simple", "pal": ["ocre", "gris_chaud", "rose", "terre"]},
+	"aisee": {"pas": [3.0, 3.2], "w": 1.0, "h": 1.65, "rdc": "bossage", "volets": "persiennes", "corniche": "consoles", "pal": ["creme", "miel"]},
+	"commerce": {"pas": [2.7, 3.0], "w": 0.9, "h": 1.35, "rdc": "pierre", "volets": "pleins", "corniche": "simple", "pal": ["miel", "ocre", "rose"]},
+	"service": {"pas": [3.4, 3.8], "w": 0.7, "h": 0.95, "rdc": "pierre", "volets": "fermes", "corniche": "simple", "pal": ["gris_chaud", "terre"]},
+}
+
+
+## Types imposés (logique de rue) : RDC commercial à l'entrée de la ville, sur la placette des Voyageurs
+## (bat_b_o_placette : seul bâtiment habillé dont TOUTES les devantures donnent de plain-pied sur un sol praticable, sans
+## obstacle ; essai systématique avec tools/p8/coherence_facades_p81a2.gd : les autres donnent sur le vide, la caravane,
+## les piles du porche, un garde-corps ou l'enceinte du Colisée) ; pas deux maisons aisées accolées sur la terrasse est.
+const TYPES_IMPOSES := {"bat_b_o_placette": "commerce", "bat_b_terrasse_e3": "ordinaire"}
+
+
+## Type d'un bâtiment secondaire d'après sa catégorie (données) et sa taille ; la graine départage seulement.
+func type_de(id: String, categorie: String, r: Rect2, h0: float, h1: float) -> String:
+	if TYPES_IMPOSES.has(id):
+		return TYPES_IMPOSES[id]
+	var g := absi(id.hash())
+	if categorie in ["guilde", "civique"]:
+		return "civique"
+	if categorie == "commerce":
+		return "commerce"
+	if categorie == "residentiel" and ((h1 - h0 >= 7.5 and r.size.x >= 14.0) or g % 3 == 0):
+		return "aisee"
+	if categorie == "residentiel_b" and g % 4 == 0:
+		return "service"
+	return "ordinaire"
+
+
 ## Fiche d'un bâtiment : `toit_max` = hauteur de toit admise par le volume d'escamotage (ville_v07b._classer_volumes).
 func fiche(id: String, r: Rect2, h0: float, h1: float, genre: String, entrees: Array, toit_max: float) -> Dictionary:
 	var g := absi(id.hash())
+	if genre == "maison":
+		genre = "ordinaire"
+	var ty: Dictionary = TYPES.get(genre, TYPES["ordinaire"])
 	var nv := [h0]
 	var hh := h1 - h0
 	var n_et := maxi(0, int(round((hh - NIVEAU_RDC) / NIVEAU_ETAGE)))
@@ -329,13 +371,23 @@ func fiche(id: String, r: Rect2, h0: float, h1: float, genre: String, entrees: A
 	else:
 		var rdc := minf(NIVEAU_RDC, hh * 0.45)
 		nv.append(h0 + rdc)
-		var et := (hh - rdc) / n_et
-		for i in n_et:
-			nv.append(h0 + rdc + et * (i + 1))
-	var pal: Array = Archi.PALETTES[PALETTES_MAISONS[g % PALETTES_MAISONS.size()]]
+		# maison aisée : étage noble plus haut que les suivants
+		var hauts := []
+		for k in n_et:
+			hauts.append(1.25 if genre == "aisee" and k == 0 and n_et > 1 else 1.0)
+		var somme: float = hauts.reduce(func(x, y): return x + y, 0.0)
+		var acc := h0 + rdc
+		for k in n_et:
+			acc += (hh - rdc) * hauts[k] / somme
+			nv.append(acc)
+	var noms_pal: Array = ty["pal"] if genre in TYPES else PALETTES_MAISONS
+	var pal: Array = Archi.PALETTES[noms_pal[g % noms_pal.size()]]
 	var d := {"id": id, "niveaux": nv, "enduit": pal[0], "volets": pal[1], "toit": "2p_x",
 		"toit_h": clampf(minf(r.size.x, r.size.y) * 0.32, 1.2, minf(toit_max, 3.6)), "faces": {}, "balcons": [], "lanternes": []}
-	var cotes := ["s", "e", "o"]
+	if genre in TYPES:
+		d["rdc"] = ty["rdc"]
+		d["volets_style"] = ty["volets"]
+		d["corniche"] = ty["corniche"]
 	if genre == "civique":
 		d["rdc"] = "bossage"
 		d["etages"] = "pierre"
@@ -344,41 +396,64 @@ func fiche(id: String, r: Rect2, h0: float, h1: float, genre: String, entrees: A
 		d["toit"] = "croupe"
 	elif genre == "fond":
 		d["chaines"] = false
-	for cote in cotes:
+	var pas_t: Array = ty["pas"] if genre in TYPES else ([3.2, 3.2] if genre == "civique" else [2.7, 2.7])
+	var pas: float = lerpf(pas_t[0], pas_t[1], float(g % 7) / 6.0)
+	for cote in ["s", "e", "o"]:
 		var f := Archi.face(r, cote)
 		var L: float = f["L"]
 		var par_niveau := []
+		var nb := int(floor((L - 1.6) / pas))
+		var u0 := (L - (nb - 1) * pas) * 0.5
 		for i in nv.size() - 1:
 			var bas: float = nv[i]
-			var haut_n: float = nv[i + 1]
-			var hn := haut_n - bas
+			var hn: float = nv[i + 1] - bas
 			var liste := []
-			var pas := 2.7 if genre != "civique" else 3.2
-			var nb := int(floor((L - 1.6) / pas))
 			if nb < 1 or hn < 1.8:
 				par_niveau.append(liste)
 				continue
-			var u0 := (L - (nb - 1) * pas) * 0.5
 			for k in nb:
 				var u := u0 + k * pas
 				if i == 0 and cote == "s" and _devant_entree(f, u, entrees):
 					continue
-				if i == 0:
-					if genre == "civique":
-						liste.append([u, 1.0, minf(1.9, hn - 1.2), 0.9, "fenetre_simple"])
-					elif genre == "fond" or (g + k) % 3 == 0:
-						liste.append([u, 0.8, 0.9, minf(1.2, hn - 1.3), "barreaux"])
-					else:
-						liste.append([u, 0.95, minf(1.4, hn - 1.3), 0.85, "fenetre"])
-				else:
-					var hw := minf(1.45, hn - 0.9) if genre != "civique" else minf(2.0, hn - 0.8)
-					var style := "fenetre" if genre != "civique" else "fenetre_cintree"
-					if genre == "fond":
-						style = "fenetre_simple"
-					liste.append([u, 0.9 if genre != "civique" else 1.1, hw, minf(0.55, hn - hw - 0.25), style])
+				liste.append(_baie_type(genre, i, k, nb, cote, u, hn, g, ty))
 			par_niveau.append(liste)
 		d["faces"][cote] = par_niveau
+		# maison aisée : balcon filant sur les deux travées centrales de l'étage noble, côté rue
+		if genre == "aisee" and cote == "s" and nb >= 3 and nv.size() > 2:
+			var kc := int(nb / 2)
+			d["balcons"].append(["s", u0 + (kc - 1) * pas - 0.75, u0 + kc * pas + 0.75, 1, 0.75, "fer"])
 	return d
+
+
+## Baie d'un type d'immeuble : [u, largeur, hauteur, appui, style] au niveau i (0 = RDC) de la travée k sur nb.
+func _baie_type(genre: String, i: int, k: int, nb: int, cote: String, u: float, hn: float, g: int, ty: Dictionary) -> Array:
+	if genre == "civique":
+		if i == 0:
+			return [u, 1.0, minf(1.9, hn - 1.2), 0.9, "fenetre_simple"]
+		return [u, 1.1, minf(2.0, hn - 0.8), minf(0.55, hn - 2.0 - 0.25), "fenetre_cintree"]
+	if genre == "fond":
+		if i == 0:
+			return [u, 0.8, 0.9, minf(1.2, hn - 1.3), "barreaux"]
+		return [u, 0.9, minf(1.45, hn - 0.9), minf(0.55, hn - 1.7), "fenetre_simple"]
+	var w: float = ty["w"]
+	var h: float = ty["h"]
+	if i == 0:
+		if genre == "commerce":
+			# devantures sur rue (faces libres ; les faces mitoyennes sont omises), une vitrine sur deux travées
+			return [u, minf(2.2, ty["pas"][0] - 0.5), 2.3, 0.0, "devanture" if k % 2 == 0 else "vitrine"]
+		if genre == "service" or (k + g) % 3 == 0:
+			return [u, 0.8, 0.8, minf(1.4, hn - 1.4), "barreaux"]
+		return [u, w, minf(h, hn - 1.4), 0.9, "fenetre"]
+	if genre == "aisee":
+		var noble := i == 1
+		var kc := int(nb / 2)
+		if noble and cote == "s" and nb >= 3 and (k == kc - 1 or k == kc):
+			return [u, 1.0, minf(2.1, hn - 0.5), 0.0, "porte_fenetre"]           # sur le balcon
+		var hb := h if noble else h * 0.8
+		return [u, w, minf(hb, hn - 0.9), minf(0.5, hn - hb - 0.4), "fenetre"]
+	if genre == "service":
+		return [u, w, h, minf(0.7, hn - h - 0.4), "fenetre_simple"]
+	return [u, w, minf(h, hn - 0.9), minf(0.55, hn - h - 0.4), "fenetre"]
 
 
 ## La baie d'abscisse u (face f) tombe-t-elle devant une entrée des données ?
