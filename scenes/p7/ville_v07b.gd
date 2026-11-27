@@ -604,6 +604,24 @@ func coupes_camera(cam: Vector3, heros: Vector3, delta := 1.0 / 60.0) -> void:
 
 # ------------------------------------------------------------------------------------------------ P7.12.1 : découpe bas / haut
 const COUPE_ETAGE := 3.5                     # hauteur conservée (rez-de-chaussée) quand seuls les étages sont escamotés
+## P8.0-B — Coupes propres à certains volumes de premier plan (diagnostic P8.0-A2) ; --coupes_p80b=0 : état P8.0-A.
+##  * auberge-taverne et Guilde (h0 0, bordées par la grande place à 3,5 m) : coupées à 3,5 m, leur plancher de coupe
+##    prolongeait le dallage de la place comme une grande plate-forme de bois. Coupe à 3,1 m (au-dessus des baies et
+##    de la porte de l'auberge, 3,0 m), soit 0,4 m sous la place, et dessus en maçonnerie arasée sombre (« arase ») ;
+const COUPES_P80B := {
+	"bat_auberge_taverne": [3.1, "arase"], "bat_guilde": [3.1, "arase"],
+}
+
+
+func _coupes_p80b() -> bool:
+	return str(sc._cli.get("coupes_p80b", "1")) != "0"
+
+
+## Hauteur conservée au-dessus de h0 et style du dessus de coupe (« plancher » : P7.12.2) du volume.
+func _coupe_de(vo: Dictionary) -> Array:
+	if _coupes_p80b() and COUPES_P80B.has(str(vo["id"])):
+		return COUPES_P80B[str(vo["id"])]
+	return [COUPE_ETAGE, "plancher"]
 
 
 ## Découpe d'un volume à h0 + 3,5 m : boîtes coupées en deux, maillages (fusionnés, modèles) répartis par triangle selon
@@ -611,9 +629,11 @@ const COUPE_ETAGE := 3.5                     # hauteur conservée (rez-de-chauss
 ## « haut » du volume ; tout le reste (rez-de-chaussée) reste sous le volume. Aucun volume bas (< 5 m) n'est découpé.
 func _decouper(vo: Dictionary) -> void:
 	var nd := vo["node"] as Node3D
-	var coupe: float = float(vo["h0"]) + COUPE_ETAGE
+	var cd: Array = _coupe_de(vo)
+	var coupe: float = float(vo["h0"]) + float(cd[0])
 	if float(vo["top"]) - coupe < 1.5:
 		return
+	vo["style_coupe"] = str(cd[1])
 	var haut := Node3D.new()
 	haut.name = "haut"
 	nd.add_child(haut)
@@ -755,11 +775,22 @@ func _chapeau(vo: Dictionary) -> void:
 	nd.add_child(ch)
 	var d0: int = a.racine.get_child_count()
 	var ri := r.grow(-0.35)
-	var pl: MeshInstance3D = a.box(Vector3(r.get_center().x, h + 0.015, r.get_center().y), Vector3(ri.size.x, 0.03, ri.size.y), a.macon("plancher", Color(1.05, 0.98, 0.9), h, "monde", false))
+	# P8.0-B : dessus selon le style de coupe du volume (« plancher » P7.12.2 ; « arase » : maçonnerie arasée sombre et arase
+	# large ; « pierre » : chemin de ronde de pierre, sans plancher)
+	var style := str(vo.get("style_coupe", "plancher"))
+	var m_dessus: Material = a.macon("plancher", Color(1.05, 0.98, 0.9), h, "monde", false)
+	var ep := 0.35
+	if style == "arase":
+		m_dessus = a.macon("mur2", Color(0.7, 0.66, 0.62), h, "monde", false)
+		ep = 0.55
+	elif style == "pierre":
+		m_dessus = a.macon("dalle", Color(0.86, 0.82, 0.78), h, "monde", false)
+		ep = 0.45
+	var pl: MeshInstance3D = a.box(Vector3(r.get_center().x, h + 0.015, r.get_center().y), Vector3(ri.size.x, 0.03, ri.size.y), m_dessus)
 	pl.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var ar: Material = a.macon("mur2", Color(1.2, 1.12, 1.0), h)
-	for b in [[r.position.x, r.end.x, r.position.y, r.position.y + 0.35], [r.position.x, r.end.x, r.end.y - 0.35, r.end.y],
-			[r.position.x, r.position.x + 0.35, r.position.y, r.end.y], [r.end.x - 0.35, r.end.x, r.position.y, r.end.y]]:
+	for b in [[r.position.x, r.end.x, r.position.y, r.position.y + ep], [r.position.x, r.end.x, r.end.y - ep, r.end.y],
+			[r.position.x, r.position.x + ep, r.position.y, r.end.y], [r.end.x - ep, r.end.x, r.position.y, r.end.y]]:
 		var m: MeshInstance3D = a.box(Vector3((b[0] + b[1]) * 0.5, h + 0.06, (b[2] + b[3]) * 0.5), Vector3(b[1] - b[0], 0.12, b[3] - b[2]), ar)
 		m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	a.fusionner(d0, "chapeau_" + str(vo["id"]))
