@@ -229,6 +229,11 @@ au lot C1. L'historique n'a pas été réécrit. Seul le commit `1704fb2`, pris 
 * **Empreintes de scène** : **identiques** sur les 19 configurations.
   * Deux exceptions attendues : `--forge=A` (devenu le blockout) et `--boutique=710` (devenu P7.11), deux options
     retirées.
+* **Analyse de chaque script** (`godot --headless --check-only --script`, 134 scripts) : 129 sans erreur.
+  * Les 5 autres (`colisee`, `avant_poste`, trois scènes de combat) signalent `GameState` introuvable, car l'autoload
+    n'est pas chargé dans ce mode. C'est **identique sur `588e90c`**, et ces scripts se chargent normalement en jeu et
+    dans les tests.
+  * Aucune ressource manquante dans les journaux de la série complète.
 * **Outils de la ville** : `camera_volumes_p76.py` donne l'axe du château dégagé et 0 recouvrement. Les données V0.7-B
   régénérées sont identiques, le plan aussi.
 * **Note sur les parcours de ville** : ils se lancent **sans** `--etat=tutorial_completed`, car la scène fixe elle-même
