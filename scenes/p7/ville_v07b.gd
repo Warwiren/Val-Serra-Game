@@ -19,7 +19,6 @@ func _tr():
 
 
 const Forge := preload("res://scenes/p7/forge_p79.gd")
-const Boutique := preload("res://scenes/p7/boutique_p710.gd")
 const Boutique711 := preload("res://scenes/p7/boutique_p711.gd")
 const Civique := preload("res://scenes/p7/civique_p712.gd")
 var ci                                    # P7.12 : quartier civique et porte du château (scenes/p7/civique_p712.gd)
@@ -67,22 +66,15 @@ func _civ():
 	if ci == null:
 		ci = Civique.new(sc, self, _tr().a, _forge())
 	return ci
-var bo                                    # P7.10 : boutique de fournitures (scenes/p7/boutique_p710.gd)
-var fo                                    # P7.9 : comparatif de la forge (scenes/p7/forge_p79.gd)
+var bo                                    # P7.11 : boutique de fournitures (scenes/p7/boutique_p711.gd)
+var fo                                    # forge D (C : comparaison) et utilitaires Quaternius (scenes/p7/forge_p79.gd)
 
 
-## Boutique : P7.11 par défaut (scenes/p7/boutique_p711.gd) ; « 710 » = version P7.10 (comparaison avant / après, option
-## --boutique=710 ou métadonnée boutique_variante de la scène) ; --boutique=0 : blockout. Active avec la forge C ou D.
+## Boutique P7.11 APPROUVÉE (scenes/p7/boutique_p711.gd) ; --boutique=0 : blockout. Active avec la forge C ou D.
+## P8.0-C : version P7.10 (--boutique=710, boutique_p710.gd) retirée ; historique Git, commit 588e90c.
 func _boutique():
-	if bo == null and _forge().variante in ["C", "D"]:
-		var meta := str(sc.get_meta("boutique_variante", "711")) if sc.has_meta("boutique_variante") else "711"
-		var choix := str(sc._cli.get("boutique", meta))
-		if choix == "710":
-			var b = Boutique.new(sc, _tr().a, _forge())
-			if b.actif:
-				bo = b
-		elif choix != "0":
-			bo = Boutique711.new(sc, _tr().a, _forge())
+	if bo == null and _forge().variante in ["C", "D"] and str(sc._cli.get("boutique", "711")) != "0":
+		bo = Boutique711.new(sc, _tr().a, _forge())
 	return bo
 
 
