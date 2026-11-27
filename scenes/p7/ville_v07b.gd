@@ -389,9 +389,10 @@ func decorer() -> void:
 func _caravane(r: Rect2, h0: float) -> void:
 	var bois := mat(BOIS_CARAVANE)
 	var c := r.get_center()
-	sc._box_mesh(Vector3(c.x, h0 + 0.9, c.y), Vector3(r.size.x, 0.25, r.size.y - 0.6), bois)
+	var lc := 2.2 if _a3() else r.size.x                       # P8.1-A3 : caisse de chariot à l'échelle (2,2 m)
+	sc._box_mesh(Vector3(c.x, h0 + 0.9, c.y), Vector3(lc, 0.25, r.size.y - 0.6), bois)
 	for dy in [-r.size.y * 0.32, r.size.y * 0.32]:
-		for dx in [-r.size.x * 0.5, r.size.x * 0.5]:
+		for dx in [-lc * 0.5 - 0.1, lc * 0.5 + 0.1]:
 			var roue := MeshInstance3D.new()
 			var cm := CylinderMesh.new()
 			cm.top_radius = 0.55
@@ -403,6 +404,9 @@ func _caravane(r: Rect2, h0: float) -> void:
 			roue.position = Vector3(c.x + dx, h0 + 0.55, c.y + dy)
 			roue.material_override = mat(BOIS_CARAVANE.darkened(0.3))
 			sc.root.add_child(roue)
+	if _a3():
+		_caravane_a3(r, h0, bois)
+		return
 	# bâche en demi-cylindre (boîte arrondie approchée) et caisses
 	var b := MeshInstance3D.new()
 	var bc := CylinderMesh.new()
@@ -418,6 +422,57 @@ func _caravane(r: Rect2, h0: float) -> void:
 	for k in 3:
 		sc._box_mesh(Vector3(c.x + 2.6 + (k % 2) * 0.4, h0 + 0.35 + (k / 2) * 0.7, c.y - 1.5 + k * 1.2), Vector3(0.7, 0.7, 0.7), bois)
 	sc._box_mesh(Vector3(r.position.x - 1.2, h0 + 0.55, c.y), Vector3(2.4, 0.12, 0.12), bois)
+
+
+## P8.1-A3 — Bâche de la caravane : l'ancien cylindre couché (3,8 m de diamètre, toile presque blanche) se lisait comme un
+## « grand volume clair arrondi » au premier plan du parvis. Chariot bâché à l'échelle (caisse de 2,2 m, bâche en
+## demi-cylindre de 1,05 m sur cinq arceaux de bois, toile écrue patinée) ; caisses, tonneaux et sacs déchargés dans
+## l'emprise ; collision des données (decor_caravane) inchangée. --escamotage_a3=0 : ancienne bâche.
+func _caravane_a3(r: Rect2, h0: float, bois: Material) -> void:
+	var c := r.get_center()
+	var a = _tr().a
+	var d0: int = a.racine.get_child_count()
+	var lg := r.size.y - 1.6
+	var toile: Material = a.plein(Color(0.66, 0.6, 0.48), 0.95)
+	var arceau: Material = a.plein(BOIS_CARAVANE.darkened(0.2), 0.9)
+	var rb := 1.05
+	var yb := h0 + 1.05
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var nseg := 12
+	for k in nseg:
+		var a0 := PI * float(k) / nseg
+		var a1 := PI * float(k + 1) / nseg
+		var p0 := Vector3(c.x + cos(a0) * rb, yb + sin(a0) * rb, c.y - lg * 0.5)
+		var p1 := Vector3(c.x + cos(a1) * rb, yb + sin(a1) * rb, c.y - lg * 0.5)
+		var q0 := p0 + Vector3(0, 0, lg)
+		var q1 := p1 + Vector3(0, 0, lg)
+		var n0 := Vector3(cos(a0), sin(a0), 0)
+		var n1 := Vector3(cos(a1), sin(a1), 0)
+		for v in [[p0, n0], [q1, n1], [p1, n1], [p0, n0], [q0, n0], [q1, n1]]:
+			st.set_normal(v[1])
+			st.add_vertex(v[0])
+	var bache := MeshInstance3D.new()
+	bache.mesh = st.commit()
+	bache.material_override = toile
+	a.racine.add_child(bache)
+	# arceaux (en saillie de la toile) et ridelles
+	for k in 5:
+		var z := c.y - lg * 0.5 + 0.15 + (lg - 0.3) * float(k) / 4.0
+		for s in 6:
+			var t := PI * (float(s) + 0.5) / 6.0
+			a.boite_tournee({"o": Vector3(c.x, 0, z), "t": Vector3(1, 0, 0), "n": Vector3(0, 0, 1)}, cos(t) * (rb + 0.03),
+				yb + sin(t) * (rb + 0.03), PI * rb / 6.0 + 0.04, 0.07, -0.05, 0.05, t + PI * 0.5, arceau)
+	for sx in [-1.0, 1.0]:
+		a.box(Vector3(c.x + sx * 1.08, h0 + 1.15, c.y), Vector3(0.08, 0.3, lg + 0.2), arceau)
+	# chargement déchargé à côté (est du chariot, dans l'emprise)
+	a.fusionner(d0, "caravane_a3")
+	var fo = _forge()
+	var d1: int = a.racine.get_child_count()
+	for m in [["fp/Crate_Wooden", Vector3(c.x + 1.62, h0, c.y - 1.9), 0.3], ["fp/Barrel", Vector3(c.x + 1.62, h0, c.y - 0.6), 0.0],
+			["fp/Bag", Vector3(c.x + 1.6, h0, c.y + 0.5), 1.2], ["fp/Crate_Wooden", Vector3(c.x + 1.62, h0, c.y + 1.7), -0.4]]:
+		fo._modele(str(m[0]), m[1], float(m[2]), Vector3.ONE * 0.8)
+	fo._fusion_gltf(d1, "caravane_chargement")
 
 
 ## Guérite (C) : petite loge de pierre à toit de tuiles, ouverte vers l'avenue.
@@ -656,17 +711,17 @@ func _classer_volumes() -> void:
 			top = maxf(top, 17.5)                            # P7.11 : étages et toit au-dessus du bloc des données
 		if oid == Bordures.HALLE and _bord().actif:
 			top = maxf(top, h1 + 5.2)                        # P7.13 : halle de charpente sur le quai
-		defs.append([oid, r, h0, top])
+		defs.append([oid, r, h0, top, h1])
 	for i in v.get("paysage", []).size():
 		var p: Dictionary = v["paysage"][i]
 		var q: Array = p["rect"]
 		var rp := Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1])
-		defs.append(["paysage_%d" % i, rp, float(p["h"]), float(p["h"]) + float(p["haut"]) + 6.0])
+		defs.append(["paysage_%d" % i, rp, float(p["h"]), float(p["h"]) + float(p["haut"]) + 6.0, float(p["h"]) + float(p["haut"])])
 	for d in defs:
 		var g := Node3D.new()
 		g.name = "vol_" + str(d[0])
 		sc.root.add_child(g)
-		_vols.append({"id": d[0], "node": g, "rect": d[1], "h0": d[2], "top": d[3], "masque": false})
+		_vols.append({"id": d[0], "node": g, "rect": d[1], "h0": d[2], "top": d[3], "h1": d[4], "masque": false})
 	for n in sc.root.get_children():
 		if not (n is GeometryInstance3D):
 			continue
@@ -688,9 +743,14 @@ func _classer_volumes() -> void:
 				break
 	# P7.12.1 : chaque volume assez haut est coupé à hauteur d'étage (bas / haut) : l'escamotage peut ne retirer que les
 	# étages et le toit quand la ligne de vue vers Aren passe au-dessus du rez-de-chaussée (--escamotage_partiel=0 : P7.6)
+	if _a3():
+		for vo in _vols:
+			_sommet_mesure(vo)
 	if _partiel():
 		for vo in _vols:
 			_decouper(vo)
+			if _a3():
+				_decouper_niveaux(vo)
 
 
 func _dist_rect(r: Rect2, p: Vector2) -> float:
@@ -717,26 +777,42 @@ func coupes_camera(cam: Vector3, heros: Vector3, delta := 1.0 / 60.0) -> void:
 		var hauteur_ok: bool = cam.y <= float(vo["top"]) + 0.5 and cam.y >= float(vo["h0"]) - 1.0
 		var marge := 4.0 if int(vo.get("mode", 0)) > 0 else 2.6         # hystérésis : pas de clignotement en longeant
 		var masque: bool = entre and hauteur_ok and _dist_rect(r, pc) < marge
+		vo["cause"] = "camera_proche" if masque else ""
 		# P7.12.1 : le volume coupe la ligne de vue caméra -> buste d'Aren (Aren et ses chemins restent visibles)
 		if not masque and entre and vo.has("haut"):
 			masque = _coupe_vue(vo, cam, heros + Vector3(0, 1.0, 0), 0.5 if int(vo.get("mode", 0)) > 0 else 0.0)
-		# P7.12.1 : 1 = étages et toit seuls (la ligne de vue caméra -> pieds d'Aren passe au-dessus de la coupe, au droit
-		# de la face nord du volume), 2 = volume entier (comportement P7.6)
+			vo["cause"] = "ligne_de_vue" if masque else ""
+		# P7.12.1 : étages et toit seuls quand la ligne de vue caméra -> pieds d'Aren passe au-dessus de la coupe, au droit
+		# de la face nord du volume ; volume entier sinon (comportement P7.6). P8.1-A3 : niveau intermédiaire « toit » (tout ce
+		# qui dépasse l'égout) quand la ligne de vue passe au-dessus des murs et que la caméra est au-dessus de l'égout.
 		var mode := 0
+		var cour0 := int(vo.get("mode", 0))
 		if masque:
-			mode = 2
+			mode = MODE_TOUT
 			if vo.has("haut") and cam.z > heros.z + 0.5:
 				var tf := clampf((r.position.y - heros.z) / (cam.z - heros.z), 0.0, 1.0)
 				var h_los := heros.y + tf * (cam.y - heros.y)
-				var seuil: float = float(vo["coupe"]) + (0.05 if int(vo.get("mode", 0)) == 1 else 0.25)
-				if h_los >= seuil:
-					mode = 1
+				# P8.1-A3 : coupe la plus HAUTE dont la ligne de vue passe au-dessus (niveaux d'étage, puis égout) ; si la caméra
+				# est elle-même dans l'emprise (« camera_proche »), la coupe doit aussi passer sous la caméra
+				var nv: Array = vo.get("niveaux", [])
+				var proche: bool = str(vo.get("cause", "")) == "camera_proche"
+				for c in range(nv.size() - 1, -1, -1):
+					var tient: bool = cour0 == nv.size() - c
+					var hc: float = float(nv[c]["h"])
+					if h_los >= hc + (0.05 if tient else 0.25) and (c == 0 or not proche or cam.y >= hc + (0.2 if tient else 0.6)):
+						mode = nv.size() - c
+						break
 		# P7.12.2 : marge de réapparition : masquer est immédiat (Aren d'abord), ré-afficher attend que la vue soit dégagée
 		# pendant `escamotage_delai` s (0,6 s par défaut) : plus de clignotement aux arrêts et demi-tours
 		var cour := int(vo.get("mode", 0))
+		# P8.1-A3 : rétablir une coupe plus HAUTE alors que le volume reste masqué (rendre un étage) attend plus longtemps
+		# (escamotage_delai_niveau, 2 s) : en longeant un bâtiment, la coupe ne monte et ne descend plus d'un étage à l'autre
+		var delai := float(sc._cli.get("escamotage_delai", 0.6))
+		if mode > 0 and mode != MODE_TOUT and cour != MODE_TOUT and _a3():
+			delai = maxf(delai, float(sc._cli.get("escamotage_delai_niveau", 2.0)))
 		if mode < cour and _partiel():
 			vo["t_relache"] = float(vo.get("t_relache", 0.0)) + delta
-			if float(vo["t_relache"]) < float(sc._cli.get("escamotage_delai", 0.6)):
+			if float(vo["t_relache"]) < delai:
 				mode = cour
 			else:
 				vo["t_relache"] = 0.0
@@ -746,16 +822,19 @@ func coupes_camera(cam: Vector3, heros: Vector3, delta := 1.0 / 60.0) -> void:
 			vo["mode"] = mode
 			vo["masque"] = mode > 0
 			bascules += 1
-			print("P7 escamotage ", JSON.stringify({"id": vo["id"], "masque": mode > 0, "partie": ["aucune", "haut", "tout"][mode],
+			print("P7 escamotage ", JSON.stringify({"id": vo["id"], "masque": mode > 0, "partie": partie(vo, mode),
 				"t": snappedf(_t_coupes, 0.01), "dernier_s": snappedf(_t_coupes - float(vo.get("t_bascule", -99.0)), 0.01)}))
 			vo["t_bascule"] = _t_coupes
 			if mode > 0:
 				masques[vo["id"]] = true
 			else:
 				masques.erase(vo["id"])
-		# alpha du volume entier et de sa partie haute (net : immédiat ; fondu : expérimental, Forward+ seulement)
-		var cible := 0.0 if mode == 2 else 1.0
-		var cible_h := 0.0 if mode >= 1 else 1.0
+		# alpha du volume entier et de sa partie haute (net : immédiat ; fondu : expérimental, Forward+ seulement) ; P8.1-A3 :
+		# niveau de coupe c_cut (0 = coupe d'étage P7.12.1, au-delà : niveaux supérieurs, chacun fini par son chapeau)
+		var nvx: Array = vo.get("niveaux", [])
+		var c_cut := -1 if (mode == 0 or mode == MODE_TOUT) else nvx.size() - mode
+		var cible := 0.0 if mode == MODE_TOUT else 1.0
+		var cible_h := 0.0 if (mode == MODE_TOUT or c_cut == 0) else 1.0
 		var a: float = vo.get("alpha", 1.0)
 		var ah: float = vo.get("alpha_h", 1.0)
 		if not fondu:
@@ -764,10 +843,11 @@ func coupes_camera(cam: Vector3, heros: Vector3, delta := 1.0 / 60.0) -> void:
 		else:
 			a = move_toward(a, cible, delta / duree)
 			ah = move_toward(ah, cible_h, delta / duree)
-		if vo.has("alpha") and a == float(vo["alpha"]) and ah == float(vo["alpha_h"]):
+		if vo.has("alpha") and a == float(vo["alpha"]) and ah == float(vo["alpha_h"]) and c_cut == int(vo.get("c_cut", -1)):
 			continue
 		vo["alpha"] = a
 		vo["alpha_h"] = ah
+		vo["c_cut"] = c_cut
 		var nd := vo["node"] as Node3D
 		nd.visible = a > 0.001
 		var parapet: bool = vo.get("parapet", false)       # P8.0-B : coupe permanente (porte sud), dessus toujours affiché
@@ -775,12 +855,123 @@ func coupes_camera(cam: Vector3, heros: Vector3, delta := 1.0 / 60.0) -> void:
 			(vo["haut"] as Node3D).visible = ah > 0.001 and not parapet
 		if vo.has("chapeau"):
 			(vo["chapeau"] as Node3D).visible = a > 0.001 and (ah <= 0.001 or parapet)
+		for k in range(1, nvx.size()):
+			(nvx[k]["node"] as Node3D).visible = not (c_cut >= 1 and k >= c_cut)
+			(nvx[k]["chapeau"] as Node3D).visible = k == c_cut
 		if fondu:
 			if not vo.has("geoms"):
 				vo["geoms"] = nd.find_children("*", "GeometryInstance3D", true, false)
 			for g in vo["geoms"]:
 				var dans_haut: bool = vo.has("haut") and (vo["haut"] as Node).is_ancestor_of(g)
 				(g as GeometryInstance3D).transparency = 1.0 - minf(a, ah if dans_haut else 1.0)
+
+
+# ------------------------------------------------------------------------------------------------ P8.1-A3 : escamotage local
+## Modes d'escamotage d'un volume : 0 = rien ; 1..n = coupe au niveau n - mode de la liste vo["niveaux"] (1 = coupe la plus
+## haute : toit seul ; n = coupe d'étage P7.12.1) ; MODE_TOUT = volume entier. --escamotage_a3=0 : état P8.1-A2 (une seule
+## coupe, sommets estimés).
+const MODE_TOUT := 99
+const PAS_NIVEAU := 3.0                   # hauteur d'étage entre deux coupes possibles au-dessus de la coupe d'étage
+
+
+func mode_tout() -> int:
+	return MODE_TOUT
+
+
+func partie(vo: Dictionary, mode: int) -> String:
+	if mode == 0:
+		return "aucune"
+	if mode == MODE_TOUT:
+		return "tout"
+	var nv: Array = vo.get("niveaux", [])
+	return "au-dessus de %.1f m" % float(nv[nv.size() - mode]["h"]) if mode <= nv.size() else "haut"
+
+
+func _a3() -> bool:
+	return str(sc._cli.get("escamotage_a3", "1")) != "0" and str(sc._cli.get("escamotage", "net")) != "fondu"
+
+
+## Hauteur jusqu'à laquelle le volume reste dessiné dans son mode courant (mesures de visibilité).
+func sommet_visible(vo: Dictionary) -> float:
+	var mo := int(vo.get("mode", 0))
+	if bool(vo.get("parapet", false)):
+		return float(vo.get("coupe", vo["top"]))
+	if mo == 0:
+		return float(vo["top"])
+	var nv: Array = vo.get("niveaux", [])
+	if mo <= nv.size():
+		return float(nv[nv.size() - mo]["h"])
+	return float(vo["h0"])
+
+
+## Sommet RÉEL du volume (géométrie rangée sous son nœud) au lieu de l'estimation « h1 + toit » : l'estimation (jusqu'à 6 m
+## au-dessus des murs) faisait escamoter des volumes bas qui ne cachaient rien (caméra dite « proche » à hauteur d'un toit
+## imaginaire, ligne de vue coupée par une boîte trop haute).
+func _sommet_mesure(vo: Dictionary) -> void:
+	var nd := vo["node"] as Node3D
+	var h := -INF
+	for g in nd.find_children("*", "GeometryInstance3D", true, false):
+		if g is Label3D or not (g as GeometryInstance3D).visible:
+			continue
+		var ab: AABB = (g as GeometryInstance3D).global_transform * (g as GeometryInstance3D).get_aabb()
+		h = maxf(h, ab.end.y)
+	if h > float(vo["h0"]) + 0.3:
+		vo["top_estime"] = vo["top"]
+		vo["top"] = minf(float(vo["top"]), h + 0.1)
+
+
+## Niveaux de coupe supplémentaires au-dessus de la coupe d'étage : tous les PAS_NIVEAU mètres jusqu'à l'égout (h1 des
+## données), puis l'égout lui-même quand le toit dépasse d'au moins 0,8 m. Chaque niveau range ce qui le dépasse sous un
+## nœud imbriqué et reçoit son chapeau (plancher bordé d'une arase, comme la coupe d'étage) : l'escamotage ne retire que ce
+## qui dépasse la ligne de vue, avec une coupe finie.
+func _decouper_niveaux(vo: Dictionary) -> void:
+	if not vo.has("haut") or bool(vo.get("parapet", false)):
+		return
+	var h1 := float(vo["h1"])
+	var top := float(vo["top"])
+	var hs := []
+	var l := float(vo["coupe"]) + PAS_NIVEAU
+	while l <= minf(h1, top) - 0.8:
+		hs.append(l)
+		l += PAS_NIVEAU
+	if top - h1 >= 0.8 and h1 >= float(vo["coupe"]) + 0.8 and (hs.is_empty() or h1 - float(hs[-1]) >= 0.8):
+		hs.append(h1)
+	var parent := vo["haut"] as Node3D
+	for hc in hs:
+		var n := Node3D.new()
+		n.name = "niveau_%d" % int(round(float(hc) * 10.0))
+		parent.add_child(n)
+		_repartir(parent, n, float(hc))
+		if n.get_child_count() == 0:
+			n.queue_free()
+			break
+		var ch := _chapeau_a(vo, float(hc), parent, "plancher", "chapeau_%d_" % int(round(float(hc) * 10.0)))
+		(vo["niveaux"] as Array).append({"h": float(hc), "node": n, "chapeau": ch})
+		parent = n
+
+
+## Range sous `dst` ce qui, dans `src`, dépasse la hauteur h (boîtes coupées en deux, maillages répartis par triangle).
+func _repartir(src: Node3D, dst: Node3D, h: float) -> void:
+	for g in src.get_children():
+		if g == dst or not (g is GeometryInstance3D):
+			continue
+		var gi := g as GeometryInstance3D
+		var ab: AABB = gi.global_transform * gi.get_aabb()
+		if ab.end.y <= h + 0.02:
+			continue
+		if ab.position.y >= h - 0.02:
+			gi.reparent(dst, true)
+			continue
+		if gi is MeshInstance3D and (gi as MeshInstance3D).mesh != null:
+			var mi := gi as MeshInstance3D
+			if mi.mesh is BoxMesh and mi.global_transform.basis.is_equal_approx(Basis.from_scale(mi.global_transform.basis.get_scale())):
+				_couper_boite(mi, h, dst)
+				continue
+			if mi.mesh is ArrayMesh:
+				_couper_maillage(mi, h, dst)
+				continue
+		if ab.get_center().y > h:
+			gi.reparent(dst, true)
 
 
 # ------------------------------------------------------------------------------------------------ P7.12.1 : découpe bas / haut
@@ -844,6 +1035,7 @@ func _decouper(vo: Dictionary) -> void:
 	vo["haut"] = haut
 	vo["coupe"] = coupe
 	_chapeau(vo)
+	vo["niveaux"] = [{"h": coupe, "node": haut, "chapeau": vo["chapeau"]}]
 	# P8.0-B (correctif) : le style « pierre » (porte sud) est une coupe PERMANENTE. Ces volumes ne sont dessinés qu'en muret de
 	# 1,6 m coiffé d'une tranche sombre (ville_blockout) et ne sont presque jamais escamotés depuis la placette (la visée passe
 	# entre les tours) : le dessus de pierre, réservé au mode « haut », ne s'affichait donc pas et la tranche sombre restait
@@ -960,16 +1152,22 @@ func _chapeau(vo: Dictionary) -> void:
 			if r.grow(0.2).has_point(Vector2(c.x, c.z)):
 				h = maxf(h, ab.end.y)
 	h = minf(h, float(vo["coupe"]) + 0.05)
+	vo["chapeau"] = _chapeau_a(vo, h, nd, str(vo.get("style_coupe", "plancher")), "chapeau_")
+
+
+## Chapeau de coupe d'un volume à la hauteur h (P7.12.2), rangé sous `parent` : plancher et arase (style « plancher »),
+## maçonnerie arasée (« arase ») ou chemin de ronde de pierre (« pierre »). Masqué à la création.
+func _chapeau_a(vo: Dictionary, h: float, parent: Node3D, style: String, prefixe: String) -> Node3D:
+	var r: Rect2 = vo["rect"]
 	var a = _tr().a
 	var ch := Node3D.new()
-	ch.name = "chapeau"
+	ch.name = prefixe.trim_suffix("_")
 	ch.visible = false
-	nd.add_child(ch)
+	parent.add_child(ch)
 	var d0: int = a.racine.get_child_count()
 	var ri := r.grow(-0.35)
 	# P8.0-B : dessus selon le style de coupe du volume (« plancher » P7.12.2 ; « arase » : maçonnerie arasée sombre et arase
 	# large ; « pierre » : chemin de ronde de pierre, sans plancher)
-	var style := str(vo.get("style_coupe", "plancher"))
 	var m_dessus: Material = a.macon("plancher", Color(1.05, 0.98, 0.9), h, "monde", false)
 	var ep := 0.35
 	if style == "arase":
@@ -985,9 +1183,9 @@ func _chapeau(vo: Dictionary) -> void:
 			[r.position.x, r.position.x + ep, r.position.y, r.end.y], [r.end.x - ep, r.end.x, r.position.y, r.end.y]]:
 		var m: MeshInstance3D = a.box(Vector3((b[0] + b[1]) * 0.5, h + 0.06, (b[2] + b[3]) * 0.5), Vector3(b[1] - b[0], 0.12, b[3] - b[2]), ar)
 		m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	a.fusionner(d0, "chapeau_" + str(vo["id"]))
+	a.fusionner(d0, prefixe + str(vo["id"]))
 	for i in range(a.racine.get_child_count() - 1, d0 - 1, -1):
 		var n: Node = a.racine.get_child(i)
 		n.reparent(ch, true)
-	vo["chapeau"] = ch
+	return ch
 

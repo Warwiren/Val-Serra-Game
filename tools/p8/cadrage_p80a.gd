@@ -86,6 +86,7 @@ func _process(d: float) -> bool:
 	var cache := false
 	var toits := 0
 	var degage := {"colisee": true, "porte": true, "chateau": true}
+	var tout: int = v.mode_tout() if v.has_method("mode_tout") else 2          # P8.1-A3 : coupes à plusieurs niveaux, volume entier = mode_tout()
 	for vo in v._vols:
 		var id := str(vo["id"])
 		var mo := int(vo.get("mode", 0))
@@ -98,17 +99,19 @@ func _process(d: float) -> bool:
 			if avant == 0:
 				r["escamotages"] += 1
 				debut[id] = t
-			if mo == 2 and avant != 2:
+			if mo == tout and avant != tout:
 				r["escamotages_tout"] += 1
 			if mo == 0 and debut.has(id):
 				r["duree_escamote_s"] += t - float(debut[id])
 				r["fins"] += 1
 				debut.erase(id)
 			modes[id] = mo
-		if mo == 2 or not (vo["node"] as Node3D).visible:
+		if mo == tout or not (vo["node"] as Node3D).visible:
 			continue
 		var vv: Dictionary = (vo as Dictionary).duplicate()
-		if mo == 1 and vo.has("coupe"):
+		if v.has_method("sommet_visible"):
+			vv["top"] = v.sommet_visible(vo)
+		elif mo == 1 and vo.has("coupe"):
 			vv["top"] = float(vo["coupe"])
 		if v._coupe_vue(vv, cam, heros, 0.0) and float(vo["rect"].position.y) > sc.body.global_position.z - 1.0:
 			cache = true

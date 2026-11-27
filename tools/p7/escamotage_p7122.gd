@@ -46,10 +46,13 @@ func _process(d: float) -> bool:
 			modes[id] = mo
 			if OS.get_cmdline_user_args().has("--trace"):
 				print("BASCULE %s -> %d à %.2f s, Aren (%.1f, %.1f, %.1f)" % [id, mo, t, sc.s.hero.x, sc.s.hero.y, sc.s.hero.z])
-		if mo == 2 or not (vo["node"] as Node3D).visible:
+		var tout: int = v.mode_tout() if v.has_method("mode_tout") else 2      # P8.1-A3 : coupes à plusieurs niveaux, volume entier = mode_tout()
+		if mo == tout or not (vo["node"] as Node3D).visible:
 			continue
 		var top: float = float(vo["top"])
-		if mo == 1 and vo.has("coupe"):
+		if v.has_method("sommet_visible"):
+			top = v.sommet_visible(vo)
+		elif mo == 1 and vo.has("coupe"):
 			top = float(vo["coupe"])
 		var vv: Dictionary = (vo as Dictionary).duplicate()
 		vv["top"] = top

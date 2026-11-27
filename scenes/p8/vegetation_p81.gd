@@ -50,13 +50,16 @@ func _choix(liste: Array, rng: RandomNumberGenerator, pos: Vector3, facteur := 1
 ## vers l'avant : arbustes au fond, feuillages au milieu, couvre-sol devant ; fleurs en touches rares (≈ 15 %, couleurs
 ## sourdes du feuillage dominant) ; positions et
 ## tailles décalées au hasard (graine du massif) : aucune rangée régulière, la terre ne se voit qu'entre les plants.
-func garnir(r: Rect2, h: float) -> void:
+## `bas` (P8.1-A3, jardins en terrasse du parvis) : aucun arbuste, plantations basses seulement.
+func garnir(r: Rect2, h: float, bas := false) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(r.position.x * 131.0 + r.position.y * 17.0) + 7
 	var d0: int = a.racine.get_child_count()
 	var y := r.position.y + 0.3
 	while y < r.end.y - 0.15:
 		var prof := (y - r.position.y) / maxf(0.5, r.size.y)       # 0 au fond, 1 devant
+		if bas:
+			prof = maxf(prof, 0.4)
 		var x := r.position.x + rng.randf_range(0.2, 0.6)
 		while x < r.end.x - 0.2:
 			var p := Vector3(x + rng.randf_range(-0.15, 0.15), h, y + rng.randf_range(-0.15, 0.15))
@@ -71,7 +74,7 @@ func garnir(r: Rect2, h: float) -> void:
 					continue
 				_choix(PLANTES, rng, p, 1.15)
 			elif prof < 0.75:
-				if t < 0.16:
+				if t < 0.16 and not bas:
 					_choix(ARBUSTES, rng, p, 0.8)
 				elif t < 0.84:
 					_choix(PLANTES if t < 0.6 else COUVRE_SOL, rng, p, 1.1)

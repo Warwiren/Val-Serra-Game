@@ -596,6 +596,9 @@ func annexes(e: Dictionary) -> void:
 	var h0: float = e["h0"]
 	var h1: float = e["h1"]
 	sc._static_box(sc._rect_center(r, h0, h1), Vector3(r.size.x, h1 - h0, r.size.y), sc.L_OBST)
+	if str(sc._cli.get("annexes_a2", "0")) != "1":
+		_jardins_a3(r, h0, h1, str(e.get("id", "")))
+		return
 	var d0: int = a.racine.get_child_count()
 	# parapet au bord du parvis (nord) et mur arrière (sud), en pierre
 	a.box(Vector3(r.get_center().x, h0 + 0.42, r.position.y + 0.18), Vector3(r.size.x, 0.84, 0.36), soutenement(h0))
@@ -621,6 +624,35 @@ func annexes(e: Dictionary) -> void:
 			a.box(Vector3(x0, (h0 + hf) * 0.5, (y0 + y1) * 0.5), Vector3(0.25, hf - h0, y1 - y0), soutenement(h0))
 	a.preset_tuiles = pt0
 	a.fusionner(d0, "annexes_" + str(e.get("id", "")))
+
+
+## P8.1-A3 — Jardins en terrasse (remplacent les appentis de P8.1-A2, vus d'en haut comme des plates-formes rouges au premier
+## plan du parvis) : potagers surélevés des maisons du fond, bordés côté parvis par le parapet de pierre, adossés au mur
+## du fond ; terre à 0,75 m (sous l'arase du parapet), planches séparées par des bordures de pierre de taille, plantations
+## BASSES seulement (feuillages, couvre-sol, fleurs : aucun arbuste) pour ne rien cacher du parvis. Même collision (bloc
+## des données). --annexes_a2=1 : appentis de P8.1-A2.
+func _jardins_a3(r: Rect2, h0: float, h1: float, id: String) -> void:
+	var d0: int = a.racine.get_child_count()
+	var ht := h0 + 0.75
+	a.box(Vector3(r.get_center().x, h0 + 0.42, r.position.y + 0.18), Vector3(r.size.x, 0.84, 0.36), soutenement(h0))
+	a.box(Vector3(r.get_center().x, h0 + 0.9, r.position.y + 0.18), Vector3(r.size.x + 0.04, 0.12, 0.44), taille())
+	a.box(Vector3(r.get_center().x, h0 + (h1 - h0) * 0.5, r.end.y - 0.15), Vector3(r.size.x, h1 - h0, 0.3), soutenement(h0))
+	a.box(Vector3(r.get_center().x, h1 + 0.05, r.end.y - 0.15), Vector3(r.size.x + 0.04, 0.1, 0.38), taille())
+	for x in [r.position.x + 0.15, r.end.x - 0.15]:
+		a.box(Vector3(x, h0 + 0.45, r.get_center().y), Vector3(0.3, 0.9, r.size.y), soutenement(h0))
+	var terre: Material = a.plein(Color(0.30, 0.23, 0.17), 0.98)
+	var ri := Rect2(r.position.x + 0.3, r.position.y + 0.36, r.size.x - 0.6, r.size.y - 0.66)
+	a.box(Vector3(ri.get_center().x, (h0 + ht) * 0.5, ri.get_center().y), Vector3(ri.size.x, ht - h0, ri.size.y), terre)
+	var n := maxi(1, int(round(ri.size.x / 4.5)))
+	for k in range(1, n):
+		var x := ri.position.x + ri.size.x * float(k) / n
+		a.box(Vector3(x, ht + 0.06, ri.get_center().y), Vector3(0.22, 0.14, ri.size.y), taille())
+	a.fusionner(d0, "jardins_" + id)
+	if a.plantes != null:
+		for k in n:
+			var x0 := ri.position.x + ri.size.x * float(k) / n + 0.15
+			var x1 := ri.position.x + ri.size.x * float(k + 1) / n - 0.15
+			a.plantes.garnir(Rect2(x0, ri.position.y + 0.1, x1 - x0, ri.size.y - 0.2), ht, true)
 
 
 ## Quai de marchandises (bat_b_no_place : bande de 0,6 m le long de l'ouest de la grande place, dans le prolongement

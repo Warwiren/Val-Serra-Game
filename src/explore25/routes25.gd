@@ -908,6 +908,22 @@ static func _route_base(name: String) -> Array:
 				for p in [[64.8, 121.4], [61.0, 124.0], [59.0, 128.0], [59.0, 134.0], [60.0, 139.0]]:
 					o7a.append({"do": "go", "to": Vector2(p[0], p[1]), "tol": 0.4, "run": run, "id": "descente"})
 			return o7a
+		"p81a3_aller_retour":
+			# P8.1-A3 — escamotage autour de la forge et du Colisée (vidéo de revue) : place -> forge -> ouest de la place ->
+			# allée -> porte du Colisée -> parvis -> rue du Colisée -> place, puis retour ; en marchant puis en courant, avec arrêts,
+			# demi-tours courts et marche le long des façades (mesure : tools/p8/escamotage_p81a3.gd)
+			var o83: Array = [_warp(54.0, 107.0, 3.5), {"do": "wait", "t": 0.8}]
+			var aller := [[52.0, 96.0], [44.0, 95.0], [36.0, 93.0], [40.0, 94.5], [33.0, 92.0], [26.0, 82.0], [28.0, 76.0],
+				[30.5, 69.6], [28.0, 74.0], [30.5, 70.0], [18.0, 84.0], [4.0, 92.0], [-6.0, 95.0], [4.0, 93.0], [20.0, 100.0],
+				[34.0, 101.0], [46.0, 104.0]]
+			for run in [false, true]:
+				for sens in [aller, aller.duplicate()]:
+					if sens != aller:
+						sens.reverse()
+					for p in sens:
+						o83.append({"do": "go", "to": Vector2(p[0], p[1]), "tol": 0.4, "run": run, "id": "forge-Colisée"})
+						o83.append({"do": "wait", "t": 0.3 if run else 0.6})
+			return o83
 		"p7_7122_terrasse_vues":
 			var o7v: Array = []
 			for c in [["v1_terrasse", 71.0, 84.2, 5.75], ["v2_terrasse_ouest", 67.5, 83.2, 5.75], ["v3_place", 70.0, 97.0, 3.5]]:
