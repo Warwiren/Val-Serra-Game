@@ -608,8 +608,11 @@ const COUPE_ETAGE := 3.5                     # hauteur conservée (rez-de-chauss
 ##  * auberge-taverne et Guilde (h0 0, bordées par la grande place à 3,5 m) : coupées à 3,5 m, leur plancher de coupe
 ##    prolongeait le dallage de la place comme une grande plate-forme de bois. Coupe à 3,1 m (au-dessus des baies et
 ##    de la porte de l'auberge, 3,0 m), soit 0,4 m sous la place, et dessus en maçonnerie arasée sombre (« arase ») ;
+##  * tours et remparts de la porte sud : la caméra est hors les murs au départ de la placette ; coupés à 3,5 m, ils
+##    laissaient deux souches massives au premier plan. Parapet de 1,2 m, dessus de pierre (chemin de ronde, « pierre »).
 const COUPES_P80B := {
 	"bat_auberge_taverne": [3.1, "arase"], "bat_guilde": [3.1, "arase"],
+	"tour_sud_o": [1.2, "pierre"], "tour_sud_e": [1.2, "pierre"], "rempart_sud_o": [1.2, "pierre"], "rempart_sud_e": [1.2, "pierre"],
 }
 
 
