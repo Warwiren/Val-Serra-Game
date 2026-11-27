@@ -38,7 +38,7 @@ var aren_prec := Vector2(-1, -1)
 
 func _initialize() -> void:
 	var args := OS.get_cmdline_user_args()
-	if not args.any(func(a): return str(a).begins_with("--route=p80a_cadrage")):
+	if not Array(args).any(func(a): return str(a).begins_with("--route=p80a_cadrage")):     # PackedStringArray n'a pas any()
 		print("Ajouter -- --route=p80a_cadrage (ou p80a_cadrage_course) --plongee_ville=<11|16|20|24>")
 	change_scene_to_file("res://scenes/p7/ville_v07b.tscn")
 
