@@ -27,26 +27,6 @@ func _head_w(img: Image) -> int:
 		best = maxi(best, x1 - x0 + 1)
 	return best
 
-
-## Symétrie gauche/droite du haut du corps (60 % supérieurs), autour de l'axe de la tête, sur ±8 px.
-func _symmetry(img: Image) -> float:
-	var r := img.get_used_rect()
-	var xs: Array = []
-	for y in range(r.position.y, r.position.y + int(r.size.y * 0.18)):
-		for x in img.get_width():
-			if img.get_pixel(x, y).a > 0.5:
-				xs.append(x)
-	var c := int((xs.min() + xs.max()) / 2)
-	var same := 0
-	var n := 0
-	for y in range(r.position.y, r.position.y + int(r.size.y * 0.6)):
-		for dx in range(-8, 9):
-			n += 1
-			if (img.get_pixel(c + dx, y).a > 0.5) == (img.get_pixel(c - dx, y).a > 0.5):
-				same += 1
-	return float(same) / n
-
-
 func test_size_is_the_same_standing_and_walking() -> void:
 	for who in ["aren", "ilya", "garde"]:
 		for d in ["face", "back", "left", "right"]:

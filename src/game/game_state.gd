@@ -171,11 +171,6 @@ func g(text: String) -> String:
 	result += out.substr(last)
 	return result
 
-
-func hero_portrait() -> String:
-	return "res://art/portraits/hero_%s.svg" % hero_gender
-
-
 func add_rewards(rewards: Dictionary) -> void:
 	currency += int(rewards.get("currency", 0))
 	var items: Dictionary = rewards.get("items", {})

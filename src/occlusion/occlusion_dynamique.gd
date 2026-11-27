@@ -58,11 +58,6 @@ func setup(root: Node3D, cam: Camera3D) -> void:
 	_calque.name = "Occlusion_copies_temporaires"
 	root.add_child(_calque)
 
-
-func set_camera(cam: Camera3D) -> void:
-	_cam = cam
-
-
 # --------------------------------------------------------------------------------------------- enregistrement
 func ajouter_noeud(node: Node3D) -> void:
 	var parts: Array = []

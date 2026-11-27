@@ -25,15 +25,7 @@ const COLORS := {
 }
 ## Direction de la lumière (sens de propagation, repère Godot X, Y haut, Z = y du plan).
 const LIGHT_DIR := Vector3(0.55, -1.0, -0.45)
-const AMBIENT := 0.52
-const DIFFUSE := 0.62
 
 
 static func col(role: String) -> Color:
 	return COLORS.get(role, Color(0.6, 0.6, 0.6))
-
-
-## Ombrage de face pour A (normale en repère Godot).
-static func shade(c: Color, n: Vector3) -> Color:
-	var k := AMBIENT + DIFFUSE * maxf(0.0, n.normalized().dot(-LIGHT_DIR.normalized()))
-	return Color(c.r * k, c.g * k, c.b * k, c.a)

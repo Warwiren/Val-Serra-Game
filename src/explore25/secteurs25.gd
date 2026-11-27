@@ -628,16 +628,3 @@ func attacher_coupe(n: Node3D, p: Vector2) -> bool:
 
 func murs_coupes() -> Array:
 	return _murs.filter(func(w): return w["coupe_on"]).map(func(w): return w["pivot"].name)
-
-
-func groupes_masques() -> Array:
-	return _groupes.keys().filter(func(k): return not _groupes[k]["montre"])
-
-
-## Nombre d'éléments de décor rendus (mesure).
-func elements_rendus() -> int:
-	var n := 0
-	for k in _groupes:
-		if (_groupes[k]["node"] as Node3D).visible:
-			n += (_groupes[k]["node"] as Node3D).get_child_count()
-	return n

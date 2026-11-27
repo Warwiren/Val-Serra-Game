@@ -386,22 +386,6 @@ func _petite_fenetre() -> void:
 		var xb := u0 + 0.22 + (u1 - u0 - 0.44) * i / 2.0
 		_b(f, xb - 0.016, xb + 0.016, bas, sp + _hw_v(xb, uc, sp, hs, o["rise"]) - 0.02, -0.16, -0.13, m["fer"])
 
-
-## Fenêtre plaquée sur une face latérale (embrasure de 0,14 m) : arc segmentaire, appui, barreaux.
-func _fenetre_plaquee(f: Dictionary, uc: float, bas: float, w: float, haut: float) -> void:
-	var hs := w * 0.5
-	var sp := bas + haut
-	var rise := 0.2
-	for s: float in [-1.0, 1.0]:
-		_b(f, uc + s * hs - (0.18 if s < 0.0 else 0.0), uc + s * hs + (0.18 if s > 0.0 else 0.0), bas, sp, 0.0, 0.14, m["taille_b"])
-	_claveaux(f, uc, sp, hs, rise, 0.24, 7, 0.0, 0.14)
-	_b(f, uc - hs, uc + hs, bas, sp + rise, 0.0, 0.01, m["sombre"])
-	_b(f, uc - hs - 0.24, uc + hs + 0.24, bas - 0.12, bas, 0.0, 0.2, m["taille_a"])
-	for i in 4:
-		var xb := uc - hs + 0.14 + (w - 0.28) * i / 3.0
-		_b(f, xb - 0.016, xb + 0.016, bas, sp + _hw_v(xb, uc, sp, hs, rise) - 0.02, 0.06, 0.09, m["fer"])
-
-
 func _facade_est() -> void:
 	var f := _f("e")
 	_b(f, -0.12, R.size.y, H0, 3.98, 0.0, 0.13, m["socle"])

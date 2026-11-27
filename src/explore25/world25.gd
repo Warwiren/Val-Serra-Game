@@ -503,14 +503,6 @@ func assist(dir: Vector2, on_ramp: bool) -> Dictionary:
 	var d2 := Vector2(dir.x * stair_assist, dir.y).normalized() * l
 	return {"dir": d2, "on": true}
 
-
-func trigger_at(p: Vector2) -> Dictionary:
-	for t in triggers:
-		if (t["rect"] as Rect2).has_point(p):
-			return t
-	return {}
-
-
 ## Rectangle écran (px natifs) que la vue ne doit pas quitter : l'aire de la carte projetée (sol et niveau haut),
 ## élargie d'une petite marge ; le décor (decor_marge) la recouvre entièrement.
 func camera_bounds(margin_px := 24.0) -> Rect2:
