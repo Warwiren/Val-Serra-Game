@@ -151,7 +151,7 @@ entre dallage au soleil et ombre de la fontaine ; écart-type = relief du dallag
 | | B étapes 1-3 (Filmic 1,15) | 1,43 | 1,96 | **20,8** |
 | Forward+ | A | 1,54 | 1,28 | 12,9 |
 | | B dosage 1 | 1,58 | 1,28 | 14,1 |
-| | **B dosage 2** | **1,46** | **1,31** | **14,9** |
+| | **B dosage 2** | **1,46** | **1,31** | **14,4** |
 
 * **Orangé** : il vient du soleil chaud (étape 1). En Forward+, A est déjà orangé (1,54) : le dosage 1 l'accentuait.
 * **Uniformité** : l'ambiance du ciel (étape 2) relève les ombres, et l'exposition 1,15 (étape 3) pousse le dallage
