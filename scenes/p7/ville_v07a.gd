@@ -330,7 +330,17 @@ func _pres_porte(p: Vector2, cd: Dictionary) -> bool:
 	return absf(p.y - (float(vb[1]) + float(vb[3])) * 0.5) < 4.0 and p.x > float(vb[0]) - 3.0
 
 
+## P8.1-A3 : bannières posées (id, emprise monde) : contrôle tools/p8/bannieres_p81a3.gd (aucune devant une baie).
+var bannieres := []
+
+
+func noter_banniere(id: String, ab: AABB) -> void:
+	bannieres.append({"id": id, "aabb": ab})
+
+
 func _banniere_colisee(p: Vector3, ang: float, col: Color, larg := 1.4, haut := 3.0) -> void:
+	noter_banniere("colisee %.1f,%.1f" % [p.x, p.z], AABB(p - Vector3(larg * 0.5 * absf(cos(ang)) + 0.05, haut, larg * 0.5 * absf(sin(ang)) + 0.05),
+		Vector3(larg * absf(cos(ang)) + 0.1, haut, larg * absf(sin(ang)) + 0.1)))
 	var m := StandardMaterial3D.new()
 	m.albedo_color = col
 	m.cull_mode = BaseMaterial3D.CULL_DISABLED

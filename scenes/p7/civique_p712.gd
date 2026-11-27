@@ -407,6 +407,7 @@ func decorer() -> void:
 	var d1: int = a.racine.get_child_count()
 	for x: float in [62.2, 77.8]:
 		fo._modele("fp/Banner_1_Cloth", Vector3(x, 15.2, 35.2 + 3.25), 0.0, Vector3.ONE * 1.6)
+		vl.noter_banniere("chateau %.1f" % x, _aabb_noeud(fo.a.racine.get_child(fo.a.racine.get_child_count() - 1) as Node3D))
 	fo._fusion_gltf(d1, "civique_bannieres")
 	_ecarter(d1)
 
@@ -611,6 +612,8 @@ func _bannieres(f: Dictionary, us: Array, v: float) -> void:
 	for u in us:
 		var p: Vector3 = f["o"] + t * float(u) + n * 0.06
 		fo._modele("fp/Banner_2_Cloth", Vector3(p.x, v, p.z), atan2(n.x, n.z), Vector3.ONE * 1.05)
+		var nb := fo.a.racine.get_child(fo.a.racine.get_child_count() - 1) as Node3D
+		vl.noter_banniere("civique %.1f,%.1f" % [p.x, p.z], _aabb_noeud(nb))
 	fo._fusion_gltf(d1, "civique_bannieres_facade")
 
 
@@ -930,3 +933,13 @@ func _pots() -> void:
 		for p in [Vector2(66.8, 87.1), Vector2(75.5, 87.1), Vector2(66.8, 82.9)]:
 			a.plantes.pot(Vector3(p.x, h + 0.49, p.y), int(p.x * 13.0 + p.y))
 
+
+## P8.1-A3 : emprise monde d'un modèle (contrôle des bannières).
+static func _aabb_noeud(n: Node3D) -> AABB:
+	var ab := AABB()
+	var premier := true
+	for g in n.find_children("*", "MeshInstance3D", true, false):
+		var b: AABB = (g as MeshInstance3D).global_transform * (g as MeshInstance3D).get_aabb()
+		ab = b if premier else ab.merge(b)
+		premier = false
+	return ab

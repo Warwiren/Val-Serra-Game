@@ -309,6 +309,15 @@ func _batiment(r: Rect2, h0: float, d: Dictionary) -> void:
 					if libre != null and not libre.call(point_face(f, u, v0 + hb * 0.5, 0.25)):
 						_note(bid, cote, "baie_mitoyenne_omise", u - wl * 0.5, u + wl * 0.5, v0, v0 + hb)
 						continue
+					# P8.1-A3 : pas de baie dans l'encadrement d'une entrée des données (piédroits, linteau et corniche de la porte
+					# jusqu'à 0,95 m au-dessus de son ouverture) : le trumeau au-dessus de la porte reste plein (bannière, blason)
+					var dans_entree := false
+					for en in _entrees_face(f, h0):
+						if u + wl * 0.5 > en[0] and u - wl * 0.5 < en[1] and v0 < en[2] and i > 0:
+							dans_entree = true
+					if dans_entree:
+						_note(bid, cote, "baie_entree_omise", u - wl * 0.5, u + wl * 0.5, v0, v0 + hb)
+						continue
 					# une porte du rez-de-chaussée (vantaux, devanture, vitrine) touche toujours le sol : pas de porte suspendue
 					if i == 0 and st in STYLES_PORTE_SOL and st != "porte_fenetre" and v0 - plancher > 0.05:
 						hb += v0 - plancher
@@ -874,6 +883,19 @@ func _passages_face(f: Dictionary, h0: float, niveaux_baies: Array) -> Array:
 			# portes ramenées au sol (vantaux, devanture, vitrine) ou porte-fenêtre de plain-pied
 			if str(w[4]) in STYLES_PORTE_SOL and (str(w[4]) != "porte_fenetre" or float(w[3]) < 0.3):
 				out.append([float(w[0]) - float(w[1]) * 0.5 - 0.16, float(w[0]) + float(w[1]) * 0.5 + 0.16])
+	return out
+
+
+## P8.1-A3 : encadrements des entrées des données posées sur la face : [u0, u1, haut de la corniche + 0,25].
+func _entrees_face(f: Dictionary, h0: float) -> Array:
+	var out := []
+	var o: Vector3 = f["o"]
+	for e in passages:
+		var p := Vector3(float(e["x"]), 0.0, float(e["y"]))
+		if absf((p - o).dot(f["n"])) > 0.7 or absf(float(e["h"]) - h0) > 1.0 or not e.has("hauteur"):
+			continue
+		var ue := (p - o).dot(f["t"])
+		out.append([ue - float(e["largeur"]) * 0.5 - 0.75, ue + float(e["largeur"]) * 0.5 + 0.75, float(e["h"]) + float(e["hauteur"]) + 0.95])
 	return out
 
 

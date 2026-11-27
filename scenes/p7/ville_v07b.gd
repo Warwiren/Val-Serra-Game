@@ -23,7 +23,9 @@ func _tr():
 			tr.a.coherence = true
 			tr.a.passages = (v.get("entrees", []) as Array).filter(func(x): return str(x["type"]) == "fonctionnelle" or not _entree_obstruee(x))
 			tr.a.libre = _point_libre
-		if Engine.has_meta("registre_facades"):              # outil tools/p8/coherence_facades_p81a2.gd
+		# registre des façades : outil tools/p8/coherence_facades_p81a2.gd ; P8.1-A3 : placement des bannières (toujours tenu
+		# quand la cohérence est active)
+		if Engine.has_meta("registre_facades") or _fin().actif("coherence"):
 			tr.a.registre = []
 	return tr
 
@@ -635,8 +637,32 @@ func _entree_fonctionnelle(e: Dictionary) -> void:
 	var en: Array = ENSEIGNES.get(str(e["enseigne"]), [Color(0.5, 0.5, 0.5), "potence"])
 	var col: Color = en[0]
 	if str(en[1]) == "banniere":
+		# P8.1-A3 : la bannière plaquée (0,9 x 2,6 m) va sur un TRUMEAU libre et dégagé : décalée vers l'extérieur jusqu'à 3 m si
+		# une baie, ses volets ou son encadrement l'occupent ; si l'un des deux côtés n'a pas de place, les DEUX deviennent des
+		# étendards sur hampe perpendiculaire à la façade (symétrie de l'entrée ; rien ne recouvre la façade)
+		var places := []
+		for k in [-1.0, 1.0]:
+			places.append(_x_banniere(str(e["batiment"]), y, x + k * (L * 0.5 + 1.4), k, 1.0, h + H - 1.15, h + H + 1.6))
+		if is_nan(places[0]) or is_nan(places[1]):
+			places = [NAN, NAN]
+			# une seule bannière, dans l'axe, au-dessus de la corniche de la porte (trumeau entre les baies de l'étage)
+			var axe := _x_banniere(str(e["batiment"]), y, x, 0.0, 1.0, h + H + 0.8, h + H + 2.85)
+			if not is_nan(axe):
+				sc._box_mesh(Vector3(x, h + H + 1.75, y + 0.08), Vector3(0.9, 1.8, 0.04), _mat_plein(col))
+				sc._box_mesh(Vector3(x, h + H + 1.7, y + 0.11), Vector3(0.36, 0.36, 0.02), _mat_plein(Color(0.85, 0.68, 0.25)))
+				sc._box_mesh(Vector3(x, h + H + 2.7, y + 0.1), Vector3(1.1, 0.07, 0.07), fer)
+				noter_banniere("entree %s (axe)" % e["id"], AABB(Vector3(x - 0.55, h + H + 0.85, y), Vector3(1.1, 1.9, 0.15)))
+				return
 		for k in [-1.0, 1.0]:
 			var bx: float = x + k * (L * 0.5 + 1.4)
+			var libre: float = places[0 if k < 0.0 else 1]
+			if is_nan(libre):
+				var xe: float = x + k * (L * 0.5 + 0.45)
+				_etendard(xe, y, h + H + 1.35, col, fer, k)
+				noter_banniere("entree %s %+d (étendard)" % [e["id"], int(k)], AABB(Vector3(xe - 0.05, h + H - 0.5, y + 0.2), Vector3(0.1, 1.9, 0.9)))
+				continue
+			bx = libre
+			noter_banniere("entree %s %+d" % [e["id"], int(k)], AABB(Vector3(bx - 0.55, h + H - 1.1, y), Vector3(1.1, 2.7, 0.15)))
 			sc._box_mesh(Vector3(bx, h + H + 0.2, y + 0.08), Vector3(0.9, 2.6, 0.04), _mat_plein(col))
 			sc._box_mesh(Vector3(bx, h + H + 0.3, y + 0.11), Vector3(0.36, 0.36, 0.02), _mat_plein(Color(0.85, 0.68, 0.25)))
 			sc._box_mesh(Vector3(bx, h + H + 1.55, y + 0.1), Vector3(1.1, 0.07, 0.07), fer)
@@ -646,6 +672,69 @@ func _entree_fonctionnelle(e: Dictionary) -> void:
 		sc._box_mesh(Vector3(px + 0.5, h + H + 0.95, y + 0.05), Vector3(1.0, 0.07, 0.07), fer)
 		sc._box_mesh(Vector3(px + 0.75, h + H + 0.45, y + 0.05), Vector3(0.75, 0.75, 0.06), _mat_plein(col))
 		sc._box_mesh(Vector3(px + 0.75, h + H + 0.45, y + 0.09), Vector3(0.36, 0.36, 0.02), _mat_plein(Color(0.85, 0.68, 0.25)))
+
+
+## P8.1-A3 — Abscisse d'une bannière plaquée de largeur 1 m (barre comprise) sur la face SUD du bâtiment `bat` (face à
+## l'ordonnée y), entre les hauteurs v0 et v1 : la position voulue x0 si elle ne recouvre aucune baie du registre des
+## façades (baie, volets, encadrement : marge de 0,15 m), sinon la plus proche en s'écartant de la porte (sens k) jusqu'à
+## 3 m, sans sortir de la façade. NAN si aucune ; x0 si le registre n'est pas tenu (--f_coherence=0 ou --escamotage_a3=0).
+func _x_banniere(bat: String, y: float, x0: float, k: float, w: float, v0: float, v1: float) -> float:
+	var reg = _tr().a.registre
+	if reg == null or not _a3():
+		return x0
+	# baies du registre dans le plan de la façade (orientée au sud, à l'ordonnée y), du bâtiment ou de ses parties (« _reste »)
+	var occupe := []
+	for it in reg:
+		if it["quoi"] != "baie" or not it.has("p") or not (str(it["bat"]) == bat or str(it["bat"]).begins_with(bat + "_")):
+			continue
+		var pp: Vector3 = it["p"]
+		var nn: Vector3 = it["n"]
+		if nn.z < 0.9 or absf(pp.z - y) > 0.8 or float(it["v1"]) <= v0 or float(it["v0"]) >= v1:
+			continue
+		var ext := (float(it["u1"]) - float(it["u0"])) * 0.5
+		occupe.append([pp.x - ext - 0.15, pp.x + ext + 0.15])
+	var xmin := -INF
+	var xmax := INF
+	for o in sc.world.adj.get("obstacles", []):
+		if str(o["id"]) == bat:
+			xmin = float(o["rect"][0]) + 0.4
+			xmax = float(o["rect"][2]) - 0.4
+	for i in 31:
+		var xc := x0 + k * 0.1 * float(i)
+		if xc - w * 0.5 < xmin or xc + w * 0.5 > xmax:
+			break
+		var ok := true
+		for oc in occupe:
+			if xc + w * 0.5 > oc[0] and xc - w * 0.5 < oc[1]:
+				ok = false
+				break
+		if ok and _point_libre(Vector3(xc, (v0 + v1) * 0.5, y + 0.6)):     # trumeau visible (pas derrière un volume accolé)
+			return xc
+	return NAN
+
+
+## P8.1-A3 — Étendard sur hampe de fer perpendiculaire à la façade (au-dessus de la lanterne) : quand aucun trumeau ne
+## peut recevoir la bannière plaquée ; tissu de 0,85 x 1,8 m dans le plan perpendiculaire, rien ne recouvre la façade.
+func _etendard(x: float, y: float, v: float, col: Color, fer: Material, sens := 1.0) -> void:
+	# hampe à 40° de la façade (vers l'extérieur de l'entrée) : le tissu reste lisible depuis la caméra (face au nord)
+	var piv := Node3D.new()
+	piv.position = Vector3(x, 0.0, y)
+	piv.rotation.y = sens * deg_to_rad(40.0)
+	sc.root.add_child(piv)
+	for b in [[Vector3(0, v, 0.6), Vector3(0.06, 0.06, 1.2), fer], [Vector3(0, v - 0.35, 0.25), Vector3(0.05, 0.7, 0.05), fer],
+			[Vector3(0, v - 0.95, 0.65), Vector3(0.04, 1.8, 0.85), _mat_plein(col)],
+			[Vector3(0.025, v - 0.6, 0.65), Vector3(0.02, 0.34, 0.34), _mat_plein(Color(0.85, 0.68, 0.25))],
+			[Vector3(-0.025, v - 0.6, 0.65), Vector3(0.02, 0.34, 0.34), _mat_plein(Color(0.85, 0.68, 0.25))]]:
+		var mi := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = b[1]
+		mi.mesh = bm
+		mi.material_override = b[2]
+		mi.position = b[0]
+		piv.add_child(mi)
+	for c in piv.get_children():
+		(c as Node3D).reparent(sc.root, true)
+	piv.queue_free()
 
 
 ## Porte décorative : battant unique de bois sombre affleurant, petit linteau, sans saillie ni interaction.
