@@ -917,10 +917,16 @@ func _pots() -> void:
 	for p in [Vector2(66.8, 87.1), Vector2(75.5, 87.1), Vector2(66.8, 82.9)]:
 		_cyl(Vector3(p.x, h + 0.22, p.y), 0.3, 0.22, 0.44, terre, 12)
 		_cyl(Vector3(p.x, h + 0.46, p.y), 0.34, 0.31, 0.06, terre, 12)
+		if a.plantes != null:
+			continue                                          # P8.1-A2 : planté par le module végétal (ci-dessous)
 		for k in 5:
 			var an := TAU * k / 5.0
 			var b: MeshInstance3D = a.box(Vector3(p.x + cos(an) * 0.13, h + 0.6 + (k % 2) * 0.08, p.y + sin(an) * 0.13), Vector3(0.26, 0.22, 0.26), feuilles[k % 2])
 			b.rotation.y = an
 			a.box(Vector3(p.x + cos(an) * 0.18, h + 0.74 + (k % 2) * 0.06, p.y + sin(an) * 0.18), Vector3(0.08, 0.06, 0.08), fleurs[k % 3])
 	a.fusionner(d0, "civique_cafe_pots")
+	# P8.1-A2 : plantes en pot du module végétal au lieu du feuillage en cubes (« plante cubique » du belvédère)
+	if a.plantes != null:
+		for p in [Vector2(66.8, 87.1), Vector2(75.5, 87.1), Vector2(66.8, 82.9)]:
+			a.plantes.pot(Vector3(p.x, h + 0.49, p.y), int(p.x * 13.0 + p.y))
 
