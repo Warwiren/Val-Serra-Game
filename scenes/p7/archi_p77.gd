@@ -43,6 +43,7 @@ const PORTES := ["porte_deco", "porte_cloutee", "porte_vitree", "porte_cochere",
 var racine: Node3D
 var _mats := {}
 var elements := 0          # maillages ajoutés (coût d'affichage)
+var preset_tuiles := "tuiles_a"   # P8.0-B : matière des versants (« tuiles » = terre cuite de la forge D)
 
 
 func _init(r: Node3D) -> void:
@@ -272,7 +273,10 @@ func _batiment(r: Rect2, h0: float, d: Dictionary) -> void:
 		balcon(face(r, bal[0]), float(bal[1]), float(bal[2]), float(nv[int(bal[3])]), float(bal[4]), str(bal[5]) if bal.size() > 5 else "fer")
 	for la in d.get("lanternes", []):
 		lanterne(face(r, la[0]), float(la[1]), h0 + float(la[2]))
+	var pt0 := preset_tuiles
+	preset_tuiles = str(d.get("tuiles_preset", pt0))       # P8.0-B : matière des tuiles propre au bâtiment (défaut : tuiles_a)
 	toit(r, top, float(d["toit_h"]), c_enduit, str(d.get("toit", "2p_x")), d.get("tuiles", Color(1.05, 1.0, 0.98)))
+	preset_tuiles = pt0
 	if d.has("cheminee"):
 		cheminee(d["cheminee"], top, top + float(d["toit_h"]) + 1.0)
 
@@ -562,7 +566,7 @@ func _pan(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, d: Vector3, nrm: 
 func _commit_tuiles(st: SurfaceTool, h: float, tuiles: Color) -> void:
 	var mi := MeshInstance3D.new()
 	mi.mesh = st.commit()
-	mi.material_override = macon("tuiles_a", tuiles, h, "maillage", false)
+	mi.material_override = macon(preset_tuiles, tuiles, h, "maillage", false)
 	racine.add_child(mi)
 	elements += 1
 

@@ -111,10 +111,18 @@ func baie(f: Dictionary, u: float, v0: float, w: float, h: float, style: String,
 	a.baie(f, u, v0, w, h, style, c_volets)
 
 
+const TUILES_FORGE_D := Color(1.32, 1.1, 0.98)       # P8.0-B : teinte des tuiles de l'appentis de la forge D (forge_p7101)
+
+
 func batiment(id: String, r: Rect2, h0: float, _h1: float) -> void:
 	rects[id] = r
 	var d: Dictionary = BATIMENTS[id].duplicate()
 	d["id"] = id
+	# P8.0-B : toits de la tranche en terre cuite de la forge D (référence validée) au lieu des tuiles brun foncé « tuiles_a »
+	# de P7.6, dont le versant à l'ombre formait une masse presque noire dans la ruelle des Tonneliers ; --toits_p80b=0 : P7.6
+	if str(sc._cli.get("toits_p80b", "1")) != "0":
+		d["tuiles_preset"] = "tuiles"
+		d["tuiles"] = TUILES_FORGE_D
 	a.batiment(r, h0, d)
 
 
