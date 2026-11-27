@@ -42,8 +42,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p8-0a-cadrage-ville`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p8-0a-cadrage-ville`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p8-0b-lumiere`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p8-0b-lumiere`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -214,6 +214,11 @@ masque de collision avant / après.
    **P8.0-A2** (même branche) : 11° reste la référence. Essais **`ville_v07b_p80a_13.tscn` / `_14.tscn`** (13° / 14°, plongée
    civique 6,5° conservée) et zone de lecture facultative sur la terrasse du belvédère **`ville_v07b_p80a2_zone17.tscn`**
    (`--zone_lecture=17|18`) ; parcours `p80a_cadrage` complété (R6 belvédère). Diagnostic des premiers plans : rapport § P8.0-A2.
+   **Branche `p8-0b-lumiere`** (EXPÉRIENCE, P8.0-A clos : 11° et 6,5° retenus) : F5 inchangé. Premiers plans corrigés (toits de la
+   tranche en terre cuite, coupes de l'auberge et de la Guilde sous la place, parapet de la porte sud ; `--toits_p80b=0`,
+   `--coupes_p80b=0`). Profils de lumière : **A = P7.13** (défaut), **B = proposition HD-2D** (`--lumiere=b` ou F6
+   **`scenes/p7/ville_v07b_p80b.tscn`** ; **touche F4** : A <-> B en jeu ; étapes `--b_jusqua=1..5`, effets séparés `--b_*`).
+   Rapport : `docs/P8_0B_LUMIERE.md`.
 
 ### Commandes — forêt V07B (F5)
 
@@ -258,6 +263,7 @@ créateur.
 | Scène | Contenu |
 |---|---|
 | `scenes/p7/ville_v07b.tscn` | **Ville de référence (V0.7-B, P7.5 à P7.12)** : grande place et fontaine, forge D, boutique P7.11, quartier civique et porte du château, tranche de l'auberge et ruelle des Tonneliers, entrées des bâtiments, caméras A / B (touche V) |
+| `scenes/p7/ville_v07b_p80b.tscn` | **P8.0-B — ville, lumière B** (proposition HD-2D ; F4 : A <-> B) |
 | `scenes/p7/ville_v07b_p80a_13.tscn` | **P8.0-A2 — ville, plongée 13°** (plongée civique 6,5° conservée) |
 | `scenes/p7/ville_v07b_p80a_14.tscn` | **P8.0-A2 — ville, plongée 14°** (plongée civique 6,5° conservée) |
 | `scenes/p7/ville_v07b_p80a2_zone17.tscn` | **P8.0-A2 — 11° + zone de lecture à 17° sur la terrasse du belvédère** (facultative) |
