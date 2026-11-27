@@ -602,6 +602,8 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	_rng.seed = 6061
 	world = World25.load_world(file, m)
 	_p6 = world.adj.get("p6", {})
+	if _ville != null and _ville.get("lum") != null:
+		_ville.lum.quitter()                     # P8.0-B : aucun réglage du profil B ne passe dans la zone suivante
 	_camera_de_zone()
 	_ville = null
 	if _p6.get("zone", "") == "ville":
@@ -1448,6 +1450,10 @@ func _unhandled_input(e: InputEvent) -> void:
 	if _cam_ville and _ville_ver in ["v07a", "v07b"] and e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_V:
 		camera_ville = "B" if camera_ville == "A" else "A"
 		s.toast("Caméra de la ville : " + ("B — semi-fixe (2 secteurs)" if camera_ville == "B" else "A — fixe vers le nord"), 2.5)
+		return
+	if _cam_ville and _ville != null and _ville.get("lum") != null and e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_F4:
+		_ville.lum.basculer()                    # P8.0-B : lumière A (P7.13) <-> B (proposition), au même endroit
+		s.toast(_ville.lum.resume(), 3.5)
 		return
 	if _cam_ville and e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_L:
 		if _cli.has("libelles"):

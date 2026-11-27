@@ -49,6 +49,10 @@ func _ombres_ville() -> void:
 	s.directional_shadow_blend_splits = true
 
 
+const LumiereP80B := preload("res://scenes/p8/lumiere_p80b.gd")
+var lum                                   # P8.0-B : profils de lumière A / B (scenes/p8/lumiere_p80b.gd)
+
+
 const Bordures := preload("res://scenes/p7/bordures_p713.gd")
 var bd                                    # P7.13 : bordures de la grande place (scenes/p7/bordures_p713.gd)
 
@@ -217,6 +221,9 @@ func decorer() -> void:
 	_bord().finaliser()                                   # P7.13 : étals de la place (fusion commune)
 	_ombres_ville()
 	_classer_volumes()
+	# P8.0-B : profil de lumière (A = P7.13 par défaut ; --lumiere=b, méta « lumiere », touche F4)
+	lum = LumiereP80B.new(sc, self)
+	lum.appliquer(lum.profil_demande())
 	_libelle("Faubourgs — passage bloqué", Vector3(-14.0, 3.5 + 4.0, 96.0))
 	_libelle("Quartier du château — accès gardé", Vector3(70.0, 8.0 + 5.0, 41.0))
 
