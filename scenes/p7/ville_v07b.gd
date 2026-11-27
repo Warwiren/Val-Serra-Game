@@ -52,6 +52,24 @@ const LumiereP80B := preload("res://scenes/p8/lumiere_p80b.gd")
 var lum                                   # P8.0-B : profils de lumière A / B (scenes/p8/lumiere_p80b.gd)
 
 
+const Finition := preload("res://scenes/p8/finition_p81.gd")
+var fi                                    # P8.1-A : finition du quartier par lots (scenes/p8/finition_p81.gd)
+
+
+func _fin():
+	if fi == null:
+		fi = Finition.new(self)
+	return fi
+
+
+## P8.1-A (L1) : masses de terrain en soutènement de pierre et dallage (--f_sols=0 : blockout V0.7-A)
+func _masses() -> void:
+	if _fin().actif("sols") and sans_joues():           # joues des volées : seulement sans le quartier civique (super)
+		_fin().masses(v.get("masses", []))
+		return
+	super()
+
+
 const Bordures := preload("res://scenes/p7/bordures_p713.gd")
 var bd                                    # P7.13 : bordures de la grande place (scenes/p7/bordures_p713.gd)
 
@@ -133,7 +151,10 @@ func construit(e: Dictionary) -> bool:
 	if e["type"] == "block" and e.get("role", "") == "terrasse" and ((_tr().actif() and id in Tranche.SOLS) or (_place().actif() and id in Place.SOLS_SIMPLES)):
 		var rt: Rect2 = e["rect"]
 		sc._static_box(sc._rect_center(rt, e["h0"], e["h1"]), Vector3(rt.size.x, e["h1"] - e["h0"], rt.size.y), sc.L_FLOOR)
-		sc._box_mesh(sc._rect_center(rt, e["h0"], e["h1"] - 0.3), Vector3(rt.size.x, e["h1"] - 0.3 - e["h0"], rt.size.y), mat(Color(0.50, 0.49, 0.46), 0.0, 0.0, e["h0"]))
+		if _fin().actif("sols"):
+			_fin().corps_terrasse(rt, e["h0"], e["h1"] - 0.3)          # P8.1-A (L1) : soutènement de pierre
+		else:
+			sc._box_mesh(sc._rect_center(rt, e["h0"], e["h1"] - 0.3), Vector3(rt.size.x, e["h1"] - 0.3 - e["h0"], rt.size.y), mat(Color(0.50, 0.49, 0.46), 0.0, 0.0, e["h0"]))
 		if id in Tranche.SOLS:
 			_tr().sol(id, rt, e["h1"])
 		else:
@@ -145,7 +166,10 @@ func construit(e: Dictionary) -> bool:
 		var h0: float = e["h0"]
 		var hp: float = e["h1"]
 		sc._static_box(sc._rect_center(rp, h0, hp), Vector3(rp.size.x, hp - h0, rp.size.y), sc.L_FLOOR)
-		sc._box_mesh(sc._rect_center(rp, h0, hp - 0.3), Vector3(rp.size.x, hp - 0.3 - h0, rp.size.y), mat(Color(0.50, 0.49, 0.46), 0.0, 0.0, h0))
+		if _fin().actif("sols"):
+			_fin().corps_terrasse(rp, h0, hp - 0.3)                    # P8.1-A (L1) : soutènement de pierre
+		else:
+			sc._box_mesh(sc._rect_center(rp, h0, hp - 0.3), Vector3(rp.size.x, hp - 0.3 - h0, rp.size.y), mat(Color(0.50, 0.49, 0.46), 0.0, 0.0, h0))
 		var q: Array = v.get("fontaine", [42, 96, 48, 102])
 		_place().sol(rp, hp, Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1]), v.get("axe_chateau", {}))
 		return true
@@ -197,6 +221,17 @@ func construit(e: Dictionary) -> bool:
 		elif id == "decor_buvette" and _civ().actif:
 			_civ().buvette(r, h0)                             # P7.13 : buvette adossée à la boutique
 		return true
+	# P8.1-A (L1) : sols, terrasses et garde-corps restants (mêmes collisions que le blockout ; --f_sols=0)
+	if _fin().actif("sols"):
+		if e["type"] == "floor":
+			_fin().sol(e)
+			return true
+		if e["type"] == "block" and e.get("role", "") == "terrasse":
+			_fin().terrasse(e)
+			return true
+		if e["type"] == "block" and id.begins_with("gc_"):
+			_fin().garde_corps(e)
+			return true
 	return super(e)
 
 
