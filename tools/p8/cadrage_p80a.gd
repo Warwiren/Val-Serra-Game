@@ -12,13 +12,16 @@ extends SceneTree
 ##     et dans le cadre SANS volume d'escamotage visible devant (le décor qui n'est pas un volume, ville haute comprise,
 ##     n'est pas compté : approximation) ;
 ##   * toitures : volumes visibles dans le cadre dont le dessus est sous la caméra (toit ou terrasse vus de dessus),
-##     moyenne et maximum, et les volumes concernés le plus souvent.
+##     moyenne et maximum, et les volumes concernés le plus souvent ;
+##   * P8.0-A2, confort des transitions : plongée minimale et maximale du parcours, vitesse maximale de variation (°/s),
+##     et écart maximal de la position d'Aren à l'écran d'une image à l'autre pendant une variation de plongée (px).
 ## godot --headless --path . --script res://tools/p8/cadrage_p80a.gd -- --route=p80a_cadrage --plongee_ville=16
-##   [--route=p80a_cadrage_course] [--plongee_civique=0|1] [--camera_ville=B]
+##   [--route=p80a_cadrage_course] [--plongee_civique=0|1] [--camera_ville=B] [--zone_lecture=17]
 ## Les chiffres dépendent de la taille de la fenêtre (headless : celle du projet) ; ils servent à COMPARER les angles
 ## entre eux, pas à juger l'image : le jugement se fait en vidéo sur GPU.
 
 const Civique := preload("res://scenes/p7/civique_p712.gd")
+const World25 := preload("res://src/explore25/world25.gd")
 
 var n := 0
 var sc
@@ -29,6 +32,8 @@ var modes := {}
 var dernier := {}
 var debut := {}
 var reperes := {}
+var pitch_prec := -1.0
+var aren_prec := Vector2(-1, -1)
 
 
 func _initialize() -> void:
@@ -43,7 +48,8 @@ func _nouveau() -> Dictionary:
 		"escamotages": 0, "escamotages_tout": 0, "duree_escamote_s": 0.0, "fins": 0, "bascules": 0, "clignotements": 0,
 		"horizon_min": 9.0, "horizon_max": -9.0, "sol_min_m": INF, "sol_max_m": 0.0, "sol_horizon_images": 0,
 		"colisee_cadre": 0, "colisee_degage": 0, "porte_cadre": 0, "porte_degagee": 0, "chateau_cadre": 0, "chateau_degage": 0,
-		"toits_somme": 0, "toits_max": 0, "toits_ids": {}}
+		"toits_somme": 0, "toits_max": 0, "toits_ids": {},
+		"plongee_min": 90.0, "plongee_max": -90.0, "plongee_vit_max": 0.0, "aren_saut_px": 0.0}
 
 
 func _process(d: float) -> bool:
@@ -145,6 +151,18 @@ func _process(d: float) -> bool:
 			if degage[k]:
 				r[("porte_degagee" if k == "porte" else k + "_degage")] += 1
 	r["toits_somme"] += toits
+	# --- confort des transitions de plongée (P8.0-A2)
+	var pd := rad_to_deg(World25.pitch)
+	r["plongee_min"] = minf(r["plongee_min"], pd)
+	r["plongee_max"] = maxf(r["plongee_max"], pd)
+	if pitch_prec >= 0.0 and d > 0.0:
+		var vit := absf(pd - pitch_prec) / d
+		if vit < 60.0:                          # un téléport (début de parcours) n'est pas une transition
+			r["plongee_vit_max"] = maxf(r["plongee_vit_max"], vit)
+			if absf(pd - pitch_prec) > 1e-4 and aren_prec.x >= 0.0:
+				r["aren_saut_px"] = maxf(r["aren_saut_px"], absf(pa.y - aren_prec.y))
+	pitch_prec = pd
+	aren_prec = pa
 	r["toits_max"] = maxi(r["toits_max"], toits)
 	return _fin()
 
@@ -165,7 +183,7 @@ func _fin() -> bool:
 		return false
 	_clore()
 	var plongee: float = sc.plongee_ville()
-	var out := {"plongee_ville": plongee, "plongee_civique": sc.plongee_civique_active(),
+	var out := {"plongee_ville": plongee, "plongee_civique": sc.plongee_civique_active(), "zone_lecture": sc.zone_lecture_deg(),
 		"route": str(sc._cli.get("route", "")), "bloque": sc.s.m.get("stuck", []), "parcours": {}}
 	for k in R:
 		var r: Dictionary = R[k]
@@ -195,6 +213,9 @@ func _fin() -> bool:
 			"chateau_degage_pct": snappedf(100.0 * r["chateau_degage"] / im, 0.1),
 			"toits_vus_dessus_moy": snappedf(float(r["toits_somme"]) / im, 0.1), "toits_vus_dessus_max": r["toits_max"],
 			"toits_frequents": ids.slice(0, 6),
+			"plongee_deg": [snappedf(r["plongee_min"], 0.1), snappedf(r["plongee_max"], 0.1)],
+			"plongee_vit_max_deg_s": snappedf(r["plongee_vit_max"], 0.1),
+			"aren_saut_vertical_px_pendant_variation": snappedf(r["aren_saut_px"], 0.1),
 		}
 	print("CADRAGE_P80A ", JSON.stringify(out))
 	quit()

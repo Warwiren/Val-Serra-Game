@@ -89,3 +89,127 @@ Lancer ensuite le parcours `--route=p6_sondes` du Colisée, puis `tools/p8/cadra
   en vidéo (mesure « toits vus de dessus » de l'outil).
 * **Hauteurs d'escamotage.** Le test d'escamotage dépend de la hauteur de la caméra. Il s'applique tel quel, mais ses
   marges ont été réglées à 11° : des escamotages tardifs ou inutiles restent possibles.
+
+---
+
+# P8.0-A2 — Validation finale de la caméra de ville
+
+Même branche. Décision du créateur après les vidéos 11 / 16 / 20 / 24° : **11° reste la référence artistique**. Dernière
+expérience avant P8.0-B (éclairage). Rien n'est validé ; le défaut reste 11° (P7.13 exact).
+
+## 1. Changements
+
+* **13° et 14°** : scènes F6 `scenes/p7/ville_v07b_p80a_13.tscn` / `_14.tscn` (ou `--plongee_ville=13|14`).
+* **Plongée civique de 6,5°** conservée par défaut jusqu'à 14° (`PLONGEE_CIVIQUE_MAX`). Les essais forts de P8.0-A
+  (16°, 20°, 24°) restent à angle constant. `--plongee_civique=1|0` force ou coupe la plongée civique.
+* **Zone de lecture facultative** (désactivée par défaut) :
+  * terrasse du belvédère, rectangle `terrasse_cafe` (x 66 → 76, y 82 → 88, h 5,75), à `--zone_lecture=17` (ou 18) ;
+  * scène F6 `scenes/p7/ville_v07b_p80a2_zone17.tscn` (base 11°) ;
+  * montée sur les 2,5 premiers mètres de la terrasse, lissage critique de 0,6 s, pivot autour d'Aren, sans zoom ;
+  * retour symétrique en sortant.
+* **Parcours** `p80a_cadrage` : 6e segment **R6 belvédère** (entrée, tables, buvette, sortie).
+* **Outil** `tools/p8/cadrage_p80a.gd`, mesures ajoutées par parcours :
+  * plongée minimale et maximale ;
+  * vitesse maximale de variation (°/s) ;
+  * écart vertical d'Aren à l'écran d'une image à l'autre pendant une variation de plongée.
+
+Suivi, visée, champ, zoom, Colisée, bâtiments, collisions, matériaux, éclairage et interactions sont inchangés.
+
+## 2. Sprites, accessoires 2D et ombres quand la plongée varie (lecture du code)
+
+* **Aren et les compagnons.** Leur taille est recalculée à chaque image selon la plongée courante
+  (`colisee._sync_sprite`, `explore_3d._sync_sprite`). Leur taille à l'écran reste constante pendant une transition.
+* **Cartes 2D du décor** (gardes, accessoires) **et ombres rondes.** Elles sont dimensionnées une fois, au chargement
+  (`1 / cos`). Leur hauteur apparente suit ensuite cos(plongée courante) / cos(plongée de chargement) :
+  * zone à 17° depuis 11° : −2,6 %, progressif ;
+  * plongée civique depuis 13° : +2,0 % ; depuis 14° : +2,4 % (depuis 11° : +1,2 %, déjà le cas en P7.12.1) ;
+  * soit 1 à 2 px pour une carte d'environ 64 px.
+* Aucune compensation n'est ajoutée. Si l'écart se voit en jeu, on pourra recalculer ces cartes à chaque variation, comme
+  pour Aren.
+
+## 3. Estimation géométrique (à confirmer par l'outil et en jeu)
+
+Hypothèses : champ de 30°, caméra à ≈ 22 m, visée négligée (≈ ±2°). Un repère est « dans le cadre » si son angle
+au-dessus de l'axe de visée est inférieur à 15°.
+
+| Point de vue | 11° | 13° | 14° | 17° |
+|---|---|---|---|---|
+| Grande place (65 ; 106) : sommet de la porte fortifiée | limite (15,0°) | hors cadre | hors cadre | hors cadre |
+| Terrasse du belvédère : sommet du châtelet | dans le cadre (14,4°) | hors cadre (15,7°) | hors cadre | hors cadre |
+| Terrasse du belvédère : tête des gardes de la porte | oui | oui | oui | oui (14,0°) |
+| Terrasse du belvédère : château lointain | oui (13,9°) | hors cadre (15,7°) | hors cadre | hors cadre |
+
+**Conséquence probable.** Dès 13°, le haut de la porte et le château quittent le cadre depuis la place et le belvédère,
+alors qu'ils sont tout juste dans le cadre à 11°. La zone de lecture à 17° garde la porte et ses gardes, mais pas son
+couronnement ni le château. **Elle ne remplit donc probablement pas la condition « sans affecter la lecture des
+monuments ».** Elle est livrée pour juger la sensation, pas pour être retenue.
+
+## 4. Diagnostic des trois premiers plans signalés (vidéos du 27/11)
+
+### a. Les deux blocs de la placette des Voyageurs
+
+* **Identification.** `tour_sud_o` (x 53 → 57, y 150 → 157, 12 m), `tour_sud_e` (x 63 → 67) et les remparts
+  `rempart_sud_o` / `rempart_sud_e` (9 m) de la porte sud. Entre les deux : les vantaux ouverts (bois brun). En bas de
+  l'écran : la barrière jaune de l'accès fermé.
+* **Cause : géométrie provisoire et escamotage partiel.** Au départ, la caméra est hors les murs (≈ 22 m au sud
+  d'Aren, y ≈ 165). Tours et remparts, en blockout, sont donc entre elle et Aren. `_decouper` les coupe à
+  h0 + 3,5 m (`COUPE_ETAGE`), règle prévue pour un rez-de-chaussée d'habitation. On voit alors deux souches de 3,5 m
+  au dessus sombre (blockout), sur toute la largeur du premier plan.
+* **Corrections locales recommandées**, sans reconstruction :
+  1. coupe propre aux fortifications : environ 1,2 m, lecture de parapet ; ou escamotage entier tant que la caméra est
+     hors les murs ;
+  2. dessus de coupe en pierre (chemin de ronde) plutôt qu'en plancher ;
+  3. à terme, point d'apparition décalé de quelques mètres vers le nord, pour que la caméra soit dans la ville dès la
+     première image.
+
+### b. Le grand pan « de toiture » à l'arrivée sur la place
+
+* **Identification.** Ce n'est pas un toit : c'est le **chapeau de coupe** de `bat_auberge_taverne` (x 68 → 80,
+  y 115 → 132). Il s'agit du plancher de bois de l'étage, posé par `_chapeau` (P7.12.2) quand l'escamotage partiel
+  retire les étages et le toit.
+* **Cause : escamotage, composition.** En haut de la volée B, l'auberge est entre la caméra et Aren, donc ses étages
+  sont escamotés. La coupe est à h0 + 3,5 = 3,5 m, **exactement le niveau de la place**. Le plancher prolonge donc le
+  dallage sous forme d'une grande plate-forme de bois orangé (≈ 12 × 17 m) qui occupe le quart inférieur droit de l'écran.
+  La Guilde (x 32 → 56, mêmes hauteurs) peut produire le même effet à gauche.
+* **Corrections locales recommandées :**
+  1. coupe abaissée pour les volumes dont la coupe tombe au niveau d'un sol praticable voisin : environ 2,6 m, pour
+     créer une marche visible sous la place ;
+  2. plancher moins saturé et plus sombre, arase de pierre plus large : la coupe doit se lire comme un mur arasé, pas
+     comme un sol ;
+  3. ou, pour ces deux volumes seulement, escamotage entier en haut de la volée.
+
+### c. Le volume sombre près de la ruelle des Tonneliers (16° et plus)
+
+* **Identification.** Le versant de toit de `bat_auberge_taverne` (tranche P7.6), au-dessus de sa façade ouest enduite
+  aux volets verts, en montant la volée B.
+* **Cause : composition et matière provisoire, pas l'escamotage.** L'auberge est **à côté** d'Aren, pas entre lui et la
+  caméra : l'escamotage n'a pas à la retirer.
+  * À 11°, on n'en voit que l'égout.
+  * Dès 16°, la caméra monte d'environ 2 m et le versant entre dans le cadre en grand. Ce versant est hors soleil
+    (soleil d'ouest-sud-ouest) et couvert des tuiles brun foncé de la tranche P7.6 (`tuiles_a`, antérieures à la
+    terre cuite de la forge D) : il se lit comme une masse presque noire.
+* **Corrections recommandées :**
+  1. à 11°, rien d'urgent ;
+  2. à 13° ou 14°, vérifier en jeu ;
+  3. en P8.0-B (éclairage), relever l'ambiance des versants à l'ombre ;
+  4. à terme, aligner les tuiles de la tranche P7.6 sur la terre cuite de la forge D (référence validée).
+
+## 5. Commandes P8.0-A2
+
+| Essai | F6 | Ligne de commande |
+|---|---|---|
+| 11° (référence) | `scenes/p7/ville_v07b.tscn` | sans option |
+| 13° | `scenes/p7/ville_v07b_p80a_13.tscn` | `-- --plongee_ville=13` |
+| 14° | `scenes/p7/ville_v07b_p80a_14.tscn` | `-- --plongee_ville=14` |
+| 11° + zone de lecture à 17° | `scenes/p7/ville_v07b_p80a2_zone17.tscn` | `-- --zone_lecture=17` (ou 18) |
+
+* **Parcours** : `--route=p80a_cadrage` (R1 à R6).
+* **Mesures** :
+  `godot --headless --path . --script res://tools/p8/cadrage_p80a.gd -- --route=p80a_cadrage --plongee_ville=13 [--zone_lecture=17]`.
+* **Stabilité des examens** :
+  `godot --headless --path . --script res://tools/p7/stabilite_interactions_p7121.gd -- --route=p7_7121_interactions --quit --plongee_ville=13`.
+
+## 6. Tests
+
+**NON EXÉCUTÉS** : Godot 4.7.2 n'est toujours pas disponible dans ce conteneur. Les commandes de la section 4 de P8.0-A
+s'appliquent telles quelles. À lancer avant toute conclusion.

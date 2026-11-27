@@ -974,6 +974,9 @@ static func _route_base(name: String) -> Array:
 					[71.0, 79.5], [72.0, 77.6], [72.0, 69.0], [70.0, 45.0]]],
 				["R5 retour du quartier civique -> place", Vector3(70.0, 45.0, 8.0), [[70.0, 45.1], [72.0, 69.0], [72.0, 78.0], [62.0, 79.5],
 					[62.0, 90.0], [62.0, 100.0], [65.0, 106.0]]],
+				# P8.0-A2 : terrasse du belvédère (zone de lecture facultative) : entrée, tables, buvette, sortie (points de p7_7122_terrasse)
+				["R6 belvédère : entrée, tables, buvette, sortie", Vector3(63.0, 90.0, 3.5), [[62.0, 84.0], [64.0, 80.5], [70.0, 83.3],
+					[66.9, 84.4], [70.0, 84.4], [70.0, 87.1], [72.8, 87.15], [74.2, 82.9], [70.15, 84.2], [70.0, 80.5], [64.0, 80.5]]],
 			]
 			var o80: Array = []
 			for sg in segs80:

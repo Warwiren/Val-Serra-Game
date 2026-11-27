@@ -211,6 +211,9 @@ masque de collision avant / après.
    suivi ; plongée civique coupée pour comparer à angle constant). Options : `--plongee_ville=<degrés>`,
    `--plongee_civique=1|0`. Parcours de comparaison : `--route=p80a_cadrage` (ou `p80a_cadrage_course`). Rapport :
    `docs/P8_0A_CADRAGE.md`.
+   **P8.0-A2** (même branche) : 11° reste la référence. Essais **`ville_v07b_p80a_13.tscn` / `_14.tscn`** (13° / 14°, plongée
+   civique 6,5° conservée) et zone de lecture facultative sur la terrasse du belvédère **`ville_v07b_p80a2_zone17.tscn`**
+   (`--zone_lecture=17|18`) ; parcours `p80a_cadrage` complété (R6 belvédère). Diagnostic des premiers plans : rapport § P8.0-A2.
 
 ### Commandes — forêt V07B (F5)
 
@@ -255,6 +258,9 @@ créateur.
 | Scène | Contenu |
 |---|---|
 | `scenes/p7/ville_v07b.tscn` | **Ville de référence (V0.7-B, P7.5 à P7.12)** : grande place et fontaine, forge D, boutique P7.11, quartier civique et porte du château, tranche de l'auberge et ruelle des Tonneliers, entrées des bâtiments, caméras A / B (touche V) |
+| `scenes/p7/ville_v07b_p80a_13.tscn` | **P8.0-A2 — ville, plongée 13°** (plongée civique 6,5° conservée) |
+| `scenes/p7/ville_v07b_p80a_14.tscn` | **P8.0-A2 — ville, plongée 14°** (plongée civique 6,5° conservée) |
+| `scenes/p7/ville_v07b_p80a2_zone17.tscn` | **P8.0-A2 — 11° + zone de lecture à 17° sur la terrasse du belvédère** (facultative) |
 | `scenes/p7/ville_v07b_p80a_16.tscn` | **P8.0-A — ville, plongée 16°** (expérience de cadrage ; 11° = `ville_v07b.tscn`) |
 | `scenes/p7/ville_v07b_p80a_20.tscn` | **P8.0-A — ville, plongée 20°** (proche de l'arène du Colisée) |
 | `scenes/p7/ville_v07b_p80a_24.tscn` | **P8.0-A — ville, plongée 24°** (essai fortement plongeant) |

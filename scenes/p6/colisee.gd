@@ -2514,7 +2514,7 @@ func _camera_de_zone() -> void:
 	cam.far = 900.0 if ville06 else 400.0
 	s.cam.verrou = voulu == "V06"                # P7.4.1 : distance unique (ville et Colisée), parcours compris
 	if ville06:
-		s.arch = "P7.3 — Ville V0.6 · " + CAMS_V06_LABEL[cam_v06] + " · P8.0-A : plongée de base %.0f°" % plongee_ville()
+		s.arch = "P7.3 — Ville V0.6 · " + CAMS_V06_LABEL[cam_v06] + " · P8.0-A : plongée de base %.0f°" % plongee_ville() + (" · zone de lecture %.0f° (belvédère)" % zone_lecture_deg() if zone_lecture_deg() > 0.0 else "")
 		s._help.text = "Flèches / ZQSD : marcher  ·  Maj : courir  ·  E / Entrée : examiner  ·  C : caméra (V0.6 perspective / orthographique / V0.5)  ·  L : libellés  ·  F1 : infos"
 
 
@@ -2692,11 +2692,11 @@ const PLONGEE_CIVIQUE := 6.5
 
 # ------------------------------------------------------------------------------------------------ P8.0-A cadrage
 ## P8.0-A — EXPÉRIENCE de cadrage de la ville (comparaison sur GPU, AUCUN angle retenu). Plongée de BASE de la ville :
-## --plongee_ville=<degrés> (11, 16, 20, 24), sinon méta « plongee_ville » de la scène F6, sinon v06_plongee (11° : état
+## --plongee_ville=<degrés> (11, 13, 14 [P8.0-A2] ; 16, 20, 24 [P8.0-A]), sinon méta « plongee_ville » de la scène F6, sinon v06_plongee (11° : état
 ## P7.13 exact). Lue au chargement de la ville seulement : cartes, ombres rondes et sprites du décor sont dimensionnés
 ## selon la plongée à leur construction (1 / cos), un changement en cours de partie les fausserait. Le Colisée, le champ,
 ## le zoom, la visée et le suivi sont inchangés.
-const PLONGEES_VILLE := [11.0, 16.0, 20.0, 24.0]
+const PLONGEES_VILLE := [11.0, 13.0, 14.0, 16.0, 20.0, 24.0]
 
 
 func plongee_ville() -> float:
@@ -2707,13 +2707,46 @@ func plongee_ville() -> float:
 	return float(_cli.get("v06_plongee", PLONGEE_V06))
 
 
-## Plongée locale civique (6,5°) : active par défaut à la plongée de référence (P7.13 exact), coupée par défaut aux angles
-## d'essai pour qu'ils se comparent à angle constant ; --plongee_civique=1 la force (transition base -> 6,5° sur la
-## terrasse), --plongee_civique=0 la coupe (comportement P7.12.1).
+## Plongée locale civique (6,5°) : P8.0-A2 — active par défaut pour les plongées de référence et de comparaison fine
+## (11°, 13°, 14° : jusqu'à PLONGEE_CIVIQUE_MAX), coupée par défaut aux essais forts de P8.0-A (16°, 20°, 24°) pour qu'ils
+## se comparent à angle constant ; --plongee_civique=1 la force, --plongee_civique=0 la coupe (comportement P7.12.1).
+const PLONGEE_CIVIQUE_MAX := 14.0
+
+
 func plongee_civique_active() -> bool:
 	if _cli.has("plongee_civique"):
 		return str(_cli["plongee_civique"]) != "0"
-	return is_equal_approx(plongee_ville(), float(_cli.get("v06_plongee", PLONGEE_V06)))
+	return plongee_ville() <= PLONGEE_CIVIQUE_MAX + 0.01
+
+
+# ------------------------------------------------------------------------------------------------ P8.0-A2 zone de lecture
+## P8.0-A2 — ZONE EXPÉRIMENTALE de lecture (FACULTATIVE, désactivée par défaut) : sur la terrasse du belvédère (lieu
+## d'arrêt : buvette, tables, emplacements de PNJ), la plongée monte de la plongée de base à --zone_lecture=<degrés>
+## (17 ou 18 ; méta « zone_lecture » de la scène F6). Montée progressive sur les 2,5 premiers mètres de la terrasse
+## (entrée nord, y 82 -> 84,5) puis lissage critique de 0,6 s, pivot autour d'Aren (_recaler_vue) : aucun saut, aucun zoom ;
+## retour symétrique en sortant. Aren est redessiné à chaque image (taille à l'écran constante) ; les cartes 2D du décor
+## et les ombres rondes gardent la taille calculée au chargement (écart de hauteur apparente ≈ -2,6 % à 17°, progressif).
+const ZONE_LECTURE_RECT := Rect2(66.0, 82.0, 10.0, 6.0)     # terrasse_cafe des données (x 66 -> 76, y 82 -> 88)
+const ZONE_LECTURE_H := 5.75
+const ZONE_LECTURE_RAMPE := 2.5
+
+
+func zone_lecture_deg() -> float:
+	if _cli.has("zone_lecture") and str(_cli["zone_lecture"]).is_valid_float():
+		return float(_cli["zone_lecture"])
+	if has_meta("zone_lecture"):
+		return float(get_meta("zone_lecture"))
+	return 0.0
+
+
+## Poids de la zone (0 hors de la terrasse, 1 à 2,5 m de son entrée) ; seulement au niveau de la terrasse.
+func zone_lecture_poids() -> float:
+	if zone_lecture_deg() <= 0.0 or absf(s.hero.z - ZONE_LECTURE_H) > 0.3:
+		return 0.0
+	var r := ZONE_LECTURE_RECT
+	if s.hero.x < r.position.x or s.hero.x > r.end.x or s.hero.y > r.end.y + 0.3:
+		return 0.0
+	return smoothstep(r.position.y, r.position.y + ZONE_LECTURE_RAMPE, s.hero.y)
 
 
 func _profil_ville(delta: float) -> void:
@@ -2721,6 +2754,9 @@ func _profil_ville(delta: float) -> void:
 		return
 	var base := plongee_ville()
 	var p := base
+	var wz := zone_lecture_poids()
+	if wz > 0.0:
+		p = lerpf(base, zone_lecture_deg(), wz)
 	if plongee_civique_active() and s.hero.z > 7.0:
 		var t := clampf((71.0 - s.hero.y) / 12.0, 0.0, 1.0)
 		p = lerpf(base, float(_cli.get("plongee_civique_deg", PLONGEE_CIVIQUE)), smoothstep(0.0, 1.0, t))

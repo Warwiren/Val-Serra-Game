@@ -309,6 +309,11 @@
   `scenes/p7/ville_v07b_p80a_16|20|24.tscn` ; plongée civique 6,5° active par défaut à 11° seulement (`--plongee_civique=1|0`) ;
   parcours `p80a_cadrage(_course)`, mesure `tools/p8/cadrage_p80a.gd`. Colisée, champ, zoom, visée, géométrie, éclairage inchangés.
   Ne pas changer la plongée par défaut sans décision du créateur.
+- **P8.0-A2 (même branche)** : 11° = référence artistique retenue par le créateur (27/11/2026). Essais 13° / 14° (scènes F6
+  `ville_v07b_p80a_13|14.tscn`, plongée civique conservée jusqu'à 14°, `PLONGEE_CIVIQUE_MAX`) ; zone de lecture FACULTATIVE sur la
+  terrasse du belvédère (`--zone_lecture=17`, scène `ville_v07b_p80a2_zone17.tscn`, désactivée par défaut). Diagnostic des premiers
+  plans (souches des tours sud, chapeau de coupe de l'auberge au niveau de la place, versant sombre de l'auberge) : rapport § P8.0-A2.
+  Aucun changement permanent de caméra avant le retour du créateur.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).
