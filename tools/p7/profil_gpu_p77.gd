@@ -7,6 +7,12 @@ extends SceneTree
 ## (RenderingServer.viewport_get_measured_render_time_*), appels de dessin, primitives, objets ; mémoire vidéo.
 ## Sortie : un tableau dans la console, un CSV (par point de vue : moyenne, p95, max) et l'identité de la machine.
 ## --tranche=0 : même parcours, tranche remplacée par le blockout (coût propre de la tranche = différence).
+## P8.0-C : toutes les options de la ville passent à la scène (--lumiere=b, --b_ombres=0, --b_aa=msaa2, --b_tranches=2...).
+## L'en-tête du CSV consigne la taille RÉELLE du rendu 3D (alerte si elle diffère de --resolution : fenêtre bornée par
+## l'écran -> --plein_ecran=1), le profil de lumière effectivement appliqué et les options ; ligne « MOYENNE » finale.
+## Profil A / B en 1920 × 1080 :
+##   godot --path . --script res://tools/p7/profil_gpu_p77.gd -- --resolution=1920x1080 --sortie=profil_A.csv
+##   godot --path . --script res://tools/p7/profil_gpu_p77.gd -- --resolution=1920x1080 --sortie=profil_B.csv --lumiere=b
 
 const SCENE := "res://scenes/p7/ville_v07b.tscn"
 const POINTS := [
@@ -41,7 +47,10 @@ func _initialize() -> void:
 			var kv := a.substr(2).split("=", true, 1)
 			cli[kv[0]] = kv[1]
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
-	if cli.has("resolution"):
+	Engine.max_fps = 0                                   # P8.0-C : aucune limite d'images pendant la mesure
+	if str(cli.get("plein_ecran", "0")) == "1":
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
+	elif cli.has("resolution"):
 		var r := str(cli["resolution"]).split("x")
 		DisplayServer.window_set_size(Vector2i(int(r[0]), int(r[1])))
 	change_scene_to_file(SCENE)
@@ -113,17 +122,52 @@ func _fin() -> void:
 		"fabricant": RenderingServer.get_video_adapter_vendor(), "api": RenderingServer.get_video_adapter_api_version(),
 		"pilote": OS.get_video_adapter_driver_info(), "processeur": OS.get_processor_name(), "systeme": OS.get_name() + " " + OS.get_version(),
 		"fenetre": DisplayServer.window_get_size(), "rendu": ProjectSettings.get_setting("rendering/renderer/rendering_method"),
-		"tranche": str(cli.get("tranche", "1")), "memoire_video_mo": snappedf(RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_VIDEO_MEM_USED) / 1048576.0, 0.1)}
+		"tranche": str(cli.get("tranche", "1")), "rendu_3d": root.size,
+		"resolution_demandee": str(cli.get("resolution", "")), "lumiere": _lumiere(), "options": " ".join(OS.get_cmdline_user_args()),
+		"memoire_video_mo": snappedf(RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_VIDEO_MEM_USED) / 1048576.0, 0.1)}
 	print("PROFIL MACHINE ", JSON.stringify(machine))
-	var chemin := str(cli.get("sortie", "user://profil_gpu_p77_%s.csv" % ("blockout" if str(cli.get("tranche", "1")) == "0" else "tranche")))
+	var dem := str(cli.get("resolution", ""))
+	# taille RÉELLE du rendu 3D : root.size (en étirement canvas_items, get_visible_rect() donne la taille virtuelle de
+	# l'interface, 1280 × 720, et non celle du rendu)
+	if dem != "" and dem != "%dx%d" % [root.size.x, root.size.y]:
+		print("PROFIL ALERTE rendu 3D de %s au lieu de %s (fenêtre bornée par l'écran ?) : relancer avec --plein_ecran=1"
+			% [root.size, dem])
+	var moy := _moyenne()
+	print("PROFIL MOYENNE image %.2f ms | CPU %.2f | GPU %.2f | appels %d | primitives %d" % [moy[0], moy[1], moy[2], moy[3], moy[4]])
+	var chemin := str(cli.get("sortie", "user://profil_gpu_p77_%s_%s.csv" % ["blockout" if str(cli.get("tranche", "1")) == "0" else "tranche",
+		str(cli.get("lumiere", "defaut"))]))
 	var f := FileAccess.open(chemin, FileAccess.WRITE)
 	if f == null:
 		return
 	f.store_line("# " + JSON.stringify(machine))
 	f.store_line("point;tranche;images;image_moy_ms;image_p95_ms;image_max_ms;cpu_moy_ms;gpu_moy_ms;gpu_p95_ms;gpu_max_ms;appels_moy;appels_max;primitives_moy;objets_moy")
+	lignes.append({"point": "MOYENNE", "tranche": "-", "images": lignes.reduce(func(s, x): return s + int(x["images"]), 0),
+		"image_ms": [moy[0], 0.0, 0.0], "cpu_ms": [moy[1]], "gpu_ms": [moy[2], 0.0, 0.0], "appels": [moy[3], 0.0, 0.0],
+		"primitives": [moy[4]], "objets": [moy[5]]})
 	for l in lignes:
 		f.store_line("%s;%s;%d;%.3f;%.3f;%.3f;%.3f;%.3f;%.3f;%.3f;%d;%d;%d;%d" % [l["point"], l["tranche"], l["images"], l["image_ms"][0], l["image_ms"][1],
 			l["image_ms"][2], l["cpu_ms"][0], l["gpu_ms"][0], l["gpu_ms"][1], l["gpu_ms"][2], int(l["appels"][0]), int(l["appels"][2]),
 			int(l["primitives"][0]), int(l["objets"][0])])
 	f.close()
 	print("PROFIL CSV ", ProjectSettings.globalize_path(chemin))
+
+
+## Profil de lumière effectivement appliqué par la ville (compte rendu de scenes/p8/lumiere_p80b.gd).
+func _lumiere() -> String:
+	if z != null and z.get("_ville") != null and z._ville != null and z._ville.get("lum") != null:
+		return str(z._ville.lum.resume())
+	return "?"
+
+
+## Moyenne des points (moyenne des moyennes) : image, CPU, GPU, appels, primitives, objets.
+func _moyenne() -> Array:
+	var m := [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+	for l in lignes:
+		m[0] += l["image_ms"][0]
+		m[1] += l["cpu_ms"][0]
+		m[2] += l["gpu_ms"][0]
+		m[3] += l["appels"][0]
+		m[4] += l["primitives"][0]
+		m[5] += l["objets"][0]
+	var k := maxf(1.0, lignes.size())
+	return m.map(func(x): return x / k)

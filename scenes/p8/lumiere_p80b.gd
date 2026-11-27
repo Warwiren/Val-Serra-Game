@@ -14,7 +14,7 @@ extends RefCounted
 ## Choix : --lumiere=a|b (ou méta « lumiere » de la scène F6) ; touche F4 en jeu : A <-> B au même endroit.
 ## Étapes : --b_jusqua=1..5 (B limité aux étapes 1 à N) ; chaque effet se coupe seul : --b_soleil=0, --b_ombres=0,
 ## --b_ambiance=0, --b_ssao=0, --b_tonemap=filmic|a|agx|aces|lineaire, --b_lumieres=0, --b_flou=dof|ecran|aucun,
-## --b_glow=1, --b_aa=msaa4|msaa2|0. Réglages fins : --b_exposition=, --b_blanc=, --b_dof_m=, --b_dof_flou=,
+## --b_glow=1, --b_aa=msaa4|msaa2|0, --b_tranches=4|2 (performance). Réglages fins : --b_exposition=, --b_blanc=, --b_dof_m=, --b_dof_flou=,
 ## --b_soleil_rgb=r,v,b, --b_soleil_e=, --b_amb_rgb=r,v,b, --b_amb_e=, --b_contraste=, --b_saturation=, --b_ssao_i=,
 ## --b_ssao_r=, --b_ssao_l=. Dosage : --b_version=1 = premier dosage (commit 638cf52), 2 = dosage du 27/11 (défaut).
 ## Rien n'est construit ni déplacé : bâtiments, caméra, collisions, interactions, escamotage et sprites inchangés.
@@ -181,12 +181,14 @@ func _appliquer_b() -> void:
 		# ombres : 4 tranches jusqu'à 160 m (au lieu d'une seule à 120 m qui s'effaçait dès ≈ 96 m sur les volées lointaines),
 		# biais normal relevé contre l'acné des nez de marches
 		if _opt("b_ombres", "1") != "0":
-			sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+			# --b_tranches=2 : ajustement de performance à juger (moitié moins de passes d'ombre), non appliqué par défaut
+			sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS if _opt("b_tranches", "4") == "2" \
+				else DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
 			sun.directional_shadow_max_distance = float(_opt("b_ombres_m", "160"))
 			sun.directional_shadow_blend_splits = true
 			sun.shadow_normal_bias = 1.4
 			sun.shadow_bias = 0.04
-			effets["ombres"] = "4 tranches, %s m" % _opt("b_ombres_m", "160")
+			effets["ombres"] = "%s tranches, %s m" % [_opt("b_tranches", "4"), _opt("b_ombres_m", "160")]
 	# 2 — ambiance : lumière indirecte du ciel (dégradé froid en haut, chaud à l'horizon) ; SSAO (Forward+ seulement)
 	if _etape(2) and _opt("b_ambiance", "1") != "0":
 		if env.sky != null:
