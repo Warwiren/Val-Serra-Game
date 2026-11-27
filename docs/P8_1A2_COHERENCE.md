@@ -242,8 +242,8 @@ recevoir le fossé.
 
 | Contrôle | Résultat |
 |---|---|
-| Série complète `bash tools/p8/non_regression_p80c.sh` (24 contrôles) | RESULTAT_NR |
-| Collisions (lignes « C » de l'empreinte, comparées à la référence de P8.1-A) | RESULTAT_COLL |
+| Série complète `bash tools/p8/non_regression_p80c.sh` (24 contrôles) | **24 / 24 OK** (Colisée 10/10, ville 40/40 en caméras A et B, trajets et portails sans blocage, examens E à 0 px en A et B, escamotage et cadrage : Aren jamais masqué) |
+| Collisions (lignes « C » de l'empreinte, comparées à la référence de P8.1-A) | **Identiques** : 151 formes |
 | Cohérence des façades (`coherence_facades_p81a2.gd`) | 0 superposition, 0 porte hors sol, 0 soubassement traversant, 0 obstacle (19 portes, 94 faces) |
 
 ### Coût d'affichage
@@ -253,10 +253,12 @@ les primitives le sont. Rendu en 640 × 360, outil `tools/p7/profil_gpu_p77.gd`.
 
 | Profil | Appels P8.1-A | Appels P8.1-A2 | Primitives P8.1-A | Primitives P8.1-A2 |
 |---|---|---|---|---|
-| A | 1 694 | PERF_A_APP | 629 515 | PERF_A_PRIM |
-| B | 2 559 | PERF_B_APP | 1 036 147 | PERF_B_PRIM |
+| A | 1 694 | 1 664 | 629 515 | 531 917 |
+| B | 2 559 | 2 531 | 1 036 147 | 883 230 |
 
-PERF_COMMENTAIRE
+**Aucun coût ajouté.** Les appels baissent un peu (−30 en A, −28 en B) et les primitives d'environ 15 % (massifs plus
+bas et moins denses, baies omises sur les murs mitoyens), malgré les annexes, le quai et les travées du Colisée. Le
+jugement des performances reste à faire sur votre GPU.
 
 ## 8. Fichiers
 
