@@ -160,6 +160,12 @@ func colisee(cd: Dictionary, pres_porte: Callable) -> void:
 	var mur := pierre_colisee(h0)
 	var fond := fond_galerie(h0)
 	var tl := taille_colisee()
+	var varie := actif("coherence")                   # P8.1-A2 : travées variées (voir _travee_p81a2)
+	if varie:
+		fond = _pierre("colisee_fond2", "mur2", Color(0.95, 0.85, 0.72), {"assises": Vector3(0.52, 0.44, 0.48), "long_bloc": 1.2,
+			"salissure": 0.5}, h0)
+	var bois: Material = a.plein(Color(0.30, 0.20, 0.13), 0.9)
+	var fer: Material = a.plein(Color(0.16, 0.15, 0.14), 0.6)
 	var sombre: Material = a.plein(Color(0.10, 0.09, 0.08), 0.95)
 	# tambour (fond des galeries jusqu'au 2e entablement, puis attique plein), rayons réduits de la profondeur des arcades
 	var kf := Vector2((rr.x - prof) / rr.x, (rr.y - prof) / rr.y)
@@ -193,6 +199,8 @@ func colisee(cd: Dictionary, pres_porte: Callable) -> void:
 			continue
 		for reg in [[0.0, 3.4], [3.9, 9.0]]:
 			_arcade(fm, h0 + reg[0], h0 + reg[1], largeur, prof, mur, tl)
+		if varie:
+			_travee_p81a2(fm, k, h0, largeur, prof, mur, tl, bois, fer)
 		# fenêtre carrée de l'attique, en retrait sombre, avec appui
 		a.boite_tournee(fm, 0.0, h0 + 12.6, 0.95, 1.1, -0.02, 0.02, 0.0, sombre)
 		a.boite_tournee(fm, 0.0, h0 + 11.98, 1.15, 0.12, 0.0, 0.1, 0.0, tl)
@@ -222,6 +230,50 @@ func _arcade(f: Dictionary, v0: float, v1: float, largeur: float, prof: float, m
 		var pu := -cos(t) * (R + 0.12)
 		var pv := naiss + sin(t) * (R + 0.12)
 		a.boite_tournee(f, pu, pv, PI * (R + 0.12) / nc + 0.03, 0.26 if i == nc / 2 else 0.22, 0.0, 0.08, PI * 0.5 - t, tl)
+
+
+## P8.1-A2 — Travées du Colisée moins mécaniques, sans aplats noirs (affichage seul, silhouette et entrée inchangées) :
+## l'étage reçoit partout un parapet plein à tablette (garde-corps de la galerie, comme aux amphithéâtres antiques) qui
+## ferme le bas des arcs ; au fond de chaque travée du rez-de-chaussée, l'ouverture vers les escaliers est encadrée de
+## pierre de taille. Une suite irrégulière (pas de motif répété à l'œil) distingue quelques travées : passage fermé par
+## une GRILLE de fer, travée MURÉE en retrait avec petite porte de service en bois, NICHE à statue (socle et figure de
+## pierre) au fond de la galerie de l'étage. Fond des galeries plus clair (la galerie reçoit la lumière du sud).
+const TRAVEES_P81A2 := "..g.n..m...n.g...m..n...g..m.."   # g grille, m murée, n niche (étage), . ouverte
+
+
+func _travee_p81a2(fm: Dictionary, k: int, h0: float, largeur: float, prof: float, mur: Material, tl: Material, bois: Material,
+		fer: Material) -> void:
+	var ouv := largeur - 0.72
+	var R := ouv * 0.5
+	var sorte := TRAVEES_P81A2[k % TRAVEES_P81A2.length()]
+	# étage : parapet (h 0,95) entre les piles, en retrait du nu ; tablette de pierre de taille
+	a.boite_tournee(fm, 0.0, h0 + 3.9 + 0.45, ouv + 0.02, 0.9, -0.62, -0.32, 0.0, mur)
+	a.boite_tournee(fm, 0.0, h0 + 3.9 + 0.95, ouv + 0.06, 0.1, -0.68, -0.26, 0.0, tl)
+	# rez-de-chaussée : encadrement de l'ouverture du fond (vers les escaliers)
+	var lo := minf(1.5, ouv - 0.6)
+	var ho := 2.5
+	for s in [-1.0, 1.0]:
+		a.boite_tournee(fm, s * (lo * 0.5 + 0.14), h0 + ho * 0.5, 0.28, ho, -prof - 0.02, -prof + 0.1, 0.0, tl)
+	a.boite_tournee(fm, 0.0, h0 + ho + 0.16, lo + 0.56, 0.32, -prof - 0.02, -prof + 0.12, 0.0, tl)
+	match sorte:
+		"g":
+			var nb := int(ouv / 0.22)
+			for i in nb + 1:
+				var u := -ouv * 0.5 + ouv * float(i) / nb
+				a.boite_tournee(fm, u, h0 + 1.55, 0.05, 3.1, -0.3, -0.24, 0.0, fer)       # jusqu'à la clé (le haut passe dans l'écoinçon)
+			for v in [0.12, 1.25, 3.15 - R]:
+				a.boite_tournee(fm, 0.0, h0 + v, ouv, 0.07, -0.31, -0.23, 0.0, fer)
+		"m":
+			a.boite_tournee(fm, 0.0, h0 + 1.58, ouv + 0.02, 3.16, -0.75, -0.45, 0.0, mur)                # remplit l'arc (derrière l'écoinçon)
+			a.boite_tournee(fm, 0.0, h0 + 1.05, 1.0, 2.1, -0.47, -0.42, 0.0, bois)                       # porte de service
+			a.boite_tournee(fm, 0.0, h0 + 2.18, 1.24, 0.18, -0.46, -0.4, 0.0, tl)                         # linteau
+			for v in [0.5, 1.6]:
+				a.boite_tournee(fm, 0.0, h0 + v, 0.94, 0.05, -0.42, -0.4, 0.0, fer)                     # pentures
+		"n":
+			var b := h0 + 3.9
+			a.boite_tournee(fm, 0.0, b + 0.5, 1.2, 1.0, -prof + 0.0, -prof + 0.55, 0.0, tl)               # socle
+			a.boite_tournee(fm, 0.0, b + 1.75, 0.55, 1.5, -prof + 0.1, -prof + 0.45, 0.0, tl)             # figure (bloc)
+			a.boite_tournee(fm, 0.0, b + 2.62, 0.36, 0.34, -prof + 0.17, -prof + 0.4, 0.0, tl)            # tête
 
 
 ## Façade locale tangente à l'ellipse au paramètre `ang` (point sur l'ellipse, normale sortante, tangente).
