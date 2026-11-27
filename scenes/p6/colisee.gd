@@ -2514,7 +2514,7 @@ func _camera_de_zone() -> void:
 	cam.far = 900.0 if ville06 else 400.0
 	s.cam.verrou = voulu == "V06"                # P7.4.1 : distance unique (ville et Colisée), parcours compris
 	if ville06:
-		s.arch = "P7.3 — Ville V0.6 · " + CAMS_V06_LABEL[cam_v06]
+		s.arch = "P7.3 — Ville V0.6 · " + CAMS_V06_LABEL[cam_v06] + " · P8.0-A : plongée de base %.0f°" % plongee_ville()
 		s._help.text = "Flèches / ZQSD : marcher  ·  Maj : courir  ·  E / Entrée : examiner  ·  C : caméra (V0.6 perspective / orthographique / V0.5)  ·  L : libellés  ·  F1 : infos"
 
 
@@ -2523,7 +2523,8 @@ func _apply_variante() -> void:
 	# P7.12.1 : cadrage stable pendant les interactions ordinaires (ville, caméra « V » du Colisée) ; --visee_dialogue=1 : P3
 	s.cam.visee_fixe = false
 	if (_cam_ville and cam_mode != "P24") or cam_mode == "V06":
-		World25.pitch = deg_to_rad(float(_cli.get("v06_plongee", PLONGEE_V06)))
+		# P8.0-A : en ville, plongée de base de l'expérience de cadrage ; le Colisée garde v06_plongee (11°)
+		World25.pitch = deg_to_rad(plongee_ville() if _cam_ville else float(_cli.get("v06_plongee", PLONGEE_V06)))
 		s.cam.aim_frac = float(_cli.get("v06_visee", AIM_V06))
 		s.cam.visee_fixe = str(_cli.get("visee_dialogue", "0")) != "1"
 
@@ -2689,12 +2690,38 @@ func _profil_colisee(delta: float) -> void:
 const PLONGEE_CIVIQUE := 6.5
 
 
+# ------------------------------------------------------------------------------------------------ P8.0-A cadrage
+## P8.0-A — EXPÉRIENCE de cadrage de la ville (comparaison sur GPU, AUCUN angle retenu). Plongée de BASE de la ville :
+## --plongee_ville=<degrés> (11, 16, 20, 24), sinon méta « plongee_ville » de la scène F6, sinon v06_plongee (11° : état
+## P7.13 exact). Lue au chargement de la ville seulement : cartes, ombres rondes et sprites du décor sont dimensionnés
+## selon la plongée à leur construction (1 / cos), un changement en cours de partie les fausserait. Le Colisée, le champ,
+## le zoom, la visée et le suivi sont inchangés.
+const PLONGEES_VILLE := [11.0, 16.0, 20.0, 24.0]
+
+
+func plongee_ville() -> float:
+	if _cli.has("plongee_ville") and str(_cli["plongee_ville"]).is_valid_float():
+		return float(_cli["plongee_ville"])
+	if has_meta("plongee_ville"):
+		return float(get_meta("plongee_ville"))
+	return float(_cli.get("v06_plongee", PLONGEE_V06))
+
+
+## Plongée locale civique (6,5°) : active par défaut à la plongée de référence (P7.13 exact), coupée par défaut aux angles
+## d'essai pour qu'ils se comparent à angle constant ; --plongee_civique=1 la force (transition base -> 6,5° sur la
+## terrasse), --plongee_civique=0 la coupe (comportement P7.12.1).
+func plongee_civique_active() -> bool:
+	if _cli.has("plongee_civique"):
+		return str(_cli["plongee_civique"]) != "0"
+	return is_equal_approx(plongee_ville(), float(_cli.get("v06_plongee", PLONGEE_V06)))
+
+
 func _profil_ville(delta: float) -> void:
-	if not _cam_ville or cam_mode != "V06" or str(_cli.get("plongee_civique", "1")) == "0" or _p6.get("ville", {}).get("version", "") != "v07b":
+	if not _cam_ville or cam_mode != "V06" or _p6.get("ville", {}).get("version", "") != "v07b":
 		return
-	var base := float(_cli.get("v06_plongee", PLONGEE_V06))
+	var base := plongee_ville()
 	var p := base
-	if s.hero.z > 7.0:
+	if plongee_civique_active() and s.hero.z > 7.0:
 		var t := clampf((71.0 - s.hero.y) / 12.0, 0.0, 1.0)
 		p = lerpf(base, float(_cli.get("plongee_civique_deg", PLONGEE_CIVIQUE)), smoothstep(0.0, 1.0, t))
 	var cible := deg_to_rad(p)

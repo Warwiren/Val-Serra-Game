@@ -958,6 +958,31 @@ static func _route_base(name: String) -> Array:
 				_push("balustrade sud (terrasse)", Vector2(0, 1), 2.0, {"max_y": 87.62, "min_y": 86.9}),
 				_go(70.0, 84.0, "terrasse : centre", 0.3), _push("balustrade ouest (terrasse)", Vector2(-1, 0), 2.0, {"min_x": 66.38, "max_x": 67.1}),
 				_go(70.0, 80.5, "retour au palier", 0.3)]
+		"p80a_cadrage", "p80a_cadrage_course":
+			# P8.0-A — comparaison des plongées de la ville : cinq parcours identiques pour tous les angles (points repris des
+			# trajets validés p7_v07b_trajets / p7_v07b_video). Chaque étape porte son segment (« seg ») pour la mesure
+			# tools/p8/cadrage_p80a.gd ; « _course » : mêmes parcours en courant.
+			var run80: bool = name.ends_with("_course")
+			var segs80 := [
+				["R1 porte sud -> Guilde -> volée A", Vector3(60.0, 154.0, 0.0), [[60.0, 153.9], [60.0, 141.0], [52.0, 136.0], [52.0, 134.0],
+					[59.0, 134.0], [59.0, 125.6], [63.0, 123.5]]],
+				["R2 ruelle des Tonneliers -> grande place", Vector3(82.0, 133.0, 0.0), [[82.0, 132.9], [82.0, 114.6], [78.0, 108.0],
+					[70.0, 104.0], [65.0, 106.0]]],
+				["R3 grande place -> forge -> Colisée", Vector3(65.0, 113.0, 3.5), [[65.0, 112.9], [52.0, 107.0], [41.0, 104.5], [36.0, 93.0],
+					[52.0, 93.0], [36.0, 93.0], [26.0, 82.0], [30.5, 69.4]]],
+				["R4 grande place -> montée civique -> château", Vector3(54.0, 107.0, 3.5), [[54.1, 107.0], [62.0, 89.5], [62.0, 81.6],
+					[71.0, 79.5], [72.0, 77.6], [72.0, 69.0], [70.0, 45.0]]],
+				["R5 retour du quartier civique -> place", Vector3(70.0, 45.0, 8.0), [[70.0, 45.1], [72.0, 69.0], [72.0, 78.0], [62.0, 79.5],
+					[62.0, 90.0], [62.0, 100.0], [65.0, 106.0]]],
+			]
+			var o80: Array = []
+			for sg in segs80:
+				o80.append({"do": "warp", "to": sg[1], "seg": sg[0]})
+				o80.append({"do": "wait", "t": 1.0, "seg": sg[0]})
+				for p in sg[2]:
+					o80.append({"do": "go", "to": Vector2(p[0], p[1]), "tol": 0.4, "run": run80, "id": sg[0], "seg": sg[0]})
+				o80.append({"do": "wait", "t": 1.0, "seg": sg[0]})
+			return o80
 		"p7_7122_aller_retour":
 			# P7.12.2 — escamotage autour des deux premières volées : montée A + B en marchant, arrêts et demi-tours au bord sud
 			# de la place (Guilde, auberge), descente, puis même montée en courant avec zigzags (mesure :

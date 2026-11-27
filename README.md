@@ -42,8 +42,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p7-13-bordures-place`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p7-13-bordures-place`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p8-0a-cadrage-ville`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p8-0a-cadrage-ville`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -205,6 +205,12 @@ masque de collision avant / après.
    marché, halle sur quai), scintillements de faces coplanaires corrigés. Options : `--herse=relevee` (porte P7.12.2),
    `--bordures=0` (bordures en blockout), `--ombres_ville=200` (essai d'ombres en 4 tranches, à juger sur GPU).
    Rapport : `docs/P7_13_BORDURES_PLACE.md`.
+   **Branche `p8-0a-cadrage-ville`** (EXPÉRIENCE, aucun angle retenu) : F5 inchangé, ville et Colisée inchangés par
+   défaut. Comparaison des plongées de la ville : **F6 sur `scenes/p7/ville_v07b.tscn`** = 11° (référence P7.13, plongée
+   civique 6,5° comprise), **`ville_v07b_p80a_16.tscn` / `_20` / `_24`** = 16° / 20° / 24° (même champ, même zoom, même
+   suivi ; plongée civique coupée pour comparer à angle constant). Options : `--plongee_ville=<degrés>`,
+   `--plongee_civique=1|0`. Parcours de comparaison : `--route=p80a_cadrage` (ou `p80a_cadrage_course`). Rapport :
+   `docs/P8_0A_CADRAGE.md`.
 
 ### Commandes — forêt V07B (F5)
 
@@ -249,6 +255,9 @@ créateur.
 | Scène | Contenu |
 |---|---|
 | `scenes/p7/ville_v07b.tscn` | **Ville de référence (V0.7-B, P7.5 à P7.12)** : grande place et fontaine, forge D, boutique P7.11, quartier civique et porte du château, tranche de l'auberge et ruelle des Tonneliers, entrées des bâtiments, caméras A / B (touche V) |
+| `scenes/p7/ville_v07b_p80a_16.tscn` | **P8.0-A — ville, plongée 16°** (expérience de cadrage ; 11° = `ville_v07b.tscn`) |
+| `scenes/p7/ville_v07b_p80a_20.tscn` | **P8.0-A — ville, plongée 20°** (proche de l'arène du Colisée) |
+| `scenes/p7/ville_v07b_p80a_24.tscn` | **P8.0-A — ville, plongée 24°** (essai fortement plongeant) |
 | `scenes/p6/colisee.tscn` | **P6 — ouverture du jeu** : Colisée de Val'Serra, tutoriel, sortie vers la ville |
 | `scenes/battle/combat_tutoriel.tscn` | P6 — combat tutoriel seul (retourne au Colisée à la fin) |
 | `scenes/battle/combat_foret.tscn` | **P5 — combat refondu** : groupe à gauche, Vorgane à droite, décor = la forêt d'exploration |

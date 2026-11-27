@@ -304,6 +304,11 @@
   Cohérence : pas d'échiffre plaqué contre un mur (`CONTRE_MUR`), soubassement civique interrompu aux portes. Rendu : faces
   coplanaires corrigées par décalages de quelques mm ; outils `tools/p7/scintillement_p713.gd` (détecteur au rendu) et
   `coplanaires_p713.gd/.py`. Ombres : `--ombres_ville` = essai non activé, à juger en Forward+.
+- **P8.0-A (branche `p8-0a-cadrage-ville`, `docs/P8_0A_CADRAGE.md`)** : EXPÉRIENCE, AUCUN angle retenu. Plongée de base de la ville
+  au chargement (`colisee.plongee_ville()` : `--plongee_ville=`, méta `plongee_ville`, défaut 11° = P7.13) ; scènes F6
+  `scenes/p7/ville_v07b_p80a_16|20|24.tscn` ; plongée civique 6,5° active par défaut à 11° seulement (`--plongee_civique=1|0`) ;
+  parcours `p80a_cadrage(_course)`, mesure `tools/p8/cadrage_p80a.gd`. Colisée, champ, zoom, visée, géométrie, éclairage inchangés.
+  Ne pas changer la plongée par défaut sans décision du créateur.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).
