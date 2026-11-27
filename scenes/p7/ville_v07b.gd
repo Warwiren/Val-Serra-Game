@@ -351,7 +351,7 @@ func _entrees() -> void:
 		if str(e["type"]) == "fonctionnelle":
 			if str(e["id"]) == "forge" and _forge().variante != "" and _forge().entree():
 				continue                                  # P7.9 : la variante B dessine sa propre porte
-			if str(e["id"]) == "boutique" and _boutique() != null and _boutique().get_script() == Boutique711:
+			if str(e["id"]) == "boutique" and _boutique() != null:
 				continue                                  # P7.11 : devanture dessinée par la boutique (boutique_p711.gd)
 			_entree_fonctionnelle(e)
 			if str(e["id"]) == "forge":
@@ -471,7 +471,7 @@ func _classer_volumes() -> void:
 		var h1 := h0 + float(o["haut"])
 		var toit := 6.0 if Tranche.BATIMENTS.has(oid) else minf(clampf(minf(r.size.x, r.size.y) * 0.42, 1.4, 6.0), maxf((h1 - h0) * 0.7, 1.0))
 		var top := h1 + toit
-		if oid == "bat_boutique_fournitures" and bo != null and bo.get_script() == Boutique711:
+		if oid == "bat_boutique_fournitures" and bo != null:
 			top = maxf(top, 17.5)                            # P7.11 : étages et toit au-dessus du bloc des données
 		if oid == Bordures.HALLE and _bord().actif:
 			top = maxf(top, h1 + 5.2)                        # P7.13 : halle de charpente sur le quai

@@ -368,18 +368,7 @@ func _marchandises(base: Vector3, ax: Vector3, aw: Vector3, L: float, P: float, 
 
 
 func _cyl(c: Vector3, r_haut: float, r_bas: float, h: float, mt: Material, seg := 10) -> MeshInstance3D:
-	var mi := MeshInstance3D.new()
-	var cm := CylinderMesh.new()
-	cm.top_radius = r_haut
-	cm.bottom_radius = r_bas
-	cm.height = h
-	cm.radial_segments = seg
-	cm.rings = 1
-	mi.mesh = cm
-	mi.material_override = mt
-	mi.position = c
-	a.racine.add_child(mi)
-	return mi
+	return a.cylindre(c, r_haut, r_bas, h, mt, seg)
 
 
 ## Cylindre couché le long d'une façade (rouleau d'étoffe), centre (u, v, d).

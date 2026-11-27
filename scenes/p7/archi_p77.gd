@@ -133,6 +133,23 @@ func box(c: Vector3, taille: Vector3, m: Material) -> MeshInstance3D:
 	return mi
 
 
+## Cylindre (ou tronc de cône) d'axe vertical centré en c : un seul anneau, `seg` segments (P8.0-C : remplace les copies
+## locales _cyl des bordures P7.13 et du quartier civique P7.12, à l'identique).
+func cylindre(c: Vector3, r_haut: float, r_bas: float, h: float, m: Material, seg := 12) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	var cm := CylinderMesh.new()
+	cm.top_radius = r_haut
+	cm.bottom_radius = r_bas
+	cm.height = h
+	cm.radial_segments = seg
+	cm.rings = 1
+	mi.mesh = cm
+	mi.material_override = m
+	mi.position = c
+	racine.add_child(mi)
+	return mi
+
+
 static func centre(r: Rect2, h0: float, h1: float) -> Vector3:
 	return Vector3(r.get_center().x, (h0 + h1) / 2.0, r.get_center().y)
 

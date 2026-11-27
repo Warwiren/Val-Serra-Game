@@ -533,17 +533,7 @@ func _tour_ronde(base: Vector3, rayon: float, top: float) -> void:
 
 
 func _cyl(c: Vector3, r_haut: float, r_bas: float, h: float, mt: Material, seg := 20) -> void:
-	var mi := MeshInstance3D.new()
-	var cm := CylinderMesh.new()
-	cm.top_radius = r_haut
-	cm.bottom_radius = r_bas
-	cm.height = h
-	cm.radial_segments = seg
-	cm.rings = 1
-	mi.mesh = cm
-	mi.material_override = mt
-	mi.position = c
-	a.racine.add_child(mi)
+	a.cylindre(c, r_haut, r_bas, h, mt, seg)
 
 
 func _courtine(r: Rect2, top: float) -> void:
