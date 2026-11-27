@@ -13,8 +13,8 @@ const QUAT := "res://art/p63/quaternius/"
 ## 0,8 m, couvre-sol 0,2 m)
 const ARBUSTES := [["Bush_Common", 0.48, 0.66]]
 const PLANTES := [["Plant_1", 0.42, 0.6]]                    # Plant_7 écarté : feuillage violet
-const FLEURS := [["Flower_3_Group", 0.26, 0.36], ["Flower_4_Group", 0.22, 0.3]]
-const COUVRE_SOL := [["Clover_2", 0.45, 0.65], ["Grass_Common_Short", 0.35, 0.5]]
+const FLEURS := [["Flower_3_Group", 0.26, 0.36], ["Flower_3_Group", 0.26, 0.36], ["Flower_4_Group", 0.22, 0.3]]   # Flower_4 : 1 690 triangles, plus rare
+const COUVRE_SOL := [["Grass_Common_Short", 0.35, 0.5], ["Grass_Common_Short", 0.4, 0.55], ["Clover_2", 0.45, 0.65]]   # trèfle : 615 triangles, herbe : 155
 const VIGNES := ["mv/Prop_Vine1", "mv/Prop_Vine2", "mv/Prop_Vine4"]
 
 var b                 # constructeur de la ville (ville_v07b.gd) : fusion des modèles (forge_p79._fusion_gltf)

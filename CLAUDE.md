@@ -333,6 +333,13 @@
   (`--boutique=710`) RETIRÉES (historique Git `588e90c`) ; les scripts `ville_blockout` -> `ville_v06` -> `ville_v07a` restent
   (héritage de `ville_v07b`), ainsi que `tools/p7/plan_v07a.py` (plan de la V0.7-B) et la forge C. Parcours de ville : SANS
   `--etat` (la scène fixe l'état). Industrialisation des bâtiments : proposition seulement (rapport § 8).
+- **P8.1-A (branche `p8-1a-finition-quartier`, `docs/P8_1A_FINITION.md`)** : finition du quartier AVANT les PNJ (décision du créateur :
+  P8.1 = environnements, les habitants ensuite). EN ATTENTE de revue. Six lots, `scenes/p8/finition_p81.gd` (sols, Colisée à arcades,
+  bâtiments par FICHE générée, limites, `remplacer_blockout`) et `scenes/p8/vegetation_p81.gd` (branché sur `Archi.jardiniere` par
+  `Archi.plantes` ; modèles CC0 de la forêt F5, vignes `mv/Prop_Vine*`) ; marchandises `bordures_p713._marchandises_modeles`.
+  Affichage seulement : collisions identiques (151 formes), `--finition=0` = P8.0-C exact (MD5), `--f_<lot>=0` par lot. Forge D,
+  boutique P7.11, tranche, civique validé, grande place : non modifiés. Aucun PNJ, aucun achat, imports CC0 du Drive listés dans
+  `art/p63/quaternius/SOURCES.md`. Coût : +25 % d'appels, primitives ×2,5 (rapport § 6) : à mesurer sur GPU.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).

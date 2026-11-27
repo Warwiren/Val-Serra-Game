@@ -73,3 +73,99 @@ Branche **`p8-1a-finition-quartier`**, depuis `p8-0c-consolidation`. Godot 4.7.2
   surcoût est mesuré avec `profil_gpu_p77.gd`.
 * **Comparaison** : chaque lot a une option pour revenir à l'état P8.0-C, avec `--finition=0` pour tous les lots.
 * **Contrôle** : `bash tools/p8/non_regression_p80c.sh` après chaque lot important.
+
+## 4. Réalisé (27/11)
+
+| Lot | Commit | Contenu | Option de comparaison |
+|---|---|---|---|
+| Inventaire | `7024d72` | Ce document, § 1 et 2 | — |
+| L1 sols et soutènements | `d9f3575` | Sols des données, sol hors les murs, terrasses, masses de terrain, garde-corps : dallage de la grande place et soutènement sali du quartier civique | `--f_sols=0` |
+| L2 Colisée | `02f022f` | Façade à arcades réelles (2 registres, 28 travées, attique, couronnement, bannières) ; propylée et porte en pierre et bois | `--f_colisee=0` |
+| L3 bâtiments | `7e3a245` | Bâtiments secondaires, Guilde, reste de l'hôtel de ville et 19 fonds habillés par fiche (`archi_p77`) ; socles bas ; encadrements d'entrée | `--f_batiments=0` |
+| L4 végétation | `00e81b7` | Module végétal (modèles CC0 de la forêt, vignes grimpantes) branché sur toutes les jardinières | `--f_vegetation=0` |
+| L5 limites | `3d61029` | Porte sud (tours, remparts, vantaux), barrières de planches, chantier, prolongements vers les faubourgs et l'est | `--f_limites=0` |
+| L6 étals | `7c2a4f5` | Marchandises en modèles Fantasy Props (épices, poteries, fruits, fleurs), sacs de la halle | `--f_etals=0` |
+
+* **Tout couper** : `--finition=0` redonne exactement P8.0-C (empreinte de scène identique, MD5).
+* **Mutualisation utile** : trois modules seulement.
+  * `scenes/p8/finition_p81.gd` : matières partagées, sols, façade du Colisée, **fiche de bâtiment générée**,
+    remplacement de matière sans toucher à la géométrie.
+  * `scenes/p8/vegetation_p81.gd` : massifs, pots, vignes.
+  * `bordures_p713._marchandises_modeles`.
+
+  Aucune réécriture des générateurs existants. La forge D, la boutique P7.11, la tranche P7.6, le quartier civique et
+  la grande place ne sont pas modifiés. Seuls changent : la jardinière commune (déléguée au module végétal) et le reste
+  de l'hôtel de ville, laissé en blockout par le civique.
+* **Ressources** :
+  * aucun achat ;
+  * 3 vignes (Medieval Village) et 10 marchandises (Fantasy Props) importées depuis les archives CC0 du Drive du projet ;
+  * végétation réutilisée telle quelle depuis la forêt F5 ;
+  * provenance dans `art/p63/quaternius/SOURCES.md`, statut PROVISOIRE.
+* **Géométries encore en matière de blockout** : 775 en P8.0-C, 157 maintenant. Le reste est hors des parcours :
+  château de la V0.6 relégué à 250 m, toits lointains, reliefs d'horizon.
+
+## 5. Contrôles
+
+`bash tools/p8/non_regression_p80c.sh` sur l'état final : **24 / 24 OK**.
+
+| Contrôle | Résultat |
+|---|---|
+| Scène F5 (forêt), 76 tests unitaires, tutoriel et saut du tutoriel | OK |
+| Sondes du Colisée | 10 / 10 |
+| Ville : sondes, trajets, portail ville ↔ Colisée, en caméra A et B | 40 / 40 ; 0 étape bloquée ; 4 passages |
+| Examens E | **0 px**, lumière A et B |
+| Profils de lumière A / B et F4 | OK |
+| Escamotage | Aren jamais masqué, aucun clignotement |
+| Cadrage (6 parcours) | Aren jamais masqué |
+| Tests smoke (forêt, animations, sols, combat) | 0 échec |
+
+* **Collisions** : les 151 formes de la ville sont identiques à P8.0-C après chaque lot (empreinte de scène).
+* **Retour à P8.0-C** : avec `--finition=0`, l'empreinte complète est identique (MD5).
+
+## 6. Coût d'affichage (à mesurer sur votre GPU)
+
+Moyenne des 10 points de vue de `profil_gpu_p77.gd`. Ces chiffres ne dépendent pas de la machine. Les temps mesurés dans
+le conteneur (Vulkan logiciel) ne sont **pas** reportés.
+
+| Profil | Appels de dessin P8.0-C → P8.1-A | Primitives P8.0-C → P8.1-A |
+|---|---|---|
+| A | 1 350 → **1 694** (+25 %) | 249 k → **630 k** |
+| B | 2 070 → **2 559** (+24 %) | 408 k → **1 036 k** |
+
+**Répartition des triangles ajoutés** (scène chargée, sans ombres) :
+* massifs végétaux : environ 124 k. L'arbuste compte 900 triangles par pied ; le trèfle et la seconde variété de fleurs
+  ont été rendus plus rares ;
+* façades par fiche : environ 130 k pour une cinquantaine de bâtiments et fonds ;
+* marchandises : environ 40 k (cagettes de 4 000 à 5 000 triangles chacune) ;
+* façade du Colisée : environ 9 k.
+
+**Si le budget GPU est dépassé** : un lot se coupe seul (`--f_vegetation=0`, `--f_batiments=0`…) pour mesurer son coût.
+Les leviers sans refonte sont :
+* massifs moins denses (pas des rangs dans `vegetation_p81.garnir`) ;
+* fonds sans flancs (`fiche`, genre « fond ») ;
+* lumière B en 2 tranches d'ombre (`--b_tranches=2`).
+
+**Commandes** (comme en P8.0-C), à comparer avec `--finition=0` :
+
+```bash
+godot --path . --script res://tools/p7/profil_gpu_p77.gd -- --resolution=1920x1080 --sortie=profil_p81_B.csv --lumiere=b
+godot --path . --script res://tools/p7/profil_gpu_p77.gd -- --resolution=1920x1080 --sortie=profil_p80c_B.csv --lumiere=b --finition=0
+```
+
+## 7. Réserves et suite
+
+* **À juger par le créateur** : tout est PROVISOIRE.
+  * Les fiches génériques donnent une qualité homogène, mais **pas** le niveau des références forge D et boutique P7.11.
+    La Guilde, future instance, mériterait un lot dédié, sur le modèle de la forge.
+  * Plant_1 (feuilles larges) est à juger dans la cité.
+  * Le dallage des rues reprend celui de la grande place : un motif plus petit pour les ruelles pourrait être utile.
+* **Non traité (P2)** :
+  * variations d'usure par façade ;
+  * bordures de pierre aux changements de dallage ;
+  * pots et enseignes secondaires ;
+  * blockout lointain résiduel (château de la V0.6 à 250 m, toits d'horizon).
+* **Inchangés, comme demandé** :
+  * caméra, lumière, plan, collisions, interactions, occultation ;
+  * forge D, boutique P7.11 (étal compris), Colisée intérieur, grande place et fontaine, quartier civique validé.
+* **Avant P8.2 (habitants)** : relire les emplacements de PNJ (`emplacements_pnj`) au regard des nouveaux massifs et
+  étals. Aucun emplacement n'a été déplacé.

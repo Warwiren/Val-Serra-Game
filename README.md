@@ -42,8 +42,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p8-0c-consolidation`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p8-0c-consolidation`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p8-1a-finition-quartier`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p8-1a-finition-quartier`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -224,6 +224,11 @@ masque de collision avant / après.
    **Branche `p8-0c-consolidation`** : F5 inchangé. **Lumière B (second dosage) retenue** par le créateur ; la ville démarre
    encore en A tant que les performances de B ne sont pas validées sur GPU (F6 `ville_v07b_p80b.tscn` ou `--lumiere=b` pour B,
    F4 pour comparer). Mesures, nettoyage du code et contrôles : `docs/P8_0C_CONSOLIDATION.md`.
+   **Branche `p8-1a-finition-quartier`** (EN ATTENTE de revue) : F5 inchangé. **F6 sur `scenes/p7/ville_v07b.tscn`** (ou
+   `ville_v07b_p80b.tscn` en lumière B) : quartier finalisé avant les PNJ. Sols et soutènements en pierre, façade du Colisée à
+   arcades, bâtiments secondaires et fonds habillés, jardinières plantées, limites en bois et pierre, marchandises
+   reconnaissables. Comparaison : `--finition=0` (état P8.0-C) ou un lot seul, `--f_sols|f_colisee|f_batiments|f_vegetation|f_limites|f_etals=0`.
+   Rapport : `docs/P8_1A_FINITION.md`.
 
 ### Commandes — forêt V07B (F5)
 
