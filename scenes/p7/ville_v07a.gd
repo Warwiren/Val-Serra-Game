@@ -26,15 +26,9 @@ func construit(e: Dictionary) -> bool:
 ## Décor : masses, paysage, Colisée, fontaine, château (déplacé), chantier, porte sud, ambiance.
 func decorer() -> void:
 	_masses()
-	for p in v.get("paysage", []):
-		var q: Array = p["rect"]
-		var r := Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1])
-		var h0: float = p["h"]
-		var h1: float = h0 + float(p["haut"])
-		var cat := "residentiel" if int(q[0] + q[1]) % 2 == 0 else "residentiel_b"
-		var mi: MeshInstance3D = sc._box_mesh(sc._rect_center(r, h0, h1), Vector3(r.size.x, h1 - h0, r.size.y), mat(COULEURS[cat], 0.0, 1.0, h0, true))
-		mi.name = "paysage"
-		_toit(r, h1, str(p.get("toit", "2p")), int(q[0] * 31.0 + q[1] * 7.0))
+	var lp: Array = v.get("paysage", [])
+	for i in lp.size():
+		_paysage(lp[i], i)
 	_colisee_v07()
 	_fontaine_v06()
 	# château de la V0.6, déplacé en bloc à la position des données (au nord-nord-est)
@@ -55,6 +49,18 @@ func decorer() -> void:
 			sc._box_mesh(Vector3(x, 0.8, float(ps[2])), Vector3(0.3, 1.6, 3.0), bois)
 	_libelle("Colisée", Vector3(-6.0, 3.5 + 20.0, 100.0))
 	_libelle("Château — accès fermé", Vector3(70.0, 12.0, 39.0))
+
+
+## Paysage (volume de fond sans collision, toit) ; P8.1-A : méthode extraite de decorer (même rendu), redéfinie par la V0.7-B.
+func _paysage(p: Dictionary, _i: int) -> void:
+	var q: Array = p["rect"]
+	var r := Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1])
+	var h0: float = p["h"]
+	var h1: float = h0 + float(p["haut"])
+	var cat := "residentiel" if int(q[0] + q[1]) % 2 == 0 else "residentiel_b"
+	var mi: MeshInstance3D = sc._box_mesh(sc._rect_center(r, h0, h1), Vector3(r.size.x, h1 - h0, r.size.y), mat(COULEURS[cat], 0.0, 1.0, h0, true))
+	mi.name = "paysage"
+	_toit(r, h1, str(p.get("toit", "2p")), int(q[0] * 31.0 + q[1] * 7.0))
 
 
 ## Masses de terrain : une boîte par morceau, du sol (−1 m) à l'altitude du morceau ; cordon clair au sommet de la

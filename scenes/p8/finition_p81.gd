@@ -289,3 +289,124 @@ func remplacer_blockout(depuis: int) -> int:
 			mi.material_override = a.plein(c, 0.85)
 		n += 1
 	return n
+
+
+# ------------------------------------------------------------------------------------------------ L3 : bâtiments secondaires
+## Habillage des bâtiments encore en blockout (placette, parvis, terrasses, fonds) par une FICHE générée depuis
+## l'emprise et la hauteur des données, construite par la bibliothèque archi_p77 (comme la tranche P7.6, approuvée) :
+## RDC de pierre, étages enduits ou de pierre, bandeaux, corniche, chaînes d'angle, baies régulières à volets, toit de
+## tuiles. Genres : « civique » (Guilde, hôtel de ville : calcaire, bossage, baies hautes sans volets, corniche à consoles),
+## « maison » (palette de la ville selon une graine), « fond » (paysage lointain : face sud et flancs, sans détail fin).
+## Les entrées des données (fonctionnelles et décoratives) gardent leur place : aucune baie de RDC devant elles.
+## Aucune porte inventée (règle P7.12.2 : toute porte a un accès crédible) : RDC en fenêtres et soupiraux grillagés.
+const NIVEAU_RDC := 3.3
+const NIVEAU_ETAGE := 2.8
+const PALETTES_MAISONS := ["miel", "ocre", "gris_chaud", "rose", "creme", "terre"]
+
+
+## Fiche d'un bâtiment : `toit_max` = hauteur de toit admise par le volume d'escamotage (ville_v07b._classer_volumes).
+func fiche(id: String, r: Rect2, h0: float, h1: float, genre: String, entrees: Array, toit_max: float) -> Dictionary:
+	var g := absi(id.hash())
+	var nv := [h0]
+	var hh := h1 - h0
+	var n_et := maxi(0, int(round((hh - NIVEAU_RDC) / NIVEAU_ETAGE)))
+	if n_et == 0:
+		nv.append(h1)
+	else:
+		var rdc := minf(NIVEAU_RDC, hh * 0.45)
+		nv.append(h0 + rdc)
+		var et := (hh - rdc) / n_et
+		for i in n_et:
+			nv.append(h0 + rdc + et * (i + 1))
+	var pal: Array = Archi.PALETTES[PALETTES_MAISONS[g % PALETTES_MAISONS.size()]]
+	var d := {"id": id, "niveaux": nv, "enduit": pal[0], "volets": pal[1], "toit": "2p_x",
+		"toit_h": clampf(minf(r.size.x, r.size.y) * 0.32, 1.2, minf(toit_max, 3.6)), "faces": {}, "balcons": [], "lanternes": []}
+	var cotes := ["s", "e", "o"]
+	if genre == "civique":
+		d["rdc"] = "bossage"
+		d["etages"] = "pierre"
+		d["corniche"] = "consoles"
+		d["volets_style"] = "aucun"
+		d["toit"] = "croupe"
+	elif genre == "fond":
+		d["chaines"] = false
+	for cote in cotes:
+		var f := Archi.face(r, cote)
+		var L: float = f["L"]
+		var par_niveau := []
+		for i in nv.size() - 1:
+			var bas: float = nv[i]
+			var haut_n: float = nv[i + 1]
+			var hn := haut_n - bas
+			var liste := []
+			var pas := 2.7 if genre != "civique" else 3.2
+			var nb := int(floor((L - 1.6) / pas))
+			if nb < 1 or hn < 1.8:
+				par_niveau.append(liste)
+				continue
+			var u0 := (L - (nb - 1) * pas) * 0.5
+			for k in nb:
+				var u := u0 + k * pas
+				if i == 0 and cote == "s" and _devant_entree(f, u, entrees):
+					continue
+				if i == 0:
+					if genre == "civique":
+						liste.append([u, 1.0, minf(1.9, hn - 1.2), 0.9, "fenetre_simple"])
+					elif genre == "fond" or (g + k) % 3 == 0:
+						liste.append([u, 0.8, 0.9, minf(1.2, hn - 1.3), "barreaux"])
+					else:
+						liste.append([u, 0.95, minf(1.4, hn - 1.3), 0.85, "fenetre"])
+				else:
+					var hw := minf(1.45, hn - 0.9) if genre != "civique" else minf(2.0, hn - 0.8)
+					var style := "fenetre" if genre != "civique" else "fenetre_cintree"
+					if genre == "fond":
+						style = "fenetre_simple"
+					liste.append([u, 0.9 if genre != "civique" else 1.1, hw, minf(0.55, hn - hw - 0.25), style])
+			par_niveau.append(liste)
+		d["faces"][cote] = par_niveau
+	return d
+
+
+## La baie d'abscisse u (face f) tombe-t-elle devant une entrée des données ?
+func _devant_entree(f: Dictionary, u: float, entrees: Array) -> bool:
+	for e in entrees:
+		var p := Vector3(float(e["x"]), 0.0, float(e["y"]))
+		var o: Vector3 = f["o"]
+		var t: Vector3 = f["t"]
+		var n: Vector3 = f["n"]
+		if absf((p - o).dot(n)) > 0.6:
+			continue
+		var ue := (p - o).dot(t)
+		if absf(ue - u) < float(e["largeur"]) * 0.5 + 1.3:
+			return true
+	return false
+
+
+## Bâtiment secondaire des données (même collision que le blockout : boîte pleine, couche OBST).
+func batiment(e: Dictionary, genre: String, entrees: Array, toit_max: float) -> void:
+	var r: Rect2 = e["rect"]
+	var h0: float = e["h0"]
+	var h1: float = e["h1"]
+	var id := str(e["id"])
+	sc._static_box(sc._rect_center(r, h0, h1), Vector3(r.size.x, h1 - h0, r.size.y), sc.L_OBST)
+	a.batiment(r, h0, fiche(id, r, h0, h1, genre, entrees, toit_max))
+
+
+## Socle bas (moins de 2,5 m : quais, murets, plates-formes) : même collision, corps de soutènement, dessus dallé et
+## chaperon de pierre de taille.
+func socle(e: Dictionary) -> void:
+	var r: Rect2 = e["rect"]
+	var h0: float = e["h0"]
+	var h1: float = e["h1"]
+	sc._static_box(sc._rect_center(r, h0, h1), Vector3(r.size.x, h1 - h0, r.size.y), sc.L_OBST)
+	a.box(sc._rect_center(r, h0, h1 - 0.12), Vector3(r.size.x, h1 - h0 - 0.12, r.size.y), soutenement(h0))
+	a.box(sc._rect_center(r.grow(0.05), h1 - 0.12, h1), Vector3(r.size.x + 0.1, 0.12, r.size.y + 0.1), taille())
+
+
+## Fond (paysage, sans collision : décor hors d'atteinte) : même emprise et même hauteur que le blockout.
+func fond(p: Dictionary, i: int) -> void:
+	var q: Array = p["rect"]
+	var r := Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1])
+	var h0: float = p["h"]
+	var h1: float = h0 + float(p["haut"])
+	a.batiment(r, h0, fiche("paysage_%d" % i, r, h0, h1, "fond", [], 3.0))

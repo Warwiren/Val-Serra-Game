@@ -101,6 +101,37 @@ func _colisee_v07() -> void:
 		_fin().remplacer_blockout(d1)                      # propylée et porte : pierre et bois (même géométrie)
 
 
+## P8.1-A (L3) : fonds habillés par fiche (--f_batiments=0 : volumes de la V0.7-A).
+func _paysage(p: Dictionary, i: int) -> void:
+	if _fin().actif("batiments"):
+		_fin().fond(p, i)
+		return
+	super(p, i)
+
+
+## P8.1-A (L3) : bâtiment secondaire encore en blockout -> fiche de façade ; socle bas -> soutènement et chaperon.
+## Exclus : bat_echoppe_no (plate-forme de la cour, revêtue par la forge D au-dessus du blockout).
+func _batiment_secondaire(e: Dictionary) -> bool:
+	var id := str(e["id"])
+	if not (_fin().actif("batiments") and e["type"] == "block" and id.begins_with("bat_") and id != "bat_echoppe_no"):
+		return false
+	var r: Rect2 = e["rect"]
+	var h0: float = e["h0"]
+	var h1: float = e["h1"]
+	if h1 - h0 < 2.5:
+		_fin().socle(e)
+		return true
+	var cat := str(v.get("batiments", {}).get(id, {}).get("categorie", "residentiel"))
+	var genre := "civique" if cat in ["guilde", "civique"] else "maison"
+	var entrees := (v.get("entrees", []) as Array).filter(func(x): return str(x.get("batiment", "")) == id)
+	var toit_max := minf(clampf(minf(r.size.x, r.size.y) * 0.42, 1.4, 6.0), maxf((h1 - h0) * 0.7, 1.0))
+	_fin().batiment(e, genre, entrees, toit_max)
+	var lib: String = str(v.get("batiments", {}).get(id, {}).get("libelle", ""))
+	if lib != "":
+		_libelle(lib, Vector3(r.get_center().x, h1 + 1.6, r.get_center().y))
+	return true
+
+
 const Bordures := preload("res://scenes/p7/bordures_p713.gd")
 var bd                                    # P7.13 : bordures de la grande place (scenes/p7/bordures_p713.gd)
 
@@ -252,6 +283,8 @@ func construit(e: Dictionary) -> bool:
 		elif id == "decor_buvette" and _civ().actif:
 			_civ().buvette(r, h0)                             # P7.13 : buvette adossée à la boutique
 		return true
+	if _batiment_secondaire(e):
+		return true
 	# P8.1-A (L1) : sols, terrasses et garde-corps restants (mêmes collisions que le blockout ; --f_sols=0)
 	if _fin().actif("sols"):
 		if e["type"] == "floor":
@@ -274,7 +307,10 @@ func decorer() -> void:
 		_arche_decor(a)
 	for tr in v.get("decor_tours", []):
 		_tour_decor(tr)
+	var d_e: int = sc.root.get_child_count()
 	_entrees()
+	if _fin().actif("batiments"):
+		_fin().remplacer_blockout(d_e)                     # P8.1-A (L3) : encadrements et emmarchements en pierre
 	_civ().decorer()
 	_bord().finaliser()                                   # P7.13 : étals de la place (fusion commune)
 	_ombres_ville()

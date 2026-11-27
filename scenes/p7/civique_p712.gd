@@ -636,6 +636,12 @@ func _hotel_raccord(r: Rect2, h0: float, h1: float) -> void:
 	a.fusionner(d0, "civique_pavillon_hotel")
 	# reste du bloc (lot de l'hôtel de ville, non habillé) : blockout retinté en pierre, même géométrie
 	var rr := Rect2(rp.end.x, r.position.y, r.end.x - rp.end.x, r.size.y)
+	# P8.1-A (L3) : le reste du bloc reçoit une façade civique par fiche (calcaire, bossage, baies hautes, corniche à
+	# consoles, toit en croupe) ; l'entrée de l'hôtel de ville (données) garde sa place. --f_batiments=0 : blockout retinté.
+	if vl.has_method("_fin") and vl._fin().actif("batiments"):
+		var en := (vl.v.get("entrees", []) as Array).filter(func(x): return str(x.get("batiment", "")) == HOTEL)
+		a.batiment(rr, h0, vl._fin().fiche(HOTEL + "_reste", rr, h0, h1, "civique", en, 3.0))
+		return
 	var mi: MeshInstance3D = sc._box_mesh(sc._rect_center(rr, h0, h1), Vector3(rr.size.x, h1 - h0, rr.size.y), vl.mat(Color(0.74, 0.70, 0.63), 0.0, 1.0, h0, true))
 	mi.name = HOTEL
 
