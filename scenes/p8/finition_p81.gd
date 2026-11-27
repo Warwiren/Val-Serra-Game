@@ -532,3 +532,63 @@ func barriere(e: Dictionary) -> void:
 		var sz := Vector3(L, 0.14, 0.05) if long_x else Vector3(0.05, 0.14, L)
 		a.box(Vector3(c.x, h0 + hh, c.y), sz, bois_c)
 	a.fusionner(d0, "barriere_" + str(e.get("id", "")))
+
+
+# ------------------------------------------------------------------------------------------------ P8.1-A2 : plateformes
+## Annexes basses en appentis (bat_b_parvis_s, bat_b_parvis_o2 : blocs de 1,2 m entre le bord sud du parvis et les
+## immeubles de fond) : la grande dalle claire, lue comme une esplanade interdite, devient les toits d'annexes adossées
+## au mur aveugle du fond (égout bas côté parvis, faîtage contre le mur), séparés du parvis par un parapet de pierre.
+## Même collision (bloc des données) : on comprend pourquoi on n'y marche pas, et la masse claire quitte le premier plan.
+func annexes(e: Dictionary) -> void:
+	var r: Rect2 = e["rect"]
+	var h0: float = e["h0"]
+	var h1: float = e["h1"]
+	sc._static_box(sc._rect_center(r, h0, h1), Vector3(r.size.x, h1 - h0, r.size.y), sc.L_OBST)
+	var d0: int = a.racine.get_child_count()
+	# parapet au bord du parvis (nord) et mur arrière (sud), en pierre
+	a.box(Vector3(r.get_center().x, h0 + 0.42, r.position.y + 0.18), Vector3(r.size.x, 0.84, 0.36), soutenement(h0))
+	a.box(Vector3(r.get_center().x, h0 + 0.9, r.position.y + 0.18), Vector3(r.size.x + 0.04, 0.12, 0.44), taille())
+	a.box(Vector3(r.get_center().x, h0 + (h1 - h0) * 0.5, r.end.y - 0.15), Vector3(r.size.x, h1 - h0, 0.3), soutenement(h0))
+	# annexes : sections de 6 à 8 m, faîtage et teinte légèrement variés
+	var n := maxi(1, int(round(r.size.x / 7.0)))
+	var pt0: String = a.preset_tuiles
+	a.preset_tuiles = "tuiles"
+	for k in n:
+		var x0 := r.position.x + r.size.x * float(k) / n
+		var x1 := r.position.x + r.size.x * float(k + 1) / n
+		var ha := h0 + 0.3                                  # égout, derrière le parapet
+		var hf := h1 - 0.05 - 0.12 * float(k % 2)           # faîtage contre le mur du fond
+		var y0 := r.position.y + 0.4
+		var y1 := r.end.y - 0.3
+		var st := SurfaceTool.new()
+		st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		a._pan(st, Vector3(x0, ha, y0), Vector3(x1, ha, y0), Vector3(x1, hf, y1), Vector3(x0, hf, y1), Vector3(0, y1 - y0, -(hf - ha)).normalized())
+		a._commit_tuiles(st, ha, Color(1.32, 1.1, 0.98) * (1.0 - 0.06 * float(k % 3)))
+		# séparation entre annexes : petit mur de refend sous le rampant
+		if k > 0:
+			a.box(Vector3(x0, (h0 + hf) * 0.5, (y0 + y1) * 0.5), Vector3(0.25, hf - h0, y1 - y0), soutenement(h0))
+	a.preset_tuiles = pt0
+	a.fusionner(d0, "annexes_" + str(e.get("id", "")))
+
+
+## Quai de marchandises (bat_b_no_place : bande de 0,6 m le long de l'ouest de la grande place, dans le prolongement
+## des quais de la halle et de la cour de la forge) : dallé, bordé de pierre de taille, avec quelques caisses, tonneaux
+## et sacs entreposés. Pas de marches : la collision ne permet pas d'y monter. Même collision (bloc des données).
+func quai(e: Dictionary) -> void:
+	socle(e)
+	var r: Rect2 = e["rect"]
+	var h1: float = e["h1"]
+	var fo = b._forge()
+	var d0: int = a.racine.get_child_count()
+	var x := r.get_center().x
+	var y := r.position.y + 1.6
+	var choix := [["fp/Crate_Wooden", 0.85], ["fp/Barrel", 0.8], ["fp/Bag", 0.6], ["fp/Crate_Wooden", 0.75], ["fp/Barrel_Apples", 0.8], ["fp/Bag", 0.55]]
+	var i := 0
+	while y < r.end.y - 1.0:
+		var c: Array = choix[i % choix.size()]
+		fo._modele(c[0], Vector3(x + (0.6 if i % 2 == 0 else -0.6), h1, y), 0.37 * i, Vector3.ONE * float(c[1]))
+		if c[0] == "fp/Crate_Wooden" and i % 4 == 0:
+			fo._modele("fp/Crate_Wooden", Vector3(x + 0.6, h1 + 0.62, y + 0.05), 0.6, Vector3.ONE * 0.7)
+		y += 3.1 + 0.4 * float(i % 3)
+		i += 1
+	fo._fusion_gltf(d0, "quai_" + str(e.get("id", "")))

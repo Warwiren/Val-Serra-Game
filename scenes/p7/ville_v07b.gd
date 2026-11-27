@@ -162,7 +162,13 @@ func _batiment_secondaire(e: Dictionary) -> bool:
 	var h0: float = e["h0"]
 	var h1: float = e["h1"]
 	if h1 - h0 < 2.5:
-		_fin().socle(e)
+		# P8.1-A2 : fonction lisible des plateformes (--f_coherence=0 : socle de P8.1-A)
+		if _fin().actif("coherence") and id in ["bat_b_parvis_s", "bat_b_parvis_o2"]:
+			_fin().annexes(e)
+		elif _fin().actif("coherence") and id == "bat_b_no_place":
+			_fin().quai(e)
+		else:
+			_fin().socle(e)
 		return true
 	var cat := str(v.get("batiments", {}).get(id, {}).get("categorie", "residentiel"))
 	var genre: String = _fin().type_de(id, cat, r, h0, h1)          # P8.1-A2 : types d'immeubles
