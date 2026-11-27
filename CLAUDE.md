@@ -327,7 +327,12 @@
 - **P8.0-C (branche `p8-0c-consolidation`, `docs/P8_0C_CONSOLIDATION.md`)** : **B second dosage RETENU** par le créateur (validation
   artistique) : ne plus modifier ses valeurs sans demande ; il devient le défaut (`lumiere_p80b.PROFIL_DEFAUT = "b"`) APRÈS validation
   des performances sur le GPU du créateur. A = référence de secours (F4, `--lumiere=a`). Contrôles : `tools/p8/lumiere_ab_p80c.gd`
-  (profils et F4), `tools/p8/empreinte_scene_p80c.gd` (empreinte d'une scène : tout nettoyage doit laisser le MD5 inchangé).
+  (profils et F4), `tools/p8/empreinte_scene_p80c.gd` (empreinte d'une scène : tout nettoyage doit laisser le MD5 inchangé),
+  `bash tools/p8/non_regression_p80c.sh` (série complète, 24 contrôles OK / ÉCHEC). Nettoyage : villes V0.1 / V0.6 / V0.7-A
+  (données, générateurs, options `--ville=v05|v06|v07a`, parcours), forges A / B (`--forge=A|B`), boutique P7.10
+  (`--boutique=710`) RETIRÉES (historique Git `588e90c`) ; les scripts `ville_blockout` -> `ville_v06` -> `ville_v07a` restent
+  (héritage de `ville_v07b`), ainsi que `tools/p7/plan_v07a.py` (plan de la V0.7-B) et la forge C. Parcours de ville : SANS
+  `--etat` (la scène fixe l'état). Industrialisation des bâtiments : proposition seulement (rapport § 8).
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).

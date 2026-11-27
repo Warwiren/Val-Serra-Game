@@ -292,20 +292,26 @@ créateur.
 
 | Scène | Contenu |
 |---|---|
-| `scenes/p7/ville_v07b.tscn` + `--boutique=710` | P7.11 — boutique de fournitures « avant » (version P7.10) |
-| `scenes/p7/ville_v07b.tscn` + `--forge=A\|B\|C` | P7.9 — comparatif de la forge-armurerie (A bibliothèque, B Quaternius, C = C+ de P7.10) |
-| `scenes/p6/colisee.tscn` + `--ville=v07a` | P7.4 — ville V0.7-A (micro-blockout semi-circulaire) |
-| `scenes/p6/colisee.tscn` + `--ville=v06` | P7.3 — ville V0.6 (montée sur trois niveaux, prototype) |
-| `scenes/p6/colisee.tscn` + `--ville=v05` | P7.1 — blockout V0.1 du quartier central |
+| `scenes/p7/ville_v07b.tscn` + `--forge=C` | P7.10 — forge C+ « avant » la refonte D (comparaison) |
+| `scenes/p7/ville_v07b.tscn` + `--lumiere=a\|b` | P8.0-B — profils de lumière A (référence) / B (retenu) ; F4 en jeu |
 | `scenes/p6/colisee_tunnel_A_6_5m.tscn` | P6.2-D — tunnel sud de 6,5 m (comparaison ; `colisee.tscn` = 9 m depuis P7.4.1) — proposé séparément |
 | `scenes/p6/colisee_tunnel_B_8_5m.tscn` | P6.2-D — tunnel sud de 8,5 m (comparaison) — proposé séparément |
 | `scenes/p6/colisee_tunnel_C_9_5m.tscn` | P6.2-D — tunnel sud de 9,5 m (comparaison) — proposé séparément |
 
-Les options s'ajoutent après `--` (par exemple `godot --path . res://scenes/p6/colisee.tscn -- --ville=v06 --etat=tutorial_completed`,
-ou `godot --path . res://scenes/p7/ville_v07b.tscn -- --forge=A`) ; dans l'éditeur : **Débogage → Personnaliser les instances
+**Retirés en P8.0-C** (historique Git, commit `588e90c`) : villes V0.1 / V0.6 / V0.7-A (`--ville=v05|v06|v07a`), forges A / B
+(`--forge=A|B`), boutique P7.10 (`--boutique=710`). Détail : `docs/P8_0C_CONSOLIDATION.md`.
+
+Les options s'ajoutent après `--` (par exemple `godot --path . res://scenes/p6/colisee.tscn -- --etat=tutorial_completed`,
+ou `godot --path . res://scenes/p7/ville_v07b.tscn -- --forge=C`) ; dans l'éditeur : **Débogage → Personnaliser les instances
 d'exécution** (arguments de lancement), puis F6 sur la scène indiquée.
 
 ## Vérifications
+
+**Série complète de non-régression (P8.0-C)**, une ligne OK / ÉCHEC par contrôle (≈ 25 min) :
+
+```bash
+bash tools/p8/non_regression_p80c.sh
+```
 
 ```bash
 godot --headless --path . --script res://tests/run_tests.gd
