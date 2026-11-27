@@ -49,3 +49,15 @@ Même provenance (archive Standard du Drive, Medieval Village MegaKit, CC0). Seu
 Les arbustes, plantes, fleurs et couvre-sols de la cité réutilisent les modèles Quaternius de la forêt F5
 (`ValSerra_P49_V07B_PREFLIGHT_GODOT/assets/models/`, CC0, licence dans `ValSerra_P49_V07B_PREFLIGHT_GODOT/docs/`), sans
 copie. Module : `scenes/p8/vegetation_p81.gd`. **Statut** : PROVISOIRE, en attente de la revue du créateur.
+
+## Ajout P8.1-A — marchandises des étals (27/11/2026)
+
+Même provenance (archive Standard du Drive, Fantasy Props MegaKit, CC0). Modèles seuls (`.gltf` + `.bin`) : ils
+utilisent les textures « trim » déjà présentes dans `fp/` (Props, Furniture, Metal, Cloth, 1024²) ; aucune texture
+ajoutée.
+
+| Dossier | Modèles ajoutés |
+|---|---|
+| `fp/` | FarmCrate_Apple, FarmCrate_Carrot, Barrel_Apples, Bag, Pouch_Large, Pot_1, Vase_2, Vase_4, Bucket_Wooden_1, Bottle_1 |
+
+Utilisés par `scenes/p7/bordures_p713.gd` (`_marchandises_modeles`, étals 0 à 3, halle). **Statut** : PROVISOIRE.

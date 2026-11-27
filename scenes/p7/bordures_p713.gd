@@ -97,6 +97,8 @@ func finaliser() -> void:
 	var d1: int = a.racine.get_child_count()
 	for e in _etals:
 		_etal_modeles(e[0], e[1], e[2])
+		if _etals_modeles():
+			_marchandises_modeles(e[0], e[1], e[2])
 	fo._fusion_gltf(d1, "bordures_etals_modeles")
 	_etals.clear()
 
@@ -321,7 +323,8 @@ func _etal(r: Rect2, h0: float, k: int) -> void:
 		for i in nb:
 			var uu := -L * 0.5 - 0.1 + (L + 0.2) * (i + 0.5) / nb
 			_bx(ctr, ax, aw, uu, he - 0.08, sw * (demi + 0.0), (L + 0.2) / nb - 0.03, 0.16, 0.015, mt0 if i % 2 == 0 else mt1)
-	_marchandises(ctr + Vector3.UP * hp, ax, aw, L - 0.5, P - 0.6, k)
+	if not _etals_modeles():
+		_marchandises(ctr + Vector3.UP * hp, ax, aw, L - 0.5, P - 0.6, k)
 
 
 ## Caisse et tonneau au pied de l'étal (modèles Quaternius déjà importés).
@@ -421,8 +424,8 @@ func _halle(r: Rect2, h0: float, h1: float) -> void:
 	a.toit(rt, he + 0.32, 1.7, Color(0.86, 0.80, 0.70), "2p_y", Color(1.0, 0.94, 0.9))
 	a.fusionner(d1, "bordures_halle_toit")
 	var d2: int = a.racine.get_child_count()
-	# sacs de grain empilés, caisses, tonneaux
-	for i in 6:
+	# sacs de grain empilés, caisses, tonneaux (P8.1-A : sacs modélisés, cf. _marchandises_modeles)
+	for i in (0 if _etals_modeles() else 6):
 		var p := Vector3(rh.position.x + 0.7 + (i % 3) * 0.7, h1, rh.position.y + 1.0 + int(i / 3) * 0.55)
 		_cyl(p + Vector3.UP * 0.2, 0.2, 0.24, 0.4, m["sac"], 8)
 		if i % 2 == 0:
@@ -433,4 +436,55 @@ func _halle(r: Rect2, h0: float, h1: float) -> void:
 	fo._modele("fp/Crate_Wooden", Vector3(rh.end.x - 0.65, h1 + 0.62, rh.get_center().y + 0.4), 0.5, Vector3.ONE * 0.7)
 	fo._modele("fp/Barrel", Vector3(rh.position.x + 0.7, h1, rh.end.y - 0.8), 0.0, Vector3.ONE * 0.75)
 	fo._modele("fp/Barrel", Vector3(rh.position.x + 1.45, h1, rh.end.y - 0.7), 0.0, Vector3.ONE * 0.75)
+	if _etals_modeles():
+		for i in 5:
+			var ps := Vector3(rh.position.x + 0.75 + (i % 3) * 0.72, h1 + (0.62 if i >= 3 else 0.0), rh.position.y + 1.05 + (0.2 if i >= 3 else 0.0))
+			fo._modele("fp/Bag", ps, 0.4 * i, Vector3.ONE * 0.62)
+		fo._modele("fp/Bucket_Wooden_1", Vector3(rh.position.x + 2.6, h1, rh.position.y + 1.6), 0.3, Vector3.ONE * 0.9)
 	fo._fusion_gltf(d3, "bordures_halle_modeles")
+
+
+
+## P8.1-A (L6) : marchandises en modèles reconnaissables (Fantasy Props CC0) au lieu des cylindres et cônes colorés ;
+## peu d'objets, bien choisis, selon la gamme de l'étal. --f_etals=0 (ou --finition=0) : marchandises P7.13.
+func _etals_modeles() -> bool:
+	return str(sc._cli.get("finition", "1")) != "0" and str(sc._cli.get("f_etals", "1")) != "0"
+
+
+func _marchandises_modeles(r: Rect2, h0: float, k: int) -> void:
+	var long_x := r.size.x >= r.size.y
+	var L := r.size.x if long_x else r.size.y
+	var P := r.size.y if long_x else r.size.x
+	var ax := Vector3(1, 0, 0) if long_x else Vector3(0, 0, 1)
+	var aw := Vector3(0, 0, 1) if long_x else Vector3(1, 0, 0)
+	var ctr := Vector3(r.get_center().x, h0 + 0.85, r.get_center().y)
+	var sol := Vector3(r.get_center().x, h0, r.get_center().y)
+	var lu := L - 0.7                                   # longueur utile du plateau
+	var pos := func(f: float, w: float, base := ctr) -> Vector3: return base + ax * (lu * f) + aw * w
+	match k % 4:
+		0:  # épices et grains : sacs ouverts, bourses, seau de grain
+			fo._modele("fp/Bag", pos.call(-0.38, -0.1), 0.3, Vector3.ONE * 0.5)
+			fo._modele("fp/Bag", pos.call(-0.08, 0.05), -0.5, Vector3.ONE * 0.46)
+			fo._modele("fp/Pouch_Large", pos.call(0.14, 0.15), 0.8, Vector3.ONE * 1.3)
+			fo._modele("fp/Pouch_Large", pos.call(0.22, -0.05), -0.3, Vector3.ONE * 1.2)
+			fo._modele("fp/Bucket_Wooden_1", pos.call(0.4, 0.0), 0.2, Vector3.ONE * 0.85)
+			fo._modele("fp/Bag", pos.call(0.3, P * 0.5 + 0.1, sol), 1.1, Vector3.ONE * 0.62)
+		1:  # poteries : jarres, vases, pot, bouteilles
+			fo._modele("fp/Vase_2", pos.call(-0.36, 0.0), 0.0, Vector3.ONE * 0.5)
+			fo._modele("fp/Vase_4", pos.call(-0.12, 0.1), 0.6, Vector3.ONE * 0.85)
+			fo._modele("fp/Pot_1", pos.call(0.08, -0.1), 0.2, Vector3.ONE * 0.75)
+			for b in 3:
+				fo._modele("fp/Bottle_1", pos.call(0.26 + b * 0.05, 0.12 - b * 0.08), 0.0, Vector3.ONE * 0.9)
+			fo._modele("fp/Vase_4", pos.call(0.42, -0.05), 1.4, Vector3.ONE * 0.75)
+			fo._modele("fp/Vase_2", pos.call(-0.3, P * 0.5 + 0.15, sol), 0.4, Vector3.ONE * 0.75)
+		2:  # fruits et légumes : cagettes de pommes et de carottes, tonneau de pommes au pied
+			fo._modele("fp/FarmCrate_Apple", pos.call(-0.3, 0.0), 0.05, Vector3.ONE * 0.85)
+			fo._modele("fp/FarmCrate_Carrot", pos.call(0.05, 0.0), -0.08, Vector3.ONE * 0.8)
+			fo._modele("fp/FarmCrate_Apple", pos.call(0.36, 0.05), 0.12, Vector3.ONE * 0.8)
+			fo._modele("fp/Barrel_Apples", pos.call(-0.15, P * 0.5 + 0.35, sol), 0.0, Vector3.ONE * 0.8)
+		_:  # fleurs coupées en seaux de bois (fleurs du module végétal, s'il est actif)
+			for i in 4:
+				var pb: Vector3 = pos.call(-0.38 + i * 0.25, 0.08 * (1 if i % 2 == 0 else -1))
+				fo._modele("fp/Bucket_Wooden_1", pb, 0.4 * i, Vector3.ONE * 0.8)
+				if a.plantes != null:
+					a.plantes._inst(a.plantes.NAT + ("Flower_3_Group" if i % 2 == 0 else "Flower_4_Group"), pb + Vector3.UP * 0.12, 0.7 * i, 0.2)
