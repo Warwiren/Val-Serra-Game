@@ -320,6 +320,10 @@
   (`ville_v07b.COUPES_P80B` : auberge et Guilde 3,1 m dessus « arase », porte sud 1,2 m dessus « pierre » ; `--coupes_p80b=0`).
   Lumière : `scenes/p8/lumiere_p80b.gd`, A = P7.13 (DÉFAUT), B = proposition (`--lumiere=b`, F6 `ville_v07b_p80b.tscn`, touche F4,
   `--b_jusqua=1..5`, effets `--b_*`), retirée en quittant la ville. EXPÉRIENCE NON VALIDÉE ; shader des personnages inchangé.
+  Reprise du 27/11 (exécutée sous 4.7.2, rapport § 7) : style « pierre » = coupe PERMANENTE (le muret de 1,6 m de la porte sud
+  n'est presque jamais escamoté) ; B en second dosage (`--b_version=1` : premier) ; A est DÉJÀ en Filmic (exposition 1,0) :
+  comparer les sprites avec `--b_tonemap=a`, pas `lineaire`. Rendus Forward+ possibles dans le conteneur par Vulkan logiciel
+  (`mesa-vulkan-drivers`, `VK_ICD_FILENAMES=.../lvp_icd.json`, `xvfb-run`) : images justes, temps non significatifs.
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).

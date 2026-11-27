@@ -218,7 +218,9 @@ masque de collision avant / après.
    tranche en terre cuite, coupes de l'auberge et de la Guilde sous la place, parapet de la porte sud ; `--toits_p80b=0`,
    `--coupes_p80b=0`). Profils de lumière : **A = P7.13** (défaut), **B = proposition HD-2D** (`--lumiere=b` ou F6
    **`scenes/p7/ville_v07b_p80b.tscn`** ; **touche F4** : A <-> B en jeu ; étapes `--b_jusqua=1..5`, effets séparés `--b_*`).
-   Rapport : `docs/P8_0B_LUMIERE.md`.
+   **Reprise du 27/11** (vérifiée sous Godot 4.7.2) : dessus de pierre de la porte sud corrigé ; B en **second dosage**
+   (moins orangé, ombres plus froides et plus profondes, SSAO renforcé ; `--b_version=1` : premier dosage) ;
+   `--b_tonemap=a` : sprites traités exactement comme en A. Rapport : `docs/P8_0B_LUMIERE.md` (§ 7).
 
 ### Commandes — forêt V07B (F5)
 
