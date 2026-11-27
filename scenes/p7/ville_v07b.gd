@@ -18,10 +18,38 @@ func _tr():
 		# P8.1-A (L4) : jardinières plantées par modèles (--f_vegetation=0 : sphères P7.7)
 		if _fin().actif("vegetation"):
 			tr.a.plantes = Vegetation.new(self, tr.a)
+		# P8.1-A2 : cohérence des façades (portes, mitoyenneté, baies bornées ; --f_coherence=0 : P8.1-A)
+		if _fin().actif("coherence"):
+			tr.a.coherence = true
+			tr.a.passages = (v.get("entrees", []) as Array).filter(func(x): return str(x["type"]) == "fonctionnelle" or not _entree_obstruee(x))
+			tr.a.libre = _point_libre
+		if Engine.has_meta("registre_facades"):              # outil tools/p8/coherence_facades_p81a2.gd
+			tr.a.registre = []
 	return tr
 
 
 const Vegetation := preload("res://scenes/p8/vegetation_p81.gd")
+
+
+## P8.1-A2 : un point de façade est-il hors de tout autre volume des données (bâtiments, tours, remparts, fonds ; toit
+## compris, 1,5 m au-dessus des murs) ? Sert à ne pas poser de baie, balcon ou lanterne dans un volume mitoyen.
+var _volumes_pleins := []
+
+
+func _point_libre(p: Vector3) -> bool:
+	if _volumes_pleins.is_empty():
+		for o in sc.world.adj.get("obstacles", []):
+			var oid := str(o["id"])
+			if oid.begins_with("bat_") or oid.begins_with("tour_") or oid.begins_with("rempart_"):
+				var q: Array = o["rect"]
+				_volumes_pleins.append([Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1]), float(o["h"]), float(o["h"]) + float(o["haut"]) + 1.5])
+		for pz in v.get("paysage", []):
+			var q2: Array = pz["rect"]
+			_volumes_pleins.append([Rect2(q2[0], q2[1], q2[2] - q2[0], q2[3] - q2[1]), float(pz["h"]), float(pz["h"]) + float(pz["haut"]) + 1.5])
+	for vp in _volumes_pleins:
+		if (vp[0] as Rect2).has_point(Vector2(p.x, p.z)) and p.y >= float(vp[1]) and p.y <= float(vp[2]):
+			return false
+	return true
 
 
 const Forge := preload("res://scenes/p7/forge_p79.gd")
@@ -490,7 +518,23 @@ func _entrees() -> void:
 		elif str(e.get("batiment", "")) == Bordures.DRAPERIE and _bord().actif:
 			continue                                      # P7.13 : porte cintrée dessinée par la draperie (bordures_p713.gd)
 		else:
+			if _fin().actif("coherence") and _entree_obstruee(e):
+				continue                                      # P8.1-A2 : porte décorative donnant sur un mur (non dessinée)
 			_porte_decorative(e)
+
+
+## P8.1-A2 : une entrée DÉCORATIVE est obstruée si un autre bâtiment des données occupe le passage devant elle (1,2 m) :
+## elle ne mènerait nulle part (cas : deco_guilde_o, contre l'immeuble de la placette). Aucune collision n'en dépend.
+func _entree_obstruee(e: Dictionary) -> bool:
+	var zone := Rect2(float(e["x"]) - float(e["largeur"]) * 0.5, float(e["y"]) + 0.1, float(e["largeur"]), 1.1)
+	for o in sc.world.adj.get("obstacles", []):
+		var oid := str(o["id"])
+		if not oid.begins_with("bat_") or oid == str(e.get("batiment", "")):
+			continue
+		var q: Array = o["rect"]
+		if Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1]).intersects(zone) and float(o["h"]) <= float(e["h"]) + 0.5:
+			return true
+	return false
 
 
 ## Entrée fonctionnelle (façade sud) : piédroits et linteau de calcaire en saillie, battants de bois ferré en retrait,

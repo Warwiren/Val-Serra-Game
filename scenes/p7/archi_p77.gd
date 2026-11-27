@@ -258,20 +258,29 @@ func _batiment(r: Rect2, h0: float, d: Dictionary) -> void:
 	box(centre(r, n1, top), Vector3(r.size.x, top - n1, r.size.y), m_et)
 	elements += 2
 	var faces: Dictionary = d["faces"]
+	var bid := str(d.get("id", ""))
+	var consoles := str(d.get("corniche", "simple")) == "consoles"
+	var vstyle := str(d.get("volets_style", "pleins"))
 	for cote in faces:
 		var f := face(r, cote)
 		var L: float = f["L"]
-		# soubassement saillant (assise de base), bandeaux d'étage, corniche
-		boite(f, -0.12, L + 0.12, h0, h0 + 0.55, 0.0, 0.1, macon("socle2", PIERRE_VILLE, h0))
+		# soubassement saillant (assise de base) ; P8.1-A2 : interrompu au droit des portes (cohérence)
+		var trous: Array = _passages_face(f, h0, faces[cote]) if coherence else []
+		for seg in _segments(-0.12, L + 0.12, trous):
+			boite(f, seg[0], seg[1], h0, h0 + 0.55, 0.0, 0.1, macon("socle2", PIERRE_VILLE, h0))
+			_note(bid, cote, "soubassement", seg[0], seg[1], h0, h0 + 0.55)
 		for i in range(1, nv.size() - 1):
 			boite(f, -0.06, L + 0.06, float(nv[i]) - 0.1, float(nv[i]) + 0.12, 0.0, 0.08, moulure())
+			_note(bid, cote, "bandeau", -0.06, L + 0.06, float(nv[i]) - 0.1, float(nv[i]) + 0.12)
 		boite(f, -0.3, L + 0.3, top - 0.28, top, 0.0, 0.3, moulure())
 		boite(f, -0.38, L + 0.38, top, top + 0.1, 0.0, 0.4, moulure())
-		if str(d.get("corniche", "simple")) == "consoles":
+		_note(bid, cote, "corniche", -0.3, L + 0.3, top - 0.28, top + 0.1)
+		if consoles:
 			var xc := 0.45
 			while xc < L - 0.3:
 				boite(f, xc - 0.09, xc + 0.09, top - 0.62, top - 0.28, 0.0, 0.24, moulure())
 				xc += 0.9
+			_note(bid, cote, "consoles", 0.36, L - 0.3, top - 0.62, top - 0.28)
 		# chaînes d'angle (harpes) : pierres alternées aux deux extrémités, sur les étages
 		if bool(d.get("chaines", true)):
 			var v := n1
@@ -282,15 +291,54 @@ func _batiment(r: Rect2, h0: float, d: Dictionary) -> void:
 					boite(f, ua[0], ua[1], v, v + 0.34, 0.0, 0.04, moulure())
 				v += 0.36
 				k += 1
+			_note(bid, cote, "chaine", 0.0, 0.55, n1, v)
+			_note(bid, cote, "chaine", L - 0.55, L, n1, v)
 		var niveaux_baies: Array = faces[cote]
 		for i in niveaux_baies.size():
 			var plancher: float = nv[i]
 			for w in niveaux_baies[i]:
-				baie(f, float(w[0]), plancher + float(w[3]), float(w[1]), float(w[2]), str(w[4]), c_volets, str(d.get("volets_style", "pleins")))
+				var u := float(w[0])
+				var wl := float(w[1])
+				var hb := float(w[2])
+				var st := str(w[4])
+				var v0 := plancher + float(w[3])
+				var sup := _hauteur_dessus(st, wl)
+				if coherence:
+					# P8.1-A2 : pas de baie dans un volume voisin (façade mitoyenne) ; baie bornée sous le bandeau ou la
+					# corniche du dessus (linteau, clef ou arc compris) au lieu de les traverser
+					if libre != null and not libre.call(point_face(f, u, v0 + hb * 0.5, 0.25)):
+						_note(bid, cote, "baie_mitoyenne_omise", u - wl * 0.5, u + wl * 0.5, v0, v0 + hb)
+						continue
+					# une porte du rez-de-chaussée (vantaux, devanture, vitrine) touche toujours le sol : pas de porte suspendue
+					if i == 0 and st in STYLES_PORTE_SOL and st != "porte_fenetre" and v0 - plancher > 0.05:
+						hb += v0 - plancher
+						v0 = plancher
+					var lim: float = (float(nv[i + 1]) - 0.13) if i + 1 < nv.size() - 1 else (top - (0.66 if consoles else 0.32))
+					if v0 + hb + sup > lim:
+						hb = maxf(0.5, lim - sup - v0)
+				baie(f, u, v0, wl, hb, st, c_volets, vstyle)
+				var ext := wl * 0.5 + 0.15
+				if _a_volets(st) and not vstyle in ["aucun", "fermes"]:
+					ext = wl + 0.16
+				# une porte-fenêtre d'étage repose sur le bandeau (balcon) : son pied n'est pas un conflit
+				var pied := v0 + (0.13 if i > 0 and st in STYLES_PORTE_SOL else 0.0) - (0.12 if v0 - plancher > 0.2 else 0.0)
+				_note(bid, cote, "baie", u - ext, u + ext, pied, v0 + hb + sup)
+				if registre != null:
+					registre[registre.size() - 1]["style"] = st
+					registre[registre.size() - 1]["p"] = point_face(f, u, v0, 0.0)
+					registre[registre.size() - 1]["n"] = f["n"]
+					registre[registre.size() - 1]["largeur"] = wl
+					registre[registre.size() - 1]["niveau"] = i
 	for bal in d.get("balcons", []):
-		balcon(face(r, bal[0]), float(bal[1]), float(bal[2]), float(nv[int(bal[3])]), float(bal[4]), str(bal[5]) if bal.size() > 5 else "fer")
+		var fb := face(r, bal[0])
+		if coherence and libre != null and not libre.call(point_face(fb, (float(bal[1]) + float(bal[2])) * 0.5, float(nv[int(bal[3])]) + 0.5, 0.4)):
+			continue
+		balcon(fb, float(bal[1]), float(bal[2]), float(nv[int(bal[3])]), float(bal[4]), str(bal[5]) if bal.size() > 5 else "fer")
 	for la in d.get("lanternes", []):
-		lanterne(face(r, la[0]), float(la[1]), h0 + float(la[2]))
+		var fl := face(r, la[0])
+		if coherence and libre != null and not libre.call(point_face(fl, float(la[1]), h0 + float(la[2]), 0.3)):
+			continue
+		lanterne(fl, float(la[1]), h0 + float(la[2]))
 	var pt0 := preset_tuiles
 	preset_tuiles = str(d.get("tuiles_preset", pt0))       # P8.0-B : matière des tuiles propre au bâtiment (défaut : tuiles_a)
 	toit(r, top, float(d["toit_h"]), c_enduit, str(d.get("toit", "2p_x")), d.get("tuiles", Color(1.05, 1.0, 0.98)))
@@ -777,6 +825,73 @@ func jardiniere(r: Rect2, h: float) -> void:
 	# lisière de pierres le long du bord nord
 	box(Vector3(ri.get_center().x, h + 0.06, ri.position.y + 0.06), Vector3(ri.size.x, 0.12, 0.12), macon("socle2", PIERRE_VILLE, h))
 	elements += 2
+
+
+## P8.1-A2 — Cohérence des façades. `coherence` (activé par la ville) : soubassement interrompu aux portes, baies omises
+## dans un volume voisin (`libre` : point -> false s'il est dans un autre volume), baies bornées sous le bandeau ou la
+## corniche du dessus. `passages` : entrées des données [{x, y, h, largeur}] (portes posées devant la façade).
+## `registre` (outil tools/p8/coherence_facades_p81a2.gd) : emprises de chaque élément, dans le plan de sa face.
+var coherence := false
+var libre = null
+var passages: Array = []
+var registre = null
+const STYLES_PORTE_SOL := ["porte_fenetre", "porte_vitree", "porte_deco", "porte_cloutee", "porte_cochere", "devanture", "vitrine"]
+
+
+func _note(bid: String, cote: String, quoi: String, u0: float, u1: float, v0: float, v1: float) -> void:
+	if registre != null:
+		registre.append({"bat": bid, "face": cote, "quoi": quoi, "u0": u0, "u1": u1, "v0": v0, "v1": v1})
+
+
+## Hauteur au-dessus de l'ouverture : linteau et clef (0,26), arc et claveaux (rayon + 0,23), bandeau d'enseigne (0,45).
+static func _hauteur_dessus(style: String, w: float) -> float:
+	if style in ["fenetre_cintree", "porte_cochere", "baie_cintree"]:
+		return w * 0.5 + 0.23
+	if style == "devanture":
+		return 0.45
+	if style == "oeil_de_boeuf":
+		return 0.15
+	return 0.26
+
+
+static func _a_volets(style: String) -> bool:
+	return not (style in ["oeil_de_boeuf", "porte_deco", "devanture", "porte_cloutee", "porte_cochere", "porte_vitree", "baie",
+		"baie_cintree", "vitrine", "barreaux"])
+
+
+## Ouvertures au sol d'une face (u0, u1) : entrées des données posées devant elle et baies-portes du rez-de-chaussée.
+func _passages_face(f: Dictionary, h0: float, niveaux_baies: Array) -> Array:
+	var out := []
+	var o: Vector3 = f["o"]
+	for e in passages:
+		var p := Vector3(float(e["x"]), 0.0, float(e["y"]))
+		if absf((p - o).dot(f["n"])) > 0.7 or absf(float(e["h"]) - h0) > 1.0:
+			continue
+		var ue := (p - o).dot(f["t"])
+		out.append([ue - float(e["largeur"]) * 0.5 - 0.5, ue + float(e["largeur"]) * 0.5 + 0.5])
+	if niveaux_baies.size() > 0:
+		for w in niveaux_baies[0]:
+			# portes ramenées au sol (vantaux, devanture, vitrine) ou porte-fenêtre de plain-pied
+			if str(w[4]) in STYLES_PORTE_SOL and (str(w[4]) != "porte_fenetre" or float(w[3]) < 0.3):
+				out.append([float(w[0]) - float(w[1]) * 0.5 - 0.16, float(w[0]) + float(w[1]) * 0.5 + 0.16])
+	return out
+
+
+## Intervalle [a, b] privé des trous [[u0, u1], ...] : segments restants.
+static func _segments(a: float, b: float, trous: Array) -> Array:
+	var segs := [[a, b]]
+	for t in trous:
+		var nouv := []
+		for s in segs:
+			if t[1] <= s[0] or t[0] >= s[1]:
+				nouv.append(s)
+				continue
+			if t[0] > s[0]:
+				nouv.append([s[0], t[0]])
+			if t[1] < s[1]:
+				nouv.append([t[1], s[1]])
+		segs = nouv
+	return segs.filter(func(x): return x[1] - x[0] > 0.05)
 
 
 ## P8.1-A (L4) : même jardinière (terre, deux pots de terre cuite, lisière de pierre), plantée par le module végétal.
