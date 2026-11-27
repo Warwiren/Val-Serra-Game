@@ -107,6 +107,15 @@ func _colisee_v07() -> void:
 		_fin().remplacer_blockout(d1)                      # propylée et porte : pierre et bois (même géométrie)
 
 
+## P8.1-A (L5) : chantier au bout de la rue (poteaux, lisses, échafaudage, tas de pierres et de planches) : même géométrie,
+## bois et pierre au lieu du blockout (lisses jaunes -> planches). --f_limites=0 : V0.7-A.
+func _chantier() -> void:
+	var d0: int = sc.root.get_child_count()
+	super()
+	if _fin().actif("limites"):
+		_fin().remplacer_blockout(d0)
+
+
 ## P8.1-A (L3) : fonds habillés par fiche (--f_batiments=0 : volumes de la V0.7-A).
 func _paysage(p: Dictionary, i: int) -> void:
 	if _fin().actif("batiments"):
@@ -291,6 +300,10 @@ func construit(e: Dictionary) -> bool:
 		return true
 	if _batiment_secondaire(e):
 		return true
+	# P8.1-A (L5) : barrières de fin de carte (chantier, route du sud) : planches sur chevalets (même collision)
+	if _fin().actif("limites") and e["type"] == "block" and id.begins_with("barriere"):
+		_fin().barriere(e)
+		return true
 	# P8.1-A (L1) : sols, terrasses et garde-corps restants (mêmes collisions que le blockout ; --f_sols=0)
 	if _fin().actif("sols"):
 		if e["type"] == "floor":
@@ -307,12 +320,17 @@ func construit(e: Dictionary) -> bool:
 
 func decorer() -> void:
 	super()
+	var d_p: int = sc.root.get_child_count()
 	for s in v.get("decor_escaliers", []):
 		_escalier_decor(s)
 	for a in v.get("decor_arches", []):
 		_arche_decor(a)
 	for tr in v.get("decor_tours", []):
 		_tour_decor(tr)
+	# P8.1-A (L5) : prolongements visuels aux limites (escaliers, arches, tours vers les faubourgs et l'est) : même
+	# géométrie, pierre de soutènement et calcaire au lieu du blockout
+	if _fin().actif("limites"):
+		_fin().remplacer_blockout(d_p, _fin().soutenement(0.0))
 	var d_e: int = sc.root.get_child_count()
 	_entrees()
 	if _fin().actif("batiments"):
@@ -321,6 +339,11 @@ func decorer() -> void:
 	_bord().finaliser()                                   # P7.13 : étals de la place (fusion commune)
 	_ombres_ville()
 	_classer_volumes()
+	# P8.1-A (L5) : murets de la porte sud (tours, remparts) et vantaux ouverts : maçonnerie et bois (même géométrie)
+	if _fin().actif("limites"):
+		for vo in _vols:
+			if str(vo["id"]).begins_with("tour_sud") or str(vo["id"]).begins_with("rempart_sud"):
+				_fin().remplacer_blockout_sous(vo["node"], _fin().soutenement(0.0))
 	# P8.0-B : profil de lumière (A = P7.13 par défaut ; --lumiere=b, méta « lumiere », touche F4)
 	lum = LumiereP80B.new(sc, self)
 	lum.appliquer(lum.profil_demande())

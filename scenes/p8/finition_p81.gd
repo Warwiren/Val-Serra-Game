@@ -267,29 +267,43 @@ func calcaire(base_y: float) -> ShaderMaterial:
 
 
 ## Remplace, sans toucher à la géométrie, la matière de blockout (blockout_p7.gdshader) des maillages ajoutés sous
-## sc.root depuis l'indice `depuis` : teinte claire -> calcaire, moyenne -> pierre de taille, sombre (bois, fer) -> matière
-## unie de la même couleur (sans quadrillage ni baies peintes). Sert aux éléments de la V0.7-A gardés tels quels.
-func remplacer_blockout(depuis: int) -> int:
+## sc.root depuis l'indice `depuis` : teinte claire -> calcaire, moyenne -> pierre de taille (ou `pierre`, si fournie),
+## sombre ou saturée (bois, fer, bannières) -> matière unie de la même couleur (sans quadrillage ni baies peintes) ; le
+## jaune de chantier du blockout -> planches de bois. Sert aux éléments de la V0.7-A gardés tels quels.
+func remplacer_blockout(depuis: int, pierre: Material = null) -> int:
 	var n := 0
 	for i in range(depuis, sc.root.get_child_count()):
-		var mi := sc.root.get_child(i) as MeshInstance3D
-		if mi == null or not (mi.material_override is ShaderMaterial):
-			continue
-		var sm := mi.material_override as ShaderMaterial
-		if sm.shader == null or sm.shader.resource_path.get_file() != "blockout_p7.gdshader":
-			continue
-		var c: Color = sm.get_shader_parameter("couleur")
-		var lum := c.r * 0.3 + c.g * 0.59 + c.b * 0.11
-		var bas: float = (mi.global_transform * mi.get_aabb()).position.y
-		if lum > 0.6:
-			mi.material_override = calcaire(snappedf(bas, 0.5))
-		elif lum > 0.38:
-			mi.material_override = taille()
-		else:
-			mi.material_override = a.plein(c, 0.85)
-		n += 1
+		n += _remplacer(sc.root.get_child(i), pierre)
 	return n
 
+
+## Même remplacement dans tout un sous-arbre (volumes d'escamotage : les maillages y sont déplacés au classement).
+func remplacer_blockout_sous(racine_n: Node, pierre: Material = null) -> int:
+	var n := _remplacer(racine_n, pierre)
+	for c in racine_n.get_children():
+		n += remplacer_blockout_sous(c, pierre)
+	return n
+
+
+func _remplacer(nd: Node, pierre: Material) -> int:
+	var mi := nd as MeshInstance3D
+	if mi == null or not (mi.material_override is ShaderMaterial):
+		return 0
+	var sm := mi.material_override as ShaderMaterial
+	if sm.shader == null or sm.shader.resource_path.get_file() != "blockout_p7.gdshader":
+		return 0
+	var c: Color = sm.get_shader_parameter("couleur")
+	var lum := c.r * 0.3 + c.g * 0.59 + c.b * 0.11
+	var bas: float = (mi.global_transform * mi.get_aabb()).position.y
+	if c.s > 0.6 and c.h > 0.08 and c.h < 0.17:
+		mi.material_override = a.plein(Color(0.50, 0.37, 0.24), 0.9)          # jaune de chantier -> planches
+	elif c.s > 0.25 or lum <= 0.38:
+		mi.material_override = a.plein(c, 0.85)
+	elif lum > 0.6:
+		mi.material_override = calcaire(snappedf(bas, 0.5))
+	else:
+		mi.material_override = pierre if pierre != null else taille()
+	return 1
 
 # ------------------------------------------------------------------------------------------------ L3 : bâtiments secondaires
 ## Habillage des bâtiments encore en blockout (placette, parvis, terrasses, fonds) par une FICHE générée depuis
@@ -416,3 +430,30 @@ func fond(p: Dictionary, i: int) -> void:
 	var h0: float = p["h"]
 	var h1: float = h0 + float(p["haut"])
 	a.batiment(r, h0, fiche("paysage_%d" % i, r, h0, h1, "fond", [], 3.0))
+
+
+
+# ------------------------------------------------------------------------------------------------ L5 : limites
+## Barrière de fin de carte (même collision que le blockout : boîte des données, couche OBST) : barrière de planches
+## sur chevalets en bois, deux lisses et une planche oblique par travée, dans l'emprise de la collision.
+func barriere(e: Dictionary) -> void:
+	var r: Rect2 = e["rect"]
+	var h0: float = e["h0"]
+	var h1: float = e["h1"]
+	sc._static_box(sc._rect_center(r, h0, h1), Vector3(r.size.x, h1 - h0, r.size.y), sc.L_OBST)
+	var d0: int = a.racine.get_child_count()
+	var bois: Material = a.plein(Color(0.46, 0.34, 0.22), 0.9)
+	var bois_c: Material = a.plein(Color(0.58, 0.45, 0.30), 0.9)
+	var long_x := r.size.x >= r.size.y
+	var L := r.size.x if long_x else r.size.y
+	var c := r.get_center()
+	var ax := Vector3(1, 0, 0) if long_x else Vector3(0, 0, 1)
+	var n := maxi(1, int(round(L / 1.8)))
+	for k in n + 1:
+		var p := Vector3(c.x, 0.0, c.y) + ax * (-L * 0.5 + 0.1 + (L - 0.2) * float(k) / n)
+		a.box(p + Vector3(0, h0 + (h1 - h0) * 0.5, 0), Vector3(0.12, h1 - h0, 0.12), bois)      # poteau
+		a.box(p + Vector3(0, h0 + 0.12, 0), (Vector3(0.12, 0.1, 0.7) if long_x else Vector3(0.7, 0.1, 0.12)), bois)    # pied
+	for hh in [0.45, 0.95]:
+		var sz := Vector3(L, 0.14, 0.05) if long_x else Vector3(0.05, 0.14, L)
+		a.box(Vector3(c.x, h0 + hh, c.y), sz, bois_c)
+	a.fusionner(d0, "barriere_" + str(e.get("id", "")))
