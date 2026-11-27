@@ -42,8 +42,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p8-0b-lumiere`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p8-0b-lumiere`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p8-0c-consolidation`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p8-0c-consolidation`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -221,6 +221,9 @@ masque de collision avant / après.
    **Reprise du 27/11** (vérifiée sous Godot 4.7.2) : dessus de pierre de la porte sud corrigé ; B en **second dosage**
    (moins orangé, ombres plus froides et plus profondes, SSAO renforcé ; `--b_version=1` : premier dosage) ;
    `--b_tonemap=a` : sprites traités exactement comme en A. Rapport : `docs/P8_0B_LUMIERE.md` (§ 7).
+   **Branche `p8-0c-consolidation`** : F5 inchangé. **Lumière B (second dosage) retenue** par le créateur ; la ville démarre
+   encore en A tant que les performances de B ne sont pas validées sur GPU (F6 `ville_v07b_p80b.tscn` ou `--lumiere=b` pour B,
+   F4 pour comparer). Mesures, nettoyage du code et contrôles : `docs/P8_0C_CONSOLIDATION.md`.
 
 ### Commandes — forêt V07B (F5)
 

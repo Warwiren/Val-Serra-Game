@@ -1,6 +1,11 @@
 # P8.0-B — Direction lumineuse et post-production HD-2D
 
-Branche **`p8-0b-lumiere`**, depuis `p8-0a-cadrage-ville`. EXPÉRIENCE, rien n'est validé.
+Branche **`p8-0b-lumiere`**, depuis `p8-0a-cadrage-ville`.
+
+> **Décision du créateur (P8.0-C)** : le profil **B, second dosage**, est retenu comme nouvelle direction lumineuse
+> (validation **artistique**, sur GPU). Il deviendra le profil de lancement après la validation de ses **performances**
+> (`PROFIL_DEFAUT` dans `scenes/p8/lumiere_p80b.gd`). A reste la référence de comparaison et de secours (F4,
+> `--lumiere=a`). Suite : `docs/P8_0C_CONSOLIDATION.md`.
 
 * **P8.0-A clos.** La plongée de 11° et la plongée civique de 6,5° sont les références. Les autres angles restent des
   essais historiques en F6. La zone de lecture à 17° est désactivée par défaut : elle n'est active que dans sa propre

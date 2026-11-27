@@ -1,7 +1,9 @@
 extends RefCounted
-## P8.0-B — PROFILS DE LUMIÈRE DE LA VILLE V0.7-B. EXPÉRIENCE, NON VALIDÉE.
-##   A = P7.13 : rendu actuel, référence (défaut).
-##   B = P8.0-B : proposition HD-2D, construite par étapes (dans l'ordre du brief) :
+## P8.0-B — PROFILS DE LUMIÈRE DE LA VILLE V0.7-B.
+##   B = DIRECTION LUMINEUSE RETENUE par le créateur (P8.0-C, second dosage, validation ARTISTIQUE) ; elle deviendra le
+##       profil de lancement après la validation de ses PERFORMANCES sur le GPU du créateur (PROFIL_DEFAUT ci-dessous).
+##   A = P7.13 : rendu précédent, conservé comme référence de comparaison et de secours (défaut tant que PROFIL_DEFAUT = "a").
+##   B est construit par étapes (dans l'ordre du brief P8.0-B) :
 ##     1 soleil    : même direction (composition des ombres conservée), plus chaud, plus fort, ombres en 4 tranches ;
 ##     2 ambiance  : lumière indirecte tirée du ciel (ombres plus froides), occlusion ambiante SSAO (Forward+) ;
 ##     3 couleurs  : rendu filmique (Filmic, ou AgX / ACES / linéaire), contraste et saturation maîtrisés ;
@@ -31,8 +33,13 @@ const SUN_PROPS := ["light_color", "light_energy", "directional_shadow_mode", "d
 ## devant la façade (toutes les entrées regardent le sud, vers la caméra).
 const ENTREES_ECLAIREES := ["guilde", "auberge", "forge", "boutique", "hotel_de_ville"]
 
-## Dosage du 27/11 (retour du créateur : sol de la grande place uniforme et orangé). Valeurs mesurées en Compatibilité
-## (docs/P8_0B_LUMIERE.md § 7) ; --b_version=1 rétablit le premier dosage (commit 638cf52) pour comparer.
+## Profil appliqué au chargement de la ville sans --lumiere ni méta « lumiere ». B est retenu artistiquement (P8.0-C) :
+## passer à "b" APRÈS la validation des performances sur le GPU du créateur (une ligne, rien d'autre à changer ; A reste
+## accessible par --lumiere=a et par la touche F4).
+const PROFIL_DEFAUT := "a"
+
+## Dosage du 27/11 = SECOND DOSAGE, RETENU par le créateur (P8.0-C) : ne pas modifier ces valeurs sans demande explicite.
+## Mesures : docs/P8_0B_LUMIERE.md § 7 ; --b_version=1 rétablit le premier dosage (commit 638cf52), pour comparaison seulement.
 const SOLEIL := Color(1.0, 0.89, 0.75)            # moins orangé (sol de la grande place)
 const SOLEIL_V1 := Color(1.0, 0.86, 0.68)
 const AMB := Color(0.58, 0.66, 0.88)               # ombres plus froides
@@ -72,7 +79,7 @@ func _init(scene, v) -> void:
 
 
 func profil_demande() -> String:
-	var p := str(sc._cli.get("lumiere", sc.get_meta("lumiere", "a") if sc.has_meta("lumiere") else "a")).to_lower()
+	var p := str(sc._cli.get("lumiere", sc.get_meta("lumiere", PROFIL_DEFAUT) if sc.has_meta("lumiere") else PROFIL_DEFAUT)).to_lower()
 	return "b" if p == "b" else "a"
 
 

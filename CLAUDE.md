@@ -324,6 +324,10 @@
   n'est presque jamais escamoté) ; B en second dosage (`--b_version=1` : premier) ; A est DÉJÀ en Filmic (exposition 1,0) :
   comparer les sprites avec `--b_tonemap=a`, pas `lineaire`. Rendus Forward+ possibles dans le conteneur par Vulkan logiciel
   (`mesa-vulkan-drivers`, `VK_ICD_FILENAMES=.../lvp_icd.json`, `xvfb-run`) : images justes, temps non significatifs.
+- **P8.0-C (branche `p8-0c-consolidation`, `docs/P8_0C_CONSOLIDATION.md`)** : **B second dosage RETENU** par le créateur (validation
+  artistique) : ne plus modifier ses valeurs sans demande ; il devient le défaut (`lumiere_p80b.PROFIL_DEFAUT = "b"`) APRÈS validation
+  des performances sur le GPU du créateur. A = référence de secours (F4, `--lumiere=a`). Contrôles : `tools/p8/lumiere_ab_p80c.gd`
+  (profils et F4), `tools/p8/empreinte_scene_p80c.gd` (empreinte d'une scène : tout nettoyage doit laisser le MD5 inchangé).
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).
