@@ -1,5 +1,7 @@
 extends RefCounted
 ## P7.1 — BLOCKOUT V0.1 du quartier central (plan directeur V0.5). PROTOTYPE DE CIRCULATION, NON VALIDÉ.
+## P8.0-C : BASE DE LA CHAÎNE D'HÉRITAGE de la ville (ville_blockout -> ville_v06 -> ville_v07a -> ville_v07b, seule version
+## jouée) ; ses données V0.5 et son décor propre sont retirés (historique Git, commit 588e90c). Description d'origine :
 ## Construit l'affichage de la zone « ville » (data/p7/ville_v05.json, généré par tools/p7/build_ville_v05.py) à la
 ## place de l'habillage du Colisée : volumes neutres colorés par fonction (src/p7/blockout_p7.gdshader : quadrillage
 ## d'1 m, lignes d'étage, baies schématiques), sols teintés par niveau, libellés temporaires des bâtiments importants.
@@ -111,87 +113,10 @@ func construit(e: Dictionary) -> bool:
 	return false
 
 
-## Décor propre au blockout : tambour du Colisée, sols des espaces publics, silhouette du château, libellés des accès.
+## Décor propre à la ville : défini par les versions dérivées (ville_v07a.decorer, puis ville_v07b.decorer).
+## P8.0-C : le décor du blockout V0.1 (plan V0.5, version retirée) est dans l'historique Git (commit 588e90c).
 func decorer() -> void:
-	_colisee()
-	var pz := {"place": Color(0.60, 0.57, 0.50), "parvis": Color(0.58, 0.54, 0.47), "marche": Color(0.60, 0.52, 0.42),
-		"avenue_haute": Color(0.61, 0.58, 0.52), "avenue_portes": Color(0.52, 0.48, 0.42), "parvis_guilde": Color(0.52, 0.54, 0.56)}
-	for z in sc._p6.get("zones_nommees", []):
-		if not pz.has(z["id"]):
-			continue
-		var q: Array = z["rect"]
-		var r := Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1])
-		var h := _niveau(r.get_center().y)
-		var mi: MeshInstance3D = sc._box_mesh(sc._rect_center(r, h, h + 0.012), Vector3(r.size.x, 0.012, r.size.y), mat(pz[z["id"]], 1.0))
-		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	# château (au-delà du rempart nord, décor seul) : masse et tours, porte fermée au bout de l'avenue haute
-	var pierre := mat(Color(0.58, 0.58, 0.60), 0.0, 1.0, 2.0)
-	sc._box_mesh(Vector3(108.5, 2.0 + 11.0, -16.0), Vector3(46.0, 22.0, 20.0), pierre)
-	for x in [84.0, 133.0]:
-		sc._box_mesh(Vector3(x, 2.0 + 14.0, -12.0), Vector3(7.0, 28.0, 7.0), pierre)
-	sc._box_mesh(Vector3(108.5, 2.0 + 17.0, -22.0), Vector3(14.0, 34.0, 12.0), pierre)
-	_libelle("Château — accès fermé", Vector3(108.5, 2.0 + 7.0, 3.5))
-	_libelle("Quartier est — accès fermé", Vector3(186.0, 1.0 + 6.0, 69.0))
-	_libelle("Porte sud — sortie (transition à relier)", Vector3(108.5, 3.0, 160.5))
-	_libelle("Grande place", Vector3(108.5, 1.0 + 5.0, 48.5))
-	_libelle("Marché", Vector3(108.5, 1.0 + 4.0, 84.0))
-	# porte sud : vantaux ouverts contre les tours (passage libre jusqu'à la barrière de fin de carte)
-	var bois := mat(Color(0.45, 0.33, 0.24))
-	for x in [104.25, 112.75]:
-		sc._box_mesh(Vector3(x, 0.8, 157.2), Vector3(0.3, 1.6, 3.0), bois)      # vantaux ouverts (coupés comme le rempart)
-
-
-func _niveau(y: float) -> float:
-	var nv: Dictionary = v.get("niveaux", {})
-	if y < float(nv.get("nord", [0, 24])[1]) + 3.0:
-		return 2.0
-	if y < float(nv.get("centre", [27, 101])[1]) + 3.0:
-		return 1.0
-	return 0.0
-
-
-func _colisee() -> void:
-	var cd: Dictionary = v.get("colisee", {})
-	if cd.is_empty():
-		return
-	var c := Vector2(cd["centre"][0], cd["centre"][1])
-	var rr := Vector2(cd["rayons"][0], cd["rayons"][1])
-	var h0: float = cd["h"]
-	var haut: float = cd["haut"]
-	var cy := MeshInstance3D.new()
-	var cm := CylinderMesh.new()
-	cm.top_radius = 1.0
-	cm.bottom_radius = 1.0
-	cm.height = haut
-	cm.radial_segments = 72
-	cm.rings = 1
-	cy.mesh = cm
-	cy.scale = Vector3(rr.x, 1.0, rr.y)
-	cy.position = Vector3(c.x, h0 + haut * 0.5, c.y)
-	cy.material_override = mat(COULEURS["colisee"], 0.0, 1.0, h0, true)
-	cy.name = "Colisee_enceinte"
-	sc.root.add_child(cy)
-	# couronnement un peu plus clair (lecture du volume) et vestibule de l'entrée publique (est)
-	var cr := MeshInstance3D.new()
-	var cm2 := CylinderMesh.new()
-	cm2.top_radius = 1.0
-	cm2.bottom_radius = 1.0
-	cm2.height = 0.6
-	cm2.radial_segments = 72
-	cr.mesh = cm2
-	cr.scale = Vector3(rr.x + 0.4, 1.0, rr.y + 0.4)
-	cr.position = Vector3(c.x, h0 + haut + 0.3, c.y)
-	cr.material_override = mat(Color(0.82, 0.74, 0.60))
-	sc.root.add_child(cr)
-	var vb: Array = cd.get("vestibule", [])
-	if vb.size() == 4:
-		var r := Rect2(vb[0], vb[1], vb[2] - vb[0], vb[3] - vb[1])
-		# baie sombre du vestibule, encadrement et linteau de l'entrée publique
-		sc._box_mesh(sc._rect_center(r.grow_individual(0, 0, 0.35, 0), h0, h0 + 5.0), Vector3(r.size.x + 0.35, 5.0, r.size.y), mat(Color(0.12, 0.11, 0.1)))
-		for y in [r.position.y - 0.6, r.end.y + 0.6]:
-			sc._box_mesh(Vector3(r.end.x + 0.2, h0 + 3.2, y), Vector3(1.0, 6.4, 1.2), mat(Color(0.82, 0.74, 0.60)))
-		sc._box_mesh(Vector3(r.end.x + 0.2, h0 + 6.0, r.get_center().y), Vector3(1.0, 1.0, r.size.y + 2.4), mat(Color(0.82, 0.74, 0.60)))
-	_libelle("Colisée — entrée publique", Vector3(cd["porte"][0] + 2.0, h0 + 8.0, cd["porte"][1]))
+	pass
 
 
 func _fontaine(r: Rect2, h0: float) -> void:

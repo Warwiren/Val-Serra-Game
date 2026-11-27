@@ -1,6 +1,8 @@
 extends "res://scenes/p7/ville_v06.gd"
 ## P7.4 — VILLE V0.7-A : micro-blockout semi-circulaire et ascendant (comparaison caméra fixe A / semi-fixe B).
 ## EXPÉRIENCE DE CONCEPTION, NON VALIDÉE. Données : data/p7/ville_v07a.json (tools/p7/build_ville_v07a.py).
+## P8.0-C : maillon de la chaîne d'héritage de la ville V0.7-B (son decorer() est appelé par ville_v07b) ; données,
+## générateur et plan de la V0.7-A retirés (historique Git, commit 588e90c).
 ## Reprend le vocabulaire de la V0.6 (volumes provisoires, toits, estompage près de la caméra, escaliers clairs, ciel et
 ## brume) avec ce qui est propre à la V0.7-A :
 ##   * des masses de terrain par morceaux (paliers, belvédère, terrasses), pas des murs de soutènement rectilignes ;

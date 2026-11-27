@@ -1,6 +1,8 @@
 extends "res://scenes/p7/ville_blockout.gd"
 ## P7.3 — VILLE V0.6 : démonstration verticale (porte sud -> guilde -> montée -> grande place -> quartier haut).
 ## PROTOTYPE DE CADRAGE, NON VALIDÉ. Données : data/p7/ville_v06.json (tools/p7/build_ville_v06.py).
+## P8.0-C : maillon de la chaîne d'héritage de la ville V0.7-B (escaliers, toits, château, ambiance, caméra) ; données,
+## décor propre (decorer, _niveaux) et générateur de la V0.6 retirés (historique Git, commit 588e90c).
 ## Même principe que le blockout V0.1 (volumes provisoires, couleurs par fonction, collisions des DONNÉES), avec ce qui
 ## sert la profondeur demandée par le brief V0.6 :
 ##   * trois niveaux portés par des masses de terrain et des murs de soutènement face à la caméra ;
@@ -89,70 +91,6 @@ func construit(e: Dictionary) -> bool:
 				_toit(r, h1, str(bm.get("toit", "")), id.hash(), cap)
 			return fait
 	return false
-
-
-## Décor propre à la V0.6 : masses des niveaux et murs de soutènement, paysage de toits, Colisée, château, ciel.
-func decorer() -> void:
-	_niveaux()
-	for p in v.get("paysage", []):
-		var q: Array = p["rect"]
-		var r := Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1])
-		var h0: float = p["h"]
-		var h1: float = h0 + float(p["haut"])
-		var cat := "residentiel" if int(q[0] + q[1]) % 2 == 0 else "residentiel_b"
-		var mi: MeshInstance3D = sc._box_mesh(sc._rect_center(r, h0, h1), Vector3(r.size.x, h1 - h0, r.size.y), mat(COULEURS[cat], 0.0, 1.0, h0, true))
-		mi.name = "paysage"
-		_toit(r, h1, str(p.get("toit", "2p")), int(q[0] * 31.0 + q[1] * 7.0))
-	_colisee()
-	_fontaine_v06()
-	_chateau()
-	_ambiance()
-	# porte sud : vantaux ouverts contre les tours (coupés comme le rempart)
-	var bois := mat(Color(0.45, 0.33, 0.24))
-	for x in [56.25, 63.75]:
-		sc._box_mesh(Vector3(x, 0.8, 171.0), Vector3(0.3, 1.6, 3.0), bois)
-	_libelle("Château — accès fermé", Vector3(60.0, 12.0, 23.0))
-
-
-## Masses de terrain sous les niveaux médian et haut ; leurs faces sud sont les murs de soutènement (face caméra),
-## avec un cordon clair au sommet et des contreforts réguliers (lecture de la hauteur à distance).
-func _niveaux() -> void:
-	var hm: float = nv.get("median", 3.5)
-	var hh: float = nv.get("haut", 8.0)
-	var y1: float = nv.get("mur1_y", 118.0)
-	var y2: float = nv.get("mur2_y", 72.0)
-	var x2o: float = nv.get("mur2_x_ouest", 36.0)
-	var x_a := -160.0
-	var x_b := 290.0
-	var y_nord := -240.0
-	var pierre := mat(MUR_SOUT, 0.0, 0.0, 0.0)
-	# niveau médian : de la ligne du mur 1 jusqu'au fond (sous le niveau haut aussi)
-	sc._box_mesh(Vector3((x_a + x_b) * 0.5, (hm - 0.006 - 1.0) * 0.5, (y1 + y_nord) * 0.5), Vector3(x_b - x_a, hm - 0.006 + 1.0, y1 - y_nord), pierre)
-	sc._box_mesh(Vector3((x_a + x_b) * 0.5, hm - 0.006 - 0.005, (y1 + y_nord) * 0.5), Vector3(x_b - x_a, 0.01, y1 - y_nord), mat(SOLS_V06["median"].darkened(0.12), 1.0))
-	# niveau haut : à l'est de x2o, du mur 2 jusqu'au fond
-	sc._box_mesh(Vector3((x2o + x_b) * 0.5, (hh - 0.006 + hm) * 0.5, (y2 + y_nord) * 0.5), Vector3(x_b - x2o, hh - 0.006 - hm, y2 - y_nord), pierre)
-	sc._box_mesh(Vector3((x2o + x_b) * 0.5, hh - 0.011, (y2 + y_nord) * 0.5), Vector3(x_b - x2o, 0.01, y2 - y_nord), mat(SOLS_V06["haut"].darkened(0.12), 1.0))
-	var cordon := mat(Color(0.70, 0.67, 0.61))
-	var contrefort := mat(MUR_SOUT.darkened(0.08))
-	var esc: Dictionary = v.get("escaliers", {})
-	for spec in [[y1, hm, 0.0, x_a, "montee_place"], [y2, hh, hm, x2o, "montee_civique"]]:
-		var y: float = spec[0]
-		var ht: float = spec[1]
-		var hb: float = spec[2]
-		var e: Array = esc.get(spec[4], [0, 0, 0, 0])
-		for seg in [[float(spec[3]), float(e[0])], [float(e[1]), x_b]]:
-			var a: float = seg[0]
-			var b: float = seg[1]
-			sc._box_mesh(Vector3((a + b) * 0.5, ht - 0.12, y + 0.15), Vector3(b - a, 0.24, 0.3), cordon)
-			var x := ceilf(a / 6.0) * 6.0
-			while x < b - 0.6:
-				if x > a + 0.6:
-					sc._box_mesh(Vector3(x, (hb + ht - 0.3) * 0.5, y + 0.25), Vector3(0.7, ht - 0.3 - hb, 0.5), contrefort)
-				x += 6.0
-		# joues des escaliers (murets latéraux qui reçoivent la montée)
-		for xj in [float(e[0]) - 0.35, float(e[1]) + 0.35]:
-			sc._box_mesh(Vector3(xj, (hb + ht) * 0.5 + 0.3, y + float(e[3]) * 0.5), Vector3(0.7, ht - hb + 0.6, float(e[3])), mat(MUR_SOUT.lightened(0.05), 0.0, 0.0, hb))
-
 
 ## Toit : "2p" deux pans (faîtage le long du grand côté), "plat" terrasse avec acrotère, "" rien.
 func _toit(r: Rect2, h: float, kind: String, graine: int, cap := 99.0) -> void:

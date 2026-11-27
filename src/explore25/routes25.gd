@@ -12,14 +12,6 @@ const V07_VUES := [["01_entree", 60.0, 148.0, 0.0], ["02_placette_guilde", 56.0,
 	["16_allee_colisee", 26.0, 80.0, 3.5]]
 
 
-## P7.3 — points de vue de la ville V0.6 (porte sud -> guilde -> montée -> grande place -> quartier haut)
-const V06_VUES := [["1_arrivee_sud", 60.0, 163.0, 0.0], ["2_guilde", 70.0, 154.0, 0.0], ["3_auberge", 50.0, 140.0, 0.0],
-	["4_pied_montee_1", 60.0, 131.0, 0.0], ["5_milieu_montee_1", 60.0, 123.0, 1.75], ["6_place_sud", 60.0, 114.0, 3.5],
-	["7_fontaine", 60.0, 106.0, 3.5], ["8_forge", 72.0, 90.0, 3.5], ["9_rue_colisee", 44.0, 90.0, 3.5],
-	["10_pied_montee_2", 60.0, 87.0, 3.5], ["11_milieu_montee_2", 60.0, 78.0, 5.75], ["12_parvis_civique", 60.0, 68.0, 8.0],
-	["13_hotel_de_ville", 72.0, 56.0, 8.0], ["14_avenue_chateau", 60.0, 40.0, 8.0], ["15_porte_chateau", 60.0, 28.0, 8.0]]
-
-
 static func _go(x: float, y: float, id := "", tol := 0.3) -> Dictionary:
 	var d := {"do": "go", "to": Vector2(x, y), "tol": tol}
 	if id != "":
@@ -652,92 +644,6 @@ static func _route_base(name: String) -> Array:
 		"p6_643_ombres":
 			return [_warp(26.0, 27.0, 0.0), {"do": "wait", "t": 1.6}, {"do": "snap", "id": "o1_arene"},
 				_warp(46.6, 37.6, 0.0), {"do": "wait", "t": 1.6}, {"do": "snap", "id": "o2_infirmerie"}]
-		"p7_trajets":
-			# P7.1 — temps de trajet RÉELS du blockout (marche 2,2 m/s, clavier 8 directions, sans course ni téléport
-			# pendant la mesure) ; chaque tronçon démarre par un placement, la durée est l'écart entre ses deux points
-			return [
-				_warp(127.5, 129.5, 0.0), {"do": "wait", "t": 0.5}, _go(127.5, 129.6, "T1 départ guilde", 0.3),
-				_go(116.0, 129.5, "T1 parvis de la guilde", 0.4), _go(108.5, 131.0, "T1 avenue des Portes", 0.5),
-				_go(108.5, 155.0, "T1 arrivée porte sud", 0.4),
-				_warp(108.5, 155.0, 0.0), {"do": "wait", "t": 0.5}, _go(108.5, 154.9, "T2 départ porte sud", 0.3),
-				_go(108.5, 106.0, "T2 pied de l'escalier", 0.4), _go(108.5, 99.0, "T2 haut de l'escalier", 0.4),
-				_go(108.5, 65.0, "T2 entrée de la place", 0.5), _go(108.5, 57.0, "T2 arrivée grande place", 0.4),
-				_warp(108.5, 57.0, 1.0), {"do": "wait", "t": 0.5}, _go(108.5, 57.1, "T3 départ grande place", 0.3),
-				_go(88.0, 53.0, "T3 bord ouest de la place", 0.5), _go(65.0, 53.0, "T3 arrivée entrée du Colisée", 0.4),
-				_warp(108.5, 155.0, 0.0), {"do": "wait", "t": 0.5}, _go(108.5, 154.9, "T4 départ porte sud", 0.3),
-				_go(108.5, 129.5, "T4 avenue", 0.5), _go(127.5, 129.5, "T4 guilde", 0.4),
-				_go(116.0, 129.5, "T4 parvis", 0.5), _go(116.0, 119.0, "T4 rue des boutiques", 0.5),
-				_go(131.5, 119.0, "T4 ruelle de la forge", 0.4), _go(131.5, 106.0, "T4 rue haute des boutiques", 0.4),
-				_go(140.0, 106.0, "T4 forge-armurerie", 0.4), _go(108.5, 106.0, "T4 avenue (boutiques)", 0.5),
-				_go(108.5, 119.0, "T4 avenue (auberge)", 0.5), _go(88.0, 119.0, "T4 auberge-taverne", 0.4),
-				_go(108.5, 119.0, "T4 retour avenue", 0.5), _go(108.5, 155.0, "T4 retour porte sud", 0.4),
-				_warp(108.5, 57.0, 1.0), {"do": "wait", "t": 0.5}, _go(108.5, 57.1, "T5 départ place (boucle ouest)", 0.3),
-				_go(69.0, 53.0, "T5 parvis du Colisée", 0.5), _go(69.0, 85.0, "T5 rue des Combattants", 0.5),
-				_go(95.0, 85.0, "T5 marché (ouest)", 0.5), _go(108.5, 84.0, "T5 marché", 0.5),
-				_go(108.5, 57.0, "T5 retour place", 0.4),
-				_warp(108.5, 57.0, 1.0), {"do": "wait", "t": 0.5}, _go(108.5, 57.1, "T6 départ place (boucle est)", 0.3),
-				_go(130.0, 50.0, "T6 rue du Conseil", 0.5), _go(152.0, 50.0, "T6 angle rue est", 0.5),
-				_go(152.0, 85.0, "T6 rue est", 0.5), _go(128.0, 85.0, "T6 marché (est)", 0.5),
-				_go(108.5, 84.0, "T6 marché", 0.5), _go(108.5, 57.0, "T6 retour place", 0.4),
-				_warp(108.5, 57.0, 1.0), {"do": "wait", "t": 0.5}, _go(108.5, 57.1, "T7 départ place (château)", 0.3),
-				_go(100.0, 50.0, "T7 contour de la fontaine", 0.5), _go(108.5, 32.0, "T7 avenue haute", 0.5),
-				_go(108.5, 22.0, "T7 haut de l'escalier", 0.4), _go(108.5, 4.5, "T7 porte du château (fermée)", 0.6),
-				_warp(108.5, 57.0, 1.0), {"do": "wait", "t": 0.5}, _go(108.5, 57.1, "T8 départ place (quartier est)", 0.3),
-				_go(130.0, 50.0, "T8 rue du Conseil", 0.5), _go(152.0, 50.0, "T8 angle rue est", 0.5),
-				_go(152.0, 69.0, "T8 passage est", 0.5), _go(186.5, 69.0, "T8 porte du quartier est (fermée)", 0.7),
-				{"do": "wait", "t": 0.5},
-			]
-		"p7_v06_raccord":
-			# P7.3 — raccord réel Colisée -> ville V0.6 (colisee.tscn -- --ville=v06 --etat=tutorial_completed) : sortie
-			# est du Colisée, arrivée dans la rue du Colisée, quelques pas vers la grande place
-			return [
-				_warp(58.0, 23.0, 0.0), {"do": "wait", "t": 0.8},
-				_go(62.5, 23.0, "couloir de sortie du Colisée", 0.3),
-				{"do": "go", "to": Vector2(61.0, 29.4), "tol": 0.25, "id": "porte est du Colisée", "exit": true},
-				{"do": "wait", "t": 1.5},
-				_go(52.0, 92.0, "ville V0.6 : grande place", 0.4), {"do": "wait", "t": 1.0},
-			]
-		"p7_raccord":
-			# P7.1 — raccord réel Colisée -> ville : couloir de sortie du Colisée, porte est, arrivée sur le parvis, quelques
-			# pas vers la grande place (colisee.tscn -- --ville=v05 --etat=tutorial_completed)
-			return [
-				_warp(58.0, 23.0, 0.0), {"do": "wait", "t": 0.8},
-				_go(62.5, 23.0, "couloir de sortie du Colisée", 0.3),
-				{"do": "go", "to": Vector2(61.0, 29.4), "tol": 0.25, "id": "porte est du Colisée", "exit": true},
-				{"do": "wait", "t": 1.5},
-				_go(72.0, 53.0, "ville : parvis du Colisée", 0.4),
-				_go(88.0, 53.0, "ville : vers la grande place", 0.4),
-				{"do": "wait", "t": 0.5},
-			]
-		"p7_camera":
-			# P7.1 — continuité de la caméra : parcours de la vidéo SANS changement de zoom (×3 de bout en bout)
-			var outk: Array = []
-			for st in _route_base("p7_video"):
-				if st["do"] != "zoom":
-					outk.append(st)
-			return outk
-		"p7_vues":
-			# P7.1 — vues demandées (A arrivée sud, B place -> hôtel de ville, C parvis -> Colisée) et contrôles, ×3 et ×2
-			var outv: Array = []
-			for z in [[2, "x3"], [0, "x2"]]:
-				outv.append({"do": "zoom", "i": z[0], "smooth": false})
-				for c in [["A_arrivee_sud", 108.5, 150.0, 0.0], ["B_place_hotel_de_ville", 150.0, 46.5, 1.0],
-						["C_parvis_colisee", 72.0, 55.0, 1.0], ["D_guilde", 116.0, 132.0, 0.0], ["E_commerces", 112.0, 106.0, 0.0],
-						["F_marche", 108.5, 88.0, 1.0], ["G_escalier_avenue", 108.5, 107.0, 0.0], ["H_avenue_haute", 108.5, 28.5, 1.0],
-						["I_ruelle_ouest", 32.0, 141.0, 0.0], ["J_passage_est", 176.0, 69.0, 1.0]]:
-					outv.append(_warp(c[1], c[2], c[3]))
-					outv.append({"do": "wait", "t": 1.6})
-					outv.append({"do": "snap", "id": c[0] + "_" + z[1]})
-			return outv
-		"p7_v05_equiv":
-			# P7.3 — blockout V0.1 (plan V0.5), caméra d'origine P24 ×3, aux positions équivalentes de la V0.6
-			var oute: Array = []
-			for c in [["1_arrivee_sud", 108.5, 150.0, 0.0], ["2_guilde", 124.0, 129.5, 0.0], ["4_pied_montee_1", 108.5, 108.0, 0.0],
-					["7_fontaine", 108.5, 56.0, 1.0], ["13_hotel_de_ville", 147.0, 46.0, 1.0], ["14_avenue_chateau", 108.5, 20.0, 2.0]]:
-				oute.append(_warp(c[1], c[2], c[3]))
-				oute.append({"do": "wait", "t": 1.8})
-				oute.append({"do": "snap", "id": c[0]})
-			return oute
 		"p7_v07_vues":
 			# P7.4 — repères de points de vue (MÊMES positions en A et en B) ; attente longue : la rotation B se pose
 			var outr: Array = []
@@ -1203,96 +1109,6 @@ static func _route_base(name: String) -> Array:
 				{"do": "go", "to": Vector2(61.0, 29.4), "tol": 0.25, "id": "porte est du Colisée", "exit": true},
 				{"do": "wait", "t": 1.5},
 				_go(26.0, 80.0, "ville V0.7-A : allée du Colisée", 0.4), _go(20.0, 100.0, "ville V0.7-A : rue du Colisée", 0.4), {"do": "wait", "t": 1.0},
-			]
-		"p7_v06_vues":
-			# P7.3 — ville V0.6 : vues de contrôle (même caméra pour toutes ; la caméra vient de la scène / --cam_v06=)
-			var outw: Array = []
-			for c in V06_VUES:
-				outw.append(_warp(c[1], c[2], c[3]))
-				outw.append({"do": "wait", "t": 1.8})
-				outw.append({"do": "snap", "id": c[0]})
-			return outw
-		"p7_v06_video":
-			# P7.3 — vidéo continue de la ville V0.6 (marche 2,2 m/s, caméra unique) : porte sud, guilde, auberge, montée,
-			# grande place, forge, rue du Colisée, montée civique, hôtel de ville, porte du château, puis redescente
-			# (déplacements dans les quatre directions, descentes des deux escaliers)
-			return [
-				{"do": "wait", "t": 1.5},
-				_go(60.0, 158.0, "avenue des Voyageurs", 0.4), _go(66.5, 155.0, "vers la guilde", 0.4),
-				_go(70.0, 151.4, "guilde (seuil)", 0.3), {"do": "wait", "t": 1.2},
-				_go(63.0, 150.0, "avenue", 0.4), _go(56.0, 141.0, "vers l'auberge", 0.4), _go(50.0, 137.4, "auberge (seuil)", 0.3),
-				{"do": "wait", "t": 1.0},
-				_go(57.0, 133.0, "avenue", 0.4), _go(60.0, 128.4, "pied de la montée", 0.3), _go(60.0, 116.0, "haut de la montée", 0.4),
-				_go(60.0, 108.5, "grande place", 0.4), _go(67.0, 100.0, "autour de la fontaine", 0.4), _go(72.0, 91.0, "", 0.4),
-				_go(74.0, 85.6, "forge (seuil)", 0.3), {"do": "wait", "t": 1.0},
-				_go(58.0, 92.0, "place", 0.4), _go(43.0, 90.0, "rue du Colisée", 0.4), _go(39.5, 90.0, "portes du Colisée (fermées)", 0.3),
-				{"do": "wait", "t": 1.2},
-				_go(50.0, 94.0, "place", 0.4), _go(60.0, 86.0, "pied de la montée civique", 0.3), _go(60.0, 71.0, "parvis civique", 0.4),
-				_go(70.0, 58.0, "", 0.4), _go(74.0, 51.4, "hôtel de ville (seuil)", 0.3), {"do": "wait", "t": 1.0},
-				_go(62.0, 52.0, "avenue du château", 0.4), _go(60.0, 30.0, "", 0.4), _go(60.0, 25.6, "porte du château (fermée)", 0.3),
-				{"do": "wait", "t": 1.5},
-				_go(65.0, 40.0, "redescente", 0.4), _go(52.0, 60.0, "parvis (ouest)", 0.4), _go(60.0, 70.0, "", 0.4),
-				_go(60.0, 86.0, "bas de la montée civique", 0.4), _go(46.0, 100.0, "place (ouest)", 0.4), _go(60.0, 114.0, "", 0.4),
-				_go(60.0, 130.0, "bas de la montée", 0.4), _go(60.0, 150.0, "avenue", 0.4), _go(60.0, 164.0, "porte sud", 0.4),
-				{"do": "wait", "t": 1.0},
-			]
-		"p7_v06_trajets":
-			# P7.3 — temps de trajet réels (marche 2,2 m/s, sans course ni téléport pendant la mesure)
-			return [
-				_warp(60.0, 166.0, 0.0), {"do": "wait", "t": 0.5}, _go(60.0, 165.9, "T1 départ porte sud", 0.3),
-				_go(66.5, 155.0, "T1 placette", 0.4), _go(70.0, 151.4, "T1 arrivée guilde", 0.3),
-				_go(63.0, 140.0, "T2 avenue", 0.4), _go(60.0, 128.4, "T2 pied de la montée", 0.3),
-				_go(60.0, 117.0, "T2 haut de la montée", 0.4), _go(60.0, 105.4, "T2 arrivée fontaine", 0.4),
-				_go(66.0, 100.0, "T3 contour de la fontaine", 0.4), _go(60.0, 86.0, "T3 pied de la montée civique", 0.3), _go(60.0, 71.0, "T3 haut de la montée civique", 0.4),
-				_go(74.0, 51.4, "T3 arrivée hôtel de ville", 0.3),
-				_warp(60.0, 106.0, 3.5), {"do": "wait", "t": 0.5}, _go(60.0, 106.1, "T4 départ fontaine", 0.3),
-				_go(43.0, 90.0, "T4 rue du Colisée", 0.4), _go(39.5, 90.0, "T4 arrivée portes du Colisée", 0.3),
-				_warp(74.0, 51.4, 8.0), {"do": "wait", "t": 0.5}, _go(74.0, 51.5, "T5 départ hôtel de ville", 0.3),
-				_go(60.0, 40.0, "T5 avenue du château", 0.4), _go(60.0, 25.6, "T5 arrivée porte du château", 0.3),
-				{"do": "wait", "t": 0.5},
-			]
-		"p7_v06_sondes":
-			# P7.3 — sondes de collision de la ville V0.6 : fronts bâtis, garde-corps, portes fermées, fontaine, remises
-			return [
-				{"do": "wait", "t": 0.5},
-				_warp(55.0, 154.0, 0.0), _push("front ouest de l'avenue", Vector2(-1, 0), 1.5, {"min_x": 54.2}),
-				_warp(65.0, 132.0, 0.0), _push("front est de l'avenue", Vector2(1, 0), 1.5, {"max_x": 65.8}),
-				_warp(72.0, 152.0, 0.0), _push("façade de la guilde", Vector2(0, -1), 1.5, {"min_y": 150.2}),
-				_warp(72.0, 158.0, 0.0), _push("muret au sud de la placette", Vector2(0, 1), 1.5, {"max_y": 159.8}),
-				_warp(50.0, 142.0, 0.0), _push("muret au sud de la terrasse de l'auberge", Vector2(0, 1), 1.5, {"max_y": 143.8}),
-				_warp(48.0, 138.0, 0.0), _push("front ouest de la terrasse", Vector2(-1, 0), 1.5, {"min_x": 46.2}),
-				_warp(45.0, 116.0, 3.5), _push("garde-corps de la place (vide de 3,5 m)", Vector2(0, 1), 1.5, {"max_y": 117.7, "h": 3.5}),
-				_warp(79.0, 92.0, 3.5), _push("front est de la place", Vector2(1, 0), 1.5, {"max_x": 79.8}),
-				_warp(74.0, 86.0, 3.5), _push("façade de la forge", Vector2(0, -1), 1.5, {"min_y": 84.2}),
-				_warp(60.0, 106.0, 3.5), _push("fontaine", Vector2(0, -1), 1.5, {"min_y": 103.7}),
-				_warp(39.0, 90.0, 3.5), _push("portes du Colisée (fermées)", Vector2(-1, 0), 1.5, {"min_x": 36.3}),
-				_warp(48.0, 70.0, 8.0), _push("garde-corps du parvis (vide de 4,5 m)", Vector2(0, 1), 1.5, {"max_y": 71.7, "h": 8.0}),
-				_warp(74.0, 52.0, 8.0), _push("façade de l'hôtel de ville", Vector2(0, -1), 1.5, {"min_y": 50.2}),
-				_warp(60.0, 26.0, 8.0), _push("porte du château (fermée)", Vector2(0, -1), 1.5, {"min_y": 24.5}),
-				_warp(60.0, 180.0, 0.0), _push("barrière de la route sud", Vector2(0, 1), 1.5, {"max_y": 181.4}),
-				_warp(41.0, 100.0, 3.5), _push("front ouest de la place", Vector2(-1, 0), 1.5, {"min_x": 40.2}),
-			]
-		"p7_video":
-			# P7.1 — vidéo continue (marche, ×3 avec passages à ×2) : arrivée sud, guilde, commerces, auberge, avenue, place,
-			# Colisée (parvis), boucle ouest, marché, boucle est, accès est, place, avenue haute, accès nord
-			return [
-				{"do": "wait", "t": 1.0},
-				{"do": "zoom", "i": 0, "smooth": true}, {"do": "wait", "t": 1.5}, {"do": "zoom", "i": 2, "smooth": true},
-				_go(108.5, 129.5, "avenue des Portes", 0.5), _go(127.5, 129.5, "guilde", 0.4),
-				_go(116.0, 129.5, "parvis de la guilde", 0.5), _go(116.0, 119.0, "rue des boutiques", 0.5),
-				_go(131.5, 119.0, "ruelle", 0.4), _go(131.5, 106.0, "rue haute des boutiques", 0.4), _go(140.0, 106.0, "forge-armurerie", 0.4),
-				_go(108.5, 106.0, "herboriste, objets", 0.5), _go(108.5, 119.0, "avenue", 0.5), _go(88.0, 119.0, "auberge-taverne", 0.4),
-				_go(108.5, 119.0, "avenue", 0.5), _go(108.5, 106.0, "pied de l'escalier", 0.4), _go(108.5, 92.0, "marché", 0.5),
-				{"do": "zoom", "i": 0, "smooth": true},
-				_go(108.5, 60.0, "grande place (×2)", 0.5), {"do": "wait", "t": 1.0},
-				{"do": "zoom", "i": 2, "smooth": true},
-				_go(88.0, 53.0, "vers le parvis", 0.5), _go(67.0, 53.0, "entrée du Colisée", 0.4), {"do": "wait", "t": 1.0},
-				_go(69.0, 85.0, "rue des Combattants (boucle ouest)", 0.5), _go(95.0, 85.0, "marché", 0.5),
-				_go(128.0, 85.0, "marché (est)", 0.5), _go(152.0, 85.0, "rue est (boucle est)", 0.5),
-				_go(152.0, 69.0, "passage est", 0.5), _go(184.0, 69.0, "porte du quartier est (fermée)", 0.6), {"do": "wait", "t": 0.8},
-				_go(152.0, 69.0, "retour", 0.5), _go(152.0, 50.0, "rue du Conseil", 0.5), _go(130.0, 50.0, "hôtel de ville", 0.5),
-				_go(100.0, 50.0, "place", 0.5), _go(108.5, 32.0, "avenue haute", 0.5), _go(108.5, 5.0, "porte du château (fermée)", 0.6),
-				{"do": "wait", "t": 1.5},
 			]
 		"p6_644_vestiaires":
 			# P6.4.4 — visibilité de l'arène depuis les vestiaires : centre, coin nord-ouest, porte nord, passage, aux

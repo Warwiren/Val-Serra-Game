@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """P7.5 — Génère la VILLE V0.7-B : reconstruction compacte du quartier central (blockout architectural consolidé).
 
-Sortie : data/p7/ville_v07b.json (scène F6 scenes/p7/ville_v07b.tscn). La V0.7-A (build_ville_v07a.py) reste la référence.
+Sortie : data/p7/ville_v07b.json (scène F6 scenes/p7/ville_v07b.tscn). Générateur autonome (la V0.7-A et son générateur sont retirés depuis P8.0-C).
 
 BLOCKOUT CONSOLIDÉ, NON VALIDÉ. Tracé en fer à cheval autour de la grande place, ouvert au sud, montant vers le nord :
   porte sud -> placette d'accueil (Guilde, auberge-taverne) -> montée en baïonnette -> grande place (fontaine, forge,
