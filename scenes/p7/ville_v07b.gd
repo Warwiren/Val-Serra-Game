@@ -70,6 +70,37 @@ func _masses() -> void:
 	super()
 
 
+## P8.1-A (L2) : façade extérieure du Colisée à arcades réelles (--f_colisee=0 : tambour de la V0.7-A). Vestibule, propylée
+## et porte à battants : ceux de la V0.7-A, le vestibule en pierre du Colisée.
+func _colisee_v07() -> void:
+	var cd: Dictionary = v.get("colisee", {})
+	if cd.is_empty() or not _fin().actif("colisee"):
+		super()
+		return
+	_fin().colisee(cd, func(p: Vector2) -> bool: return _pres_porte(p, cd))
+	# bannières rouges de l'attique, sur une pile sur quatre (comme sur le tambour de la V0.7-A)
+	for k in range(2, 28, 4):
+		var f: Dictionary = _fin()._face_ellipse(Vector2(cd["centre"][0], cd["centre"][1]), Vector2(cd["rayons"][0], cd["rayons"][1]), PI * float(k) / 28.0)
+		var pf: Vector3 = f["o"]
+		var nf: Vector3 = f["n"]
+		if not _pres_porte(Vector2(pf.x, pf.z), cd):
+			_banniere_colisee(Vector3(pf.x, float(cd["h"]) + 13.6, pf.z) + nf * 0.2, atan2(nf.x, nf.z), Color(0.62, 0.16, 0.18))
+	var h0: float = cd["h"]
+	var vb: Array = cd.get("vestibule", [])
+	if vb.size() == 4:
+		var r := Rect2(vb[0], vb[1], vb[2] - vb[0], vb[3] - vb[1])
+		var yc := r.get_center().y
+		var pierre: Material = _fin().pierre_colisee(h0)
+		for y in [r.position.y - 0.1, r.end.y + 0.1]:
+			_fin().a.box(Vector3(r.get_center().x, h0 + 3.6, y), Vector3(r.size.x, 7.2, 0.2), pierre)
+		_fin().a.box(Vector3(r.position.x - 0.3, h0 + 3.6, yc), Vector3(0.6, 7.2, r.size.y), _fin().fond_galerie(h0))
+		_fin().a.box(Vector3(r.get_center().x, h0 + 7.4, yc), Vector3(r.size.x, 0.4, r.size.y + 0.4), pierre)
+		var d1: int = sc.root.get_child_count()
+		_propylee(cd.get("propylee", {}), h0, yc)
+		_porte_battants(cd.get("porte_battants", []), h0)
+		_fin().remplacer_blockout(d1)                      # propylée et porte : pierre et bois (même géométrie)
+
+
 const Bordures := preload("res://scenes/p7/bordures_p713.gd")
 var bd                                    # P7.13 : bordures de la grande place (scenes/p7/bordures_p713.gd)
 

@@ -124,3 +124,168 @@ func garde_corps(e: Dictionary) -> void:
 	sc._static_box(sc._rect_center(r, h0, h1), Vector3(r.size.x, h1 - h0, r.size.y), sc.L_OBST)
 	a.box(sc._rect_center(r, h0, h0 + 0.85), Vector3(r.size.x, 0.85, r.size.y), soutenement(h0))
 	a.box(sc._rect_center(r.grow(0.06), h0 + 0.85, h0 + 1.0), Vector3(r.size.x + 0.12, 0.15, r.size.y + 0.12), taille())
+
+
+# ------------------------------------------------------------------------------------------------ L2 : façade du Colisée
+## Pierre du Colisée vu de la ville : calcaire ocre plus chaud que la ville (cohérent avec l'intérieur, P6.4).
+func pierre_colisee(base_y: float) -> ShaderMaterial:
+	return _pierre("colisee", "mur2", Color(1.26, 1.12, 0.94), {"assises": Vector3(0.52, 0.44, 0.48), "long_bloc": 1.2, "salissure": 0.4,
+		"coulures": 0.35}, base_y)
+
+
+## Fond des galeries (mur du tambour derrière les arcades) : même pierre, plus sombre (galerie couverte).
+func fond_galerie(base_y: float) -> ShaderMaterial:
+	return _pierre("colisee_fond", "mur2", Color(0.80, 0.71, 0.60), {"assises": Vector3(0.52, 0.44, 0.48), "long_bloc": 1.2, "salissure": 0.55}, base_y)
+
+
+func taille_colisee() -> ShaderMaterial:
+	return _pierre("colisee_taille", "mur2", Color(1.36, 1.22, 1.02), {"assises": Vector3(3.0, 3.0, 3.0), "long_bloc": 4.0, "var_long": 0.0,
+		"joint": 0.0, "salissure": 0.3, "coulures": 0.25, "mousse": 0.0, "fissures": 0.0, "rapieces": 0.0, "irregulier": 0.0, "usure": 0.4,
+		"k_mousse": 0.0})
+
+
+## Façade extérieure du Colisée (remplace le tambour de blockout et ses 88 panneaux noirs) : tambour plein en retrait
+## (fond des galeries), et sur la moitié sud (seule vue depuis la ville) deux registres d'ARCADES RÉELLES (piles,
+## écoinçons, claveaux en saillie de 1,4 m), entablements, attique plein à pilastres et petites fenêtres, couronnement.
+## Profondeur et ombres portées à la place des aplats noirs. Affichage seul : l'enceinte reste celle des données
+## (colisee_tranche_*), le décor ne la déborde pas (piles sur l'ellipse des données). Entrée publique laissée libre.
+## `pres_porte(p)` : le constructeur exclut les travées de l'entrée (même règle que la V0.7-A).
+func colisee(cd: Dictionary, pres_porte: Callable) -> void:
+	var c := Vector2(cd["centre"][0], cd["centre"][1])
+	var rr := Vector2(cd["rayons"][0], cd["rayons"][1])
+	var h0: float = cd["h"]
+	var haut: float = cd["haut"]
+	var prof := 1.4                                   # profondeur des arcades (galerie)
+	var d0: int = a.racine.get_child_count()
+	var mur := pierre_colisee(h0)
+	var fond := fond_galerie(h0)
+	var tl := taille_colisee()
+	var sombre: Material = a.plein(Color(0.10, 0.09, 0.08), 0.95)
+	# tambour (fond des galeries jusqu'au 2e entablement, puis attique plein), rayons réduits de la profondeur des arcades
+	var kf := Vector2((rr.x - prof) / rr.x, (rr.y - prof) / rr.y)
+	_ellipse(c, Vector2(rr.x * kf.x, rr.y * kf.y), h0, h0 + 9.5, fond, true)
+	_ellipse(c, rr, h0 + 9.5, h0 + haut, mur, false)                  # attique au nu des arcades
+	_ellipse(c, rr * 1.012, h0 + haut, h0 + haut + 0.7, tl, true)     # couronnement
+	_ellipse(c, rr * 1.006, h0 + 3.4, h0 + 3.9, tl, false)            # entablement du rez-de-chaussée
+	_ellipse(c, rr * 1.006, h0 + 9.0, h0 + 9.5, tl, false)            # entablement de l'étage
+	_ellipse(c, rr * 1.015, h0 + haut - 0.5, h0 + haut, tl, false)    # corniche sous le couronnement
+	# arcades : 28 travées sur la moitié sud (angles 0 -> PI, y croissant = sud)
+	var n := 28
+	for k in n + 1:
+		var ang := PI * float(k) / n
+		var f := _face_ellipse(c, rr, ang)
+		var p2 := Vector2(f["o"].x, f["o"].z)
+		# pile (pilier entre deux arcs) sur les deux registres, avec imposte et dosseret
+		if not pres_porte.call(p2):
+			for reg in [[0.0, 3.4], [3.9, 9.0]]:
+				a.boite_tournee(f, 0.0, h0 + (reg[0] + reg[1]) * 0.5, 0.72, reg[1] - reg[0], -prof, 0.0, 0.0, mur)
+				a.boite_tournee(f, 0.0, h0 + reg[0] + (reg[1] - reg[0]) * 0.62, 0.84, 0.16, -prof, 0.08, 0.0, tl)    # imposte
+		# pilastres de l'attique (au nu du mur, légère saillie)
+		a.boite_tournee(f, 0.0, h0 + (9.5 + haut - 0.5) * 0.5, 0.5, haut - 10.0, 0.0, 0.12, 0.0, tl)
+		if k == n:
+			continue
+		# travée entre la pile k et la pile k+1 : milieu de l'arc
+		var am := PI * (float(k) + 0.5) / n
+		var fm := _face_ellipse(c, rr, am)
+		var pm := Vector2(fm["o"].x, fm["o"].z)
+		var largeur := _corde(c, rr, ang, PI * float(k + 1) / n)
+		if pres_porte.call(pm):
+			continue
+		for reg in [[0.0, 3.4], [3.9, 9.0]]:
+			_arcade(fm, h0 + reg[0], h0 + reg[1], largeur, prof, mur, tl)
+		# fenêtre carrée de l'attique, en retrait sombre, avec appui
+		a.boite_tournee(fm, 0.0, h0 + 12.6, 0.95, 1.1, -0.02, 0.02, 0.0, sombre)
+		a.boite_tournee(fm, 0.0, h0 + 11.98, 1.15, 0.12, 0.0, 0.1, 0.0, tl)
+	a.fusionner(d0, "colisee_facade")
+
+
+## Arc en plein cintre d'une travée (registre v0 -> v1) : écoinçons en gradins au nu de la façade, bandeau de claveaux
+## légèrement saillant, intrados (épaisseur de la galerie) en bas du cintre.
+func _arcade(f: Dictionary, v0: float, v1: float, largeur: float, prof: float, mur: Material, tl: Material) -> void:
+	var ouv := largeur - 0.72                        # ouverture entre piles
+	var R := ouv * 0.5
+	var naiss := v1 - 0.25 - R                       # naissance de l'arc (clé 0,25 m sous l'entablement)
+	var pas := 6
+	for i in pas:
+		var y0 := naiss + R * float(i) / pas
+		var y1 := naiss + R * float(i + 1) / pas
+		var hw := R * sqrt(maxf(0.0, 1.0 - pow(float(i) / pas, 2.0)))       # demi-ouverture en bas du gradin
+		var plein_w := largeur * 0.5 - hw
+		if plein_w > 0.01:
+			for s in [-1.0, 1.0]:
+				a.boite_tournee(f, s * (hw + plein_w * 0.5), (y0 + y1) * 0.5, plein_w, y1 - y0, -0.35, 0.0, 0.0, mur)
+	a.boite_tournee(f, 0.0, (naiss + R + v1) * 0.5, largeur, v1 - naiss - R, -0.35, 0.0, 0.0, mur)
+	# claveaux (bandeau) : 9 voussoirs tournés autour de la normale
+	var nc := 9
+	for i in nc:
+		var t := PI * (i + 0.5) / nc
+		var pu := -cos(t) * (R + 0.12)
+		var pv := naiss + sin(t) * (R + 0.12)
+		a.boite_tournee(f, pu, pv, PI * (R + 0.12) / nc + 0.03, 0.26 if i == nc / 2 else 0.22, 0.0, 0.08, PI * 0.5 - t, tl)
+
+
+## Façade locale tangente à l'ellipse au paramètre `ang` (point sur l'ellipse, normale sortante, tangente).
+func _face_ellipse(c: Vector2, rr: Vector2, ang: float) -> Dictionary:
+	var p := c + Vector2(cos(ang) * rr.x, sin(ang) * rr.y)
+	var nrm := Vector2(cos(ang) / rr.x, sin(ang) / rr.y).normalized()
+	var n := Vector3(nrm.x, 0.0, nrm.y)
+	var t := Vector3(-nrm.y, 0.0, nrm.x)
+	return {"o": Vector3(p.x, 0.0, p.y), "t": t, "n": n, "L": 0.0}
+
+
+static func _corde(c: Vector2, rr: Vector2, a0: float, a1: float) -> float:
+	var p0 := Vector2(cos(a0) * rr.x, sin(a0) * rr.y)
+	var p1 := Vector2(cos(a1) * rr.x, sin(a1) * rr.y)
+	return p0.distance_to(p1)
+
+
+## Anneau elliptique (cylindre mis à l'échelle), de y0 à y1 ; couvercles seulement si `capot` (pas de ligne claire
+## entre les facettes des cordons, cf. P7.6).
+func _ellipse(c: Vector2, rr: Vector2, y0: float, y1: float, m: Material, capot: bool) -> void:
+	var cy := MeshInstance3D.new()
+	var cm := CylinderMesh.new()
+	cm.top_radius = 1.0
+	cm.bottom_radius = 1.0
+	cm.height = y1 - y0
+	cm.radial_segments = 112
+	cm.rings = 1
+	cm.cap_top = capot
+	cm.cap_bottom = capot
+	cy.mesh = cm
+	cy.scale = Vector3(rr.x, 1.0, rr.y)
+	cy.position = Vector3(c.x, (y0 + y1) * 0.5, c.y)
+	cy.material_override = m
+	cy.name = "Colisee_tambour"
+	a.racine.add_child(cy)
+
+
+# ------------------------------------------------------------------------------------------------ outil commun
+## Pierre calcaire claire des édifices publics (calcaire du quartier civique P7.12.1).
+func calcaire(base_y: float) -> ShaderMaterial:
+	return _pierre("calcaire_%d" % int(round(base_y * 4.0)), "mur2", Color(1.56, 1.44, 1.24), {"assises": Vector3(0.46, 0.38, 0.42),
+		"long_bloc": 1.0, "irregulier": 0.05, "rapieces": 0.03, "salissure": 0.22}, base_y)
+
+
+## Remplace, sans toucher à la géométrie, la matière de blockout (blockout_p7.gdshader) des maillages ajoutés sous
+## sc.root depuis l'indice `depuis` : teinte claire -> calcaire, moyenne -> pierre de taille, sombre (bois, fer) -> matière
+## unie de la même couleur (sans quadrillage ni baies peintes). Sert aux éléments de la V0.7-A gardés tels quels.
+func remplacer_blockout(depuis: int) -> int:
+	var n := 0
+	for i in range(depuis, sc.root.get_child_count()):
+		var mi := sc.root.get_child(i) as MeshInstance3D
+		if mi == null or not (mi.material_override is ShaderMaterial):
+			continue
+		var sm := mi.material_override as ShaderMaterial
+		if sm.shader == null or sm.shader.resource_path.get_file() != "blockout_p7.gdshader":
+			continue
+		var c: Color = sm.get_shader_parameter("couleur")
+		var lum := c.r * 0.3 + c.g * 0.59 + c.b * 0.11
+		var bas: float = (mi.global_transform * mi.get_aabb()).position.y
+		if lum > 0.6:
+			mi.material_override = calcaire(snappedf(bas, 0.5))
+		elif lum > 0.38:
+			mi.material_override = taille()
+		else:
+			mi.material_override = a.plein(c, 0.85)
+		n += 1
+	return n
