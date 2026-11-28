@@ -372,6 +372,7 @@ func construit(e: Dictionary) -> bool:
 
 func decorer() -> void:
 	super()
+	sc.top("ville_decor_base")
 	var d_p: int = sc.root.get_child_count()
 	for s in v.get("decor_escaliers", []):
 		_escalier_decor(s)
@@ -383,15 +384,20 @@ func decorer() -> void:
 	# géométrie, pierre de soutènement et calcaire au lieu du blockout
 	if _fin().actif("limites"):
 		_fin().remplacer_blockout(d_p, _fin().soutenement(0.0))
+	sc.top("ville_prolongements")
 	var d_e: int = sc.root.get_child_count()
 	_entrees()
 	if _fin().actif("batiments"):
 		_fin().remplacer_blockout(d_e)                     # P8.1-A (L3) : encadrements et emmarchements en pierre
+	sc.top("ville_entrees")
 	_civ().decorer()
+	sc.top("ville_civique")
 	_bord().finaliser()                                   # P7.13 : étals de la place (fusion commune)
 	_fort().construire()                                  # P8.1-A3 : enceinte de la porte sud
+	sc.top("ville_bordures_enceinte")
 	_ombres_ville()
 	_classer_volumes()
+	sc.top("ville_volumes_escamotage")
 	# P8.1-A (L5) : murets de la porte sud (tours, remparts) et vantaux ouverts : maçonnerie et bois (même géométrie)
 	if _fin().actif("limites"):
 		for vo in _vols:
@@ -400,6 +406,7 @@ func decorer() -> void:
 	# P8.0-B : profil de lumière (A = P7.13 par défaut ; --lumiere=b, méta « lumiere », touche F4)
 	lum = LumiereP80B.new(sc, self)
 	lum.appliquer(lum.profil_demande())
+	sc.top("ville_lumiere")
 	_libelle("Faubourgs — passage bloqué", Vector3(-14.0, 3.5 + 4.0, 96.0))
 	_libelle("Quartier du château — accès gardé", Vector3(70.0, 8.0 + 5.0, 41.0))
 
@@ -796,7 +803,13 @@ func _escalier(e: Dictionary) -> void:
 ## masqué EN ENTIER quand la caméra est dedans ou le frôle ET qu'il se trouve entre elle et Aren (au sud d'Aren). Les
 ## façades latérales restent pleines ; collisions inchangées. --coupe_ville=0 : trame d'origine (comparaison).
 var _vols := []
-var masques := {}                       # id -> true : volumes masqués à l'instant (diagnostic, compte rendu)
+var _vols_extra := []                   # P8.1-A4 : volumes déclarés par les modules (versants de la halle)
+var masques := {}
+
+
+## P8.1-A4 : volume d'escamotage supplémentaire {id, rect, h0, top, h1, spec} ; ses nœuds portent la méta « vol » = id.
+func declarer_volume(d: Dictionary) -> void:
+	_vols_extra.append(d)                       # id -> true : volumes masqués à l'instant (diagnostic, compte rendu)
 
 
 func _classer_volumes() -> void:
@@ -826,6 +839,9 @@ func _classer_volumes() -> void:
 		var rp := Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1])
 		defs.append(["paysage_%d" % i, rp, float(p["h"]), float(p["h"]) + float(p["haut"]) + 6.0, float(p["h"]) + float(p["haut"])])
 	var specs := {}
+	for fv in _vols_extra:
+		defs.append([fv["id"], fv["rect"], fv["h0"], fv["top"], fv["h1"]])
+		specs[fv["id"]] = fv["spec"]
 	for fv in _fort().volumes():
 		defs.append([fv["id"], fv["rect"], fv["h0"], fv["top"], fv["h1"]])
 		specs[fv["id"]] = fv["spec"]
@@ -863,9 +879,77 @@ func _classer_volumes() -> void:
 			_sommet_mesure(vo)
 	if _partiel():
 		for vo in _vols:
+			# P8.1-A4 : découpe DIFFÉRÉE (construction après le chargement, un volume par image, au plus tôt s'il doit être
+			# escamoté) ; la géométrie compacte d'origine reste affichée tant que le volume est entier
+			if _differe() and not (not vo.has("spec") and str(_coupe_de(vo)[1]) == "pierre"):
+				vo["prepare"] = false
+				_a_preparer.append(vo)
+				continue
 			_decouper(vo)
 			if _a3():
 				_decouper_niveaux(vo)
+
+
+## P8.1-A4 — Retour dans la ville gardée (colisee._reprendre_zone) : profil de lumière réappliqué (il est retiré en
+## quittant la ville), tous les volumes réaffichés entiers ; l'escamotage repart de zéro à la première image.
+func reprendre() -> void:
+	if lum != null:
+		lum.appliquer(lum.profil_demande())
+	masques.clear()
+	for vo in _vols:
+		vo["mode"] = 0
+		vo["t_relache"] = 0.0
+		for k in ["alpha", "alpha_h", "c_cut"]:
+			vo.erase(k)
+		(vo["node"] as Node3D).visible = true
+		if vo.has("entier"):
+			(vo["entier"] as Node3D).visible = true
+			(vo["decoupe"] as Node3D).visible = false
+		if vo.has("haut"):
+			(vo["haut"] as Node3D).visible = not bool(vo.get("parapet", false))
+		if vo.has("chapeau"):
+			(vo["chapeau"] as Node3D).visible = bool(vo.get("parapet", false))
+		for k in range(1, (vo.get("niveaux", []) as Array).size()):
+			(vo["niveaux"][k]["node"] as Node3D).visible = true
+			(vo["niveaux"][k]["chapeau"] as Node3D).visible = false
+
+
+## P8.1-A4 — Découpe différée et géométrie compacte (--stabilite_a4=0 : découpe de tous les volumes au chargement, A3).
+var _a_preparer := []
+
+
+func _differe() -> bool:
+	return _a3() and str(sc._cli.get("stabilite_a4", "1")) != "0"
+
+
+## Prépare un volume à l'escamotage : sa géométrie d'origine passe sous « entier » (affiché tant que rien n'est retiré),
+## une copie sous « decoupe » est coupée par niveaux (mêmes maillages partagés jusqu'à la coupe ; chapeaux). Rien ne change
+## à l'écran : « decoupe » reste caché jusqu'à la première coupe.
+func _preparer(vo: Dictionary) -> void:
+	if vo.get("prepare", true):
+		return
+	vo["prepare"] = true
+	_a_preparer.erase(vo)
+	if not vo.has("spec") and float(vo["top"]) - (float(vo["h0"]) + float(_coupe_de(vo)[0])) < 1.5:
+		return                                                      # volume bas : jamais découpé (escamoté entier)
+	var nd := vo["node"] as Node3D
+	var geos := nd.get_children()
+	var ent := Node3D.new()
+	ent.name = "entier"
+	var dec := Node3D.new()
+	dec.name = "decoupe"
+	nd.add_child(ent)
+	nd.add_child(dec)
+	for g in geos:
+		if g is GeometryInstance3D:
+			dec.add_child((g as Node).duplicate())
+			(g as Node).reparent(ent, false)
+	dec.visible = false
+	vo["entier"] = ent
+	vo["decoupe"] = dec
+	_decouper(vo)
+	if _a3():
+		_decouper_niveaux(vo)
 
 
 func _dist_rect(r: Rect2, p: Vector2) -> float:
@@ -886,12 +970,23 @@ func coupes_camera(cam: Vector3, heros: Vector3, delta := 1.0 / 60.0) -> void:
 	var fondu: bool = str(sc._cli.get("escamotage", "net")) == "fondu"
 	var duree := maxf(0.01, float(sc._cli.get("fondu_s", 0.15)))
 	var pc := Vector2(cam.x, cam.z)
+	# P8.1-A4 : un volume à découper par image, le plus proche d'Aren d'abord
+	if not _a_preparer.is_empty():
+		var meilleur: Dictionary = _a_preparer[0]
+		for c in _a_preparer:
+			if _dist_rect(c["rect"], Vector2(heros.x, heros.z)) < _dist_rect(meilleur["rect"], Vector2(heros.x, heros.z)):
+				meilleur = c
+		_preparer(meilleur)
 	for vo in _vols:
 		var r: Rect2 = vo["rect"]
 		var entre: bool = r.position.y > heros.z - 1.0                 # le volume est au sud d'Aren : entre lui et la caméra
+		if not vo.get("prepare", true) and entre and (_dist_rect(r, pc) < 6.0 or _coupe_vue(vo, cam, heros + Vector3(0, 1.0, 0), 1.0)):
+			_preparer(vo)                                               # à découper tout de suite : il va être escamoté
 		var hauteur_ok: bool = cam.y <= float(vo["top"]) + 0.5 and cam.y >= float(vo["h0"]) - 1.0
 		var marge := 4.0 if int(vo.get("mode", 0)) > 0 else 2.6         # hystérésis : pas de clignotement en longeant
 		var masque: bool = entre and hauteur_ok and _dist_rect(r, pc) < marge
+		if _differe() and float(vo["top"]) - float(vo["h0"]) < 0.7:
+			masque = false                                              # P8.1-A4 : volume bas (≤ 0,6 m) : jamais escamoté
 		vo["cause"] = "camera_proche" if masque else ""
 		# P7.12.1 : le volume coupe la ligne de vue caméra -> buste d'Aren (Aren et ses chemins restent visibles)
 		if not masque and entre and vo.has("haut"):
@@ -970,6 +1065,9 @@ func coupes_camera(cam: Vector3, heros: Vector3, delta := 1.0 / 60.0) -> void:
 		vo["c_cut"] = c_cut
 		var nd := vo["node"] as Node3D
 		nd.visible = a > 0.001
+		if vo.has("entier"):
+			(vo["entier"] as Node3D).visible = c_cut < 0               # géométrie compacte tant que rien n'est retiré
+			(vo["decoupe"] as Node3D).visible = c_cut >= 0
 		var parapet: bool = vo.get("parapet", false)       # P8.0-B : coupe permanente (porte sud), dessus toujours affiché
 		if vo.has("haut"):
 			(vo["haut"] as Node3D).visible = ah > 0.001 and not parapet
@@ -1142,7 +1240,7 @@ func _coupe_de(vo: Dictionary) -> Array:
 ## la hauteur de leur centre, autres géométries selon le centre de leur boîte. Les pièces hautes passent sous un nœud
 ## « haut » du volume ; tout le reste (rez-de-chaussée) reste sous le volume. Aucun volume bas (< 5 m) n'est découpé.
 func _decouper(vo: Dictionary) -> void:
-	var nd := vo["node"] as Node3D
+	var nd: Node3D = vo.get("decoupe", vo["node"])
 	var cd: Array = _coupe_de(vo)
 	var coupe: float = float(vo["h0"]) + float(cd[0])
 	if vo.has("spec"):
@@ -1288,7 +1386,7 @@ func _partiel() -> bool:
 ## sur le haut réel de la partie conservée, bordé d'une arase de pierre (épaisseur du mur) : lecture d'une coupe
 ## volontaire (maquette), au lieu du dessus brut du volume.
 func _chapeau(vo: Dictionary) -> void:
-	var nd := vo["node"] as Node3D
+	var nd: Node3D = vo.get("decoupe", vo["node"])
 	var r: Rect2 = vo["rect"]
 	var h := float(vo["h0"])
 	for g in nd.get_children():

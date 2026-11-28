@@ -924,6 +924,28 @@ static func _route_base(name: String) -> Array:
 						o83.append({"do": "go", "to": Vector2(p[0], p[1]), "tol": 0.4, "run": run, "id": "forge-Colisée"})
 						o83.append({"do": "wait", "t": 0.3 if run else 0.6})
 			return o83
+		"p81a4_porte_colisee":
+			# P8.1-A4 — devant la porte du Colisée (cas de la vidéo, 51-54 s) : arrivée par l'allée, va-et-vient latéral devant la
+			# porte et le long de la halle du quai, arrêts et demi-tours, en marchant puis en courant
+			var o84: Array = [_warp(26.0, 82.0, 3.5), {"do": "wait", "t": 0.8}]
+			var pts := [[28.0, 76.0], [30.5, 70.0], [27.5, 71.0], [33.5, 71.5], [30.5, 69.8], [29.0, 74.0], [34.5, 74.5], [30.5, 70.2],
+				[26.0, 80.0], [30.5, 70.0]]
+			for run in [false, true]:
+				for p in pts:
+					o84.append({"do": "go", "to": Vector2(p[0], p[1]), "tol": 0.35, "run": run, "id": "porte du Colisée"})
+					o84.append({"do": "wait", "t": 0.3 if run else 0.7})
+			return o84
+		"p81a4_enceinte":
+			# P8.1-A4 — continuité de l'enceinte sud : départ sur le pont, entrée par la porte, va-et-vient le long des tours et des
+			# lices de la placette, retour vers la porte, en marchant puis en courant
+			var o85: Array = [_warp(60.0, 159.0, 0.0), {"do": "wait", "t": 0.8}]
+			var pe := [[60.0, 152.0], [60.0, 146.0], [52.0, 147.5], [49.0, 143.0], [58.0, 141.0], [68.5, 147.0], [71.0, 143.0], [60.0, 140.0],
+				[55.0, 136.0], [60.0, 150.0], [60.0, 157.0]]
+			for run in [false, true]:
+				for p in pe:
+					o85.append({"do": "go", "to": Vector2(p[0], p[1]), "tol": 0.4, "run": run, "id": "enceinte sud"})
+					o85.append({"do": "wait", "t": 0.3 if run else 0.6})
+			return o85
 		"p7_7122_terrasse_vues":
 			var o7v: Array = []
 			for c in [["v1_terrasse", 71.0, 84.2, 5.75], ["v2_terrasse_ouest", 67.5, 83.2, 5.75], ["v3_place", 70.0, 97.0, 3.5]]:

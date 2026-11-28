@@ -35,6 +35,10 @@ const H_PORTE := 5.4             # chemin de ronde au-dessus de la porte
 ## niveaux de coupe (absolus) : entre les rangs d'archères et au-dessus des cordons ; porte : limite d'un gradin d'écoinçon
 ## (mi-arc) puis chemin de ronde. Les pièces sont découpées à ces hauteurs (pas de pan coupé en biais par triangle).
 const COUPES_TOUR := [3.4, 5.4]
+## P8.1-A4 : souche permanente des tours au niveau du chemin de ronde, premier niveau de coupe à celui du parapet : une tour
+## coupée reste alignée sur la courtine coupée (enceinte lue comme une ligne continue en gradins). --stabilite_a4=0 : A3.
+var souche_tour := H_CHEMIN
+var coupe_parapet_tour := true
 const COUPES_PORTE := [3.65, 5.46]
 ## segments d'escamotage des courtines (x0, x1) : étroits près de la porte (placette), larges au loin
 const SEGMENTS := [[-12.0, 30.0], [30.0, 38.0], [38.0, 46.0], [46.0, 53.0], [67.0, 74.0], [74.0, 82.0], [82.0, 90.0], [90.0, 138.0]]
@@ -55,6 +59,9 @@ func _init(ville, scene, archi, finition) -> void:
 	a = archi
 	fi = finition
 	actif = str(sc._cli.get("fortifs", "1")) != "0"
+	if str(sc._cli.get("stabilite_a4", "1")) == "0":
+		souche_tour = 0.9
+		coupe_parapet_tour = false
 
 
 func _mats() -> void:
@@ -139,8 +146,8 @@ func _pied() -> void:
 		var x0: float = TOURS[id][0]
 		var x1: float = TOURS[id][1]
 		var r := Rect2(x0, 150.0, x1 - x0, 7.0)
-		a.box(Vector3(r.get_center().x, (FOND + 0.9) * 0.5, r.get_center().y), Vector3(r.size.x, 0.9 - FOND, r.size.y), m["mur"])
-		a.box(Vector3(r.get_center().x, 0.92, r.get_center().y), Vector3(r.size.x - 0.7, 0.04, r.size.y - 0.7), m["dalle"])
+		a.box(Vector3(r.get_center().x, (FOND + souche_tour) * 0.5, r.get_center().y), Vector3(r.size.x, souche_tour - FOND, r.size.y), m["mur"])
+		a.box(Vector3(r.get_center().x, souche_tour + 0.02, r.get_center().y), Vector3(r.size.x - 0.7, 0.04, r.size.y - 0.7), m["dalle"])
 		# talus de la partie saillante (dans le fossé)
 		for k in 2:
 			var g := 0.6 - 0.3 * k
@@ -174,8 +181,10 @@ func _tour(id: String, x0: float, x1: float) -> void:
 	var r := Rect2(x0, 150.0, x1 - x0, 7.0)
 	var d0: int = a.racine.get_child_count()
 	var c := r.get_center()
-	var hs := [0.9, COUPES_TOUR[0], COUPES_TOUR[1], H_TOUR]
-	for k in 3:
+	var hs := [souche_tour, COUPES_TOUR[0], COUPES_TOUR[1], H_TOUR]
+	if coupe_parapet_tour:
+		hs.insert(1, H_PARAPET + 0.05)
+	for k in hs.size() - 1:
 		a.box(Vector3(c.x, (hs[k] + hs[k + 1]) * 0.5, c.y), Vector3(r.size.x, hs[k + 1] - hs[k], r.size.y), m["mur"])
 	for h in [H_CHEMIN, H_TOUR]:
 		a.box(Vector3(c.x, h - 0.1, c.y), Vector3(r.size.x + 0.24, 0.2, r.size.y + 0.24), m["taille"])
@@ -194,7 +203,7 @@ func _tour(id: String, x0: float, x1: float) -> void:
 			var ym := r.position.y + 0.45 + (r.size.y - 0.9) * (k + 0.5) / 5.0
 			a.box(Vector3(x, hp + 0.35, ym), Vector3(0.45, 0.7, 0.8), m["mur"])
 	# archères (face sud et flancs saillants sur le fossé) : fente et traverse
-	for h in [2.6, 4.6]:
+	for h in [2.8 if coupe_parapet_tour else 2.6, 4.6]:
 		a.box(Vector3(c.x, h, r.end.y + 0.01), Vector3(0.12, 1.1, 0.04), m["sombre"])
 		a.box(Vector3(c.x, h + 0.15, r.end.y + 0.01), Vector3(0.4, 0.1, 0.04), m["sombre"])
 		var cote := r.position.x if x0 < 60.0 else r.end.x            # flanc extérieur (côté opposé au passage)
@@ -202,18 +211,20 @@ func _tour(id: String, x0: float, x1: float) -> void:
 	# porte de la tour vers la placette (décor) : encadrement de pierre de taille, battant ferré
 	a.box(Vector3(c.x, 1.15, r.position.y - 0.03), Vector3(1.0, 2.1, 0.06), m["bois"])
 	for xx in [c.x - 0.62, c.x + 0.62]:
-		a.box(Vector3(xx, 1.2, r.position.y - 0.06), Vector3(0.24, 2.4, 0.14), m["taille"])
-	a.box(Vector3(c.x, 2.48, r.position.y - 0.06), Vector3(1.5, 0.26, 0.14), m["taille"])
+		a.box(Vector3(xx, 1.125, r.position.y - 0.06), Vector3(0.24, 2.25, 0.14), m["taille"])
+	a.box(Vector3(c.x, 2.38, r.position.y - 0.06), Vector3(1.5, 0.26, 0.14), m["taille"])
 	for v in [0.6, 1.7]:
 		a.box(Vector3(c.x, v, r.position.y - 0.07), Vector3(0.9, 0.05, 0.02), m["fer"])
 	# glissière de herse (face côté passage, au droit de la porte)
 	var xg := r.end.x if x0 < 60.0 else r.position.x
-	for sg in [[0.0, COUPES_TOUR[0]], [COUPES_TOUR[0], 5.2]]:
+	for sg in [[0.0, H_PARAPET + 0.05], [H_PARAPET + 0.05, COUPES_TOUR[0]], [COUPES_TOUR[0], 5.2]]:
 		a.box(Vector3(xg + (0.01 if x0 < 60.0 else -0.01), (sg[0] + sg[1]) * 0.5, 154.6), Vector3(0.04, sg[1] - sg[0], 0.16), m["sombre"])
 	a.fusionner(d0, id)
 	_marquer(d0, id)
-	_vols.append({"id": id, "rect": r, "h0": 0.9, "top": hp + 0.8, "h1": H_TOUR,
-		"spec": [{"h": COUPES_TOUR[0], "style": "pierre"}, {"h": COUPES_TOUR[1], "style": "pierre"}]})
+	var spec := [{"h": COUPES_TOUR[0], "style": "pierre"}, {"h": COUPES_TOUR[1], "style": "pierre"}]
+	if coupe_parapet_tour:
+		spec.insert(0, {"h": H_PARAPET + 0.05, "style": "pierre"})
+	_vols.append({"id": id, "rect": r, "h0": souche_tour, "top": hp + 0.8, "h1": H_TOUR, "spec": spec})
 
 
 ## Porte voûtée entre les tours : arcades des deux faces (écoinçons, claveaux), voûte en berceau, herse relevée, chemin de

@@ -419,10 +419,16 @@ func _halle(r: Rect2, h0: float, h1: float) -> void:
 	for y: float in ys:
 		a.box(Vector3(rh.get_center().x, he + 0.24, y), Vector3(rh.size.x + 0.4, 0.16, 0.18), m["chene_c"])      # entraits
 	a.fusionner(d0, "bordures_halle")
+	var a4 := str(sc._cli.get("stabilite_a4", "1")) != "0" and sc.get("_ville") != null and sc._ville != null
+	if a4:
+		_marquer(d0, "aucun")                           # P8.1-A4 : quai, poteaux, sablières, entraits : jamais escamotés
 	var d1: int = a.racine.get_child_count()
 	var rt := Rect2(rh.position.x - 0.3, rh.position.y - 0.3, rh.size.x + 0.6, rh.size.y + 0.6)
-	a.toit(rt, he + 0.32, 1.7, Color(0.86, 0.80, 0.70), "2p_y", Color(1.0, 0.94, 0.9))
-	a.fusionner(d1, "bordures_halle_toit")
+	if a4:
+		_toit_halle_a4(rt, he + 0.32)
+	else:
+		a.toit(rt, he + 0.32, 1.7, Color(0.86, 0.80, 0.70), "2p_y", Color(1.0, 0.94, 0.9))
+		a.fusionner(d1, "bordures_halle_toit")
 	var d2: int = a.racine.get_child_count()
 	# sacs de grain empilés, caisses, tonneaux (P8.1-A : sacs modélisés, cf. _marchandises_modeles)
 	for i in (0 if _etals_modeles() else 6):
@@ -442,6 +448,87 @@ func _halle(r: Rect2, h0: float, h1: float) -> void:
 			fo._modele("fp/Bag", ps, 0.4 * i, Vector3.ONE * 0.62)
 		fo._modele("fp/Bucket_Wooden_1", Vector3(rh.position.x + 2.6, h1, rh.position.y + 1.6), 0.3, Vector3.ONE * 0.9)
 	fo._fusion_gltf(d3, "bordures_halle_modeles")
+	if a4:
+		_marquer(d2, "aucun")                           # marchandises : jamais escamotées
+
+
+## P8.1-A4 — Toit de la halle en deux versants escamotables séparément (volumes « halle_toit_o » / « halle_toit_e » déclarés
+## à la ville) : devant la porte du Colisée, la ligne de vue vers Aren ne frôle que l'égout ouest ; avant, tout le volume
+## de la halle (toit, poteaux, entraits) disparaissait et les marchandises restaient seules sur le quai.
+func _toit_halle_a4(rt: Rect2, h: float) -> void:
+	var r0: Node3D = a.racine
+	var tmp := Node3D.new()
+	sc.root.add_child(tmp)
+	a.racine = tmp
+	a.toit(rt, h, 1.7, Color(0.86, 0.80, 0.70), "2p_y", Color(1.0, 0.94, 0.9))
+	var xm := rt.get_center().x
+	var cotes := {"halle_toit_o": Node3D.new(), "halle_toit_e": Node3D.new()}
+	for k in cotes:
+		sc.root.add_child(cotes[k])
+	for c in tmp.get_children():
+		var mi := c as MeshInstance3D
+		if mi == null or mi.mesh == null:
+			continue
+		var ab: AABB = mi.transform * mi.get_aabb()
+		if mi.mesh is ArrayMesh and ab.position.x < xm - 0.05 and ab.end.x > xm + 0.05:
+			for k in cotes:
+				var part := _moitie_x(mi, xm, k == "halle_toit_o")
+				if part != null:
+					cotes[k].add_child(part)
+			continue
+		mi.reparent(cotes["halle_toit_o"] if ab.get_center().x <= xm else cotes["halle_toit_e"], false)
+	for k in cotes:
+		var t: Node3D = cotes[k]
+		a.racine = t
+		a.fusionner(0, "bordures_halle_" + str(k))
+		for c in t.get_children():
+			c.reparent(sc.root, true)
+			c.set_meta("vol", k)
+		t.queue_free()
+		var rk := Rect2(rt.position.x, rt.position.y, rt.size.x * 0.5, rt.size.y) if k == "halle_toit_o" \
+			else Rect2(xm, rt.position.y, rt.size.x * 0.5, rt.size.y)
+		sc._ville.declarer_volume({"id": k, "rect": rk, "h0": h, "top": h + 2.1, "h1": h, "spec": [{"h": h + 0.03, "style": "aucun"}]})
+	a.racine = r0
+	tmp.queue_free()
+
+
+## Moitié d'un maillage (triangles dont le centre est à l'ouest ou à l'est de xm), même matière ; null si vide.
+func _moitie_x(mi: MeshInstance3D, xm: float, ouest: bool) -> MeshInstance3D:
+	var src := mi.mesh as ArrayMesh
+	var out := ArrayMesh.new()
+	for si in src.get_surface_count():
+		var arr := src.surface_get_arrays(si)
+		var vx: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+		var idx: PackedInt32Array = arr[Mesh.ARRAY_INDEX] if arr[Mesh.ARRAY_INDEX] != null else PackedInt32Array()
+		if idx.is_empty():
+			idx.resize(vx.size())
+			for i in vx.size():
+				idx[i] = i
+		var garde := PackedInt32Array()
+		for k in range(0, idx.size(), 3):
+			var cx := ((mi.transform * vx[idx[k]]).x + (mi.transform * vx[idx[k + 1]]).x + (mi.transform * vx[idx[k + 2]]).x) / 3.0
+			if (cx <= xm) == ouest:
+				garde.append_array([idx[k], idx[k + 1], idx[k + 2]])
+		if garde.is_empty():
+			continue
+		arr[Mesh.ARRAY_INDEX] = garde
+		out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arr)
+		out.surface_set_material(out.get_surface_count() - 1, src.surface_get_material(si))
+	if out.get_surface_count() == 0:
+		return null
+	var n := MeshInstance3D.new()
+	n.mesh = out
+	n.transform = mi.transform
+	n.material_override = mi.material_override
+	n.cast_shadow = mi.cast_shadow
+	return n
+
+
+func _marquer(d0: int, vol: String) -> void:
+	for i in range(d0, a.racine.get_child_count()):
+		var n: Node = a.racine.get_child(i)
+		if n is GeometryInstance3D:
+			n.set_meta("vol", vol)
 
 
 
