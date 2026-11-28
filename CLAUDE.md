@@ -356,6 +356,13 @@
   (chemin de ronde 1,2 m, merlons 3,0 m), escarpe sur fossé sec, tours (6,2 m), porte voûtée, pont dormant ; pied permanent, parties
   hautes en volumes à niveaux explicites (spec) ; plus de coupe permanente à 1,2 m ; collisions des données inchangées. Continuité :
   `tools/p8/escamotage_p81a3.gd` (parcours `p81a3_aller_retour`), 4 contrôles ajoutés à `non_regression_p80c.sh` (28 au total).
+- **P8.1-A4 (branche `p8-1a4-stabilite`, `docs/P8_1A4_STABILITE.md`)** : EN ATTENTE de revue en jeu. Halle du quai : structure et
+  marchandises jamais escamotées, toit en deux versants (`halle_toit_o/_e`, `ville_v07b.declarer_volume`). Volumes bas jamais escamotés ;
+  porte voûtée testée sur sa partie pleine (ouverture) ; tours / porte / toit de la halle rendus seulement Aren éloigné (> 8 m) ou après
+  6 s ; souche des tours à 1,2 m et coupe au parapet. Découpe DIFFÉRÉE (`_preparer` : géométrie compacte tant que rien n'est coupé).
+  Ville GARDÉE au retour du Colisée (`colisee._garder_zone` / `_reprendre_zone`, `ville_v07b.reprendre`) : ne pas réintroduire de
+  reconstruction au retour ; `--cache_ville=0`, `--stabilite_a4=0` : états A3. Journal `P8A4 CHARGEMENT` (étapes de transition).
+  Bascules « perceptibles » (≥ 1 % de l'écran) dans `escamotage_p81a3.gd` ; 3 contrôles A4 dans `non_regression_p80c.sh` (31 au total).
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).

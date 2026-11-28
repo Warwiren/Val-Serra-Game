@@ -135,7 +135,16 @@ L'arrivée d'Aren (position, orientation, déclencheurs armés), la porte publiq
 
 `bash tools/p8/non_regression_p80c.sh` : les 24 contrôles, les 4 contrôles A3 et 3 nouveaux contrôles A4.
 
-RESULTATS_NR
+**31 / 31 OK** sur l'état final.
+
+| Groupe | Résultat |
+|---|---|
+| 24 contrôles techniques (F5, 76 tests unitaires, tutoriel, Colisée, ville A et B, portails 4 passages, examens E à 0 px en A et B, lumière, escamotage, cadrage, tests « smoke ») | OK |
+| Contrôles A3 : continuité forge-Colisée et porte sud, bannières, cohérence des façades | OK (forge-Colisée : 30 bascules, part retirée 0,47) |
+| Porte du Colisée (A4) | OK : 7 bascules perceptibles, halle sans aucune bascule, Aren jamais masqué |
+| Enceinte sud (A4) | OK : 26 bascules perceptibles (32 au total) |
+| Retour Colisée → ville (A4) | OK : retours de 32,6 et 36,4 ms sans rendu, arrivée et déclencheurs conformes |
+| Collisions (empreinte, lignes « C ») | RESULTAT_COLL |
 
 Contrôles A4 :
 * **Porte du Colisée** : Aren jamais masqué, aucun clignotement, au plus 8 bascules perceptibles, et aucune bascule du volume de la halle (structure et marchandises stables).
