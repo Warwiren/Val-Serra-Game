@@ -269,6 +269,7 @@ func _porte() -> void:
 	a.fusionner(d0, id)
 	_marquer(d0, id)
 	_vols.append({"id": id, "rect": Rect2(x0, Y_INT, x1 - x0, Y_EXT - Y_INT), "h0": 0.0, "top": H_PORTE + 1.7, "h1": H_PORTE,
+		"ouverture": {"x0": x0, "x1": x1, "naiss": naiss},
 		"spec": [{"h": COUPES_PORTE[0], "style": "aucun"}, {"h": COUPES_PORTE[1], "style": "aucun"}]})
 
 

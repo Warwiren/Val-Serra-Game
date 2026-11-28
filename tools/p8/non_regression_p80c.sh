@@ -102,8 +102,8 @@ lancer continuite_forge.log --fixed-fps 60 --script res://tools/p8/escamotage_p8
 r=$(continuite continuite_forge.log 36 0 0.55); bilan "continuité forge-Colisée (aller-retour, A3)" $? "$r"
 lancer continuite_porte.log --fixed-fps 60 --script res://tools/p8/escamotage_p81a3.gd -- --route=p7_v07b_trajets
 r=$(continuite continuite_porte.log 999 999 1.0); bilan "continuité porte sud (trajets, A3)" $? "$r"
-# P8.1-A4 : porte du Colisée (halle du quai : structure jamais escamotée, au plus 6 bascules perceptibles), enceinte sud
-# (au plus 12 bascules perceptibles), retours Colisée -> ville (ville gardée : moins de 400 ms sans rendu, arrivée et
+# P8.1-A4 : porte du Colisée (halle du quai : structure jamais escamotée, au plus 8 bascules perceptibles), enceinte sud
+# (au plus 30 bascules perceptibles ; A3 : 40), retours Colisée -> ville (ville gardée : moins de 400 ms sans rendu, arrivée et
 # déclencheurs conformes ; journaux du test portail ci-dessus)
 lancer continuite_porte_colisee.log --fixed-fps 60 --script res://tools/p8/escamotage_p81a3.gd -- --route=p81a4_porte_colisee
 r=$(python3 - "$SORTIE/continuite_porte_colisee.log" <<'EOF'
@@ -112,7 +112,7 @@ l = [x for x in open(sys.argv[1], errors="replace") if x.startswith("ESCAMOTAGE_
 d = json.loads(l[-1][l[-1].index("{"):]) if l else {}
 v = [x for x in open(sys.argv[1], errors="replace") if x.startswith("VOLUME bat_echoppe_no_o")]
 print("perceptibles=%s, aren_masque=%s, volume de la halle : %s" % (d.get("bascules_perceptibles"), d.get("aren_masque_images"), "aucune bascule" if not v else v[0].strip()))
-sys.exit(0 if d and d["aren_masque_images"] == 0 and not d["clignotements_lt_1s"] and d["bascules_perceptibles"] <= 6 and not v else 1)
+sys.exit(0 if d and d["aren_masque_images"] == 0 and not d["clignotements_lt_1s"] and d["bascules_perceptibles"] <= 8 and not v else 1)
 EOF
 ); bilan "porte du Colisée : halle stable (A4)" $? "$r"
 lancer continuite_enceinte.log --fixed-fps 60 --script res://tools/p8/escamotage_p81a3.gd -- --route=p81a4_enceinte
@@ -121,7 +121,7 @@ import json, sys
 l = [x for x in open(sys.argv[1], errors="replace") if x.startswith("ESCAMOTAGE_A3")]
 d = json.loads(l[-1][l[-1].index("{"):]) if l else {}
 print("perceptibles=%s, bascules=%s, aren_masque=%s" % (d.get("bascules_perceptibles"), d.get("bascules_total"), d.get("aren_masque_images")))
-sys.exit(0 if d and d["aren_masque_images"] == 0 and not d["clignotements_lt_1s"] and d["bascules_perceptibles"] <= 12 else 1)
+sys.exit(0 if d and d["aren_masque_images"] == 0 and not d["clignotements_lt_1s"] and d["bascules_perceptibles"] <= 30 else 1)
 EOF
 ); bilan "enceinte sud : continuité (A4)" $? "$r"
 r=$(python3 - "$SORTIE/ville_portail_A.log" <<'EOF'

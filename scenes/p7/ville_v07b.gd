@@ -853,6 +853,9 @@ func _classer_volumes() -> void:
 		if specs.has(d[0]):
 			_vols[-1]["spec"] = specs[d[0]]                  # P8.1-A3 : niveaux de coupe explicites (enceinte)
 			_vols[-1]["marge_vue"] = 0.4                      # largeur du personnage : pas d'arête d'enceinte sur sa silhouette
+			for fv2 in _fort().volumes():
+				if fv2["id"] == d[0] and fv2.has("ouverture") and _differe():
+					_vols[-1]["ouverture"] = fv2["ouverture"]
 	for n in sc.root.get_children():
 		if not (n is GeometryInstance3D):
 			continue
@@ -1011,7 +1014,7 @@ func coupes_camera(cam: Vector3, heros: Vector3, delta := 1.0 / 60.0) -> void:
 					var hc: float = float(nv[c]["h"])
 					# marge : tenir 0,05 ; changer de niveau 0,25 ; ENTRER en masquage 0,6 (anticipe la ligne de vue qui descend
 					# quand Aren avance : une seule bascule au lieu de deux rapprochées)
-					var mg := 0.05 if tient else (0.6 if cour0 == 0 and c > 0 else 0.25)      # pas d'anticipation au niveau le plus bas
+					var mg := 0.05 if tient else (0.6 if c > 0 and (cour0 == 0 or _differe()) else 0.25)   # pas d'anticipation au plus bas
 					if h_los >= hc + mg and (c == 0 or not proche or cam.y >= hc + (0.2 if tient else 0.6)):
 						mode = nv.size() - c
 						break
@@ -1023,11 +1026,18 @@ func coupes_camera(cam: Vector3, heros: Vector3, delta := 1.0 / 60.0) -> void:
 		var delai := float(sc._cli.get("escamotage_delai", 0.6))
 		if mode > 0 and mode != MODE_TOUT and cour != MODE_TOUT and _a3():
 			delai = maxf(delai, float(sc._cli.get("escamotage_delai_niveau", 2.0)))
+		if vo.has("spec") and _differe() and (str(vo["id"]).begins_with("tour_sud") or str(vo["id"]) == "porte_sud_voute" \
+				or str(vo["id"]).begins_with("halle_toit")):
+			delai = maxf(delai, float(sc._cli.get("escamotage_delai_enceinte", 2.5)))   # P8.1-A4 : tours, porte, toit de la halle
 		if mode < cour and _partiel():
 			vo["t_relache"] = float(vo.get("t_relache", 0.0)) + delta
 			# P8.1-A3 : jamais de rétablissement moins d'1 s après la dernière bascule du volume (relâchement en deux temps)
 			var recent := _a3() and _t_coupes - float(vo.get("t_bascule", -99.0)) < 1.0
-			if float(vo["t_relache"]) < delai or recent:
+			# P8.1-A4 : enceinte et toit de la halle : rendus seulement quand Aren s'en est éloigné (> 8 m) ou après 6 s de vue
+			# dégagée (pas de clignement sur un arrêt ou un demi-tour à leur pied ; seuil 8 m)
+			var proche_h: bool = vo.has("spec") and _differe() and mode == 0 and _dist_rect(r, Vector2(heros.x, heros.z)) < 8.0 \
+				and float(vo["t_relache"]) < 6.0
+			if float(vo["t_relache"]) < delai or recent or proche_h:
 				mode = cour
 			else:
 				vo["t_relache"] = 0.0
@@ -1136,6 +1146,10 @@ func _sommet_mesure(vo: Dictionary) -> void:
 	if h > float(vo["h0"]) + 0.3:
 		vo["top_estime"] = vo["top"]
 		vo["top"] = minf(float(vo["top"]), h + 0.1)
+	elif _differe():
+		# P8.1-A4 : volume dont toute la géométrie reste à moins de 0,3 m de sa base (ou vide) : sommet réel, jamais escamoté
+		vo["top_estime"] = vo["top"]
+		vo["top"] = maxf(h, float(vo["h0"])) + 0.1 if h > -INF else float(vo["h0"])
 
 
 ## Niveaux de coupe supplémentaires au-dessus de la coupe d'étage : tous les PAS_NIVEAU mètres jusqu'à l'égout (h1 des
@@ -1357,7 +1371,28 @@ func _couper_maillage(mi: MeshInstance3D, coupe: float, haut: Node3D) -> void:
 
 
 ## Le segment caméra -> cible traverse-t-il la boîte du volume (emprise, h0 -> sommet), élargie de `marge` ?
+## P8.1-A4 : volume percé d'une ouverture (porte voûtée) : la ligne de vue n'est coupée que si elle traverse la partie
+## pleine (échantillons le long du segment dans la boîte, hors de l'ouverture « ouverture » = {x0, x1, naiss, r}).
 func _coupe_vue(vo: Dictionary, cam: Vector3, cible: Vector3, marge: float) -> bool:
+	if not _coupe_vue_boite(vo, cam, cible, marge):
+		return false
+	if not vo.has("ouverture"):
+		return true
+	var o: Dictionary = vo["ouverture"]
+	var r: Rect2 = (vo["rect"] as Rect2).grow(marge)
+	var xc := (float(o["x0"]) + float(o["x1"])) * 0.5
+	var R := (float(o["x1"]) - float(o["x0"])) * 0.5 - marge
+	for k in 41:
+		var p := cam.lerp(cible, float(k) / 40.0)
+		if not r.has_point(Vector2(p.x, p.z)) or p.y < float(vo["h0"]) or p.y > float(vo["top"]) + marge:
+			continue
+		var u := absf(p.x - xc)
+		if u >= R or p.y > float(o["naiss"]) + sqrt(maxf(0.0, R * R - u * u)):
+			return true
+	return false
+
+
+func _coupe_vue_boite(vo: Dictionary, cam: Vector3, cible: Vector3, marge: float) -> bool:
 	var r: Rect2 = (vo["rect"] as Rect2).grow(marge)
 	var lo := Vector3(r.position.x, float(vo["h0"]), r.position.y)
 	var hi := Vector3(r.end.x, float(vo["top"]) + marge, r.end.y)
