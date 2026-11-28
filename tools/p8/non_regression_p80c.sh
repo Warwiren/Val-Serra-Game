@@ -8,6 +8,9 @@
 # sondes, trajets et portail ville <-> Colisée en caméra A et B ; stabilité des examens E (0 px) en lumière A et B ;
 # escamotage (Aren jamais masqué, aucun clignotement) ; cadrage (Aren jamais masqué) ; profils de lumière A / B et F4 ;
 # tests « smoke » de la forêt, des animations, des sols et du combat.
+# P8.1-A3 (+4) : continuité de l'escamotage sur l'aller-retour forge-Colisée (Aren jamais masqué, aucun clignotement,
+# aucune disparition entière, au plus 36 bascules, part de hauteur retirée moyenne <= 0,55) et sur les trajets de la
+# porte sud (Aren jamais masqué, aucun clignotement) ; bannières (aucune devant une baie) ; cohérence des façades (0).
 # Empreintes de scène (comparaison avant / après un nettoyage) : voir tools/p8/empreinte_scene_p80c.gd.
 
 GODOT=${GODOT:-godot}
@@ -78,6 +81,31 @@ done
 lancer escamotage.log --script res://tools/p7/escamotage_p7122.gd -- --route=p7_7122_aller_retour
 grep -q '"aren_masque_images":0' "$SORTIE/escamotage.log" && grep -q '"clignotements_lt_1s":\[\]' "$SORTIE/escamotage.log"
 bilan "escamotage (Aren jamais masqué, aucun clignotement)" $? ""
+
+# P8.1-A3 : continuité visuelle mesurable (tools/p8/escamotage_p81a3.gd)
+continuite() { # continuite <journal> <bascules max> <disparitions max> <part max>
+	python3 - "$SORTIE/$1" "$2" "$3" "$4" <<'EOF'
+import json, sys
+l = [x for x in open(sys.argv[1], errors="replace") if x.startswith("ESCAMOTAGE_A3")]
+if not l:
+    print("pas de mesure"); sys.exit(1)
+d = json.loads(l[-1][l[-1].index("{"):])
+print("bascules=%d, disparitions_entieres=%d, part_retiree=%.2f, aren_masque=%d" % (d["bascules_total"], d["disparitions_entieres"],
+    d["part_hauteur_retiree_moy"], d["aren_masque_images"]))
+ok = d["aren_masque_images"] == 0 and not d["clignotements_lt_1s"] and not d["bloque"] and d["bascules_total"] <= int(sys.argv[2]) \
+    and d["disparitions_entieres"] <= int(sys.argv[3]) and d["part_hauteur_retiree_moy"] <= float(sys.argv[4])
+sys.exit(0 if ok else 1)
+EOF
+}
+lancer continuite_forge.log --fixed-fps 60 --script res://tools/p8/escamotage_p81a3.gd -- --route=p81a3_aller_retour
+r=$(continuite continuite_forge.log 36 0 0.55); bilan "continuité forge-Colisée (aller-retour, A3)" $? "$r"
+lancer continuite_porte.log --fixed-fps 60 --script res://tools/p8/escamotage_p81a3.gd -- --route=p7_v07b_trajets
+r=$(continuite continuite_porte.log 999 999 1.0); bilan "continuité porte sud (trajets, A3)" $? "$r"
+lancer bannieres.log --script res://tools/p8/bannieres_p81a3.gd
+r=$(grep -o '"devant_une_baie":[0-9]*' "$SORTIE/bannieres.log"); grep -q '"devant_une_baie":0' "$SORTIE/bannieres.log"; bilan "bannières (aucune devant une baie)" $? "$r"
+lancer coherence.log --script res://tools/p8/coherence_facades_p81a2.gd
+grep -q '"conflits":0' "$SORTIE/coherence.log" && grep -q '"portes_hors_sol":0' "$SORTIE/coherence.log" && grep -q '"soubassements_traversants":0' "$SORTIE/coherence.log" && grep -q '"obstacles_devant":0' "$SORTIE/coherence.log"
+bilan "cohérence des façades (0 superposition, 0 porte hors sol)" $? ""
 
 lancer cadrage.log --script res://tools/p8/cadrage_p80a.gd -- --route=p80a_cadrage
 python3 - "$SORTIE/cadrage.log" <<'EOF'

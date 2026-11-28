@@ -42,8 +42,8 @@ masque de collision avant / après.
 > **Version du moteur : Godot 4.7.2, et elle seule.** La ligne `config/features=PackedStringArray("4.5")` de
 > `project.godot` est un reliquat historique, laissé tel quel volontairement.
 
-1. Télécharger le projet (GitHub : choisir la branche **`p8-1a2-coherence`**, puis **Code → Download ZIP** ;
-   le dossier s'appelle `Val-Serra-Game-p8-1a2-coherence`) et le décompresser.
+1. Télécharger le projet (GitHub : choisir la branche **`p8-1a3-fortifications`**, puis **Code → Download ZIP** ;
+   le dossier s'appelle `Val-Serra-Game-p8-1a3-fortifications`) et le décompresser.
 2. Récupérer **Godot 4.7.2** (édition standard, pas « .NET ») : <https://godotengine.org/download/archive/4.7.2-stable/>.
 3. Godot → **Importer** → choisir `project.godot` → **Importer et modifier** (une minute environ la première fois).
 4. **F5** lance la **forêt V07B** (`ValSerra_P49_V07B_PREFLIGHT_GODOT/godot/P49_V07_Foret_Test.tscn`), avec les
@@ -235,6 +235,11 @@ masque de collision avant / après.
    transformées en annexes et en quai, massifs plus bas et pots du belvédère plantés, travées du Colisée variées.
    Comparaison : `--f_coherence=0` (état P8.1-A). Contrôle : `godot --headless --path . --script res://tools/p8/coherence_facades_p81a2.gd`.
    Rapport, avec la proposition de fortifications pour P8.1-A3 : `docs/P8_1A2_COHERENCE.md`.
+   **Branche `p8-1a3-fortifications`** (EN ATTENTE de revue sur GPU) : F5 inchangé. **F6 sur `scenes/p7/ville_v07b.tscn`** (ou
+   `ville_v07b_p80b.tscn` en lumière B) : escamotage par niveaux d'étage (on ne retire que ce qui dépasse la ligne de vue),
+   chariot bâché et jardins en terrasse au parvis du Colisée, bannières jamais devant une baie, enceinte de la porte sud
+   (tours, courtines crénelées, porte voûtée, fossé sec, pont dormant). Comparaison : `--escamotage_a3=0`, `--annexes_a2=1`,
+   `--fortifs=0` (états P8.1-A2). Contrôles : `bash tools/p8/non_regression_p80c.sh` (24 + 4). Rapport : `docs/P8_1A3_FORTIFICATIONS.md`.
 
 ### Commandes — forêt V07B (F5)
 

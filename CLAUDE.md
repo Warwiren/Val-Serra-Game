@@ -347,6 +347,15 @@
   Types de façades `finition_p81.TYPES` (ordinaire, aisée, commerce, service ; civique inchangé). Plateformes : `bat_b_parvis_s/_o2`
   = annexes en appentis, `bat_b_no_place` = quai ; collisions identiques. Tours et remparts sud : proposition « rempart terrassé sur
   fossé sec » pour P8.1-A3 (rapport § 6), rien de construit. Ne pas construire l'enceinte sans accord.
+- **P8.1-A3 (branche `p8-1a3-fortifications`, `docs/P8_1A3_FORTIFICATIONS.md`)** : EN ATTENTE de revue sur GPU. Escamotage LOCAL
+  (`ville_v07b.coupes_camera`) : sommets mesurés, coupes tous les 3 m puis à l'égout (chapeaux finis), on ne retire que ce qui dépasse
+  la ligne de vue ; rendre un étage attend 2 s, aucun rétablissement < 1 s après une bascule (`--escamotage_a3=0` : A2). Pas de
+  transparence, de fondu ni de trame. Caravane = chariot bâché ; annexes du parvis = jardins en terrasse (`--annexes_a2=1`).
+  Bannières : trumeau libre et dégagé, sinon une seule dans l'axe ; aucune baie dans l'encadrement d'une entrée ; contrôle
+  `tools/p8/bannieres_p81a3.gd` (0 attendu). Enceinte sud `scenes/p8/fortifications_p81a3.gd` (`--fortifs=0`) : courtines-terrasses
+  (chemin de ronde 1,2 m, merlons 3,0 m), escarpe sur fossé sec, tours (6,2 m), porte voûtée, pont dormant ; pied permanent, parties
+  hautes en volumes à niveaux explicites (spec) ; plus de coupe permanente à 1,2 m ; collisions des données inchangées. Continuité :
+  `tools/p8/escamotage_p81a3.gd` (parcours `p81a3_aller_retour`), 4 contrôles ajoutés à `non_regression_p80c.sh` (28 au total).
 - Après toute modification : `godot --headless --path . --script res://tests/run_tests.gd`,
   `--script res://tests/e2e_p6_ouverture.gd -- --tuto-rapide`, `--script res://tests/e2e_p6_saut_tutoriel.gd`, puis le parcours
   `--route=p6_sondes` du Colisée (voir README ; l'avant-poste et ses parcours `p4` / `p4_sondes` sont retirés depuis P7.2).
