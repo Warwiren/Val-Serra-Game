@@ -74,8 +74,20 @@ func sol(e: Dictionary) -> void:
 		var c := Vector3(r.get_center().x, h - 0.17, r.get_center().y)
 		var size := Vector3(r.size.x + 80.0, 0.3, r.size.y + 80.0)
 		sc._static_box(c, size, sc.L_NOWALK)
-		var md: MeshInstance3D = a.box(c - Vector3(0, 0.02, 0), size, sol_loin(h))
-		md.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		# P8.1-A3 : fossé de l'enceinte sud (affichage seul) : le sol de décor est dessiné en quatre dalles autour du fossé
+		var trou := Rect2()
+		if b.has_method("_fort") and b._fort().actif and absf(h) < 0.1:
+			trou = b._fort().trou_fosse()
+		var ext := Rect2(c.x - size.x * 0.5, c.z - size.z * 0.5, size.x, size.z)
+		var pieces := [ext]
+		if trou.size.x > 0.0 and ext.encloses(trou):
+			pieces = [Rect2(ext.position.x, ext.position.y, ext.size.x, trou.position.y - ext.position.y),
+				Rect2(ext.position.x, trou.end.y, ext.size.x, ext.end.y - trou.end.y),
+				Rect2(ext.position.x, trou.position.y, trou.position.x - ext.position.x, trou.size.y),
+				Rect2(trou.end.x, trou.position.y, ext.end.x - trou.end.x, trou.size.y)]
+		for pr in pieces:
+			var md: MeshInstance3D = a.box(Vector3(pr.get_center().x, c.y - 0.02, pr.get_center().y), Vector3(pr.size.x, size.y, pr.size.y), sol_loin(h))
+			md.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		return
 	var th := 0.3
 	sc._static_box(sc._rect_center(r, h - th, h), Vector3(r.size.x, th, r.size.y), sc.L_FLOOR)

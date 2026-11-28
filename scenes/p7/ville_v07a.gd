@@ -43,7 +43,7 @@ func decorer() -> void:
 	_chantier()
 	_ambiance()
 	var ps: Array = v.get("porte_sud", [])
-	if ps.size() == 3:
+	if ps.size() == 3 and not (has_method("_fort") and call("_fort").actif):   # P8.1-A3 : vantaux de l'enceinte
 		var bois := mat(Color(0.45, 0.33, 0.24))
 		for x in [float(ps[0]) + 0.25, float(ps[1]) - 0.25]:
 			sc._box_mesh(Vector3(x, 0.8, float(ps[2])), Vector3(0.3, 1.6, 3.0), bois)

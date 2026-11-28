@@ -98,6 +98,17 @@ func _fin():
 	return fi
 
 
+## P8.1-A3 : enceinte de la porte sud (scenes/p8/fortifications_p81a3.gd ; --fortifs=0 : muret P8.1-A2).
+const Fortifications := preload("res://scenes/p8/fortifications_p81a3.gd")
+var ft
+
+
+func _fort():
+	if ft == null:
+		ft = Fortifications.new(self, sc, _tr().a, _fin())
+	return ft
+
+
 ## P8.1-A (L1) : masses de terrain en soutènement de pierre et dallage (--f_sols=0 : blockout V0.7-A)
 func _masses() -> void:
 	if _fin().actif("sols") and sans_joues():           # joues des volées : seulement sans le quartier civique (super)
@@ -235,6 +246,11 @@ const TOILE := Color(0.82, 0.76, 0.62)
 
 func construit(e: Dictionary) -> bool:
 	var id := str(e.get("id", ""))
+	# P8.1-A3 : tours et courtines de la porte sud : collision des données seule (enceinte dessinée par _fort().construire)
+	if e["type"] == "block" and (id.begins_with("tour_sud") or id.begins_with("rempart_sud")) and _fort().actif:
+		var rf: Rect2 = e["rect"]
+		sc._static_box(sc._rect_center(rf, e["h0"], e["h1"]), Vector3(rf.size.x, float(e["h1"]) - float(e["h0"]), rf.size.y), sc.L_OBST)
+		return true
 	# P7.12 : quartier civique (terrasses, socles, garde-corps, administration ; collisions des données)
 	if e["type"] == "block" and _civ().gere(id):
 		_civ().construit(e)
@@ -373,6 +389,7 @@ func decorer() -> void:
 		_fin().remplacer_blockout(d_e)                     # P8.1-A (L3) : encadrements et emmarchements en pierre
 	_civ().decorer()
 	_bord().finaliser()                                   # P7.13 : étals de la place (fusion commune)
+	_fort().construire()                                  # P8.1-A3 : enceinte de la porte sud
 	_ombres_ville()
 	_classer_volumes()
 	# P8.1-A (L5) : murets de la porte sud (tours, remparts) et vantaux ouverts : maçonnerie et bois (même géométrie)
@@ -790,6 +807,8 @@ func _classer_volumes() -> void:
 		var oid := str(o["id"])
 		if not (oid.begins_with("bat_") or oid.begins_with("tour_sud") or oid.begins_with("rempart_sud")):
 			continue
+		if _fort().actif and not oid.begins_with("bat_"):
+			continue                                          # P8.1-A3 : volumes de l'enceinte déclarés par le module
 		var a: Array = o["rect"]
 		var r := Rect2(a[0], a[1], a[2] - a[0], a[3] - a[1])
 		var h0 := float(o["h"])
@@ -806,11 +825,18 @@ func _classer_volumes() -> void:
 		var q: Array = p["rect"]
 		var rp := Rect2(q[0], q[1], q[2] - q[0], q[3] - q[1])
 		defs.append(["paysage_%d" % i, rp, float(p["h"]), float(p["h"]) + float(p["haut"]) + 6.0, float(p["h"]) + float(p["haut"])])
+	var specs := {}
+	for fv in _fort().volumes():
+		defs.append([fv["id"], fv["rect"], fv["h0"], fv["top"], fv["h1"]])
+		specs[fv["id"]] = fv["spec"]
 	for d in defs:
 		var g := Node3D.new()
 		g.name = "vol_" + str(d[0])
 		sc.root.add_child(g)
 		_vols.append({"id": d[0], "node": g, "rect": d[1], "h0": d[2], "top": d[3], "h1": d[4], "masque": false})
+		if specs.has(d[0]):
+			_vols[-1]["spec"] = specs[d[0]]                  # P8.1-A3 : niveaux de coupe explicites (enceinte)
+			_vols[-1]["marge_vue"] = 0.4                      # largeur du personnage : pas d'arête d'enceinte sur sa silhouette
 	for n in sc.root.get_children():
 		if not (n is GeometryInstance3D):
 			continue
@@ -869,7 +895,7 @@ func coupes_camera(cam: Vector3, heros: Vector3, delta := 1.0 / 60.0) -> void:
 		vo["cause"] = "camera_proche" if masque else ""
 		# P7.12.1 : le volume coupe la ligne de vue caméra -> buste d'Aren (Aren et ses chemins restent visibles)
 		if not masque and entre and vo.has("haut"):
-			masque = _coupe_vue(vo, cam, heros + Vector3(0, 1.0, 0), 0.5 if int(vo.get("mode", 0)) > 0 else 0.0)
+			masque = _coupe_vue(vo, cam, heros + Vector3(0, 1.0, 0), float(vo.get("marge_vue", 0.0)) + (0.5 if int(vo.get("mode", 0)) > 0 else 0.0))
 			vo["cause"] = "ligne_de_vue" if masque else ""
 		# P7.12.1 : étages et toit seuls quand la ligne de vue caméra -> pieds d'Aren passe au-dessus de la coupe, au droit
 		# de la face nord du volume ; volume entier sinon (comportement P7.6). P8.1-A3 : niveau intermédiaire « toit » (tout ce
@@ -888,7 +914,10 @@ func coupes_camera(cam: Vector3, heros: Vector3, delta := 1.0 / 60.0) -> void:
 				for c in range(nv.size() - 1, -1, -1):
 					var tient: bool = cour0 == nv.size() - c
 					var hc: float = float(nv[c]["h"])
-					if h_los >= hc + (0.05 if tient else 0.25) and (c == 0 or not proche or cam.y >= hc + (0.2 if tient else 0.6)):
+					# marge : tenir 0,05 ; changer de niveau 0,25 ; ENTRER en masquage 0,6 (anticipe la ligne de vue qui descend
+					# quand Aren avance : une seule bascule au lieu de deux rapprochées)
+					var mg := 0.05 if tient else (0.6 if cour0 == 0 and c > 0 else 0.25)      # pas d'anticipation au niveau le plus bas
+					if h_los >= hc + mg and (c == 0 or not proche or cam.y >= hc + (0.2 if tient else 0.6)):
 						mode = nv.size() - c
 						break
 		# P7.12.2 : marge de réapparition : masquer est immédiat (Aren d'abord), ré-afficher attend que la vue soit dégagée
@@ -901,7 +930,9 @@ func coupes_camera(cam: Vector3, heros: Vector3, delta := 1.0 / 60.0) -> void:
 			delai = maxf(delai, float(sc._cli.get("escamotage_delai_niveau", 2.0)))
 		if mode < cour and _partiel():
 			vo["t_relache"] = float(vo.get("t_relache", 0.0)) + delta
-			if float(vo["t_relache"]) < delai:
+			# P8.1-A3 : jamais de rétablissement moins d'1 s après la dernière bascule du volume (relâchement en deux temps)
+			var recent := _a3() and _t_coupes - float(vo.get("t_bascule", -99.0)) < 1.0
+			if float(vo["t_relache"]) < delai or recent:
 				mode = cour
 			else:
 				vo["t_relache"] = 0.0
@@ -1019,12 +1050,18 @@ func _decouper_niveaux(vo: Dictionary) -> void:
 	var h1 := float(vo["h1"])
 	var top := float(vo["top"])
 	var hs := []
-	var l := float(vo["coupe"]) + PAS_NIVEAU
-	while l <= minf(h1, top) - 0.8:
-		hs.append(l)
-		l += PAS_NIVEAU
-	if top - h1 >= 0.8 and h1 >= float(vo["coupe"]) + 0.8 and (hs.is_empty() or h1 - float(hs[-1]) >= 0.8):
-		hs.append(h1)
+	var styles := {}
+	if vo.has("spec"):
+		for k in range(1, (vo["spec"] as Array).size()):
+			hs.append(float(vo["spec"][k]["h"]))
+			styles[float(vo["spec"][k]["h"])] = str(vo["spec"][k]["style"])
+	else:
+		var l := float(vo["coupe"]) + PAS_NIVEAU
+		while l <= minf(h1, top) - 0.8:
+			hs.append(l)
+			l += PAS_NIVEAU
+		if top - h1 >= 0.8 and h1 >= float(vo["coupe"]) + 0.8 and (hs.is_empty() or h1 - float(hs[-1]) >= 0.8):
+			hs.append(h1)
 	var parent := vo["haut"] as Node3D
 	for hc in hs:
 		var n := Node3D.new()
@@ -1034,9 +1071,22 @@ func _decouper_niveaux(vo: Dictionary) -> void:
 		if n.get_child_count() == 0:
 			n.queue_free()
 			break
-		var ch := _chapeau_a(vo, float(hc), parent, "plancher", "chapeau_%d_" % int(round(float(hc) * 10.0)))
+		var ch: Node3D = _chapeau_spec(vo, float(hc), parent, str(styles[float(hc)])) if styles.has(float(hc)) \
+			else _chapeau_a(vo, float(hc), parent, "plancher", "chapeau_%d_" % int(round(float(hc) * 10.0)))
 		(vo["niveaux"] as Array).append({"h": float(hc), "node": n, "chapeau": ch})
 		parent = n
+
+
+## Chapeau d'un niveau explicite (enceinte) : « aucun » = nœud vide (la coupe tombe sur un dessus déjà fini : chemin
+## de ronde, tablette, plate-forme), sinon chapeau de coupe du style donné.
+func _chapeau_spec(vo: Dictionary, h: float, parent: Node3D, style: String) -> Node3D:
+	if style == "aucun":
+		var n := Node3D.new()
+		n.name = "chapeau_vide"
+		n.visible = false
+		parent.add_child(n)
+		return n
+	return _chapeau_a(vo, h, parent, style, "chapeau_%d_" % int(round(h * 10.0)))
 
 
 ## Range sous `dst` ce qui, dans `src`, dépasse la hauteur h (boîtes coupées en deux, maillages répartis par triangle).
@@ -1095,7 +1145,10 @@ func _decouper(vo: Dictionary) -> void:
 	var nd := vo["node"] as Node3D
 	var cd: Array = _coupe_de(vo)
 	var coupe: float = float(vo["h0"]) + float(cd[0])
-	if float(vo["top"]) - coupe < 1.5:
+	if vo.has("spec"):
+		coupe = float(vo["spec"][0]["h"])                    # P8.1-A3 : premier niveau explicite (enceinte)
+		cd = [coupe - float(vo["h0"]), str(vo["spec"][0]["style"])]
+	elif float(vo["top"]) - coupe < 1.5:
 		return
 	vo["style_coupe"] = str(cd[1])
 	var haut := Node3D.new()
@@ -1123,6 +1176,10 @@ func _decouper(vo: Dictionary) -> void:
 			gi.reparent(haut, true)
 	vo["haut"] = haut
 	vo["coupe"] = coupe
+	if vo.has("spec"):
+		vo["chapeau"] = _chapeau_spec(vo, coupe, nd, str(vo["spec"][0]["style"]))
+		vo["niveaux"] = [{"h": coupe, "node": haut, "chapeau": vo["chapeau"]}]
+		return
 	_chapeau(vo)
 	vo["niveaux"] = [{"h": coupe, "node": haut, "chapeau": vo["chapeau"]}]
 	# P8.0-B (correctif) : le style « pierre » (porte sud) est une coupe PERMANENTE. Ces volumes ne sont dessinés qu'en muret de
