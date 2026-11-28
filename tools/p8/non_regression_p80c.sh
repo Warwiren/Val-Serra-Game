@@ -11,6 +11,7 @@
 # P8.1-A3 (+4) : continuité de l'escamotage sur l'aller-retour forge-Colisée (Aren jamais masqué, aucun clignotement,
 # aucune disparition entière, au plus 36 bascules, part de hauteur retirée moyenne <= 0,55) et sur les trajets de la
 # porte sud (Aren jamais masqué, aucun clignotement) ; bannières (aucune devant une baie) ; cohérence des façades (0).
+# P8.1-A4 (+3) : porte du Colisée (halle stable), enceinte sud (bascules perceptibles), retour Colisée -> ville (ville gardée).
 # Empreintes de scène (comparaison avant / après un nettoyage) : voir tools/p8/empreinte_scene_p80c.gd.
 
 GODOT=${GODOT:-godot}
@@ -101,6 +102,40 @@ lancer continuite_forge.log --fixed-fps 60 --script res://tools/p8/escamotage_p8
 r=$(continuite continuite_forge.log 36 0 0.55); bilan "continuité forge-Colisée (aller-retour, A3)" $? "$r"
 lancer continuite_porte.log --fixed-fps 60 --script res://tools/p8/escamotage_p81a3.gd -- --route=p7_v07b_trajets
 r=$(continuite continuite_porte.log 999 999 1.0); bilan "continuité porte sud (trajets, A3)" $? "$r"
+# P8.1-A4 : porte du Colisée (halle du quai : structure jamais escamotée, au plus 6 bascules perceptibles), enceinte sud
+# (au plus 12 bascules perceptibles), retours Colisée -> ville (ville gardée : moins de 400 ms sans rendu, arrivée et
+# déclencheurs conformes ; journaux du test portail ci-dessus)
+lancer continuite_porte_colisee.log --fixed-fps 60 --script res://tools/p8/escamotage_p81a3.gd -- --route=p81a4_porte_colisee
+r=$(python3 - "$SORTIE/continuite_porte_colisee.log" <<'EOF'
+import json, sys
+l = [x for x in open(sys.argv[1], errors="replace") if x.startswith("ESCAMOTAGE_A3")]
+d = json.loads(l[-1][l[-1].index("{"):]) if l else {}
+v = [x for x in open(sys.argv[1], errors="replace") if x.startswith("VOLUME bat_echoppe_no_o")]
+print("perceptibles=%s, aren_masque=%s, volume de la halle : %s" % (d.get("bascules_perceptibles"), d.get("aren_masque_images"), "aucune bascule" if not v else v[0].strip()))
+sys.exit(0 if d and d["aren_masque_images"] == 0 and not d["clignotements_lt_1s"] and d["bascules_perceptibles"] <= 6 and not v else 1)
+EOF
+); bilan "porte du Colisée : halle stable (A4)" $? "$r"
+lancer continuite_enceinte.log --fixed-fps 60 --script res://tools/p8/escamotage_p81a3.gd -- --route=p81a4_enceinte
+r=$(python3 - "$SORTIE/continuite_enceinte.log" <<'EOF'
+import json, sys
+l = [x for x in open(sys.argv[1], errors="replace") if x.startswith("ESCAMOTAGE_A3")]
+d = json.loads(l[-1][l[-1].index("{"):]) if l else {}
+print("perceptibles=%s, bascules=%s, aren_masque=%s" % (d.get("bascules_perceptibles"), d.get("bascules_total"), d.get("aren_masque_images")))
+sys.exit(0 if d and d["aren_masque_images"] == 0 and not d["clignotements_lt_1s"] and d["bascules_perceptibles"] <= 12 else 1)
+EOF
+); bilan "enceinte sud : continuité (A4)" $? "$r"
+r=$(python3 - "$SORTIE/ville_portail_A.log" <<'EOF'
+import json, sys
+t = open(sys.argv[1], errors="replace").read().split("\n")
+ch = [json.loads(x[x.index("{"):]) for x in t if x.startswith("P8A4 CHARGEMENT")]
+ar = [json.loads(x[x.index("{"):]) for x in t if x.startswith("P6 arrivee_portail")]
+retours = [c["noir_ms"] for c in ch if c["vers"].startswith("ville")]
+ok = len(ch) >= 4 and len(retours) >= 2 and all(x < 400 for x in retours) and len(ar) >= 4 \
+    and all(a["zone"] == "ville" and abs(a["x"] - 30.45) < 0.05 and a["declencheurs_armes"].get("portail_colisee_public") for a in ar if a["zone"] == "ville")
+print("retours en ville (ms, sans rendu) : %s" % retours)
+sys.exit(0 if ok else 1)
+EOF
+); bilan "retour Colisée -> ville : ville gardée (A4)" $? "$r"
 lancer bannieres.log --script res://tools/p8/bannieres_p81a3.gd
 r=$(grep -o '"devant_une_baie":[0-9]*' "$SORTIE/bannieres.log"); grep -q '"devant_une_baie":0' "$SORTIE/bannieres.log"; bilan "bannières (aucune devant une baie)" $? "$r"
 lancer coherence.log --script res://tools/p8/coherence_facades_p81a2.gd
