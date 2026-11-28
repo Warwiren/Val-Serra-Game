@@ -1409,11 +1409,18 @@ func _switch(t: Dictionary) -> void:
 	_switching = true
 	var tw: Tween = s.fade_to(1.0, 0.25)
 	await tw.finished
+	if has_method("top"):
+		call("top", "fondu_noir")              # P8.1-A4 : chronométrage (colisee.gd)
 	s.pending_instance = {}
 	_load(t["to"], "instance", t["arrive"])
 	for k in actors:
 		_sync_sprite(actors[k])
 	await get_tree().physics_frame
+	if has_method("top"):
+		call("top", "premiere_image")
+		for i in 3:
+			await get_tree().process_frame
+			call("top", "image_%d" % (i + 2))
 	_switching = false
 	s.fade_to(0.0, 0.25)
 

@@ -566,13 +566,69 @@ func _pnj_step(delta: float) -> void:
 
 
 # ------------------------------------------------------------------------------------------------ chargement
+## P8.1-A4 — Chronométrage des transitions (journal « P8A4 CHARGEMENT ») : étapes de _load et de la construction de la
+## ville (ville_v07b.decorer), images suivant le chargement (compilation des pipelines au premier affichage).
+var _chrono := []
+var _chrono_t := 0
+var _chrono_t0 := 0
+var _chrono_detail := {}
+
+
+func top(nom: String) -> void:
+	var t := Time.get_ticks_usec()
+	_chrono.append([nom, (t - _chrono_t) / 1000.0])
+	_chrono_t = t
+
+
+func _chrono_debut() -> void:
+	_chrono.clear()
+	_chrono_t = Time.get_ticks_usec()
+	_chrono_t0 = _chrono_t
+
+
+## P8.1-A4 — Réutilisation de la ville : en quittant la ville, son instance (et l'état de scène qui lui est propre) est
+## détachée de l'arbre au lieu d'être détruite ; au retour elle est rattachée telle quelle (aucune reconstruction, matières
+## et maillages déjà prêts). --cache_ville=0 : reconstruction à chaque retour (P8.1-A3).
+const ETAT_ZONE := ["root", "world", "_p6", "_ville", "fade_nodes", "_faded", "_lights", "_block_mats", "_water_mats", "_overlay",
+	"_labels", "_marques_portes", "_portes_fermees", "_hab", "_sect", "_pnj", "_props_commandant", "_lueur_tunnel", "_rects_p64"]
+var _zones_gardees := {}
+var _fichier_zone := ""
+
+
+func _cache_ville() -> bool:
+	return str(_cli.get("cache_ville", "1")) != "0" and str(_cli.get("stabilite_a4", "1")) != "0"
+
+
+func _garder_zone() -> void:
+	var etat := {}
+	for k in ETAT_ZONE:
+		var v = get(k)
+		etat[k] = v.duplicate() if (v is Array or v is Dictionary) else v
+	if _ville != null and _ville.get("lum") != null:
+		_ville.lum.quitter()
+	_zones_gardees[_fichier_zone] = etat
+	remove_child(root)
+	root = null
+	_ville = null
+
+
 func _load(file: String, m: String, arrive := Vector3.INF) -> void:
+	if _chrono.is_empty() or _chrono_t0 == 0:
+		_chrono_debut()
 	for k in actors.keys():
 		if str(k).begins_with("pnj"):
 			actors.erase(k)
 	if root != null:
-		root.queue_free()
-		remove_child(root)
+		if _cache_ville() and _ville != null and _fichier_zone != "":
+			_garder_zone()                         # P8.1-A4 : la ville est gardée, pas détruite
+		else:
+			root.queue_free()
+			remove_child(root)
+	top("liberation_instance")
+	if _zones_gardees.has(file):
+		_reprendre_zone(file, arrive)
+		return
+	_fichier_zone = file
 	root = Node3D.new()
 	root.name = "Instance"
 	add_child(root)
@@ -586,6 +642,7 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	_rng.seed = 6061
 	world = World25.load_world(file, m)
 	_p6 = world.adj.get("p6", {})
+	top("donnees_json")
 	if _ville != null and _ville.get("lum") != null:
 		_ville.lum.quitter()                     # P8.0-B : aucun réglage du profil B ne passe dans la zone suivante
 	_camera_de_zone()
@@ -616,9 +673,21 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 	_portes_fermees.clear()
 	_sect = Secteurs.new(_p6["secteurs"], TRANSITIONS[transitions]) if (_p6.has("secteurs") and not _cli.has("sans_secteurs")) else null
 	get_viewport().use_occlusion_culling = _sect != null and _sect.mode != "echelle"   # murs hauts = occulteurs
+	top("preparation")
+	var par_el := {}
 	for e in world.elements:
+		var t_el := Time.get_ticks_usec()
 		_build(e)
+		var cle := str(e.get("id", e["type"]))
+		par_el[cle] = float(par_el.get(cle, 0.0)) + (Time.get_ticks_usec() - t_el) / 1000.0
+	top("elements")
+	var lourds := par_el.keys()
+	lourds.sort_custom(func(x, y): return float(par_el[x]) > float(par_el[y]))
+	_chrono_detail = {}
+	for k in lourds.slice(0, 12):
+		_chrono_detail[k] = snappedf(float(par_el[k]), 0.1)
 	_build_p6()
+	top("decor_zone")
 	_spawn_pnj()
 	_scene_commandant()
 	_ombres_contact()
@@ -653,9 +722,11 @@ func _load(file: String, m: String, arrive := Vector3.INF) -> void:
 		if _sect.mode != "echelle":
 			_sect.voile_ext = -1.0
 			_sect.regler_voile_ext(_sect.voile_ext_pour(Vector2(s.hero.x, s.hero.y)))
+	top("pnj_secteurs_camera")
 	teleport(s.hero, s.companion)
 	apply_options()
 	_appliquer_isolation()
+	top("teleport_options")
 	_title.text = _p6.get("nom", "")
 	_title_t = 3.5
 	_zone_courante = ""
@@ -1387,6 +1458,7 @@ func _switch(t: Dictionary) -> void:
 				t["orientation"] = Vector2(oa[0], oa[1])
 	_log("portail", {"id": str(t.get("id", "")), "portail": str(t.get("portail", "")), "vers": str(t.get("to", "")),
 		"arrivee": [t["arrive"].x, t["arrive"].y, t["arrive"].z] if t.get("arrive", Vector3.INF) != Vector3.INF else []})
+	_chrono_debut()
 	await super._switch(t)                      # P7.4.1 : attendre la fin du chargement (fondu compris)
 	await get_tree().physics_frame
 	# P7.4.1 : orientation d'arrivée (données du portail), Aren et son compagnon tournés dans le sens de la marche
@@ -1397,6 +1469,7 @@ func _switch(t: Dictionary) -> void:
 		for k in ["aren", "ilya"]:
 			if actors.has(k) and actors[k].has("actor"):
 				actors[k]["actor"].face_toward(sd)
+	_rapport_chrono(str(t.get("to", "")))
 	_log("arrivee_portail", {"zone": str(_p6.get("zone", "")), "x": snappedf(s.hero.x, 0.01), "y": snappedf(s.hero.y, 0.01),
 		"h": snappedf(s.hero.z, 0.01), "orientation": [ori.x, ori.y], "declencheurs_armes": s._armed.duplicate()})
 	await get_tree().physics_frame
@@ -2763,3 +2836,58 @@ func _profil_ville(delta: float) -> void:
 	World25.pitch = nouv
 	_recaler_vue(hero_avant)
 
+
+## P8.1-A4 : journal des étapes de la dernière transition (ms) ; « images_apres » = durées réelles des premières images
+## affichées après le chargement (compilation des pipelines et premières ombres comprises).
+func _rapport_chrono(vers: String) -> void:
+	var et := {}
+	var tot := 0.0
+	for c in _chrono:
+		et[c[0]] = snappedf(float(et.get(c[0], 0.0)) + float(c[1]), 0.1)
+		tot += float(c[1])
+	print("P8A4 CHARGEMENT ", JSON.stringify({"vers": vers.get_file(), "etapes_ms": et, "elements_lourds_ms": _chrono_detail, "total_ms": snappedf(tot, 0.1),
+		"noir_ms": snappedf((Time.get_ticks_usec() - _chrono_t0) / 1000.0, 0.1)}))
+	_chrono.clear()
+	_chrono_t0 = 0
+
+
+## P8.1-A4 : retour dans une zone gardée (la ville) : état de scène restitué, instance rattachée ; lumière, environnement,
+## caméra de zone et position d'Aren réappliqués comme au premier chargement ; volumes d'escamotage remis à zéro.
+func _reprendre_zone(file: String, arrive: Vector3) -> void:
+	var etat: Dictionary = _zones_gardees[file]
+	_zones_gardees.erase(file)
+	for k in etat:
+		set(k, etat[k])
+	_fichier_zone = file
+	add_child(root)
+	_monster = null
+	top("rattachement_instance")
+	Routes.decalage_sud = _p6.get("decalage_sud", {})
+	_dy_sud = float(Routes.decalage_sud.get("dy", 0.0))
+	_camera_de_zone()
+	_interior = false
+	_sun.visible = true
+	_sun.light_energy = 1.0
+	_sun.light_color = Color(1.0, 0.94, 0.86)
+	_env_res.ambient_light_color = Color(0.6, 0.6, 0.68)
+	_env_res.ambient_light_energy = 0.85
+	_env_res.background_color = Color(0.36, 0.43, 0.6) if _p6.has("arene") else Color(0.09, 0.08, 0.12)
+	_env_res.background_mode = Environment.BG_COLOR
+	_env_res.tonemap_mode = Environment.TONE_MAPPER_LINEAR
+	if _hab != null:
+		_hab.lumiere(_env_res, _sun)
+	get_viewport().use_occlusion_culling = _sect != null and _sect.mode != "echelle"
+	if _ville != null and _ville.has_method("reprendre"):
+		_ville.reprendre()                        # lumière B réappliquée, escamotages remis à zéro
+	top("lumiere_reprise")
+	s.set_world(world, arrive)
+	if cam_mode == "V06":
+		s.cam.bounds = Rect2()
+		s.cam.snap_to(World25.screen(s.hero))
+	teleport(s.hero, s.companion)
+	apply_options()
+	_appliquer_isolation()
+	top("teleport_options")
+	_title.text = _p6.get("nom", "")
+	_title_t = 3.5
+	_zone_courante = ""
