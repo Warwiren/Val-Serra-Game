@@ -80,7 +80,18 @@ Effets :
 
 Les surfaces statiques restent fusionnées par matière, comme avant, et aucune matière nouvelle n'est créée par la découpe.
 
-PERF_TABLEAU
+### Mesure
+
+Rendu Forward+ en Vulkan logiciel, 640 × 360, outil `tools/p7/profil_gpu_p77.gd`. Seuls les appels de dessin et les primitives sont significatifs.
+
+| Profil | Appels A2 | Appels A3 | **Appels A4** | Primitives A3 | Primitives A4 |
+|---|---|---|---|---|---|
+| A | 1 664 | 1 892 | **1 476** | 542 101 | 540 607 |
+| B | 2 531 | 2 885 | **2 247** | 902 481 | 900 699 |
+
+**Les appels de dessin baissent de 22 % par rapport à A3, et passent sous le niveau de A2.** Les volumes ne sont affichés découpés qu'aux points où ils sont escamotés. Les primitives sont inchangées : même géométrie, aucune matière dupliquée.
+
+Ce sont des moyennes sur les points de vue fixes du profil. En déplacement, les volumes escamotés affichent leur copie découpée, avec quelques appels de plus, le temps du masquage.
 
 ## 4. Transition Colisée ↔ ville
 
@@ -144,7 +155,7 @@ L'arrivée d'Aren (position, orientation, déclencheurs armés), la porte publiq
 | Porte du Colisée (A4) | OK : 7 bascules perceptibles, halle sans aucune bascule, Aren jamais masqué |
 | Enceinte sud (A4) | OK : 26 bascules perceptibles (32 au total) |
 | Retour Colisée → ville (A4) | OK : retours de 32,6 et 36,4 ms sans rendu, arrivée et déclencheurs conformes |
-| Collisions (empreinte, lignes « C ») | RESULTAT_COLL |
+| Collisions (empreinte, lignes « C ») | Identiques : 151 formes |
 
 Contrôles A4 :
 * **Porte du Colisée** : Aren jamais masqué, aucun clignotement, au plus 8 bascules perceptibles, et aucune bascule du volume de la halle (structure et marchandises stables).
