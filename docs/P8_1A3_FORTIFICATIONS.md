@@ -180,10 +180,15 @@ Mesure en Forward+ avec Vulkan logiciel, 640 × 360, outil `tools/p7/profil_gpu_
 
 | Profil | Appels A2 | Appels A3 | Primitives A2 | Primitives A3 |
 |---|---|---|---|---|
-| A | 1 664 | PERF_A_APP | 531 917 | PERF_A_PRIM |
-| B | 2 531 | PERF_B_APP | 883 230 | PERF_B_PRIM |
+| A | 1 664 | 1 892 | 531 917 | 542 101 |
+| B | 2 531 | 2 885 | 883 230 | 902 481 |
 
-PERF_COMMENTAIRE
+**Coût en hausse : +14 % d'appels de dessin en A comme en B (+228 et +354), primitives +2 %.**
+
+* L'essentiel vient du **découpage par niveaux**. Chaque coupe sépare les maillages d'un volume en un morceau par niveau, et ces morceaux restent des nœuds distincts même quand rien n'est escamoté.
+* L'enceinte elle-même ajoute environ 30 appels : segments, tours, porte, fossé, pont.
+
+Une optimisation est possible : ne découper que les volumes effectivement escamotés sur les parcours, ou refusionner les niveaux tant qu'un volume reste entier. Elle n'est pas faite ici. Le jugement des performances est à faire sur votre GPU, et `--escamotage_a3=0` donne le coût de A2 pour comparer.
 
 ## 6. Compromis visuels à juger sur GPU
 
